@@ -4,7 +4,7 @@
 
 const RAW_API_URL = (
   import.meta.env.VITE_API_URL ||
-  "backend-lawyer-project.vercel.app"
+  "backend-vakeelsetu.vercel.app"
 ).trim();
 
 const API_ORIGIN =
@@ -225,15 +225,15 @@ export async function apiRequest(
             ...(formData
               ? {}
               : {
-                  "Content-Type":
-                    "application/json",
-                }),
+                "Content-Type":
+                  "application/json",
+              }),
 
             ...(token
               ? {
-                  Authorization:
-                    `Bearer ${token}`,
-                }
+                Authorization:
+                  `Bearer ${token}`,
+              }
               : {}),
 
             ...headers,
@@ -243,8 +243,8 @@ export async function apiRequest(
             ? formData
             : body !== undefined
               ? JSON.stringify(
-                  body,
-                )
+                body,
+              )
               : undefined,
         },
       );
@@ -302,9 +302,9 @@ export async function apiRequest(
     ) {
       throw new ApiError(
         getServerMessage(data) ||
-          statusFallback(
-            response.status,
-          ),
+        statusFallback(
+          response.status,
+        ),
         response.status,
         data,
       );
