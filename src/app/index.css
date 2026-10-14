@@ -1,0 +1,171 @@
+/* =========================================================
+   GOOGLE TRANSLATE - CLEAN SAFE HIDE
+   Native Google UI hidden everywhere.
+   Custom translation functionality remains available.
+========================================================= */
+
+/* ---------------------------------------------------------
+   1. Keep Google Translate mounted but move it off-screen.
+   IMPORTANT: do NOT use display:none here.
+--------------------------------------------------------- */
+
+#google_translate_element,
+.google-translate-host {
+  position: fixed !important;
+  top: -10000px !important;
+  left: -10000px !important;
+
+  width: 1px !important;
+  height: 1px !important;
+
+  overflow: hidden !important;
+  opacity: 0 !important;
+
+  pointer-events: none !important;
+  z-index: -9999 !important;
+}
+
+
+/* ---------------------------------------------------------
+   2. Hide Google's default visible translate gadget
+--------------------------------------------------------- */
+
+.goog-te-gadget,
+.goog-te-gadget-simple,
+.goog-logo-link,
+.goog-te-gadget-icon {
+  position: absolute !important;
+
+  width: 1px !important;
+  height: 1px !important;
+
+  overflow: hidden !important;
+  opacity: 0 !important;
+
+  pointer-events: none !important;
+}
+
+
+/* ---------------------------------------------------------
+   3. Hide Google Translate loading / floating icon
+--------------------------------------------------------- */
+
+.goog-te-spinner-pos,
+.goog-te-spinner,
+.goog-te-spinner-animation {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+
+  pointer-events: none !important;
+}
+
+
+/* Modern Google Translate spinner / floating loader */
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+
+  pointer-events: none !important;
+}
+
+
+/* ---------------------------------------------------------
+   4. Hide top Google Translate banner
+--------------------------------------------------------- */
+
+.goog-te-banner-frame,
+iframe.goog-te-banner-frame,
+.VIpgJd-ZVi9od-ORHb-OEVmcd {
+  display: none !important;
+  visibility: hidden !important;
+
+  width: 0 !important;
+  height: 0 !important;
+
+  pointer-events: none !important;
+}
+
+
+/* ---------------------------------------------------------
+   5. Hide Google tooltip / popup UI
+--------------------------------------------------------- */
+
+#goog-gt-tt,
+.goog-tooltip,
+.goog-tooltip:hover,
+.goog-te-balloon-frame {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+
+  pointer-events: none !important;
+}
+
+
+/* ---------------------------------------------------------
+   6. Google sometimes injects skiptranslate iframe directly
+      inside body.
+
+      Move only top-level injected UI off-screen.
+      Do not globally hide every .skiptranslate element.
+--------------------------------------------------------- */
+
+body > iframe.skiptranslate,
+body > .skiptranslate {
+  position: fixed !important;
+
+  top: -10000px !important;
+  left: -10000px !important;
+
+  width: 1px !important;
+  height: 1px !important;
+
+  max-width: 1px !important;
+  max-height: 1px !important;
+
+  overflow: hidden !important;
+
+  opacity: 0 !important;
+  pointer-events: none !important;
+
+  border: 0 !important;
+}
+
+
+/* ---------------------------------------------------------
+   7. Prevent Google Translate from pushing page downward
+--------------------------------------------------------- */
+
+html {
+  margin-top: 0 !important;
+}
+
+body,
+body.translated-ltr,
+body.translated-rtl {
+  top: 0 !important;
+  margin-top: 0 !important;
+}
+
+
+/* ---------------------------------------------------------
+   8. Remove translated text highlight
+--------------------------------------------------------- */
+
+.goog-text-highlight {
+  background: transparent !important;
+  background-color: transparent !important;
+
+  box-shadow: none !important;
+}
+
+
+/* ---------------------------------------------------------
+   9. Content marked notranslate
+--------------------------------------------------------- */
+
+.notranslate {
+  unicode-bidi: isolate;
+}
