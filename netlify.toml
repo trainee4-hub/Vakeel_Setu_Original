@@ -3,7 +3,7 @@
   publish = "dist"
 
 [build.environment]
-  VITE_API_URL = "backend-lawyer-project.vercel.app"
+  VITE_API_URL = "backend-vakeelsetu.vercel.app"
 
 [[redirects]]
   from = "/*"
