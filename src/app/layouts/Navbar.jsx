@@ -43,8 +43,7 @@ const Navbar = () => {
     user?.role || user?.accountType || user?.type || "",
   ).toLowerCase();
 
-  const isAdvocate =
-    normalizedRole === "advocate" || normalizedRole === "lawyer";
+  const isAdvocate = normalizedRole === "advocate" || normalizedRole === "lawyer";
 
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
@@ -146,7 +145,7 @@ const Navbar = () => {
 
   const getProfileRoute = () => {
     if (isAdvocate) {
-      return "/advocate-profile";
+      return "/advocate/profile";
     }
 
     return "/user-profile";
@@ -203,13 +202,18 @@ const Navbar = () => {
           ============================================================= */}
 
           <nav className="hidden items-center gap-1 rounded-full border border-slate-200/50 bg-slate-100/60 p-1.5 lg:flex">
-            <Link to="/" className={navItemClass("/")}>
-              Home
+            <Link
+              to={isAdvocate ? "/advocate/dashboard" : "/"}
+              className={navItemClass(isAdvocate ? "/advocate/dashboard" : "/")}
+            >
+              {isAdvocate ? "Dashboard" : "Home"}
             </Link>
 
-            <Link to="/find-lawyer" className={navItemClass("/find-lawyer")}>
-              Find Lawyer
-            </Link>
+            {!isAdvocate && (
+              <Link to="/find-lawyer" className={navItemClass("/find-lawyer")}>
+                Find Lawyer
+              </Link>
+            )}
 
             {/* LEGAL ASSISTANT */}
 
@@ -230,7 +234,10 @@ const Navbar = () => {
             {/* BOOKINGS */}
 
             {loggedIn ? (
-              <Link to="/bookings" className={navItemClass("/bookings")}>
+              <Link
+                to={isAdvocate ? "/advocate/bookings" : "/bookings"}
+                className={navItemClass(isAdvocate ? "/advocate/bookings" : "/bookings")}
+              >
                 My Bookings
               </Link>
             ) : (
@@ -246,7 +253,10 @@ const Navbar = () => {
             {/* MESSAGES */}
 
             {loggedIn ? (
-              <Link to="/messages" className={navItemClass("/messages")}>
+              <Link
+                to={isAdvocate ? "/advocate/messages" : "/messages"}
+                className={navItemClass(isAdvocate ? "/advocate/messages" : "/messages")}
+              >
                 Messages
               </Link>
             ) : (
@@ -488,32 +498,56 @@ const Navbar = () => {
                       Profile
                     </Link>
 
-                    <Link
-                      to="/bookings"
-                      onClick={() => setShowProfileMenu(false)}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                    >
-                      <FaRegCalendarAlt className="shrink-0 text-lg" />
-                      My Order
-                    </Link>
+                    {isAdvocate ? (
+                      <>
+                        <Link
+                          to="/advocate/dashboard"
+                          onClick={() => setShowProfileMenu(false)}
+                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                        >
+                          <FaScaleBalanced className="shrink-0 text-lg text-amber-600" />
+                          Dashboard
+                        </Link>
 
-                    <Link
-                      to="/saved-lawyers"
-                      onClick={() => setShowProfileMenu(false)}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                    >
-                      <FaRegBookmark className="shrink-0 text-lg" />
-                      Saved Lawyers
-                    </Link>
+                        <Link
+                          to="/advocate/bookings"
+                          onClick={() => setShowProfileMenu(false)}
+                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                        >
+                          <FaRegCalendarAlt className="shrink-0 text-lg" />
+                          My Bookings
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          to="/bookings"
+                          onClick={() => setShowProfileMenu(false)}
+                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                        >
+                          <FaRegCalendarAlt className="shrink-0 text-lg" />
+                          My Bookings
+                        </Link>
+
+                        <Link
+                          to="/saved-lawyers"
+                          onClick={() => setShowProfileMenu(false)}
+                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                        >
+                          <FaRegBookmark className="shrink-0 text-lg" />
+                          Saved Lawyers
+                        </Link>
+                      </>
+                    )}
 
                     <div className="my-1 h-px bg-slate-100" />
 
                     <button
                       type="button"
                       onClick={handleLogout}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-slate-600 hover:bg-red-50 hover:text-red-600"
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm hover:bg-red-100 font-bold text-red-500 hover:text-red-600"
                     >
-                      <IoLogOutOutline className="shrink-0 text-lg" />
+                      <IoLogOutOutline className="shrink-0 text-lg font-bold" />
                       Logout
                     </button>
                   </div>
@@ -688,14 +722,25 @@ const Navbar = () => {
                     Profile
                   </Link>
 
-                  <Link
-                    to="/saved-lawyers"
-                    onClick={handleMobileNavigation}
-                    className="flex w-full items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-white"
-                  >
-                    <FaRegBookmark className="shrink-0 text-lg" />
-                    Saved Lawyers
-                  </Link>
+                  {isAdvocate ? (
+                    <Link
+                      to="/advocate/dashboard"
+                      onClick={handleMobileNavigation}
+                      className="flex w-full items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-white"
+                    >
+                      <FaScaleBalanced className="shrink-0 text-lg text-amber-600" />
+                      Dashboard
+                    </Link>
+                  ) : (
+                    <Link
+                      to="/saved-lawyers"
+                      onClick={handleMobileNavigation}
+                      className="flex w-full items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-white"
+                    >
+                      <FaRegBookmark className="shrink-0 text-lg" />
+                      Saved Lawyers
+                    </Link>
+                  )}
 
                   <button
                     type="button"
@@ -723,7 +768,7 @@ const Navbar = () => {
                   <Link
                     to="/signup"
                     onClick={handleMobileNavigation}
-                    className="block w-full rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-3 text-center text-sm font-bold text-white"
+                    className="block w-full rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-3 text-center text-sm font-bold text-white cursor-poi"
                   >
                     Sign Up
                   </Link>

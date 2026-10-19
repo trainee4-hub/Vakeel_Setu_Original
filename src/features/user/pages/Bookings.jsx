@@ -318,10 +318,7 @@ const Bookings = ({
   onViewChat,
   onFindLawyer,
 }) => {
-  const [
-    allConsultations,
-    setAllConsultations,
-  ] = useState([]);
+  const [allConsultations, setAllConsultations] = useState([]);
 
   const [
     loadingActive,

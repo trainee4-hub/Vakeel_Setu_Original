@@ -13,6 +13,7 @@ const FindLawyer = ({ onViewAdvocate, initialSpecialty = "" }) => {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const {
+    advocates,
     visibleAdvocates,
     loading,
     error,
@@ -27,6 +28,8 @@ const FindLawyer = ({ onViewAdvocate, initialSpecialty = "" }) => {
     totalPages,
     fetchAdvocates,
     handleSearch,
+    handleSearchInputChange,
+    handleClearSearch,
     handleExperienceChange,
     handleResetFilters,
   } = useFindLawyer({ initialSpecialty });
@@ -60,6 +63,8 @@ const FindLawyer = ({ onViewAdvocate, initialSpecialty = "" }) => {
               tempFilters={tempFilters}
               setTempFilters={setTempFilters}
               handleSearch={handleSearch}
+              onSearchInputChange={handleSearchInputChange}
+              onClearSearch={handleClearSearch}
             />
 
             <ResultsToolbar
@@ -68,26 +73,41 @@ const FindLawyer = ({ onViewAdvocate, initialSpecialty = "" }) => {
               setFilters={setFilters}
             />
 
-            {loading ? (
+            {loading && advocates.length === 0 ? (
               <LoadingState />
             ) : error ? (
               <ErrorState error={error} onRetry={() => fetchAdvocates()} />
-            ) : visibleAdvocates.length === 0 ? (
+            ) : !loading && visibleAdvocates.length === 0 ? (
               <EmptyState onReset={handleResetFilters} />
             ) : (
-              <>
-                <AdvocateResults
-                  advocates={visibleAdvocates}
-                  filters={filters}
-                  onViewAdvocate={onViewAdvocate}
-                />
+              <div className="relative">
+                {loading && (
+                  <div className="pointer-events-none absolute inset-x-0 -top-3 z-10 flex justify-center">
+                    <div className="flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50/95 px-3.5 py-1 text-xs font-semibold text-amber-800 shadow-sm backdrop-blur-sm animate-pulse">
+                      <span className="inline-block h-2 w-2 rounded-full bg-amber-500 animate-ping" />
+                      Updating results...
+                    </div>
+                  </div>
+                )}
 
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  setCurrentPage={setCurrentPage}
-                />
-              </>
+                <div
+                  className={`transition-opacity duration-200 ${
+                    loading ? "opacity-60" : "opacity-100"
+                  }`}
+                >
+                  <AdvocateResults
+                    advocates={visibleAdvocates}
+                    filters={filters}
+                    onViewAdvocate={onViewAdvocate}
+                  />
+
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    setCurrentPage={setCurrentPage}
+                  />
+                </div>
+              </div>
             )}
           </main>
         </div>

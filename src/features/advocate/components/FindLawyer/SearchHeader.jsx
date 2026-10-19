@@ -1,7 +1,34 @@
-import React from "react";
-import { FiSearch } from "react-icons/fi";
+import React, { useRef } from "react";
+import { FiSearch, FiX } from "react-icons/fi";
 
-const SearchHeader = ({ tempFilters, setTempFilters, handleSearch }) => {
+const SearchHeader = ({
+  tempFilters,
+  setTempFilters,
+  handleSearch,
+  onSearchInputChange,
+  onClearSearch,
+}) => {
+  const inputRef = useRef(null);
+
+  const handleClear = () => {
+    if (onClearSearch) {
+      onClearSearch();
+    } else {
+      setTempFilters({ searchQuery: "" });
+      handleSearch();
+    }
+    inputRef.current?.focus();
+  };
+
+  const handleChange = (event) => {
+    const value = event.target.value;
+    if (onSearchInputChange) {
+      onSearchInputChange(value);
+    } else {
+      setTempFilters({ searchQuery: value });
+    }
+  };
+
   return (
     <>
       <section className="mb-7 text-center">
@@ -22,21 +49,29 @@ const SearchHeader = ({ tempFilters, setTempFilters, handleSearch }) => {
             </div>
 
             <input
+              ref={inputRef}
               type="text"
               value={tempFilters.searchQuery}
-              onChange={(event) =>
-                setTempFilters({
-                  searchQuery: event.target.value,
-                })
-              }
+              onChange={handleChange}
               onKeyDown={(event) => {
                 if (event.key === "Enter") {
                   handleSearch();
                 }
               }}
               placeholder="Search by name, specialty, city or keyword..."
-              className="w-full h-12 pl-12 pr-4 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none transition-all focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10"
+              className="w-full h-12 pl-12 pr-11 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none transition-all focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10"
             />
+
+            {Boolean(tempFilters.searchQuery) && (
+              <button
+                type="button"
+                onClick={handleClear}
+                aria-label="Clear search"
+                className="absolute inset-y-0 right-3.5 my-auto flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+              >
+                <FiX className="text-[17px]" />
+              </button>
+            )}
           </div>
 
           <button

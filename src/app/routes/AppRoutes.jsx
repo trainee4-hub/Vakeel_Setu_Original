@@ -29,6 +29,8 @@ import ErrorBoundary from "@shared/components/feedback/ErrorBoundary";
 
 import ProtectedRoute from "./ProtectedRoute";
 import DashboardEntry from "./DashboardEntry";
+import ClientRoute from "./ClientRoute";
+import GuestRoute from "./GuestRoute";
 
 import { AdminRoutes } from "../../features/admin";
 
@@ -74,17 +76,29 @@ const AppRoutes = () => {
 
       <Route
         path="/login"
-        element={<Login />}
+        element={
+          <GuestRoute>
+            <Login />
+          </GuestRoute>
+        }
       />
 
       <Route
         path="/signup"
-        element={<Signup />}
+        element={
+          <GuestRoute>
+            <Signup />
+          </GuestRoute>
+        }
       />
 
       <Route
         path="/forgot-password"
-        element={<ForgotPasswordPage />}
+        element={
+          <GuestRoute>
+            <ForgotPasswordPage />
+          </GuestRoute>
+        }
       />
 
       {/* =====================================================
@@ -96,29 +110,49 @@ const AppRoutes = () => {
 
       <Route
         path="/advocate-signup"
-        element={<AdvocateSignup />}
+        element={
+          <GuestRoute>
+            <AdvocateSignup />
+          </GuestRoute>
+        }
       />
 
       <Route
         path="/advocate-signup/experience"
-        element={<AdvocateExperience />}
+        element={
+          <GuestRoute>
+            <AdvocateExperience />
+          </GuestRoute>
+        }
       />
 
       <Route
         path="/advocate-signup/pricing"
-        element={<AdvocatePricing />}
+        element={
+          <GuestRoute>
+            <AdvocatePricing />
+          </GuestRoute>
+        }
       />
 
       {/* ================= PUBLIC LAWYERS ================= */}
 
       <Route
         path="/find-lawyer"
-        element={<FindLawyerPage />}
+        element={
+          <ClientRoute>
+            <FindLawyerPage />
+          </ClientRoute>
+        }
       />
 
       <Route
         path="/find-lawyer/:id"
-        element={<AdvocateProfilePage />}
+        element={
+          <ClientRoute>
+            <AdvocateProfilePage />
+          </ClientRoute>
+        }
       />
 
       {/* ================= ROLE DASHBOARD ================= */}

@@ -163,47 +163,60 @@ const AdvocateProfile = ({
      RESET WHEN ADVOCATE CHANGES
   ========================================================= */
 
-  useEffect(() => {
+/* =========================================================
+   RESET WHEN ADVOCATE CHANGES
+========================================================= */
+
+useEffect(() => {
+  const resetTimer = setTimeout(() => {
     setHighlightBooking(false);
     setActiveSection("about");
-  }, [advocateId]);
+  }, 0);
 
-  /* =========================================================
-     SCROLL TO BOOKING
-  ========================================================= */
+  return () => {
+    clearTimeout(resetTimer);
+  };
+}, [advocateId]);
 
-  useEffect(() => {
-    if (!advocate) {
-      return undefined;
-    }
+/* =========================================================
+   SCROLL TO BOOKING
+========================================================= */
 
-    if (location.state?.scrollToBooking) {
-      setHighlightBooking(true);
-
-      const scrollTimer = setTimeout(() => {
-        bookingSectionRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }, 300);
-
-      const highlightTimer = setTimeout(() => {
-        setHighlightBooking(false);
-      }, 2500);
-
-      return () => {
-        clearTimeout(scrollTimer);
-        clearTimeout(highlightTimer);
-      };
-    }
-
-    window.scrollTo({
-      top: 0,
-      behavior: "instant",
-    });
-
+useEffect(() => {
+  if (!advocate) {
     return undefined;
-  }, [advocate, location.state]);
+  }
+
+  if (location.state?.scrollToBooking) {
+    const startHighlightTimer = setTimeout(() => {
+      setHighlightBooking(true);
+    }, 0);
+
+    const scrollTimer = setTimeout(() => {
+      bookingSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 300);
+
+    const highlightTimer = setTimeout(() => {
+      setHighlightBooking(false);
+    }, 2500);
+
+    return () => {
+      clearTimeout(startHighlightTimer);
+      clearTimeout(scrollTimer);
+      clearTimeout(highlightTimer);
+    };
+  }
+
+  window.scrollTo({
+    top: 0,
+    behavior: "instant",
+  });
+
+  return undefined;
+}, [advocate, location.state]);
 
   /* =========================================================
      ACTIVE SECTION OBSERVER

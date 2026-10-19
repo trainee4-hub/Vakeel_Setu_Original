@@ -48,9 +48,9 @@ export default function ReviewsSection({
   onToggleShowAllReviews,
 
   // quick rate + write review
-  rating,
+  // rating,
   hasRated,
-  onQuickRate,
+  // onQuickRate,
   onOpenWriteReview,
 
   // edit + user review + alert props

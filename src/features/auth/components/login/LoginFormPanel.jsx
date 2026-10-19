@@ -10,6 +10,7 @@ import {
   FiPhone,
 } from "react-icons/fi";
 import { FaBalanceScale } from "react-icons/fa";
+import { Eye, EyeOff } from "lucide-react";
 
 import OtpInput from "../signup/OtpInput";
 
@@ -49,6 +50,7 @@ const LoginFormPanel = ({
   formatCountdown,
 }) => {
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleForgotPasswordClose = () => {
     setForgotPasswordOpen(false);
@@ -229,12 +231,12 @@ const LoginFormPanel = ({
                   </button>
                 </div>
 
-                <div className="flex min-h-[50px] items-center gap-2.5 rounded-xl border border-transparent bg-slate-50/80 px-3.5 transition focus-within:border-amber-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-amber-500/20">
-                  <FiLock className="shrink-0 text-[19px] text-slate-400" />
+                <div className="group flex min-h-[50px] items-center gap-2.5 rounded-xl border border-transparent bg-slate-50/80 px-3.5 transition focus-within:border-amber-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-amber-500/20">
+                  <FiLock className="shrink-0 text-[19px] text-slate-400 transition-colors  group-focus-within:text-amber-500" />
 
                   <input
                     autoComplete="current-password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(event) => {
                       onPasswordChange(event.target.value);
@@ -244,6 +246,19 @@ const LoginFormPanel = ({
                     placeholder="Enter your password"
                     className="min-w-0 flex-1 border-0 bg-transparent py-3 text-[13px] font-medium text-slate-800 shadow-none !outline-none placeholder:text-slate-400 focus:border-0 focus:!outline-none focus:!ring-0 focus:!shadow-none focus-visible:!outline-none focus-visible:!ring-0 focus-visible:!shadow-none"
                   />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    className="flex shrink-0 items-center justify-center p-1.5 text-slate-400 transition hover:text-slate-700 focus-visible:outline-none"
+                  >
+                    {showPassword ? (
+                      <Eye className="h-5 w-5 text-amber-600" aria-hidden="true" />
+                    ) : (
+                      <EyeOff className="h-5 w-5 text-slate-400 hover:text-slate-600" aria-hidden="true" />
+                    )}
+                  </button>
                 </div>
               </div>
             )}

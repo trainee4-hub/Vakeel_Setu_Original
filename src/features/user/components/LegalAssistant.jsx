@@ -167,7 +167,7 @@ const IpcWiki = ({ user }) => {
     let text = toAsciiDigits(value)
     text = text.replace(/(दिनांक\s*[:：]\s*)([^\n]+)/g, (_, prefix, rest) => {
       const part = toAsciiDigits(rest)
-      const m = part.match(/(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})/)
+      const m = part.match(/(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})/)
       if (!m) return `${prefix}${part}`
       const dd = m[1].padStart(2, '0')
       const mm = m[2].padStart(2, '0')
@@ -352,13 +352,17 @@ const IpcWiki = ({ user }) => {
         body: JSON.stringify({ text, title })
       })
       if (!res.ok) {
-        let detail = 'PDF generation failed'
-        try {
-          const err = await res.json()
-          detail = err?.detail || detail
-        } catch {}
-        throw new Error(detail)
-      }
+  let detail = 'PDF generation failed'
+
+  try {
+    const err = await res.json()
+    detail = err?.detail || detail
+  } catch (error) {
+    console.warn('Could not parse PDF error response:', error)
+  }
+
+  throw new Error(detail)
+}
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
