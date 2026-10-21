@@ -7,6 +7,7 @@ import {
   FaRegBookmark,
   FaRegCalendarAlt,
   FaRegUser,
+  FaReceipt,
 } from "react-icons/fa";
 
 import {
@@ -530,6 +531,15 @@ const Navbar = () => {
                         </Link>
 
                         <Link
+                          to="/payments"
+                          onClick={() => setShowProfileMenu(false)}
+                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                        >
+                          <FaReceipt className="shrink-0 text-lg" />
+                          My Payments
+                        </Link>
+
+                        <Link
                           to="/saved-lawyers"
                           onClick={() => setShowProfileMenu(false)}
                           className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -660,6 +670,15 @@ const Navbar = () => {
                 className="block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-white"
               >
                 My Bookings
+              </button>
+
+              {/* My Payments - Protected */}
+              <button
+                type="button"
+                onClick={() => handleProtectedNavigation("/payments")}
+                className="block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-white"
+              >
+                My Payments
               </button>
 
               {/* Messages - Protected */}

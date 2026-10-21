@@ -29,6 +29,7 @@ export default function ContentCreatorsList() {
 
   // Add Staff Modal State
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -84,6 +85,7 @@ export default function ContentCreatorsList() {
     setFormErrors({});
     setInvalidRoles([]);
     setHideRolesField(false);
+    setShowPassword(false);
     setShowAddModal(true);
     loadAvailableRoles();
   };
@@ -367,18 +369,28 @@ export default function ContentCreatorsList() {
               </FormField>
 
               <FormField id="staff-password" label="Temporary Password (min 8 chars)" error={formErrors.password}>
-                <input
-                  id="staff-password"
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={(e) => {
-                    setFormData({ ...formData, password: e.target.value });
-                    if (formErrors.password) setFormErrors({ ...formErrors, password: undefined });
-                  }}
-                  placeholder="••••••••"
-                  className="w-full rounded-xl border border-slate-300 p-2.5 text-sm text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                />
+                <div className="relative">
+                  <input
+                    id="staff-password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={formData.password}
+                    onChange={(e) => {
+                      setFormData({ ...formData, password: e.target.value });
+                      if (formErrors.password) setFormErrors({ ...formErrors, password: undefined });
+                    }}
+                    placeholder="••••••••"
+                    className="w-full rounded-xl border border-slate-300 p-2.5 pr-10 text-sm text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 focus:outline-none"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    <Icon name={showPassword ? "visibility_off" : "visibility"} className="text-[18px]" />
+                  </button>
+                </div>
               </FormField>
 
               {/* Role Dropdown (Render only when admin has roles:manage permission) */}

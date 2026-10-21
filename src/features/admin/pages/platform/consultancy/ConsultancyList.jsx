@@ -157,7 +157,7 @@ export default function ConsultancyList() {
                     <div className="flex items-center justify-between rounded-xl bg-slate-50 p-2.5 text-xs">
                       <div>
                         <span className="text-slate-400 block">Duration</span>
-                        <span className="font-medium text-slate-800">{item.duration || "15 mins"}</span>
+                        <span className="font-medium text-slate-800">{item.duration || "15 mins"} Minutes</span>
                       </div>
                       <div className="text-right">
                         <span className="text-slate-400 block">Consultation Fee</span>

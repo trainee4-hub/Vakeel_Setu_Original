@@ -2,6 +2,7 @@ import {
   useMemo,
   useState,
   useEffect,
+  useCallback,
 } from "react";
 
 import {
@@ -21,7 +22,22 @@ import { useAuth } from "../../auth";
 
 import {
   createConsultancyRequest,
+  checkoutConsultancy,
+  verifyConsultancyPayment,
+  getCheckoutStatus,
 } from "../services/consultancyApi";
+
+import { isPaymentsEnabled } from "../config/paymentsConfig";
+import {
+  usePaymentStateMachine,
+  PAYMENT_STATES,
+} from "../hooks/usePaymentStateMachine";
+import {
+  PaymentConfirmingView,
+  PaymentSuccessView,
+  PaymentFailedView,
+  PaymentProcessingView,
+} from "./payments/PaymentScreens";
 
 /* ================================================================
    CONFIG
@@ -104,6 +120,9 @@ const FloatingConsultant = () => {
     isLoggedIn,
   } = useAuth();
 
+  // FEATURE FLAG: read in ONE place and passed down. Defaults to false.
+  const paymentsEnabled = isPaymentsEnabled();
+
   /* ==============================================================
      STATE
   ============================================================== */
@@ -142,6 +161,52 @@ const FloatingConsultant = () => {
     createdRequest,
     setCreatedRequest,
   ] = useState(null);
+
+  // User contact fields (used for payment checkout & summary)
+  const [contactPhone, setContactPhone] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+
+  useEffect(() => {
+    if (user) {
+      setContactPhone(getUserPhone(user));
+      setContactEmail(getUserEmail(user));
+    }
+  }, [user]);
+
+  /* ==============================================================
+     PAYMENT STATE MACHINE (Active when paymentsEnabled is true)
+  ============================================================== */
+
+  const handleInitiateCheckout = useCallback(async (payload) => {
+    return await checkoutConsultancy(payload);
+  }, []);
+
+  const handleFallbackToFree = useCallback(async (payload) => {
+    return await createConsultancyRequest(payload);
+  }, []);
+
+  const handleVerifyPayment = useCallback(async (verifyPayload) => {
+    return await verifyConsultancyPayment(verifyPayload);
+  }, []);
+
+  const handleCheckStatus = useCallback(async (checkoutId) => {
+    return await getCheckoutStatus(checkoutId);
+  }, []);
+
+  const {
+    state: paymentState,
+    errorMessage: paymentErrorMessage,
+    paymentResult,
+    isPayDisabled,
+    startPayment,
+    resetToIdle,
+    checkCurrentStatus,
+  } = usePaymentStateMachine({
+    onInitiateCheckout: handleInitiateCheckout,
+    onVerifyPayment: handleVerifyPayment,
+    onCheckStatus: handleCheckStatus,
+    onFallbackToFree: handleFallbackToFree,
+  });
 
   /* ==============================================================
      ROTATING FLOATING MESSAGE
@@ -183,6 +248,11 @@ const FloatingConsultant = () => {
     setError("");
     setSuccess(false);
     setCreatedRequest(null);
+    resetToIdle();
+    if (user) {
+      setContactPhone(getUserPhone(user));
+      setContactEmail(getUserEmail(user));
+    }
     setModalOpen(true);
   };
 
@@ -191,7 +261,12 @@ const FloatingConsultant = () => {
   ============================================================== */
 
   const handleClose = () => {
-    if (loading) {
+    if (
+      loading ||
+      paymentState === PAYMENT_STATES.STARTING ||
+      paymentState === PAYMENT_STATES.POPUP_OPEN ||
+      paymentState === PAYMENT_STATES.CONFIRMING
+    ) {
       return;
     }
 
@@ -201,32 +276,22 @@ const FloatingConsultant = () => {
       setError("");
       setSuccess(false);
       setCreatedRequest(null);
+      resetToIdle();
     }, 200);
   };
 
   /* ==============================================================
      VALIDATE LOGGED-IN USER CONTACT DETAILS
-
-     Contact inputs are intentionally not shown in the modal.
-
-     Current consultancy API requires:
-     - phoneNumber
-     - email
-
-     So those values are automatically taken from the logged-in
-     user's account/profile.
   ============================================================== */
 
   const validateUserContact = () => {
-    const normalizedPhone = String(
-      getUserPhone(user) || "",
-    )
+    const rawPhone = contactPhone || getUserPhone(user) || "";
+    const normalizedPhone = String(rawPhone)
       .replace(/\D/g, "")
       .slice(-10);
 
-    const userEmail = String(
-      getUserEmail(user) || "",
-    ).trim();
+    const rawEmail = contactEmail || getUserEmail(user) || "";
+    const userEmail = String(rawEmail).trim();
 
     if (
       !/^\d{10}$/.test(
@@ -292,18 +357,14 @@ const FloatingConsultant = () => {
      * Guest user:
      * redirect to login.
      */
-
     if (!isLoggedIn || !user) {
       redirectToLogin();
       return;
     }
 
     /*
-     * Since contact fields are hidden,
-     * validate contact information stored
-     * in the logged-in user's account.
+     * Validate contact details
      */
-
     const validation =
       validateUserContact();
 
@@ -315,20 +376,25 @@ const FloatingConsultant = () => {
       return;
     }
 
+    /*
+     * 1. If payments are ENABLED behind the flag:
+     * Hand over to the explicit payment state machine.
+     */
+    if (paymentsEnabled) {
+      await startPayment(selectedPackage, {
+        phoneNumber: validation.phoneNumber,
+        email: validation.email,
+      });
+      return;
+    }
+
+    /*
+     * 2. If payments are DISABLED (default):
+     * Run the existing free booking request exactly as before.
+     */
     setLoading(true);
 
     try {
-      /*
-       * IMPORTANT
-       *
-       * Backend controls:
-       * - price
-       * - userId
-       * - status
-       *
-       * Do not send those fields.
-       */
-
       const payload = {
         callType:
           selectedPackage.callType,
@@ -348,14 +414,6 @@ const FloatingConsultant = () => {
           payload,
         );
 
-      /*
-       * Supports:
-       *
-       * { data: {...} }
-       *
-       * and direct object responses.
-       */
-
       const requestData =
         response?.data ??
         response ??
@@ -368,24 +426,16 @@ const FloatingConsultant = () => {
       setSuccess(true);
     } catch (requestError) {
       const status =
-  requestError?.status;
+        requestError?.status;
 
-const message =
-  requestError?.data?.message ||
-  requestError?.message;
-
-      /*
-       * Unauthorized
-       */
+      const message =
+        requestError?.data?.message ||
+        requestError?.message;
 
       if (status === 401) {
         redirectToLogin();
         return;
       }
-
-      /*
-       * Wrong role
-       */
 
       if (status === 403) {
         setError(
@@ -448,193 +498,153 @@ const message =
             hidden
             max-w-[190px]
             rounded-2xl
-            rounded-br-md
             border
-            border-slate-200
-            bg-white
-            px-4
-            py-3
+            border-amber-200/60
+            bg-white/95
+            px-3.5
+            py-2
             text-left
-            shadow-[0_12px_40px_rgba(15,23,42,0.16)]
+            shadow-[0_12px_30px_rgba(15,23,42,0.12)]
+            backdrop-blur-md
             transition
+            duration-200
+
             hover:-translate-y-0.5
+            hover:border-amber-300
+            hover:shadow-[0_16px_36px_rgba(245,158,11,0.18)]
+
             sm:block
           "
         >
-          <span className="block text-[10px] font-black uppercase tracking-[0.14em] text-amber-600">
-            Vakeel Setu
-          </span>
+          <span className="absolute -bottom-1.5 right-5 h-3 w-3 rotate-45 border-b border-r border-amber-200/60 bg-white/95" />
 
-          <span
-            key={messageIndex}
-            className="
-              mt-1
-              block
-              animate-[consultantFade_.35s_ease-out]
-              text-[13px]
-              font-black
-              leading-5
-              text-slate-900
-            "
-          >
-            {
-              FLOATING_MESSAGES[
-                messageIndex
-              ]
-            }
-          </span>
+          <p className="text-[10px] font-black uppercase tracking-wider text-amber-600">
+            Expert Lawyers
+          </p>
 
-          <span className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-slate-400">
-            Get legal assistance
-
-            <FiChevronRight className="text-[12px]" />
-          </span>
-
-          {/* Bubble pointer */}
-
-          <span
-            className="
-              absolute
-              -right-[5px]
-              bottom-4
-              h-3
-              w-3
-              rotate-45
-              border-r
-              border-t
-              border-slate-200
-              bg-white
-            "
-          />
+          <p className="line-clamp-1 text-xs font-black text-slate-900">
+            {FLOATING_MESSAGES[messageIndex]}
+          </p>
         </button>
 
         {/* =========================================================
-            FLOATING HEADSET BUTTON
+            FLOATING BUTTON
         ========================================================== */}
 
-        <div className="pointer-events-auto relative shrink-0">
-          {/* Glow */}
+        <button
+          type="button"
+          onClick={handleOpen}
+          aria-label="Book Consultation"
+          className="
+            pointer-events-auto
+            relative
+            flex
+            h-14
+            w-14
+            items-center
+            justify-center
+            rounded-2xl
+            bg-slate-950
+            text-white
+            shadow-[0_16px_36px_rgba(15,23,42,0.3)]
+            transition
+            duration-300
 
+            hover:scale-105
+            hover:bg-amber-500
+            hover:shadow-[0_20px_45px_rgba(245,158,11,0.35)]
+
+            active:scale-95
+
+            sm:h-16
+            sm:w-16
+          "
+        >
+          {/* Subtle pulse */}
           <span
             className="
               absolute
               inset-0
-              rounded-full
+              -z-10
+              rounded-2xl
               bg-amber-400/30
               blur-md
-              animate-pulse
+              transition-opacity
             "
           />
 
-          {/* Outer animated ring */}
+          <FaHeadset className="text-xl sm:text-2xl" />
 
-          <span
-            className="
-              absolute
-              -inset-1.5
-              rounded-full
-              border
-              border-amber-400/40
-              animate-[consultantPing_2.4s_ease-out_infinite]
-            "
-          />
-
-          <button
-            type="button"
-            onClick={handleOpen}
-            aria-label="Book a legal consultation"
-            title="Book a Consultation"
-            className="
-              relative
-              flex
-              h-14
-              w-14
-              items-center
-              justify-center
-              rounded-full
-              border-[3px]
-              border-white
-              bg-slate-950
-              text-white
-              shadow-[0_10px_35px_rgba(15,23,42,0.3)]
-              outline-none
-              transition
-
-              hover:scale-105
-              hover:bg-amber-500
-
-              focus:outline-none
-              focus-visible:ring-4
-              focus-visible:ring-amber-300/40
-
-              sm:h-16
-              sm:w-16
-            "
-          >
-            <FaHeadset className="text-[23px] sm:text-[26px]" />
-          </button>
-        </div>
+          {/* Online badge */}
+          <span className="absolute right-2 top-2 flex h-3 w-3">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex h-3 w-3 rounded-full border-2 border-slate-950 bg-emerald-500" />
+          </span>
+        </button>
       </div>
 
       {/* ===========================================================
-          CONSULTATION MODAL
+          MODAL
       ============================================================ */}
 
       {modalOpen && (
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="consultancy-title"
           className="
-            notranslate
             fixed
             inset-0
-            z-[500]
+            z-[190]
             flex
-            items-end
+            items-center
             justify-center
-            bg-slate-950/55
-            p-0
-            backdrop-blur-sm
-
-            sm:items-center
-            sm:p-5
+            p-3
+            sm:p-4
           "
-          translate="no"
-          onMouseDown={
-            success
-              ? undefined
-              : handleClose
-          }
         >
+          {/* Backdrop */}
+
           <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="consultancy-title"
-            onMouseDown={(event) =>
-              event.stopPropagation()
-            }
+            onClick={handleClose}
             className="
-              max-h-[88dvh]
+              absolute
+              inset-0
+              bg-slate-950/60
+              backdrop-blur-sm
+              transition-opacity
+            "
+          />
+
+          {/* Card */}
+
+          <div
+            className="
+              relative
+              z-10
               w-full
-              overflow-y-auto
-              rounded-t-[26px]
+              max-w-lg
+              overflow-hidden
+              rounded-3xl
               border
               border-slate-200
               bg-white
-              shadow-[0_30px_100px_rgba(15,23,42,0.3)]
-
-              sm:max-w-2xl
-              sm:rounded-[26px]
+              shadow-2xl
+              transition-all
             "
+            onClick={(event) =>
+              event.stopPropagation()
+            }
           >
             {/* =====================================================
-                SUCCESS STATE
+                BRANCH 1: FLAG OFF & SUCCESS (Existing Free Submitted UI)
             ====================================================== */}
-
-            {success ? (
+            {!paymentsEnabled && success ? (
               <div className="p-6 text-center sm:p-8">
-                {/* Success icon */}
+                {/* Success check */}
 
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
-                  <FiCheck className="text-[27px]" />
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600">
+                  <FiCheck className="text-3xl" />
                 </div>
 
                 <p className="mt-4 text-[10px] font-black uppercase tracking-[0.18em] text-emerald-600">
@@ -722,7 +732,55 @@ const message =
                   Done
                 </button>
               </div>
+            ) : paymentsEnabled && paymentState === PAYMENT_STATES.CONFIRMING ? (
+              /* =====================================================
+                  BRANCH 2: FLAG ON & CONFIRMING
+              ====================================================== */
+              <div className="p-6 sm:p-8">
+                <PaymentConfirmingView />
+              </div>
+            ) : paymentsEnabled && paymentState === PAYMENT_STATES.SUCCESS ? (
+              /* =====================================================
+                  BRANCH 3: FLAG ON & SUCCESS
+              ====================================================== */
+              <div className="p-6 sm:p-8">
+                <PaymentSuccessView
+                  paymentResult={paymentResult}
+                  onNavigateToBookings={() => {
+                    handleClose();
+                    navigate("/bookings");
+                  }}
+                  onClose={handleClose}
+                />
+              </div>
+            ) : paymentsEnabled && paymentState === PAYMENT_STATES.FAILED ? (
+              /* =====================================================
+                  BRANCH 4: FLAG ON & FAILED
+              ====================================================== */
+              <div className="p-6 sm:p-8">
+                <PaymentFailedView
+                  errorMessage={paymentErrorMessage || error}
+                  onTryAgain={() => {
+                    setError("");
+                    resetToIdle();
+                  }}
+                  onClose={handleClose}
+                />
+              </div>
+            ) : paymentsEnabled && paymentState === PAYMENT_STATES.PROCESSING ? (
+              /* =====================================================
+                  BRANCH 5: FLAG ON & PROCESSING
+              ====================================================== */
+              <div className="p-6 sm:p-8">
+                <PaymentProcessingView
+                  onCheckStatus={checkCurrentStatus}
+                  onClose={handleClose}
+                />
+              </div>
             ) : (
+              /* =====================================================
+                  BRANCH 6: PACKAGE SELECTION & PAY / BOOK FORM
+              ====================================================== */
               <>
                 {/* =================================================
                     MODAL HEADER
@@ -924,6 +982,47 @@ const message =
                   </div>
 
                   {/* =================================================
+                      CONTACT DETAILS (Visible in Payment Flow)
+                  ================================================== */}
+
+                  {paymentsEnabled && (
+                    <div className="mt-3.5 rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+                      <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                        Contact Details
+                      </p>
+
+                      <div className="mt-2 grid gap-2.5 sm:grid-cols-2">
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-600">
+                            Phone Number
+                          </label>
+                          <input
+                            type="tel"
+                            value={contactPhone}
+                            onChange={(e) => setContactPhone(e.target.value)}
+                            placeholder="10-digit phone"
+                            maxLength={10}
+                            className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-900 focus:border-amber-500 focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-600">
+                            Email Address
+                          </label>
+                          <input
+                            type="email"
+                            value={contactEmail}
+                            onChange={(e) => setContactEmail(e.target.value)}
+                            placeholder="name@example.com"
+                            className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-900 focus:border-amber-500 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* =================================================
                       SELECTED PACKAGE SUMMARY
                   ================================================== */}
 
@@ -965,12 +1064,12 @@ const message =
                   )}
 
                   {/* =================================================
-                      BOOK / LOGIN BUTTON
+                      BOOK / PAY BUTTON
                   ================================================== */}
 
                   <button
                     type="submit"
-                    disabled={loading}
+                    disabled={paymentsEnabled ? isPayDisabled : loading}
                     className="
                       mt-4
                       flex
@@ -993,15 +1092,29 @@ const message =
                       disabled:bg-slate-300
                     "
                   >
-                    {loading
-                      ? "Submitting..."
-                      : isLoggedIn
-                        ? "Book Consultation"
-                        : "Login to Book Consultation"}
-
-                    {!loading && (
-                      <FiChevronRight className="text-[18px]" />
+                    {paymentsEnabled ? (
+                      paymentState === PAYMENT_STATES.STARTING ? (
+                        "Initiating payment..."
+                      ) : paymentState === PAYMENT_STATES.POPUP_OPEN ? (
+                        "Payment in progress..."
+                      ) : !isLoggedIn ? (
+                        "Login to Pay"
+                      ) : (
+                        `Pay ₹${selectedPackage.price}`
+                      )
+                    ) : loading ? (
+                      "Submitting..."
+                    ) : isLoggedIn ? (
+                      "Book Consultation"
+                    ) : (
+                      "Login to Book Consultation"
                     )}
+
+                    {!loading &&
+                      (!paymentsEnabled ||
+                        paymentState === PAYMENT_STATES.IDLE) && (
+                        <FiChevronRight className="text-[18px]" />
+                      )}
                   </button>
 
                   {/* Small note */}

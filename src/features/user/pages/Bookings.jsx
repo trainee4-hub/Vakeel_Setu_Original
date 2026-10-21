@@ -20,6 +20,7 @@ import {
   getStatusIcon,
   getStatusLabel,
 } from "@/utils/consultationHelpers";
+import { formatPaiseToRupees } from "../utils/paymentUtils";
 
 const MOCK_CONSULTATIONS = [
   {
@@ -787,6 +788,25 @@ const BookingCard = memo(
                   0}
               </div>
 
+              {/* Show Paid / Refunded badge only when payment exists with status */}
+              {consultation?.payment && consultation.payment.status && (
+                <div className="mt-1">
+                  {String(consultation.payment.status).toUpperCase() === "PAID" ? (
+                    <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                      Paid {consultation.payment.amount ? formatPaiseToRupees(consultation.payment.amount, consultation.payment.amountRupees) : `₹${consultation.displayAmount || 0}`}
+                    </span>
+                  ) : String(consultation.payment.status).toUpperCase() === "REFUNDED" ? (
+                    <span className="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-700">
+                      Refunded
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-bold text-slate-600">
+                      {String(consultation.payment.status).replace(/_/g, " ")}
+                    </span>
+                  )}
+                </div>
+              )}
+
               {isActive &&
                 isMessageType &&
                 consultation?.messageLimit && (
@@ -1044,17 +1064,6 @@ const BookingDetailsModal = ({
   const status =
     consultation?.status;
 
-  const paymentStatus =
-    consultation?.payment?.status ||
-    consultation?.paymentStatus ||
-    (status === "completed"
-      ? "Paid"
-      : status === "cancelled"
-        ? "Refunded"
-        : status === "rejected"
-          ? "Not Charged"
-          : "Not Available");
-
   const profileUrl =
     getProfileUrl(otherParty);
 
@@ -1197,26 +1206,28 @@ const BookingDetailsModal = ({
                 </span>
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[18px] text-slate-400">
-                    receipt_long
-                  </span>
+              {consultation?.payment?.status && (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px] text-slate-400">
+                      receipt_long
+                    </span>
 
-                  <span className="text-sm text-slate-500">
-                    Payment Status
+                    <span className="text-sm text-slate-500">
+                      Payment Status
+                    </span>
+                  </div>
+
+                  <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+                    {String(
+                      consultation.payment.status,
+                    ).replace(
+                      /_/g,
+                      " ",
+                    )}
                   </span>
                 </div>
-
-                <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
-                  {String(
-                    paymentStatus,
-                  ).replace(
-                    /_/g,
-                    " ",
-                  )}
-                </span>
-              </div>
+              )}
             </div>
           </div>
 

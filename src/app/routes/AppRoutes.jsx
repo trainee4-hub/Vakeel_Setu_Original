@@ -16,6 +16,7 @@ import {
   LegalAssistantPage as IpcWikiPage,
   SavedLawyer,
   Bookings,
+  MyPayments,
   MessageConsultations,
 } from "../../features/user";
 
@@ -201,6 +202,18 @@ const AppRoutes = () => {
             fallbackPath="/dashboard"
           >
             <Bookings />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/payments"
+        element={
+          <ProtectedRoute
+            allowedRoles={USER_ROLES}
+            fallbackPath="/dashboard"
+          >
+            <MyPayments />
           </ProtectedRoute>
         }
       />
