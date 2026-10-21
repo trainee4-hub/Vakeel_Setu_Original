@@ -1465,7 +1465,7 @@ const handleLanguageChange = (
                 value="AI"
                 subtitle="Get legal guidance"
                 onClick={() =>
-                  navigate("/ipc-wiki")
+                  navigate("/legal-assistant")
                 }
               />
             </div>
@@ -1661,7 +1661,7 @@ const handleLanguageChange = (
                   icon={FaMagic}
                   title="Legal Assistant"
                   description="Ask legal questions and explore legal information."
-                  onClick={() => navigate("/ipc-wiki")}
+                  onClick={() => navigate("/legal-assistant")}
                 />
               </div>
             </SectionCard>

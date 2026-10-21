@@ -16,7 +16,7 @@ const FindLawyerPage = () => {
         isLoggedIn={isLoggedIn}
         user={user}
         onLogoClick={() => navigate("/")}
-        onIpcWikiClick={() => navigate("/ipc-wiki")}
+        onIpcWikiClick={() => navigate("/legal-assistant")}
         onLoginClick={() => navigate("/login")}
         onSignupClick={() => navigate("/signup")}
         onDashboardClick={() => navigate("/")}

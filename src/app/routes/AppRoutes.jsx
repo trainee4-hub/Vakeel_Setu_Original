@@ -1,4 +1,5 @@
 import {
+  Navigate,
   Route,
   Routes,
 } from "react-router-dom";
@@ -232,12 +233,22 @@ const AppRoutes = () => {
       {/* ================= COMMON PROTECTED ================= */}
 
       <Route
-        path="/legal-assistants"
+        path="/legal-assistant"
         element={
           <ProtectedRoute>
             <IpcWikiPage />
           </ProtectedRoute>
         }
+      />
+
+      <Route
+        path="/legal-assistants"
+        element={<Navigate to="/legal-assistant" replace />}
+      />
+
+      <Route
+        path="/ipc-wiki"
+        element={<Navigate to="/legal-assistant" replace />}
       />
 
       {/* =====================================================

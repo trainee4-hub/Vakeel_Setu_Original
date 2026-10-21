@@ -1,14 +1,16 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, Navigate } from "react-router-dom";
 
 import Navbar from "./Navbar";
 import Breadcrumbs from "./Breadcrumbs";
 import Footer from "./Footer";
 import AppRoutes from "../routes/AppRoutes";
 import { FloatingConsultant } from "../../features/user";
+import { useAuth } from "../../features/auth";
+import { isAdvocateUser } from "../../utils/advocateProfile";
 
 
 const isAdvocateWorkspace = (pathname) =>
-  pathname.startsWith("/advocate/");
+  pathname === "/advocate" || pathname.startsWith("/advocate/");
 
 const isAdminWorkspace = (pathname) =>
   pathname === "/admin" ||
@@ -21,10 +23,21 @@ const FOOTER_HIDDEN_ROUTES = [
 
 function AppLayout() {
   const { pathname } = useLocation();
+  const { user } = useAuth();
+
+  const isAdvocate = Boolean(user && isAdvocateUser(user));
+
+  // If the logged-in user is an Advocate, they must strictly and exclusively
+  // access the Advocate panel. Any attempt to navigate back or visit
+  // public/client routes redirects immediately to their Advocate Dashboard.
+  if (isAdvocate && !isAdvocateWorkspace(pathname)) {
+    return <Navigate to="/advocate/dashboard" replace />;
+  }
 
   const hidePublicChrome =
     isAdvocateWorkspace(pathname) ||
-    isAdminWorkspace(pathname);
+    isAdminWorkspace(pathname) ||
+    isAdvocate;
 
   const hideFooter =
     hidePublicChrome ||
@@ -35,7 +48,7 @@ function AppLayout() {
       {!hidePublicChrome && <Navbar />}
 
       {!hidePublicChrome && <Breadcrumbs />}
-      {!hidePublicChrome && <FloatingConsultant/>}
+      {!hidePublicChrome && <FloatingConsultant />}
 
       <main className="flex-1">
         <AppRoutes />

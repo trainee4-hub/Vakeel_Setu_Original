@@ -1,14 +1,14 @@
 import React, {
-  useCallback,
+  // useCallback,
   useEffect,
-  useMemo,
+  // useMemo,
   useState,
 } from "react";
 import {
   useNavigate,
   useOutletContext,
 } from "react-router-dom";
-import { motion } from "framer-motion";
+// import { motion } from "framer-motion";
 import {
   ArrowRight,
   Bell,
@@ -562,7 +562,7 @@ const WelcomeSection = ({
 ============================================================================ */
 
 const StatCard = ({
-  Icon,
+  // Icon,
   label,
   value,
   tone,
@@ -1048,7 +1048,7 @@ const QuickActions = ({
   onBookings,
   onTeam,
   onArticles,
-  onNetwork,
+  // onNetwork,
 }) => {
   const actions = [
     {

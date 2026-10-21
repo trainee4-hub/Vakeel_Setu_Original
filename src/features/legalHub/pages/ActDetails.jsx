@@ -5,6 +5,7 @@ import React, {
   useState,
 } from "react";
 import {
+  FiAlertCircle,
   FiArrowLeft,
   FiChevronDown,
   FiChevronRight,
@@ -12,6 +13,7 @@ import {
   FiEye,
   FiFileText,
   FiList,
+  FiRefreshCw,
   FiSearch,
   FiX,
 } from "react-icons/fi";
@@ -30,6 +32,7 @@ import {
   getActPdfs,
   getActPdfDownloadUrl,
   getActPdfViewUrl,
+  checkActPdfAvailability,
 } from "../services/actPdfApi";
 import {
   LawLibraryEmpty,
@@ -139,10 +142,45 @@ const ActDetails = () => {
     pdfsLoading,
     setPdfsLoading,
   ] = useState(false);
+  const [
+    pdfErrors,
+    setPdfErrors,
+  ] = useState({});
+  const [
+    checkingPdfId,
+    setCheckingPdfId,
+  ] = useState(null);
   const schedulePdfs = useMemo(
     () => getSchedulePdfs(actPdfs),
     [actPdfs],
   );
+
+  useEffect(() => {
+    if (!actPdfs.length) return;
+    let cancelled = false;
+
+    actPdfs.forEach(async (pdf) => {
+      try {
+        const probe = await checkActPdfAvailability(pdf);
+        if (cancelled) return;
+        if (!probe.available && probe.status === 404) {
+          setPdfErrors((prev) => ({
+            ...prev,
+            [pdf.id]: {
+              status: 404,
+              message: "PDF file not found on disk (404).",
+            },
+          }));
+        }
+      } catch {
+        // Ignore background probe network errors
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [actPdfs]);
   const [
     drawerOpen,
     setDrawerOpen,
@@ -530,6 +568,15 @@ const ActDetails = () => {
   const viewingSchedules =
     chapterParam ===
     SCHEDULES_TAB;
+
+  const hasSections =
+    (Array.isArray(allSections) && allSections.length > 0) ||
+    pagedSections.length > 0;
+  const hasPdfs = actPdfs.length > 0;
+  const isPdfOnly =
+    !hasSections &&
+    (hasPdfs || pdfsLoading) &&
+    (allSections !== null || !pagedLoading);
   const selectChapter = (
     value,
   ) => {
@@ -747,97 +794,493 @@ const ActDetails = () => {
       </li>
     );
   };
-const renderScheduleCards = () => {
-  if (pdfsLoading || schedulePdfs.length === 0) {
-    return null;
-  }
-  return schedulePdfs.map((pdf) => {
-    const viewUrl =
-      getActPdfViewUrl(pdf);
-    const downloadUrl =
-      getActPdfDownloadUrl(pdf);
-    const title =
-      actTitle(act) || "Act Schedules";
-    const handleView = () => {
-      if (!viewUrl) {
-        return;
-      }
-      window.open(
-        viewUrl,
-        "_blank",
-        "noopener,noreferrer",
+  const renderPdfCards = () => {
+    if (pdfsLoading) {
+      return (
+        <LawLibrarySkeleton
+          count={2}
+          variant="row"
+        />
       );
-    };
-    const handleDownload = () => {
-      if (!downloadUrl) {
-        return;
-      }
-      window.location.href =
-        downloadUrl;
-    };
-    return (
-      <li
-        key={
-          pdf?.id ||
-          `${title}-${viewUrl}`
+    }
+    if (actPdfs.length === 0) {
+      return null;
+    }
+
+    return actPdfs.map((pdf, index) => {
+      const viewUrl = getActPdfViewUrl(pdf);
+      const downloadUrl = getActPdfDownloadUrl(pdf);
+      const isSinglePdf = actPdfs.length === 1;
+
+      // Labeling rule:
+      // Single PDF: use Act's own name (act.heading falling back to act.act)
+      // Multiple PDFs: label each individual PDF entry with its own displayName
+      const title = isSinglePdf
+        ? actTitle(act) || pdf.displayName || "Act Document"
+        : pdf.displayName || actTitle(act) || "Act Document";
+
+      const isSchedule = (pdf.displayName || "")
+        .toLowerCase()
+        .includes("schedule");
+      const badgeLabel = isSchedule ? "Schedules" : "Official PDF";
+
+      const pdfError = pdfErrors[pdf?.id];
+
+      const handleView = async () => {
+        if (!viewUrl) return;
+        setCheckingPdfId(pdf.id);
+        try {
+          const probe = await checkActPdfAvailability(pdf);
+          if (!probe.available) {
+            setPdfErrors((prev) => ({
+              ...prev,
+              [pdf.id]: {
+                status: probe.status,
+                message:
+                  probe.status === 404
+                    ? "PDF file not found on disk (404)."
+                    : probe.message || "Unable to open this PDF document.",
+              },
+            }));
+            return;
+          }
+
+          setPdfErrors((prev) => {
+            const next = { ...prev };
+            delete next[pdf.id];
+            return next;
+          });
+
+          window.open(viewUrl, "_blank", "noopener,noreferrer");
+        } catch (err) {
+          setPdfErrors((prev) => ({
+            ...prev,
+            [pdf.id]: {
+              status: 0,
+              message: err?.message || "Failed to open PDF.",
+            },
+          }));
+        } finally {
+          setCheckingPdfId(null);
         }
-        className="list-none"
-      >
-        <article className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:border-amber-300 hover:shadow-md">
-          <div className="h-1 bg-gradient-to-r from-amber-500 via-amber-400 to-slate-800" />
-          <div className="p-3.5 sm:p-4">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex min-w-0 flex-1 items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-amber-200 bg-amber-50 text-amber-700">
-                  <FiFileText
-                    className="text-[20px]"
-                    aria-hidden="true"
-                  />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="mb-1.5 flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.14em] text-amber-700">
-                      Schedules
-                    </span>
+      };
+
+      const handleDownload = () => {
+        if (!downloadUrl) return;
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        const safeFilename =
+          pdf.fileName ||
+          `${title.replace(/[^a-zA-Z0-9_.-]/g, "_")}.pdf`;
+        link.setAttribute("download", safeFilename);
+        link.setAttribute("target", "_blank");
+        link.setAttribute("rel", "noopener noreferrer");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+
+      const handleRetry = async () => {
+        setCheckingPdfId(pdf.id);
+        try {
+          const probe = await checkActPdfAvailability(pdf);
+          if (probe.available) {
+            setPdfErrors((prev) => {
+              const next = { ...prev };
+              delete next[pdf.id];
+              return next;
+            });
+            if (viewUrl) {
+              window.open(viewUrl, "_blank", "noopener,noreferrer");
+            }
+          } else {
+            setPdfErrors((prev) => ({
+              ...prev,
+              [pdf.id]: {
+                status: probe.status,
+                message:
+                  probe.status === 404
+                    ? "PDF file not found on disk (404)."
+                    : probe.message || "Unable to open this PDF document.",
+              },
+            }));
+          }
+        } finally {
+          setCheckingPdfId(null);
+        }
+      };
+
+      if (pdfError) {
+        return (
+          <li
+            key={pdf?.id || `${title}-${index}`}
+            className="list-none"
+          >
+            <article className="overflow-hidden rounded-xl border border-red-200 bg-white shadow-sm transition-all duration-200">
+              <div className="h-1 bg-gradient-to-r from-red-500 to-amber-500" />
+              <div className="p-3.5 sm:p-4">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="flex min-w-0 flex-1 items-center gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-red-200 bg-red-50 text-red-600">
+                      <FiAlertCircle
+                        className="text-[20px]"
+                        aria-hidden="true"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                        <span className="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.14em] text-red-700">
+                          Unavailable
+                        </span>
+                      </div>
+                      <h3 className="truncate text-[15px] font-extrabold leading-6 text-slate-900 sm:text-base">
+                        {title}
+                      </h3>
+                      <p className="mt-1 text-xs font-medium text-red-600">
+                        {pdfError.message ||
+                          "This PDF could not be opened (404 Not Found)."}
+                      </p>
+                    </div>
                   </div>
-                  <h3 className="truncate text-[15px] font-extrabold leading-6 text-slate-900 sm:text-base">
-                    {title}
-                  </h3>
+                  <div className="grid shrink-0 grid-cols-2 gap-2 sm:flex">
+                    <button
+                      type="button"
+                      onClick={handleRetry}
+                      disabled={checkingPdfId === pdf.id}
+                      className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 transition-all hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/30 disabled:opacity-50"
+                    >
+                      <FiRefreshCw
+                        className={`text-[16px] ${
+                          checkingPdfId === pdf.id ? "animate-spin" : ""
+                        }`}
+                        aria-hidden="true"
+                      />
+                      Retry
+                    </button>
+                    {downloadUrl ? (
+                      <a
+                        href={downloadUrl}
+                        download={
+                          pdf.fileName ||
+                          `${title.replace(/[^a-zA-Z0-9_.-]/g, "_")}.pdf`
+                        }
+                        className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-bold text-white shadow-sm transition-all hover:bg-amber-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/30"
+                      >
+                        <FiDownload
+                          className="text-[16px]"
+                          aria-hidden="true"
+                        />
+                        Download
+                      </a>
+                    ) : null}
+                  </div>
                 </div>
               </div>
-              <div className="grid shrink-0 grid-cols-2 gap-2 sm:flex">
-                <button
-                  type="button"
-                  onClick={handleView}
-                  disabled={!viewUrl}
-                  className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 transition-all hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/30 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <FiEye
-                    className="text-[16px]"
-                    aria-hidden="true"
-                  />
-                  View
-                </button>
-                <button
-                  type="button"
-                  onClick={handleDownload}
-                  disabled={!downloadUrl}
-                  className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-bold text-white shadow-sm transition-all hover:bg-amber-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/30 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <FiDownload
-                    className="text-[16px]"
-                    aria-hidden="true"
-                  />
-                  Download
-                </button>
+            </article>
+          </li>
+        );
+      }
+
+      return (
+        <li
+          key={pdf?.id || `${title}-${index}`}
+          className="list-none"
+        >
+          <article className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:border-amber-300 hover:shadow-md">
+            <div className="h-1 bg-gradient-to-r from-amber-500 via-amber-400 to-slate-800" />
+            <div className="p-3.5 sm:p-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex min-w-0 flex-1 items-center gap-3">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-amber-200 bg-amber-50 text-amber-700">
+                    <FiFileText
+                      className="text-[20px]"
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.14em] text-amber-700">
+                        {badgeLabel}
+                      </span>
+                    </div>
+                    <h3 className="truncate text-[15px] font-extrabold leading-6 text-slate-900 sm:text-base">
+                      {title}
+                    </h3>
+                  </div>
+                </div>
+                <div className="grid shrink-0 grid-cols-2 gap-2 sm:flex">
+                  <button
+                    type="button"
+                    onClick={handleView}
+                    disabled={!viewUrl || checkingPdfId === pdf.id}
+                    className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 transition-all hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <FiEye
+                      className="text-[16px]"
+                      aria-hidden="true"
+                    />
+                    View
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDownload}
+                    disabled={!downloadUrl}
+                    className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-bold text-white shadow-sm transition-all hover:bg-amber-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <FiDownload
+                      className="text-[16px]"
+                      aria-hidden="true"
+                    />
+                    Download
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        </article>
-      </li>
-    );
-  });
-};
+          </article>
+        </li>
+      );
+    });
+  };
+
+  const renderScheduleCards = () => {
+    if (pdfsLoading || schedulePdfs.length === 0) {
+      return null;
+    }
+    return schedulePdfs.map((pdf, index) => {
+      const viewUrl =
+        getActPdfViewUrl(pdf);
+      const downloadUrl =
+        getActPdfDownloadUrl(pdf);
+      const title =
+        actTitle(act) || "Act Schedules";
+      const pdfError = pdfErrors[pdf?.id];
+
+      const handleView = async () => {
+        if (!viewUrl) {
+          return;
+        }
+        setCheckingPdfId(pdf.id);
+        try {
+          const probe = await checkActPdfAvailability(pdf);
+          if (!probe.available) {
+            setPdfErrors((prev) => ({
+              ...prev,
+              [pdf.id]: {
+                status: probe.status,
+                message:
+                  probe.status === 404
+                    ? "PDF file not found on disk (404)."
+                    : probe.message || "Unable to open this PDF document.",
+              },
+            }));
+            return;
+          }
+
+          setPdfErrors((prev) => {
+            const next = { ...prev };
+            delete next[pdf.id];
+            return next;
+          });
+
+          window.open(
+            viewUrl,
+            "_blank",
+            "noopener,noreferrer",
+          );
+        } catch (err) {
+          setPdfErrors((prev) => ({
+            ...prev,
+            [pdf.id]: {
+              status: 0,
+              message: err?.message || "Failed to open PDF.",
+            },
+          }));
+        } finally {
+          setCheckingPdfId(null);
+        }
+      };
+
+      const handleDownload = () => {
+        if (!downloadUrl) {
+          return;
+        }
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        const safeFilename =
+          pdf.fileName ||
+          `${title.replace(/[^a-zA-Z0-9_.-]/g, "_")}.pdf`;
+        link.setAttribute("download", safeFilename);
+        link.setAttribute("target", "_blank");
+        link.setAttribute("rel", "noopener noreferrer");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+
+      const handleRetry = async () => {
+        setCheckingPdfId(pdf.id);
+        try {
+          const probe = await checkActPdfAvailability(pdf);
+          if (probe.available) {
+            setPdfErrors((prev) => {
+              const next = { ...prev };
+              delete next[pdf.id];
+              return next;
+            });
+            if (viewUrl) {
+              window.open(viewUrl, "_blank", "noopener,noreferrer");
+            }
+          } else {
+            setPdfErrors((prev) => ({
+              ...prev,
+              [pdf.id]: {
+                status: probe.status,
+                message:
+                  probe.status === 404
+                    ? "PDF file not found on disk (404)."
+                    : probe.message || "Unable to open this PDF document.",
+              },
+            }));
+          }
+        } finally {
+          setCheckingPdfId(null);
+        }
+      };
+
+      if (pdfError) {
+        return (
+          <li
+            key={pdf?.id || `${title}-${index}`}
+            className="list-none"
+          >
+            <article className="overflow-hidden rounded-xl border border-red-200 bg-white shadow-sm transition-all duration-200">
+              <div className="h-1 bg-gradient-to-r from-red-500 to-amber-500" />
+              <div className="p-3.5 sm:p-4">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="flex min-w-0 flex-1 items-center gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-red-200 bg-red-50 text-red-600">
+                      <FiAlertCircle
+                        className="text-[20px]"
+                        aria-hidden="true"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                        <span className="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.14em] text-red-700">
+                          Unavailable
+                        </span>
+                      </div>
+                      <h3 className="truncate text-[15px] font-extrabold leading-6 text-slate-900 sm:text-base">
+                        {title}
+                      </h3>
+                      <p className="mt-1 text-xs font-medium text-red-600">
+                        {pdfError.message ||
+                          "This PDF could not be opened (404 Not Found)."}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="grid shrink-0 grid-cols-2 gap-2 sm:flex">
+                    <button
+                      type="button"
+                      onClick={handleRetry}
+                      disabled={checkingPdfId === pdf.id}
+                      className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 transition-all hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/30 disabled:opacity-50"
+                    >
+                      <FiRefreshCw
+                        className={`text-[16px] ${
+                          checkingPdfId === pdf.id ? "animate-spin" : ""
+                        }`}
+                        aria-hidden="true"
+                      />
+                      Retry
+                    </button>
+                    {downloadUrl ? (
+                      <a
+                        href={downloadUrl}
+                        download={
+                          pdf.fileName ||
+                          `${title.replace(/[^a-zA-Z0-9_.-]/g, "_")}.pdf`
+                        }
+                        className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-bold text-white shadow-sm transition-all hover:bg-amber-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/30"
+                      >
+                        <FiDownload
+                          className="text-[16px]"
+                          aria-hidden="true"
+                        />
+                        Download
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            </article>
+          </li>
+        );
+      }
+
+      return (
+        <li
+          key={
+            pdf?.id ||
+            `${title}-${viewUrl}`
+          }
+          className="list-none"
+        >
+          <article className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:border-amber-300 hover:shadow-md">
+            <div className="h-1 bg-gradient-to-r from-amber-500 via-amber-400 to-slate-800" />
+            <div className="p-3.5 sm:p-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex min-w-0 flex-1 items-center gap-3">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-amber-200 bg-amber-50 text-amber-700">
+                    <FiFileText
+                      className="text-[20px]"
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.14em] text-amber-700">
+                        Schedules
+                      </span>
+                    </div>
+                    <h3 className="truncate text-[15px] font-extrabold leading-6 text-slate-900 sm:text-base">
+                      {title}
+                    </h3>
+                  </div>
+                </div>
+                <div className="grid shrink-0 grid-cols-2 gap-2 sm:flex">
+                  <button
+                    type="button"
+                    onClick={handleView}
+                    disabled={!viewUrl || checkingPdfId === pdf.id}
+                    className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 transition-all hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <FiEye
+                      className="text-[16px]"
+                      aria-hidden="true"
+                    />
+                    View
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDownload}
+                    disabled={!downloadUrl}
+                    className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-bold text-white shadow-sm transition-all hover:bg-amber-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <FiDownload
+                      className="text-[16px]"
+                      aria-hidden="true"
+                    />
+                    Download
+                  </button>
+                </div>
+              </div>
+            </div>
+          </article>
+        </li>
+      );
+    });
+  };
 return (
     <div className="min-h-screen bg-slate-50">
       {}
@@ -875,63 +1318,71 @@ return (
             )}
           </div>
           {}
-          <div className="mt-7 max-w-xl">
-            <label
-              htmlFor="act-search"
-              className="sr-only"
-            >
-              Search within this act
-            </label>
-            <div className="flex min-h-[52px] items-center gap-2.5 rounded-xl border border-slate-200 bg-slate-50/80 px-4 transition-all focus-within:border-amber-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-amber-500/20">
-              <FiSearch
-                className="shrink-0 text-[20px] text-slate-400"
-                aria-hidden="true"
-              />
-              <input
-                id="act-search"
-                type="text"
-                value={
-                  searchInput
-                }
-                onChange={(
-                  event,
-                ) =>
-                  setSearchInput(
-                    event.target
-                      .value,
-                  )
-                }
-                placeholder="Search within this act..."
-                className="min-w-0 flex-1 border-0 bg-transparent py-3 text-sm font-medium text-slate-800 outline-none ring-0 placeholder:text-slate-400 focus:outline-none focus:ring-0"
-              />
-              {searchLoading && (
-                <span className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-amber-200 border-t-amber-500" />
-              )}
-              {searchInput &&
-                !searchLoading && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSearchInput(
-                        "",
-                      )
-                    }
-                    aria-label="Clear search"
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
-                  >
-                    <FiX
-                      className="text-[18px]"
-                      aria-hidden="true"
-                    />
-                  </button>
+          {hasSections && (
+            <div className="mt-7 max-w-xl">
+              <label
+                htmlFor="act-search"
+                className="sr-only"
+              >
+                Search within this act
+              </label>
+              <div className="flex min-h-[52px] items-center gap-2.5 rounded-xl border border-slate-200 bg-slate-50/80 px-4 transition-all focus-within:border-amber-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-amber-500/20">
+                <FiSearch
+                  className="shrink-0 text-[20px] text-slate-400"
+                  aria-hidden="true"
+                />
+                <input
+                  id="act-search"
+                  type="text"
+                  value={
+                    searchInput
+                  }
+                  onChange={(
+                    event,
+                  ) =>
+                    setSearchInput(
+                      event.target
+                        .value,
+                    )
+                  }
+                  placeholder="Search within this act..."
+                  className="min-w-0 flex-1 border-0 bg-transparent py-3 text-sm font-medium text-slate-800 outline-none ring-0 placeholder:text-slate-400 focus:outline-none focus:ring-0"
+                />
+                {searchLoading && (
+                  <span className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-amber-200 border-t-amber-500" />
                 )}
+                {searchInput &&
+                  !searchLoading && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSearchInput(
+                          "",
+                        )
+                      }
+                      aria-label="Clear search"
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                    >
+                      <FiX
+                        className="text-[18px]"
+                        aria-hidden="true"
+                      />
+                    </button>
+                  )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
       {}
       <section className="px-4 py-12">
-        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[300px_minmax(0,1fr)]">
+        <div
+          className={`mx-auto ${
+            chapters.length > 0
+              ? "grid max-w-7xl gap-8 lg:grid-cols-[300px_minmax(0,1fr)]"
+              : "max-w-4xl"
+          }`}
+        >
           {/* Left Sidebar: Chapters navigation (Always visible on desktop) */}
           {allSections &&
             chapters.length > 0 && (
@@ -1071,6 +1522,17 @@ return (
                     }
                   />
                 </>
+              )
+            ) : isPdfOnly ? (
+              pdfsLoading ? (
+                <LawLibrarySkeleton
+                  count={2}
+                  variant="row"
+                />
+              ) : (
+                <ul className="space-y-3">
+                  {renderPdfCards()}
+                </ul>
               )
             ) : viewingSchedules ? (
               <ul className="space-y-3">

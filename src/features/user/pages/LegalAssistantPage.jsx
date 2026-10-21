@@ -10,11 +10,11 @@ const IpcWikiPage = () => {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-600 antialiased">
       <Navbar
-        activePage="ipcWiki"
+        activePage="legalAssistant"
         isLoggedIn={isLoggedIn}
         user={user}
         onLogoClick={() => navigate('/')}
-        onIpcWikiClick={() => navigate('/ipc-wiki')}
+        onIpcWikiClick={() => navigate('/legal-assistant')}
         onLoginClick={() => navigate('/login')}
         onSignupClick={() => navigate('/signup')}
         onDashboardClick={() => navigate('/')}

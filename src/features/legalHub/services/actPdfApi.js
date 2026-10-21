@@ -133,15 +133,19 @@ export const getActPdfs = async (
 
 /**
  * Converts PDF URL returned by backend
- * into a URL using the current configured backend.
+ * into a secure absolute URL using the current configured backend (API_ROOT).
  *
- * This is useful if backend metadata contains:
+ * Discards whatever host and protocol the backend sends (e.g. http://localhost:5000
+ * or http://backend-vakeelsetu.vercel.app) to prevent mixed-content blocking on HTTPS.
  *
- * http://localhost:5000/api/...
+ * Normalizes all path variations:
+ *   - http://backend-vakeelsetu.vercel.app/api/acts/pdfs/:id/view
+ *   - http://localhost:5000/api/acts/pdfs/:id/view
+ *   - https://some-other-host/api/acts/pdfs/:id/view
+ *   - /api/acts/pdfs/:id/view
+ *   - /acts/pdfs/:id/view
  *
- * but frontend is using:
- *
- * https://backend-vakeelsetu.vercel.app
+ * Guarantees no /api/api/ duplication and never returns http:// when API_ROOT is https.
  */
 export const resolveActPdfUrl = (
   url,
@@ -161,58 +165,44 @@ export const resolveActPdfUrl = (
    * Browser generated URLs should remain unchanged.
    */
   if (
-    value.startsWith(
-      "blob:",
-    ) ||
-    value.startsWith(
-      "data:",
-    )
+    value.startsWith("blob:") ||
+    value.startsWith("data:")
   ) {
     return value;
   }
 
-  /*
-   * Backend returned full URL:
-   *
-   * http://localhost:5000/api/acts/pdfs/ID/view
-   *
-   * We keep only pathname and attach current API_ROOT.
-   */
-  if (
-    /^https?:\/\//i.test(
-      value,
-    )
-  ) {
+  let pathname = "";
+  let search = "";
+  let hash = "";
+
+  if (/^https?:\/\//i.test(value)) {
     try {
-      const parsed =
-        new URL(value);
-
-      return `${API_ROOT}${parsed.pathname}${parsed.search}${parsed.hash}`;
+      const parsed = new URL(value);
+      pathname = parsed.pathname;
+      search = parsed.search;
+      hash = parsed.hash;
     } catch {
-      return value;
+      pathname = value.replace(/^https?:\/\/[^/]+/i, "");
     }
+  } else {
+    const match = value.match(/^([^?#]*)(\?[^#]*)?(#.*)?$/);
+    pathname = match?.[1] || "";
+    search = match?.[2] || "";
+    hash = match?.[3] || "";
   }
 
-  /*
-   * Backend returned:
-   *
-   * /api/acts/pdfs/ID/view
-   */
-  if (
-    value.startsWith("/")
-  ) {
-    return `${API_ROOT}${value}`;
+  let cleanPath = pathname.replace(/^\/+/, "/");
+
+  if (cleanPath === "/api" || cleanPath.startsWith("/api/")) {
+    // Already starts with /api
+  } else {
+    cleanPath = `/api${cleanPath}`;
   }
 
-  /*
-   * Backend returned:
-   *
-   * api/acts/pdfs/ID/view
-   */
-  return `${API_ROOT}/${value.replace(
-    /^\/+/,
-    "",
-  )}`;
+  // Prevent duplicate /api/api/
+  cleanPath = cleanPath.replace(/^\/api\/api\//, "/api/");
+
+  return `${API_ROOT}${cleanPath}${search}${hash}`;
 };
 
 /* =========================================================================
@@ -220,23 +210,22 @@ export const resolveActPdfUrl = (
 ============================================================================ */
 
 /**
- * Generates:
- *
- * https://backend-vakeelsetu.vercel.app
- * /api/acts/pdfs/:pdfId/view
+ * Generates absolute view URL:
+ * https://<backend>/api/acts/pdfs/:pdfId/view
  */
 export const getActPdfViewUrl = (
   pdf,
 ) => {
+  if (typeof pdf === "string") {
+    return resolveActPdfUrl(pdf);
+  }
+
   if (pdf?.id) {
     return `${ACT_PDF_BASE_URL}/acts/pdfs/${encodeURIComponent(
       pdf.id,
     )}/view`;
   }
 
-  /*
-   * Fallback when API somehow does not provide id.
-   */
   return resolveActPdfUrl(
     pdf?.viewUrl,
   );
@@ -247,24 +236,81 @@ export const getActPdfViewUrl = (
 ============================================================================ */
 
 /**
- * Generates:
- *
- * https://backend-vakeelsetu.vercel.app
- * /api/acts/pdfs/:pdfId/download
+ * Generates absolute download URL:
+ * https://<backend>/api/acts/pdfs/:pdfId/download
  */
 export const getActPdfDownloadUrl = (
   pdf,
 ) => {
+  if (typeof pdf === "string") {
+    return resolveActPdfUrl(pdf);
+  }
+
   if (pdf?.id) {
     return `${ACT_PDF_BASE_URL}/acts/pdfs/${encodeURIComponent(
       pdf.id,
     )}/download`;
   }
 
-  /*
-   * Fallback when API somehow does not provide id.
-   */
   return resolveActPdfUrl(
     pdf?.downloadUrl,
   );
+};
+
+/* =========================================================================
+   PROBE PDF AVAILABILITY (HEAD check)
+============================================================================ */
+
+/**
+ * Quick HEAD request to check whether the PDF is accessible on the server.
+ * Returns { available: boolean, status: number, url: string, message?: string }
+ */
+export const checkActPdfAvailability = async (
+  pdf,
+  options = {},
+) => {
+  const viewUrl = getActPdfViewUrl(pdf);
+  if (!viewUrl) {
+    return {
+      available: false,
+      status: 0,
+      url: "",
+      message: "Invalid PDF URL",
+    };
+  }
+
+  try {
+    const response = await fetch(viewUrl, {
+      method: "HEAD",
+      signal: options.signal,
+    });
+
+    if (response.ok) {
+      return {
+        available: true,
+        status: response.status,
+        url: viewUrl,
+      };
+    }
+
+    return {
+      available: false,
+      status: response.status,
+      url: viewUrl,
+      message:
+        response.status === 404
+          ? "PDF file not found on disk (404)"
+          : `PDF unavailable (${response.status})`,
+    };
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw error;
+    }
+    return {
+      available: false,
+      status: 0,
+      url: viewUrl,
+      message: "Unable to reach PDF service",
+    };
+  }
 };

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import PageHeader from "@shared/components/ui/PageHeader";
 import ResourceTable from "@shared/components/ui/ResourceTable";
@@ -66,6 +66,21 @@ export default function AdvocatesList() {
   const [data, setData] = useState({ items: [], pagination: {} });
   const [reloadTrigger, setReloadTrigger] = useState(0);
 
+  const [searchInput, setSearchInput] = useState(searchTerm);
+  const debounceTimerRef = useRef(null);
+
+  useEffect(() => {
+    setSearchInput(searchTerm);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
+
   const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -110,16 +125,85 @@ export default function AdvocatesList() {
     setSearchParams(next);
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const value = form.elements.search?.value || "";
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setSearchInput(value);
+
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+
+    const trimmed = value.trim();
+    if (!trimmed) {
+      // Instant reset to all advocates when cleared
+      const next = new URLSearchParams(searchParams);
+      next.delete("search");
+      next.delete("page");
+      setSearchParams(next, { replace: true });
+      return;
+    }
+
+    // 350ms debounced search
+    debounceTimerRef.current = setTimeout(() => {
+      const next = new URLSearchParams(searchParams);
+      next.set("search", trimmed);
+      next.delete("page");
+      setSearchParams(next, { replace: true });
+    }, 350);
+  };
+
+  const handleClearSearch = () => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+    setSearchInput("");
     const next = new URLSearchParams(searchParams);
-    if (value.trim()) next.set("search", value.trim());
+    next.delete("search");
+    next.delete("page");
+    setSearchParams(next, { replace: true });
+  };
+
+  const handleSearch = (e) => {
+    if (e) e.preventDefault();
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+    const trimmed = searchInput.trim();
+    const next = new URLSearchParams(searchParams);
+    if (trimmed) next.set("search", trimmed);
     else next.delete("search");
     next.delete("page");
-    setSearchParams(next);
+    setSearchParams(next, { replace: true });
   };
+
+  // Smart client-side filter fallback so that even if backend ignores search,
+  // matching advocates are filtered accurately by name, email, phone, or bar ID
+  const filteredItems = useMemo(() => {
+    const items = Array.isArray(data.items) ? data.items : [];
+    if (!searchTerm.trim()) return items;
+
+    const query = searchTerm.trim().toLowerCase();
+    return items.filter((row) => {
+      const fullName = String(row.fullName || row.name || "").toLowerCase();
+      const email = String(row.email || "").toLowerCase();
+      const phone = String(row.phone || "").toLowerCase();
+      const barId = String(row.barCouncilId || row.barId || "").toLowerCase();
+      const city = String(row.city || "").toLowerCase();
+      const state = String(row.state || "").toLowerCase();
+
+      return (
+        fullName.includes(query) ||
+        email.includes(query) ||
+        phone.includes(query) ||
+        barId.includes(query) ||
+        city.includes(query) ||
+        state.includes(query)
+      );
+    });
+  }, [data.items, searchTerm]);
 
   const handleApprovalFilterChange = (e) => {
     const val = e.target.value;
@@ -172,17 +256,30 @@ export default function AdvocatesList() {
       {currentTab === "all" || currentTab === "rejected" ? (
         <div className="flex flex-wrap items-center gap-3">
           <form onSubmit={handleSearch} className="flex max-w-md flex-1 gap-2">
-            <input
-              name="search"
-              type="search"
-              defaultValue={searchTerm}
-              placeholder={
-                currentTab === "rejected"
-                  ? "Search by name, email, phone, or bar ID…"
-                  : "Search by name, email, or bar ID…"
-              }
-              className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
-            />
+            <div className="relative flex-1">
+              <input
+                name="search"
+                type="text"
+                value={searchInput}
+                onChange={handleInputChange}
+                placeholder={
+                  currentTab === "rejected"
+                    ? "Search by name, email, phone, or bar ID…"
+                    : "Search by name, email, or bar ID…"
+                }
+                className="w-full rounded-xl border border-slate-300 px-3.5 py-2 pr-9 text-sm text-slate-900 placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              />
+              {searchInput ? (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  aria-label="Clear search"
+                  className="absolute inset-y-0 right-2.5 my-auto flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 focus:outline-none"
+                >
+                  <Icon name="close" className="text-[16px]" />
+                </button>
+              ) : null}
+            </div>
             <Button type="submit" variant="secondary" icon="search">
               Search
             </Button>
@@ -190,12 +287,7 @@ export default function AdvocatesList() {
               <Button
                 type="button"
                 variant="tertiary"
-                onClick={() => {
-                  const next = new URLSearchParams(searchParams);
-                  next.delete("search");
-                  next.delete("page");
-                  setSearchParams(next);
-                }}
+                onClick={handleClearSearch}
               >
                 Clear
               </Button>
@@ -234,7 +326,7 @@ export default function AdvocatesList() {
           actionLabel="Retry"
           onAction={() => setReloadTrigger((k) => k + 1)}
         />
-      ) : data.items.length === 0 ? (
+      ) : filteredItems.length === 0 ? (
         <EmptyState
           icon={currentTab === "rejected" ? "cancel" : "badge"}
           title={
@@ -258,7 +350,7 @@ export default function AdvocatesList() {
         <div className="space-y-4">
           <div className="overflow-x-auto">
             <ResourceTable
-              data={data.items}
+              data={filteredItems}
               keyField="id"
               columns={
                 currentTab === "deletions"

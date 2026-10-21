@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import PageHeader from "@shared/components/ui/PageHeader";
 import ResourceTable from "@shared/components/ui/ResourceTable";
@@ -38,10 +38,25 @@ export default function UsersList() {
   const currentPage = Math.max(1, Number(searchParams.get("page") || 1));
   const searchTerm = searchParams.get("search") || "";
 
+  const [searchInput, setSearchInput] = useState(searchTerm);
+  const debounceTimerRef = useRef(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [data, setData] = useState({ items: [], pagination: {} });
   const [reloadTrigger, setReloadTrigger] = useState(0);
+
+  useEffect(() => {
+    setSearchInput(searchTerm);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -70,16 +85,83 @@ export default function UsersList() {
     setSearchParams(next);
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const value = form.elements.search?.value || "";
+  const handleInputChange = (e) => {
+    const val = e.target.value;
+    setSearchInput(val);
+
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    const trimmed = val.trim();
+
+    // Instant clear when field is emptied
+    if (!trimmed) {
+      const next = new URLSearchParams(searchParams);
+      next.delete("search");
+      next.delete("page");
+      setSearchParams(next, { replace: true });
+      return;
+    }
+
+    // 350ms debounced search
+    debounceTimerRef.current = setTimeout(() => {
+      const next = new URLSearchParams(searchParams);
+      next.set("search", trimmed);
+      next.delete("page");
+      setSearchParams(next, { replace: true });
+    }, 350);
+  };
+
+  const handleClearSearch = () => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+    setSearchInput("");
     const next = new URLSearchParams(searchParams);
-    if (value.trim()) next.set("search", value.trim());
+    next.delete("search");
+    next.delete("page");
+    setSearchParams(next, { replace: true });
+  };
+
+  const handleSearch = (e) => {
+    if (e) e.preventDefault();
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+    const trimmed = searchInput.trim();
+    const next = new URLSearchParams(searchParams);
+    if (trimmed) next.set("search", trimmed);
     else next.delete("search");
     next.delete("page");
-    setSearchParams(next);
+    setSearchParams(next, { replace: true });
   };
+
+  // Smart client-side filter fallback so that even if backend search has gaps,
+  // matching users are filtered accurately by name, email, phone, city, or state
+  const filteredItems = useMemo(() => {
+    const items = Array.isArray(data.items) ? data.items : [];
+    if (!searchTerm.trim()) return items;
+
+    const query = searchTerm.trim().toLowerCase();
+    return items.filter((row) => {
+      const fullName = String(row.fullName || row.name || "").toLowerCase();
+      const email = String(row.email || "").toLowerCase();
+      const phone = String(row.phone || "").toLowerCase();
+      const city = String(row.city || "").toLowerCase();
+      const state = String(row.state || "").toLowerCase();
+
+      return (
+        fullName.includes(query) ||
+        email.includes(query) ||
+        phone.includes(query) ||
+        city.includes(query) ||
+        state.includes(query)
+      );
+    });
+  }, [data.items, searchTerm]);
 
   return (
     <div className="space-y-6">
@@ -91,13 +173,26 @@ export default function UsersList() {
       {/* Filters Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <form onSubmit={handleSearch} className="flex flex-1 max-w-md gap-2">
-          <input
-            name="search"
-            type="search"
-            defaultValue={searchTerm}
-            placeholder="Search by name, email, or phone…"
-            className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
-          />
+          <div className="relative flex-1">
+            <input
+              name="search"
+              type="text"
+              value={searchInput}
+              onChange={handleInputChange}
+              placeholder="Search by name, email, or phone…"
+              className="w-full rounded-xl border border-slate-300 px-3.5 py-2 pr-9 text-sm text-slate-900 placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+            />
+            {searchInput ? (
+              <button
+                type="button"
+                onClick={handleClearSearch}
+                aria-label="Clear search"
+                className="absolute inset-y-0 right-2.5 my-auto flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 focus:outline-none"
+              >
+                <Icon name="close" className="text-[16px]" />
+              </button>
+            ) : null}
+          </div>
           <Button type="submit" variant="secondary" icon="search">
             Search
           </Button>
@@ -105,12 +200,7 @@ export default function UsersList() {
             <Button
               type="button"
               variant="tertiary"
-              onClick={() => {
-                const next = new URLSearchParams(searchParams);
-                next.delete("search");
-                next.delete("page");
-                setSearchParams(next);
-              }}
+              onClick={handleClearSearch}
             >
               Clear
             </Button>
@@ -128,7 +218,7 @@ export default function UsersList() {
           actionLabel="Retry"
           onAction={() => setReloadTrigger((k) => k + 1)}
         />
-      ) : data.items.length === 0 ? (
+      ) : filteredItems.length === 0 ? (
         <EmptyState
           icon="people"
           title="No users found"
@@ -137,7 +227,7 @@ export default function UsersList() {
       ) : (
         <div className="space-y-4">
           <ResourceTable
-            data={data.items}
+            data={filteredItems}
             keyField="id"
             columns={[
               {

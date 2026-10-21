@@ -444,7 +444,7 @@ const Footer = () => {
 
               <FooterLink
                 label="Legal Assistant"
-                onClick={() => handleProtectedNavigation("/ipc-wiki")}
+                onClick={() => handleProtectedNavigation("/legal-assistant")}
               />
             </FooterNav>
           </div>

@@ -218,14 +218,14 @@ const Navbar = () => {
             {/* LEGAL ASSISTANT */}
 
             {loggedIn ? (
-              <Link to="/ipc-wiki" className={navItemClass("/ipc-wiki")}>
+              <Link to="/legal-assistant" className={navItemClass("/legal-assistant")}>
                 Legal Assistant
               </Link>
             ) : (
               <button
                 type="button"
-                onClick={() => handleProtectedNavigation("/ipc-wiki")}
-                className={navItemClass("/ipc-wiki")}
+                onClick={() => handleProtectedNavigation("/legal-assistant")}
+                className={navItemClass("/legal-assistant")}
               >
                 Legal Assistant
               </button>
@@ -647,7 +647,7 @@ const Navbar = () => {
               {/* Legal Assistant - Protected */}
               <button
                 type="button"
-                onClick={() => handleProtectedNavigation("/ipc-wiki")}
+                onClick={() => handleProtectedNavigation("/legal-assistant")}
                 className="block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-white"
               >
                 Legal Assistant

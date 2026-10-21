@@ -20,6 +20,7 @@ import {
 
 const SEGMENT_LABELS = {
   "ipc-wiki": "Legal Assistant",
+  "legal-assistant": "Legal Assistant",
   "legal-assistants": "Legal Assistant",
   "ipc": "IPC",
   "bns": "BNS",

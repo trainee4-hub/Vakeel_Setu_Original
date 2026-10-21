@@ -474,3 +474,63 @@ All write operations tested against the live remote backend (`https://backend-va
   - Valid profile edit saves successfully, toasts `"Profile updated"`, keeps status `PENDING`, renders `"Changes made"` panel, and updates review page without secondary GET.
 - **Production Build:** Clean compile via `npm run build` (0 errors).
 - **ESLint:** 0 new errors or warnings across all modified and newly created admin files.
+
+## 10. Law Library PDF-Only Acts & Remote PDF Probe Audit
+
+### 10.1 Live Remote Backend PDF Probe & Sweep Results
+All 89 Acts across all 13 legal categories on remote backend `https://backend-vakeelsetu.vercel.app` were swept, inspecting attached PDFs and validating `HEAD` and `GET` streaming availability:
+
+1. **Constitution of India Main PDF (`28daae8e-92f6-4dd7-9822-848f9d4e8aa3`):**
+   - **Current Status:** **200 OK** (previously reported as 404 in earlier testing).
+   - Content-Type: `application/pdf`, streams `%PDF-1.7` stream content directly.
+   - Schedules PDF (`e5b7532c-b8b0-4819-a0f9-251de22589b9`): **200 OK**.
+
+2. **All 4 Direct PDF-Only Acts (`sections: []`):**
+   - **Constitution of India, 1950** (`c19a63d7-f0f4-46b7-8432-266bbfc8c867`): 2 PDFs
+     - `28daae8e-92f6-4dd7-9822-848f9d4e8aa3` ("Constitution of India"): View 200 OK / Download 200 OK
+     - `e5b7532c-b8b0-4819-a0f9-251de22589b9` ("Constitution of India Schedules"): View 200 OK / Download 200 OK
+   - **Arbitration and Conciliation Act, 1996** (`2be54269-7ad5-4a6c-bf71-057565598e76`): 2 PDFs
+     - `54e4ef7e-fa6f-44e9-ac2e-e1aa3587247c` ("Arbitration and Conciliation Act, 1996"): View 200 OK / Download 200 OK
+     - `db80bb08-28f9-4509-a7c7-cbecd420fba5` ("Arbitration and Conciliation Act Schedules"): View 200 OK / Download 200 OK
+   - **The Insolvency and Bankruptcy Code, 2016** (`0a6607a7-7698-428c-819b-1a6aed86e99a`): 2 PDFs
+     - `04a102d3-4041-46ba-b1c1-af86d1554f74` ("The Insolvency and Bankruptcy Code, 2016"): View 200 OK / Download 200 OK
+     - `1086fe7d-f11b-4afd-9560-0e5b987b233f` ("Insolvency and Bankruptcy Code Schedules"): View 200 OK / Download 200 OK
+   - **The Indian Penal Code, 1860** (`b071a92c-1868-48f5-9e5c-025dd75cfb82`): 1 PDF
+     - `a7658fcf-5efe-4418-b539-115e7ccee1a8` ("The Indian Penal Code, 1860"): View 200 OK / Download 200 OK
+
+3. **Hybrid Acts (Sections + PDFs):**
+   - Companies Act, 2013 (`896943b9-d416-4442-b30c-8c6d60049206`): 471 sections, PDF `b6f7bb06-34d7-4979-ab32-a3a50ead3681` (200 OK).
+   - Limitation Act, 1963 (`12110bcc-9f43-499d-9b45-63c68ca9fd03`): 32 sections, PDF `fdce450d-1aa2-46f0-a579-b1a333a3b75d` (200 OK).
+   - All 21 attached schedule PDFs across all hybrid Acts verified returning 200 OK.
+   - **404 Blockers:** 0 active 404s found across the remote backend.
+
+### 10.2 Service Normalization (`actPdfApi.js`)
+- Rebuilt `resolveActPdfUrl` to discard whatever host and protocol the remote backend supplies (`http://localhost:5000` or `http://backend-vakeelsetu.vercel.app`), preventing mixed-content blocking on HTTPS.
+- Normalized all path variants (`http://.../api/acts/pdfs/:id/view`, `https://.../api/acts/pdfs/:id/view`, `/api/acts/pdfs/:id/view`, `/acts/pdfs/:id/view`) to `${API_ROOT}/api/acts/pdfs/:id/view`.
+- Prevented `/api/api/` duplication and guaranteed secure protocol matching `API_ROOT`.
+- Added `checkActPdfAvailability(pdf)` for non-blocking HEAD pre-flight checks and error recovery.
+
+### 10.3 Law Library ActDetails Implementation (`ActDetails.jsx`)
+- Implemented four render branches derived purely from runtime data:
+  1. **PDF-Only (`sections: []`, `pdfs.length > 0`):**
+     - Replaces section list with PDF cards labeled by the Act's own name (`actTitle(act)`).
+     - Single PDF (Indian Penal Code): Renders clean banner with Act name, "Official PDF" pill, View and Download buttons. Zero dropdowns, zero selectors, zero tabs, zero empty controls.
+     - Multi-PDF (Constitution, Arbitration, Insolvency): Labels each PDF entry with its exact server `displayName`.
+     - Completely prevents "No sections found" or empty states.
+     - Preserves full page chrome (breadcrumbs, heading, year, category).
+  2. **Hybrid (`sections > 0`, `pdfs > 0`):**
+     - Retains existing section reader and chapter navigation as primary content.
+     - "Schedules" tab in chapters sidebar reveals schedule banner with "Schedules" badge and act title, byte-for-byte compatible with existing design.
+  3. **Sections Only (`sections > 0`, `pdfs === 0`):**
+     - Retains section reader byte-for-byte; no Schedules tab.
+  4. **Neither (`sections === 0`, `pdfs === 0`):**
+     - Retains existing empty state.
+- **Graceful Failure State:** If any PDF fails (e.g. 404 or network outage), the card renders an amber/red failure banner with clear error explanation, a Retry action (spinning refresh), and a Direct Download link.
+- **Two IPC Disambiguation:** Strictly separated Law Library Bare Act IPC (`/acts/b071a92c-1868-48f5-9e5c-025dd75cfb82`) from Legal Hub IPC explorer (`/legal-hub/ipc`) and admin IPC management.
+
+### 10.4 Build and Lint Metrics
+- `npm run build`: Success in 9.56s.
+  - Main bundle before: `10,279.02 kB` (gzip `2,728.32 kB`)
+  - Main bundle after: `10,289.39 kB` (gzip `2,729.64 kB`)
+- `npm run lint`: **75 problems (61 errors, 14 warnings)** — 0 new errors or warnings introduced.
+

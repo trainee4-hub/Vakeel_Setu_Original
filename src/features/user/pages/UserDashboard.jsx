@@ -50,6 +50,16 @@ const UserDashboard = () => {
     setSelectedConsultationId,
   ] = useState(null);
 
+  // Track pathname changes to reset overlay without triggering cascading renders in useEffect
+  const [prevPathname, setPrevPathname] = useState(location.pathname);
+
+  if (prevPathname !== location.pathname) {
+    setPrevPathname(location.pathname);
+    if (overlayPage !== null) {
+      setOverlayPage(null);
+    }
+  }
+
   const handleLogout = useCallback(() => {
     logout();
     navigate("/");
@@ -113,10 +123,6 @@ const UserDashboard = () => {
     });
   }, [activePage]);
 
-  useEffect(() => {
-    setOverlayPage(null);
-  }, [location.pathname]);
-
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-slate-50 font-sans text-slate-600 antialiased selection:bg-amber-500/30">
       <DashboardStyles />
@@ -124,59 +130,31 @@ const UserDashboard = () => {
       <Navbar />
 
       <div className="pt-20">
-        <div
-          key={activePage}
-          className="animate-enter"
-        >
-          {overlayPage ===
-            "advocate-profile" &&
-          selectedAdvocateId ? (
+        <div key={activePage} className="animate-enter">
+          {overlayPage ==="advocate-profile" &&
+            selectedAdvocateId ? (
             <main className="min-h-screen pb-12 sm:pb-16 lg:pb-20">
               <AdvocateProfile
-                advocateId={
-                  selectedAdvocateId
-                }
-                onBack={
-                  handleCloseOverlay
-                }
+                advocateId={selectedAdvocateId}
+                onBack={handleCloseOverlay}
                 currentUser={user}
-                onConsultationBooked={
-                  handleConsultationBooked
-                }
-              />
+                onConsultationBooked={handleConsultationBooked} />
             </main>
-          ) : overlayPage ===
-              "chatroom" &&
-            selectedConsultationId ? (
+          ) : overlayPage === "chatroom" &&
+             selectedConsultationId ? (
             <main className="min-h-screen pb-12 sm:pb-16 lg:pb-20">
-              <ChatRoom
-                consultationId={
-                  selectedConsultationId
-                }
+              <ChatRoom consultationId={ selectedConsultationId}
                 user={user}
-                onBack={
-                  handleCloseOverlay
-                }
-              />
+                onBack={ handleCloseOverlay}/>
             </main>
           ) : (
             <Routes>
               <Route
                 path="find-lawyer"
-                element={
-                  <main className="min-h-screen pb-12 sm:pb-16 lg:pb-20">
-                    <FindLawyer
-                      onViewAdvocate={(
-                        id,
-                      ) => {
-                        navigate(
-                          `/find-lawyer/${id}`,
-                        );
-                      }}
-                    />
+                element={ <main className="min-h-screen pb-12 sm:pb-16 lg:pb-20">
+                    <FindLawyer onViewAdvocate={( id, ) => { navigate(`/find-lawyer/${id}`, ); }} />
                   </main>
-                }
-              />
+                } />
 
               <Route
                 path="user-profile"

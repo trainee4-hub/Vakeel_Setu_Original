@@ -183,7 +183,12 @@ export const resolveAdvocateRedirect = (advocate, from = null) => {
     return "/advocate/complete-profile";
   }
 
-  if (from && from.startsWith("/") && from !== "/advocate/complete-profile") {
+  if (
+    from &&
+    typeof from === "string" &&
+    from.startsWith("/advocate/") &&
+    from !== "/advocate/complete-profile"
+  ) {
     return from;
   }
 
