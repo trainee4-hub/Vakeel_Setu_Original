@@ -557,7 +557,7 @@ const Navbar = () => {
                       onClick={handleLogout}
                       className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm hover:bg-red-100 font-bold text-red-500 hover:text-red-600"
                     >
-                      <IoLogOutOutline className="shrink-0 text-lg font-bold" />
+                      <IoLogOutOutline className="shrink-0 text-3xl font-bold " />
                       Logout
                     </button>
                   </div>

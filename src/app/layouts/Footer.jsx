@@ -738,7 +738,7 @@ const FooterLink = ({ label, onClick }) => {
 ============================================================ */
 
 const TrustBadge = ({
-  icon: Icon,
+  icon,
   text,
   iconClass,
 }) => {
@@ -766,15 +766,15 @@ const TrustBadge = ({
         hover:bg-slate-900
       "
     >
-      <Icon
-        className={`
+      {React.createElement(icon, {
+        className: `
           text-sm
           transition-transform
           duration-300
           group-hover/badge:scale-110
           ${iconClass}
-        `}
-      />
+        `,
+      })}
 
       {text}
     </div>

@@ -14,10 +14,7 @@ import {
 import { IoClose } from "react-icons/io5";
 
 import StarRating from "../common/StarRating";
-import {
-  REVIEWS_PREVIEW_COUNT,
-  formatIndianDate,
-} from "../utils/advocateProfileUtils";
+import {REVIEWS_PREVIEW_COUNT,formatIndianDate,} from "../utils/advocateProfileUtils";
 
 /**
  * Presentation for the whole Ratings & Reviews block. Every piece of state
