@@ -45,6 +45,7 @@ const Navbar = () => {
   ).toLowerCase();
 
   const isAdvocate = normalizedRole === "advocate" || normalizedRole === "lawyer";
+  const isAdmin = normalizedRole === "admin";
 
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
@@ -234,21 +235,23 @@ const Navbar = () => {
 
             {/* BOOKINGS */}
 
-            {loggedIn ? (
-              <Link
-                to={isAdvocate ? "/advocate/bookings" : "/bookings"}
-                className={navItemClass(isAdvocate ? "/advocate/bookings" : "/bookings")}
-              >
-                My Bookings
-              </Link>
-            ) : (
-              <button
-                type="button"
-                onClick={() => handleProtectedNavigation("/bookings")}
-                className={navItemClass("/bookings")}
-              >
-                My Bookings
-              </button>
+            {!isAdvocate && !isAdmin && (
+              loggedIn ? (
+                <Link
+                  to="/bookings"
+                  className={navItemClass("/bookings")}
+                >
+                  My Bookings
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => handleProtectedNavigation("/bookings")}
+                  className={navItemClass("/bookings")}
+                >
+                  My Bookings
+                </button>
+              )
             )}
 
             {/* MESSAGES */}

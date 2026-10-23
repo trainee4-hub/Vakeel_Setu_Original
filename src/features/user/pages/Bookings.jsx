@@ -1,1273 +1,1069 @@
 import {
-  memo,
-  useEffect,
-  useMemo,
   useState,
+  useEffect,
+  useCallback,
 } from "react";
-
-import RescheduleModal from "../components/RescheduleModal";
-import DetailItem from "../components/DetailItem";
-
+import { useNavigate, useParams, useSearchParams, Link } from "react-router-dom";
 import {
-  getPracticeAreas,
-  getModeLabel,
-  getModeIcon,
-  getProfileUrl,
-  getUserName,
-  getAdvocateName,
-  normalizeConsultation,
-  getStatusColor,
-  getStatusIcon,
-  getStatusLabel,
-} from "@/utils/consultationHelpers";
-import { formatPaiseToRupees } from "../utils/paymentUtils";
+  FiArrowLeft,
+  FiCalendar,
+  FiClock,
+  FiCreditCard,
+  FiFileText,
+  FiHash,
+  FiInfo,
+  FiLock,
+  FiMail,
+  FiPhone,
+  FiPrinter,
+  FiRefreshCw,
+  FiVideo,
+  FiX,
+  FiCheckCircle,
+} from "react-icons/fi";
+import { useAuth } from "../../auth";
+import { getUserRole } from "../../../utils/advocateProfile";
+import {
+  getUserBookings,
+  getUserBookingById,
+} from "../services/consultancyApi";
+import {
+  formatBookingAmount,
+  formatPaymentDateTime,
+  getBookingStatusBadgeClass,
+  getTimelineEventLabel,
+  getPaymentStatusLabel,
+} from "../utils/paymentUtils";
 
-const MOCK_CONSULTATIONS = [
-  {
-    _id: "demo-active-1",
-    status: "active",
-    type: "video",
-    consultationMode: "video",
-    consultationType: "Legal Consultation",
-    date: "2026-08-15",
-    time: "11:00 AM",
-    createdAt: "2026-08-10T09:00:00.000Z",
+/* =========================================================================
+   STATUS TABS CONFIGURATION
+========================================================================= */
 
-    user: {
-      _id: "client-1",
-      fullName: "Rohit Malhotra",
-      name: "Rohit Malhotra",
-      profileUrl: "",
-    },
-
-    advocate: {
-      _id: "advocate-1",
-      name: "Adv. Rahul Mehta",
-
-      personalDetails: {
-        fullName: "Adv. Rahul Mehta",
-        profileUrl: "",
-      },
-
-      professionalCredentials: {
-        practiceAreas: [
-          "criminal_law",
-          "civil_law",
-        ],
-        yearsOfExperience: 8,
-      },
-    },
-
-    payment: {
-      amount: 499,
-    },
-  },
-
-  {
-    _id: "demo-upcoming-1",
-    status: "upcoming",
-    type: "call",
-    consultationMode: "call",
-    consultationType: "Legal Consultation",
-    date: "2026-08-20",
-    time: "03:00 PM",
-    createdAt: "2026-08-11T09:00:00.000Z",
-
-    user: {
-      _id: "client-2",
-      fullName: "Priya Verma",
-      name: "Priya Verma",
-      profileUrl: "",
-    },
-
-    advocate: {
-      _id: "advocate-2",
-      name: "Adv. Neha Kapoor",
-
-      personalDetails: {
-        fullName: "Adv. Neha Kapoor",
-        profileUrl: "",
-      },
-
-      professionalCredentials: {
-        practiceAreas: ["family_law"],
-        yearsOfExperience: 10,
-      },
-    },
-
-    payment: {
-      amount: 599,
-    },
-  },
-
-  {
-    _id: "demo-upcoming-2",
-    status: "upcoming",
-    type: "offline",
-    consultationMode: "in_person",
-    consultationType: "Legal Consultation",
-    date: "2026-08-25",
-    time: "12:00 PM",
-    createdAt: "2026-08-12T09:00:00.000Z",
-
-    user: {
-      _id: "client-3",
-      fullName: "Sneha Gupta",
-      name: "Sneha Gupta",
-      profileUrl: "",
-    },
-
-    advocate: {
-      _id: "advocate-3",
-      name: "Adv. Vikram Malhotra",
-
-      personalDetails: {
-        fullName: "Adv. Vikram Malhotra",
-        profileUrl: "",
-      },
-
-      professionalCredentials: {
-        practiceAreas: ["property_law"],
-        yearsOfExperience: 15,
-      },
-    },
-
-    payment: {
-      amount: 999,
-    },
-  },
-
-  {
-    _id: "demo-past-1",
-    status: "completed",
-    type: "video",
-    consultationMode: "video",
-    consultationType: "Legal Consultation",
-    date: "2026-08-05",
-    time: "03:00 PM",
-    createdAt: "2026-08-05T15:00:00.000Z",
-
-    user: {
-      _id: "client-4",
-      fullName: "Amit Kumar",
-      name: "Amit Kumar",
-      profileUrl: "",
-    },
-
-    advocate: {
-      _id: "advocate-4",
-      name: "Adv. Arjun Singh",
-
-      personalDetails: {
-        fullName: "Adv. Arjun Singh",
-        profileUrl: "",
-      },
-
-      professionalCredentials: {
-        practiceAreas: [
-          "corporate_law",
-          "civil_law",
-        ],
-        yearsOfExperience: 12,
-      },
-    },
-
-    payment: {
-      amount: 799,
-      status: "Paid",
-    },
-  },
-
-  {
-    _id: "demo-past-2",
-    status: "completed",
-    type: "call",
-    consultationMode: "call",
-    consultationType: "Legal Consultation",
-    date: "2026-07-30",
-    time: "10:30 AM",
-    createdAt: "2026-07-30T10:30:00.000Z",
-
-    user: {
-      _id: "client-5",
-      fullName: "Karan Malhotra",
-      name: "Karan Malhotra",
-      profileUrl: "",
-    },
-
-    advocate: {
-      _id: "advocate-5",
-      name: "Adv. Priya Sharma",
-
-      personalDetails: {
-        fullName: "Adv. Priya Sharma",
-        profileUrl: "",
-      },
-
-      professionalCredentials: {
-        practiceAreas: ["labour_law"],
-        yearsOfExperience: 9,
-      },
-    },
-
-    payment: {
-      amount: 599,
-      status: "Paid",
-    },
-  },
-
-  {
-    _id: "demo-past-3",
-    status: "cancelled",
-    type: "offline",
-    consultationMode: "in_person",
-    consultationType: "Legal Consultation",
-    date: "2026-07-25",
-    time: "01:00 PM",
-    createdAt: "2026-07-25T13:00:00.000Z",
-
-    user: {
-      _id: "client-6",
-      fullName: "Deepa Nair",
-      name: "Deepa Nair",
-      profileUrl: "",
-    },
-
-    advocate: {
-      _id: "advocate-3",
-      name: "Adv. Vikram Malhotra",
-
-      personalDetails: {
-        fullName: "Adv. Vikram Malhotra",
-        profileUrl: "",
-      },
-
-      professionalCredentials: {
-        practiceAreas: ["property_law"],
-        yearsOfExperience: 15,
-      },
-    },
-
-    payment: {
-      amount: 1200,
-      status: "Refunded",
-    },
-  },
-
-  {
-    _id: "demo-message-1",
-    status: "active",
-    type: "message",
-    consultationMode: "message",
-    consultationType:
-      "Message Consultation",
-    date: "2026-08-14",
-    time: "09:00 AM",
-    createdAt:
-      "2026-08-14T09:00:00.000Z",
-
-    user: {
-      _id: "client-7",
-      fullName: "Rahul Sharma",
-      name: "Rahul Sharma",
-      profileUrl: "",
-    },
-
-    advocate: {
-      _id: "advocate-1",
-      name: "Adv. Rahul Mehta",
-
-      personalDetails: {
-        fullName: "Adv. Rahul Mehta",
-        profileUrl: "",
-      },
-
-      professionalCredentials: {
-        practiceAreas: [
-          "criminal_law",
-          "civil_law",
-        ],
-        yearsOfExperience: 8,
-      },
-    },
-
-    payment: {
-      amount: 299,
-    },
-
-    messagesUsed: 3,
-    messageLimit: 20,
-  },
+const TAB_CONFIG = [
+  { key: "ALL", label: "All" },
+  { key: "UPCOMING", label: "Upcoming" },
+  { key: "PROCESSING", label: "Processing" },
+  { key: "COMPLETED", label: "Completed" },
+  { key: "REFUNDED", label: "Refunded" },
 ];
 
-const ACTIVE_STATUSES = new Set([
-  "active",
-  "pending",
-  "payment_pending",
-  "upcoming",
-]);
+/* =========================================================================
+   MAIN BOOKINGS COMPONENT
+========================================================================= */
 
-const HISTORY_STATUSES = new Set([
-  "completed",
-  "cancelled",
-  "rejected",
-]);
+export default function Bookings() {
+  const navigate = useNavigate();
+  const { id: urlBookingId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { user } = useAuth();
+  const role = getUserRole(user);
 
-const Bookings = ({
-  user,
-  onBack,
-  onViewChat,
-  onFindLawyer,
-}) => {
-  const [allConsultations, setAllConsultations] = useState([]);
+  // Role Gate: USERS only. Advocates/admins see no-access screen.
+  const isForbiddenRole = role === "advocate" || role === "admin";
 
-  const [
-    loadingActive,
-    setLoadingActive,
-  ] = useState(true);
+  // List State
+  const activeTab = (searchParams.get("status") || "ALL").toUpperCase();
+  const [bookings, setBookings] = useState([]);
+  const [counts, setCounts] = useState({
+    ALL: 0,
+    UPCOMING: 0,
+    PROCESSING: 0,
+    COMPLETED: 0,
+    REFUNDED: 0,
+  });
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 1,
+    hasNextPage: false,
+  });
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [listError, setListError] = useState(null);
 
-  const [
-    apiError,
-    setApiError,
-  ] = useState(false);
+  // Detail State (when urlBookingId is present)
+  const [detailBooking, setDetailBooking] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState(null);
 
-  const [
-    activeTab,
-    setActiveTab,
-  ] = useState("upcoming");
+  // Printable Receipt State
+  const [receiptBooking, setReceiptBooking] = useState(null);
 
-  const [
-    selectedBooking,
-    setSelectedBooking,
-  ] = useState(null);
+  /* -------------------------------------------------------------------------
+     FETCH LIST DATA
+  ------------------------------------------------------------------------- */
+  const fetchBookingsList = useCallback(
+    async (pageToFetch = 1, append = false) => {
+      if (isForbiddenRole) return;
 
-  const [
-    rescheduleBooking,
-    setRescheduleBooking,
-  ] = useState(null);
+      if (append) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+      }
+      setListError(null);
 
-  /*
-   * Temporary demo loader.
-   *
-   * When the real backend is ready, replace only this effect
-   * with the real request.
-   */
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      const normalized =
-        MOCK_CONSULTATIONS
-          .map(normalizeConsultation)
-          .filter(Boolean);
+      try {
+        const response = await getUserBookings({
+          status: activeTab,
+          page: pageToFetch,
+          limit: 10,
+        });
 
-      setAllConsultations(normalized);
+        if (append) {
+          setBookings((prev) => {
+            const existingIds = new Set(prev.map((b) => b.id));
+            const newItems = (response.bookings || []).filter(
+              (b) => !existingIds.has(b.id)
+            );
+            return [...prev, ...newItems];
+          });
+        } else {
+          setBookings(response.bookings || []);
+        }
 
-      /*
-       * true means the yellow demo-data notice remains visible,
-       * same as your current implementation.
-       */
-      setApiError(true);
-      setLoadingActive(false);
-    }, 300);
+        if (response.counts) {
+          setCounts(response.counts);
+        }
 
-    return () => {
-      window.clearTimeout(timer);
-    };
-  }, []);
-
-  const {
-    activeConsultations,
-    historyConsultations,
-  } = useMemo(() => {
-    const active = [];
-    const history = [];
-
-    allConsultations.forEach(
-      (consultation) => {
-        if (
-          ACTIVE_STATUSES.has(
-            consultation.status,
-          )
-        ) {
-          active.push(consultation);
+        if (response.pagination) {
+          setPagination(response.pagination);
+        }
+      } catch (err) {
+        if (err?.status === 401) {
+          navigate("/login", { replace: true, state: { from: "/bookings" } });
           return;
         }
-
-        if (
-          HISTORY_STATUSES.has(
-            consultation.status,
-          )
-        ) {
-          history.push(consultation);
+        if (err?.status === 403) {
+          setListError({
+            status: 403,
+            message: "Access forbidden. Insufficient permissions.",
+          });
+          return;
         }
-      },
-    );
+        setListError({
+          status: err?.status || 500,
+          message:
+            err?.message || "Failed to load bookings. Please try again.",
+        });
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    },
+    [activeTab, isForbiddenRole, navigate]
+  );
 
-    return {
-      activeConsultations: active,
-      historyConsultations: history,
-    };
-  }, [allConsultations]);
+  /* -------------------------------------------------------------------------
+     FETCH DETAIL DATA
+  ------------------------------------------------------------------------- */
+  const fetchBookingDetail = useCallback(
+    async (id) => {
+      if (!id || isForbiddenRole) return;
+      setDetailLoading(true);
+      setDetailError(null);
 
-  const displayedConsultations =
-    activeTab === "upcoming"
-      ? activeConsultations
-      : historyConsultations;
+      try {
+        const response = await getUserBookingById(id);
+        if (response?.booking) {
+          setDetailBooking(response.booking);
+        } else {
+          setDetailError({ status: 404, message: "Booking not found." });
+        }
+      } catch (err) {
+        if (err?.status === 401) {
+          navigate("/login", { replace: true, state: { from: `/bookings/${id}` } });
+          return;
+        }
+        if (err?.status === 403) {
+          setDetailError({
+            status: 403,
+            message: "Access forbidden. Insufficient permissions.",
+          });
+          return;
+        }
+        if (err?.status === 404) {
+          setDetailError({ status: 404, message: "Booking not found." });
+          return;
+        }
+        setDetailError({
+          status: err?.status || 500,
+          message: err?.message || "Failed to load booking details.",
+        });
+      } finally {
+        setDetailLoading(false);
+      }
+    },
+    [isForbiddenRole, navigate]
+  );
 
-  const handleRescheduleSuccess = (
-    updatedBooking,
-  ) => {
-    if (!updatedBooking?._id) return;
+  // Sync List when on /bookings without :id
+  useEffect(() => {
+    if (!urlBookingId && !isForbiddenRole) {
+      fetchBookingsList(1, false);
+    }
+  }, [urlBookingId, activeTab, fetchBookingsList, isForbiddenRole]);
 
-    setAllConsultations(
-      (previous) =>
-        previous.map((booking) =>
-          booking._id ===
-          updatedBooking._id
-            ? normalizeConsultation({
-                ...booking,
-                ...updatedBooking,
-              })
-            : booking,
-        ),
-    );
+  // Sync Detail when urlBookingId changes
+  useEffect(() => {
+    if (urlBookingId && !isForbiddenRole) {
+      fetchBookingDetail(urlBookingId);
+    } else {
+      setDetailBooking(null);
+      setDetailError(null);
+    }
+  }, [urlBookingId, fetchBookingDetail, isForbiddenRole]);
+
+  /* -------------------------------------------------------------------------
+     HANDLERS
+  ------------------------------------------------------------------------- */
+  const handleTabChange = (newTab) => {
+    if (newTab === activeTab) return;
+    setSearchParams({ status: newTab });
   };
 
-  if (
-    !loadingActive &&
-    allConsultations.length === 0
-  ) {
+  const handleLoadMore = () => {
+    if (pagination.hasNextPage && !loadingMore) {
+      fetchBookingsList(pagination.page + 1, true);
+    }
+  };
+
+  const handleResetFilters = () => {
+    setSearchParams({ status: "ALL" });
+  };
+
+  /* -------------------------------------------------------------------------
+     RENDER: ROLE FORBIDDEN (Advocate / Admin)
+  ------------------------------------------------------------------------- */
+  if (isForbiddenRole || listError?.status === 403 || detailError?.status === 403) {
     return (
-      <BookingsEmptyState
-        user={user}
-        onBack={onBack}
-        onFindLawyer={onFindLawyer}
+      <NoAccessView
+        role={role}
+        onNavigateDashboard={() => {
+          if (role === "advocate") navigate("/advocate/dashboard");
+          else if (role === "admin") navigate("/admin/dashboard");
+          else navigate("/dashboard");
+        }}
       />
     );
   }
 
-  return (
-    <div className="mx-auto max-w-5xl px-6 py-8">
-
-      {/* HEADER */}
-
-      <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
-        <div>
-          <h1 className="mb-2 flex items-center gap-3 text-3xl font-bold text-slate-900">
-            <span className="rounded-lg bg-amber-100 p-2 text-amber-600">
-              <span className="material-symbols-outlined">
-                calendar_month
-              </span>
-            </span>
-
-            My Bookings
-          </h1>
-
-          <p className="ml-1 text-slate-500">
-            Manage your upcoming and
-            past legal consultations.
-          </p>
-        </div>
-
-        {user?.role !==
-          "advocate" && (
-          <button
-            type="button"
-            onClick={onFindLawyer}
-            className="flex self-start items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 font-bold text-white shadow-md transition-all hover:bg-slate-800 md:self-auto"
-          >
-            <span className="material-symbols-outlined text-sm">
-              add
-            </span>
-
-            New Booking
-          </button>
-        )}
-      </div>
-
-      {/* DEMO NOTICE */}
-
-      {apiError &&
-        !loadingActive && (
-          <div className="mb-5 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-            <span className="material-symbols-outlined text-lg">
-              info
-            </span>
-
-            <span>
-              Showing demo bookings
-              while the service is
-              unavailable.
-            </span>
-          </div>
-        )}
-
-      {/* TABS */}
-
-      <div className="mb-8 flex items-center gap-2 border-b border-slate-200">
-        <button
-          type="button"
-          onClick={() =>
-            setActiveTab("upcoming")
-          }
-          className={`relative px-6 py-3 text-sm font-bold transition-all ${
-            activeTab === "upcoming"
-              ? "border-b-2 border-amber-600 bg-amber-50/50 text-amber-600"
-              : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
-          }`}
-        >
-          Active & Upcoming
-
-          <span className="ml-2 rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] text-slate-600">
-            {
-              activeConsultations.length
-            }
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() =>
-            setActiveTab("history")
-          }
-          className={`relative px-6 py-3 text-sm font-bold transition-all ${
-            activeTab === "history"
-              ? "border-b-2 border-amber-600 bg-amber-50/50 text-amber-600"
-              : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
-          }`}
-        >
-          Past History
-
-          <span className="ml-2 rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] text-slate-600">
-            {
-              historyConsultations.length
-            }
-          </span>
-        </button>
-      </div>
-
-      {loadingActive ? (
-        <div className="flex flex-col items-center justify-center py-24">
-          <div className="mb-4 size-12 animate-spin rounded-full border-4 border-amber-200 border-t-amber-500" />
-
-          <p className="font-medium text-slate-400">
-            Loading your bookings...
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-5">
-          {displayedConsultations.length >
-          0 ? (
-            displayedConsultations.map(
-              (consultation) => (
-                <BookingCard
-                  key={
-                    consultation._id
-                  }
-                  consultation={
-                    consultation
-                  }
-                  user={user}
-                  onViewChat={
-                    onViewChat
-                  }
-                  onReschedule={
-                    setRescheduleBooking
-                  }
-                  onViewDetails={
-                    setSelectedBooking
-                  }
-                />
-              ),
-            )
-          ) : (
-            <EmptyTabState
-              activeTab={
-                activeTab
-              }
-              user={user}
-              onFindLawyer={
-                onFindLawyer
-              }
-            />
-          )}
-        </div>
-      )}
-
-      {selectedBooking && (
-        <BookingDetailsModal
-          consultation={
-            selectedBooking
-          }
-          user={user}
-          onClose={() =>
-            setSelectedBooking(null)
-          }
-        />
-      )}
-
-      {rescheduleBooking && (
-        <RescheduleModal
-          consultation={
-            rescheduleBooking
-          }
-          onClose={() =>
-            setRescheduleBooking(
-              null,
-            )
-          }
-          onSuccess={
-            handleRescheduleSuccess
-          }
-        />
-      )}
-    </div>
-  );
-};
-
-const BookingCard = memo(
-  function BookingCard({
-    consultation,
-    user,
-    onViewChat,
-    onReschedule,
-    onViewDetails,
-  }) {
-    const isAdvocate =
-      user?.role === "advocate";
-
-    const userInfo =
-      consultation?.user;
-
-    const advocateInfo =
-      consultation?.advocate;
-
-    const otherParty = isAdvocate
-      ? userInfo
-      : advocateInfo;
-
-    const otherPartyName =
-      isAdvocate
-        ? getUserName(userInfo)
-        : getAdvocateName(
-            advocateInfo,
-          );
-
-    const profileUrl =
-      getProfileUrl(otherParty);
-
-    const specialty =
-      getPracticeAreas(
-        advocateInfo,
-      );
-
-    const mode =
-      consultation?.consultationMode ||
-      "message";
-
-    const status =
-      consultation?.status;
-
-    const isPast =
-      HISTORY_STATUSES.has(status);
-
-    const isActive =
-      status === "active";
-
-    const isMessageType =
-      mode === "message";
-
-    const canChat =
-      isActive && isMessageType;
-
+  /* -------------------------------------------------------------------------
+     RENDER: DETAIL PAGE (when /bookings/:id is active)
+  ------------------------------------------------------------------------- */
+  if (urlBookingId) {
     return (
-      <div className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
-        <div className="flex flex-col gap-6 lg:flex-row">
+      <div className="min-h-screen bg-slate-50/70 pb-20 pt-20">
+        <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
+          {/* Top back button */}
+          <div className="mb-6 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => navigate("/bookings")}
+              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:text-slate-900"
+            >
+              <FiArrowLeft className="text-base" />
+              <span>Back to My Bookings</span>
+            </button>
+          </div>
 
-          {/* LEFT */}
-
-          <div className="flex min-w-0 flex-1 items-start gap-4">
-            <div className="flex shrink-0 flex-col items-center gap-2">
-              <div className="size-16 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
-                {profileUrl ? (
-                  <img
-                    src={profileUrl}
-                    alt={
-                      otherPartyName
-                    }
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-slate-50 text-slate-400">
-                    <span className="material-symbols-outlined text-2xl">
-                      person
-                    </span>
-                  </div>
-                )}
+          {detailLoading ? (
+            <DetailSkeleton />
+          ) : detailError ? (
+            <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm sm:p-12">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 text-rose-500">
+                <FiInfo className="text-2xl" />
               </div>
+              <h2 className="text-xl font-black text-slate-900">
+                {detailError.message || "Booking not found."}
+              </h2>
+              <p className="mt-2 text-sm text-slate-500">
+                The requested consultation booking could not be retrieved or does not exist.
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate("/bookings")}
+                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-slate-950 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-amber-500"
+              >
+                Back to bookings
+              </button>
+            </div>
+          ) : detailBooking ? (
+            <BookingDetailView
+              booking={detailBooking}
+              onOpenReceipt={() => setReceiptBooking(detailBooking)}
+            />
+          ) : null}
+        </div>
 
-              <div
-                className={`min-w-[80px] rounded-md border px-2 py-1 text-center text-[10px] font-bold uppercase tracking-wider ${
-                  isAdvocate
-                    ? "border-blue-100 bg-blue-50 text-blue-700"
-                    : "border-amber-100 bg-amber-50 text-amber-700"
+        {/* Printable Receipt Modal */}
+        {receiptBooking && (
+          <PrintableReceiptModal
+            booking={receiptBooking}
+            onClose={() => setReceiptBooking(null)}
+          />
+        )}
+      </div>
+    );
+  }
+
+  /* -------------------------------------------------------------------------
+     RENDER: LIST PAGE (/bookings)
+  ------------------------------------------------------------------------- */
+  const visibleTabs = TAB_CONFIG.filter((tab) => {
+    if (tab.key === "PROCESSING") {
+      return (counts.PROCESSING || 0) > 0;
+    }
+    return true;
+  });
+
+  return (
+    <div className="min-h-screen bg-slate-50/70 pb-20 pt-20">
+      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <div>
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-md shadow-amber-500/20">
+                <FiCalendar className="text-xl" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
+                  My Bookings
+                </h1>
+                <p className="text-sm font-medium text-slate-500">
+                  Track and manage your legal consultation bookings and payments.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <Link
+            to="/find-lawyer"
+            className="flex items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 py-2.5 text-sm font-black text-white shadow-sm transition hover:bg-amber-500 sm:self-auto"
+          >
+            <span>Book Consultation</span>
+          </Link>
+        </div>
+
+        {/* Tabs */}
+        <div className="mb-6 flex flex-wrap items-center gap-2 border-b border-slate-200 pb-2">
+          {visibleTabs.map((tab) => {
+            const count = counts[tab.key] ?? 0;
+            const isActive = activeTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => handleTabChange(tab.key)}
+                className={`relative flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-all ${
+                  isActive
+                    ? "bg-slate-950 text-white shadow-sm"
+                    : "text-slate-600 hover:bg-slate-200/60 hover:text-slate-900"
                 }`}
               >
-                {isAdvocate
-                  ? "CLIENT"
-                  : "ADVOCATE"}
-              </div>
+                <span>{tab.label}</span>
+                <span
+                  className={`inline-flex items-center justify-center rounded-full px-2 py-0.5 text-xs font-black ${
+                    isActive
+                      ? "bg-white/20 text-white"
+                      : "bg-slate-200 text-slate-700"
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* List Content */}
+        {loading ? (
+          <ListSkeleton />
+        ) : listError ? (
+          <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm sm:p-12">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 text-rose-500">
+              <FiInfo className="text-2xl" />
             </div>
-
-            <div className="min-w-0 flex-1">
-              <h3 className="text-lg font-bold leading-tight text-slate-900">
-                {otherPartyName}
-              </h3>
-
-              {!isAdvocate ? (
-                <p className="mt-1 text-sm text-slate-500">
-                  {specialty}
-                </p>
-              ) : (
-                <p className="mt-1 text-sm text-slate-500">
-                  Consultation with
-                  client
-                </p>
-              )}
-
-              <div className="mt-4">
-                <p className="text-base font-bold text-amber-600">
-                  {isMessageType
-                    ? "Message Consultation"
-                    : "Legal Consultation"}
-                </p>
-
-                <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2">
-                  <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                    <span className="material-symbols-outlined text-[16px]">
-                      calendar_month
-                    </span>
-
-                    {
-                      consultation.displayDate
-                    }
-                  </div>
-
-                  <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                    <span className="material-symbols-outlined text-[16px]">
-                      schedule
-                    </span>
-
-                    {
-                      consultation.displayTime
-                    }
-                  </div>
-
-                  <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                    <span className="material-symbols-outlined text-[16px]">
-                      {getModeIcon(
-                        mode,
-                      )}
-                    </span>
-
-                    {getModeLabel(
-                      mode,
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* RIGHT */}
-
-          <div className="flex items-center justify-between gap-4 border-t border-slate-100 pt-4 lg:min-w-[210px] lg:flex-col lg:items-end lg:justify-center lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
-            <div className="text-left lg:text-right">
-              <div className="text-lg font-bold text-slate-800">
-                ₹
-                {consultation.displayAmount ||
-                  0}
-              </div>
-
-              {/* Show Paid / Refunded badge only when payment exists with status */}
-              {consultation?.payment && consultation.payment.status && (
-                <div className="mt-1">
-                  {String(consultation.payment.status).toUpperCase() === "PAID" ? (
-                    <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
-                      Paid {consultation.payment.amount ? formatPaiseToRupees(consultation.payment.amount, consultation.payment.amountRupees) : `₹${consultation.displayAmount || 0}`}
-                    </span>
-                  ) : String(consultation.payment.status).toUpperCase() === "REFUNDED" ? (
-                    <span className="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-700">
-                      Refunded
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-bold text-slate-600">
-                      {String(consultation.payment.status).replace(/_/g, " ")}
-                    </span>
-                  )}
-                </div>
-              )}
-
-              {isActive &&
-                isMessageType &&
-                consultation?.messageLimit && (
-                  <div className="mt-1 text-xs text-slate-500">
-                    {consultation.messagesUsed ||
-                      0}
-                    /
-                    {
-                      consultation.messageLimit
-                    }{" "}
-                    msgs used
-                  </div>
-                )}
-            </div>
-
-            <div className="flex flex-wrap justify-end gap-2">
-              {!isPast &&
-                !isMessageType && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => {}}
-                      className="rounded-xl bg-amber-500 px-5 py-2 text-xs font-bold text-white transition-all hover:bg-amber-600"
-                    >
-                      Join Meeting
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        onReschedule(
-                          consultation,
-                        )
-                      }
-                      className="rounded-xl border border-amber-300 bg-white px-4 py-2 text-xs font-bold text-amber-700 transition-all hover:bg-amber-50"
-                    >
-                      Reschedule
-                    </button>
-                  </>
-                )}
-
-              {!isPast &&
-                isMessageType &&
-                canChat && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      onViewChat?.(
-                        consultation._id,
-                      )
-                    }
-                    className="flex items-center gap-1.5 rounded-xl bg-amber-500 px-5 py-2 text-xs font-bold text-white transition-all hover:bg-amber-600"
-                  >
-                    Open Chat
-
-                    <span className="material-symbols-outlined text-[15px]">
-                      arrow_forward
-                    </span>
-                  </button>
-                )}
-
-              {isPast && (
+            <h2 className="text-xl font-black text-slate-900">
+              Couldn&apos;t load your bookings
+            </h2>
+            <p className="mt-2 text-sm text-slate-500">
+              {listError.message}
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => fetchBookingsList(1, false)}
+                className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-amber-500"
+              >
+                <FiRefreshCw className="text-sm" />
+                <span>Retry</span>
+              </button>
+              {listError.status === 400 && (
                 <button
                   type="button"
-                  onClick={() =>
-                    onViewDetails(
-                      consultation,
-                    )
-                  }
-                  className="rounded-xl border border-slate-300 bg-white px-5 py-2 text-xs font-bold text-slate-700 transition-all hover:bg-slate-50"
+                  onClick={handleResetFilters}
+                  className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
                 >
-                  View Details
+                  Reset filters
                 </button>
               )}
             </div>
           </div>
-        </div>
-      </div>
-    );
-  },
-);
+        ) : bookings.length === 0 ? (
+          <EmptyBookingsTabState onBookConsultation={() => navigate("/find-lawyer")} />
+        ) : (
+          <div className="space-y-4">
+            {bookings.map((booking) => (
+              <BookingCard
+                key={booking.id}
+                booking={booking}
+                onClick={() => navigate(`/bookings/${booking.id}`)}
+              />
+            ))}
 
-const EmptyTabState = memo(
-  function EmptyTabState({
-    activeTab,
-    user,
-    onFindLawyer,
-  }) {
-    const isUpcoming =
-      activeTab === "upcoming";
-
-    return (
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 py-16">
-        <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-white shadow-sm">
-          <span className="material-symbols-outlined text-3xl text-slate-300">
-            {isUpcoming
-              ? "event_available"
-              : "history"}
-          </span>
-        </div>
-
-        <p className="mb-1 font-bold text-slate-700">
-          {isUpcoming
-            ? "No Active Consultations"
-            : "No Past Consultations"}
-        </p>
-
-        <p className="max-w-sm text-center text-sm text-slate-400">
-          {isUpcoming
-            ? "Your upcoming consultations will appear here."
-            : "Your completed and cancelled consultations will appear here."}
-        </p>
-
-        {isUpcoming &&
-          user?.role !==
-            "advocate" && (
-            <button
-              type="button"
-              onClick={
-                onFindLawyer
-              }
-              className="mt-6 rounded-xl bg-amber-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-amber-600"
-            >
-              Book Consultation
-            </button>
-          )}
-      </div>
-    );
-  },
-);
-
-const BookingsEmptyState = ({
-  user,
-  onBack,
-  onFindLawyer,
-}) => {
-  const isAdvocate =
-    user?.role === "advocate";
-
-  return (
-    <div className="mx-auto max-w-4xl px-6 py-12">
-      <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-12 text-center shadow-xl shadow-slate-200/40">
-        <div className="absolute left-0 top-0 h-2 w-full bg-gradient-to-r from-amber-400 to-amber-600" />
-
-        <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-amber-50 opacity-60 blur-3xl" />
-
-        <div
-          className={`pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full opacity-60 blur-3xl ${
-            isAdvocate
-              ? "bg-blue-50"
-              : "bg-emerald-50"
-          }`}
-        />
-
-        <div className="relative z-10 flex flex-col items-center">
-          <div
-            className={`mb-8 rounded-full border p-6 shadow-sm ${
-              isAdvocate
-                ? "border-slate-100 bg-slate-50"
-                : "border-amber-100 bg-amber-50"
-            }`}
-          >
-            <span
-              className={`material-symbols-outlined text-6xl ${
-                isAdvocate
-                  ? "text-slate-400"
-                  : "text-amber-500"
-              }`}
-            >
-              {isAdvocate
-                ? "calendar_month"
-                : "event_available"}
-            </span>
+            {/* Pagination Load More */}
+            {pagination.hasNextPage && (
+              <div className="pt-4 text-center">
+                <button
+                  type="button"
+                  disabled={loadingMore}
+                  onClick={handleLoadMore}
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:text-slate-950 disabled:opacity-50"
+                >
+                  {loadingMore ? (
+                    <>
+                      <div className="size-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-800" />
+                      <span>Loading more...</span>
+                    </>
+                  ) : (
+                    <span>Load More Bookings</span>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
-
-          <h1 className="mb-4 text-3xl font-bold text-slate-900">
-            {isAdvocate
-              ? "Awaiting New Bookings"
-              : "No Bookings Yet"}
-          </h1>
-
-          <p className="mx-auto mb-8 max-w-lg leading-relaxed text-slate-500">
-            {isAdvocate
-              ? "Your profile is live and visible to potential clients. Upcoming consultations will appear here once booked."
-              : "Connect with verified legal experts. Book a consultation to get professional advice tailored to your needs."}
-          </p>
-
-          {!isAdvocate ? (
-            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <button
-                type="button"
-                onClick={
-                  onFindLawyer
-                }
-                className="flex items-center gap-2 rounded-xl bg-amber-500 px-8 py-3.5 text-lg font-bold text-white shadow-lg shadow-amber-500/30 transition-all hover:-translate-y-1 hover:bg-amber-600"
-              >
-                Find a Lawyer
-
-                <span className="material-symbols-outlined">
-                  search
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={onBack}
-                className="rounded-xl px-6 py-3.5 font-semibold text-slate-600 transition-colors hover:bg-slate-50"
-              >
-                Back to Dashboard
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={onBack}
-              className="rounded-xl border border-slate-300 bg-white px-6 py-2.5 font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-            >
-              Back to Dashboard
-            </button>
-          )}
-        </div>
+        )}
       </div>
+
+      {/* Printable Receipt Modal */}
+      {receiptBooking && (
+        <PrintableReceiptModal
+          booking={receiptBooking}
+          onClose={() => setReceiptBooking(null)}
+        />
+      )}
     </div>
   );
-};
+}
 
-const BookingDetailsModal = ({
-  consultation,
-  user,
-  onClose,
-}) => {
-  const isAdvocate =
-    user?.role === "advocate";
+/* =========================================================================
+   BOOKING CARD COMPONENT
+========================================================================= */
 
-  const otherParty = isAdvocate
-    ? consultation?.user
-    : consultation?.advocate;
-
-  const name = isAdvocate
-    ? getUserName(
-        consultation?.user,
-      )
-    : getAdvocateName(
-        consultation?.advocate,
-      );
-
-  const role = isAdvocate
-    ? "Client"
-    : "Advocate";
-
-  const mode =
-    consultation?.consultationMode ||
-    "message";
-
-  const status =
-    consultation?.status;
-
-  const profileUrl =
-    getProfileUrl(otherParty);
+function BookingCard({ booking, onClick }) {
+  const isVideo = booking.callType === "VIDEO_CALL";
+  const badgeClass = getBookingStatusBadgeClass(booking.status);
+  const formattedPrice = formatBookingAmount(booking.price);
+  const formattedCreatedAt = formatPaymentDateTime(booking.createdAt);
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div
-        className="w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl"
-        onClick={(event) =>
-          event.stopPropagation()
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
         }
-      >
-        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
-          <div>
-            <h2 className="text-xl font-bold text-slate-900">
-              Consultation Details
-            </h2>
-
-            <p className="mt-1 text-sm text-slate-500">
-              {getStatusLabel(
-                status,
-              )}{" "}
-              consultation
-            </p>
+      }}
+      className="group cursor-pointer rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-all hover:border-amber-400/80 hover:shadow-md sm:p-6"
+    >
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+        {/* Left: Icon, Title, Date */}
+        <div className="flex items-start gap-4">
+          <div
+            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-xl shadow-inner ${
+              isVideo
+                ? "bg-purple-50 text-purple-600"
+                : "bg-blue-50 text-blue-600"
+            }`}
+          >
+            {isVideo ? <FiVideo /> : <FiPhone />}
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex size-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200"
-          >
-            <span className="material-symbols-outlined">
-              close
-            </span>
-          </button>
+          <div>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h3 className="text-base font-bold text-slate-950 transition group-hover:text-amber-600 sm:text-lg">
+                {booking.title}
+              </h3>
+              <span
+                className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-bold ${badgeClass}`}
+              >
+                {booking.statusLabel}
+              </span>
+            </div>
+
+            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+              <span className="flex items-center gap-1">
+                <FiCalendar className="text-slate-400" />
+                <span>Booked on {formattedCreatedAt}</span>
+              </span>
+              <span className="flex items-center gap-1">
+                <FiClock className="text-slate-400" />
+                <span>{booking.durationMinutes} min</span>
+              </span>
+            </div>
+          </div>
         </div>
 
-        <div className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="size-14 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
-              {profileUrl ? (
-                <img
-                  src={profileUrl}
-                  alt={name}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-slate-400">
-                  <span className="material-symbols-outlined text-2xl">
-                    person
+        {/* Right: Price & Details Arrow */}
+        <div className="flex items-center justify-between border-t border-slate-100 pt-3 sm:flex-col sm:items-end sm:border-t-0 sm:pt-0">
+          <span className="text-lg font-black text-slate-950 sm:text-xl">
+            {formattedPrice}
+          </span>
+          <span className="text-xs font-bold text-amber-600 group-hover:underline">
+            View Details →
+          </span>
+        </div>
+      </div>
+
+      {/* Special Contextual Banners */}
+      {booking.status === "PAYMENT_PROCESSING" && (
+        <div className="mt-4 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50/80 px-3.5 py-2.5 text-xs font-bold text-amber-900">
+          <FiInfo className="shrink-0 text-base text-amber-600" />
+          <span>Your bank is confirming the payment. Do not pay again.</span>
+        </div>
+      )}
+
+      {booking.status === "CONFIRMED" && booking.payment?.refundEligibleAt && (
+        <div className="mt-4 flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50/80 px-3.5 py-2.5 text-xs font-medium text-blue-900">
+          <FiInfo className="shrink-0 text-base text-blue-600" />
+          <span>
+            If the call doesn&apos;t happen by{" "}
+            <strong className="font-bold">
+              {formatPaymentDateTime(booking.payment.refundEligibleAt)}
+            </strong>
+            , you&apos;re eligible for a refund.
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* =========================================================================
+   BOOKING DETAIL VIEW
+========================================================================= */
+
+function BookingDetailView({ booking, onOpenReceipt }) {
+  const isVideo = booking.callType === "VIDEO_CALL";
+  const badgeClass = getBookingStatusBadgeClass(booking.status);
+  const formattedPrice = formatBookingAmount(booking.price);
+
+  return (
+    <div className="space-y-6">
+      {/* Overview Card */}
+      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-100 bg-slate-50/50 p-6 sm:p-8">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+            <div className="flex items-start gap-4">
+              <div
+                className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-2xl shadow-inner ${
+                  isVideo
+                    ? "bg-purple-100 text-purple-700"
+                    : "bg-blue-100 text-blue-700"
+                }`}
+              >
+                {isVideo ? <FiVideo /> : <FiPhone />}
+              </div>
+              <div>
+                <span
+                  className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-bold ${badgeClass}`}
+                >
+                  {booking.statusLabel}
+                </span>
+                <h2 className="mt-2 text-xl font-black text-slate-950 sm:text-2xl">
+                  {booking.title}
+                </h2>
+                <p className="mt-1 text-xs text-slate-500">
+                  Booking ID:{" "}
+                  <span className="font-mono font-semibold text-slate-700">
+                    {booking.id}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col items-start sm:items-end">
+              <span className="text-xs font-black uppercase tracking-wider text-slate-400">
+                Consultation Fee
+              </span>
+              <span className="mt-0.5 text-2xl font-black text-slate-950">
+                {formattedPrice}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Details Grid */}
+        <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 sm:p-8">
+          {/* Consultation Info */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-black uppercase tracking-wider text-slate-400">
+              Consultation Specifics
+            </h4>
+            <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-4 space-y-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-slate-500">Mode</span>
+                <span className="font-bold text-slate-800">
+                  {isVideo ? "Video Consultation" : "Voice Call Consultation"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Duration</span>
+                <span className="font-bold text-slate-800">
+                  {booking.durationMinutes} minutes
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Created At</span>
+                <span className="font-semibold text-slate-800">
+                  {formatPaymentDateTime(booking.createdAt)}
+                </span>
+              </div>
+              {booking.completedAt && (
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Completed At</span>
+                  <span className="font-semibold text-emerald-700">
+                    {formatPaymentDateTime(booking.completedAt)}
                   </span>
                 </div>
               )}
             </div>
+          </div>
 
+          {/* Contact Info */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-black uppercase tracking-wider text-slate-400">
+              Registered Contact
+            </h4>
+            <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-4 space-y-3 text-sm">
+              <div className="flex items-center gap-2">
+                <FiPhone className="text-slate-400 shrink-0" />
+                <span className="text-slate-500">Phone:</span>
+                <span className="font-semibold text-slate-800">
+                  {booking.contact?.phoneNumber || "—"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <FiMail className="text-slate-400 shrink-0" />
+                <span className="text-slate-500">Email:</span>
+                <span className="font-semibold text-slate-800 truncate">
+                  {booking.contact?.email || "—"}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Payment Summary (if payment exists) */}
+        {booking.payment && (
+          <div className="border-t border-slate-100 p-6 sm:p-8">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-slate-400">
+                  Payment Details
+                </h4>
+                <div className="mt-2 flex flex-wrap items-center gap-3">
+                  <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
+                    {getPaymentStatusLabel(booking.payment.status)}
+                  </span>
+                  <span className="text-base font-black text-slate-900">
+                    {formatBookingAmount(booking.payment.amount)}
+                  </span>
+                  {booking.payment.paidAt && (
+                    <span className="text-xs text-slate-500">
+                      Paid on {formatPaymentDateTime(booking.payment.paidAt)}
+                    </span>
+                  )}
+                </div>
+
+                <div className="mt-3 grid grid-cols-1 gap-2 text-xs text-slate-500 sm:grid-cols-2">
+                  {booking.payment.razorpayPaymentId && (
+                    <p>
+                      Payment ID:{" "}
+                      <span className="font-mono font-semibold text-slate-700">
+                        {booking.payment.razorpayPaymentId}
+                      </span>
+                    </p>
+                  )}
+                  {booking.payment.razorpayOrderId && (
+                    <p>
+                      Order ID:{" "}
+                      <span className="font-mono font-semibold text-slate-700">
+                        {booking.payment.razorpayOrderId}
+                      </span>
+                    </p>
+                  )}
+                  {booking.payment.refundedAt && (
+                    <p className="col-span-full font-semibold text-slate-700">
+                      Refunded on:{" "}
+                      {formatPaymentDateTime(booking.payment.refundedAt)}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* View Receipt Button */}
+              {booking.actions?.canViewReceipt && (
+                <button
+                  type="button"
+                  onClick={onOpenReceipt}
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-800 shadow-sm transition hover:bg-slate-50 hover:text-slate-950"
+                >
+                  <FiFileText className="text-base text-amber-500" />
+                  <span>View Receipt</span>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Refund Policy Information */}
+        <div className="border-t border-slate-100 bg-slate-50/60 p-6 sm:p-8">
+          {booking.actions?.refundEligibleNow ? (
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50/90 p-4 text-emerald-950">
+              <div className="flex items-center gap-2 text-sm font-bold">
+                <FiCheckCircle className="text-emerald-600" />
+                <span>You&apos;re eligible for a refund. Our team will process it.</span>
+              </div>
+              <p className="mt-1 text-xs text-emerald-800">
+                Our support team automatically initiates eligible refunds back to your original source of payment within standard bank timelines.
+              </p>
+            </div>
+          ) : booking.payment?.refundEligibleAt ? (
+            <div className="flex items-start gap-3 text-xs text-slate-600">
+              <FiInfo className="mt-0.5 text-base text-blue-500 shrink-0" />
+              <p>
+                If your scheduled consultation does not occur by{" "}
+                <strong className="font-bold text-slate-900">
+                  {formatPaymentDateTime(booking.payment.refundEligibleAt)}
+                </strong>
+                , your booking becomes eligible for a full refund processed by our team.
+              </p>
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      {/* Audit Timeline Card */}
+      {Array.isArray(booking.timeline) && booking.timeline.length > 0 && (
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <h3 className="text-sm font-black uppercase tracking-wider text-slate-400">
+            Activity Timeline
+          </h3>
+          <div className="mt-6 space-y-6">
+            {booking.timeline.map((item, index) => {
+              const isLast = index === booking.timeline.length - 1;
+              const eventLabel = getTimelineEventLabel(item.event);
+              const formattedTime = formatPaymentDateTime(item.at);
+
+              return (
+                <div key={`${item.event}-${index}`} className="relative flex items-start gap-4">
+                  {/* Vertical connecting line */}
+                  {!isLast && (
+                    <div className="absolute left-3 top-6 h-full w-0.5 bg-slate-200" />
+                  )}
+
+                  {/* Dot */}
+                  <div className="relative z-10 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-white bg-amber-500 shadow">
+                    <div className="h-2 w-2 rounded-full bg-white" />
+                  </div>
+
+                  {/* Text */}
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-slate-900">
+                      {eventLabel}
+                    </p>
+                    <p className="mt-0.5 text-xs text-slate-500">
+                      {formattedTime}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* =========================================================================
+   PRINTABLE RECEIPT MODAL (Zero PDF libraries, uses clean window.print)
+========================================================================= */
+
+function PrintableReceiptModal({ booking, onClose }) {
+  const isVideo = booking.callType === "VIDEO_CALL";
+  const amountFormatted = formatBookingAmount(booking.payment?.amount || booking.price);
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm print:static print:bg-white print:p-0">
+      <div className="relative w-full max-w-xl rounded-3xl border border-slate-200 bg-white shadow-2xl print:w-full print:max-w-none print:border-none print:shadow-none">
+        {/* Modal Top Bar - Hidden on print */}
+        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 print:hidden">
+          <div className="flex items-center gap-2">
+            <FiFileText className="text-amber-500 text-lg" />
+            <h3 className="text-sm font-bold text-slate-900">
+              Consultancy Booking Receipt
+            </h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handlePrint}
+              className="flex items-center gap-1.5 rounded-xl bg-slate-950 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-amber-500"
+            >
+              <FiPrinter className="text-sm" />
+              <span>Print</span>
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition hover:bg-slate-200"
+            >
+              <FiX className="text-base" />
+            </button>
+          </div>
+        </div>
+
+        {/* Printable Sheet Body */}
+        <div className="p-6 sm:p-8 print:p-8 text-slate-800">
+          {/* Receipt Header */}
+          <div className="flex items-start justify-between border-b border-slate-200 pb-6">
             <div>
-              <h3 className="text-lg font-bold text-slate-900">
-                {name}
-              </h3>
-
-              <p className="text-sm text-slate-500">
-                {role}
+              <h2 className="text-2xl font-black text-slate-950">
+                Vakeel<span className="text-amber-500">Setu</span>
+              </h2>
+              <p className="mt-1 text-xs text-slate-500">
+                Verified Legal Consultation Service
+              </p>
+            </div>
+            <div className="text-right">
+              <span className="inline-block rounded-md bg-slate-100 px-2.5 py-1 text-[11px] font-black uppercase tracking-wider text-slate-600">
+                RECEIPT
+              </span>
+              <p className="mt-1.5 text-xs text-slate-500">
+                Date: {formatPaymentDateTime(booking.payment?.paidAt || booking.createdAt)}
               </p>
             </div>
           </div>
 
-          <div className="my-6 border-t border-slate-100" />
-
-          <div>
-            <h4 className="mb-4 text-sm font-bold text-slate-900">
-              Consultation
-              Information
-            </h4>
-
-            <div className="space-y-4">
-              <DetailItem
-                icon="calendar_month"
-                label="Date"
-                value={
-                  consultation?.displayDate ||
-                  "Date not available"
-                }
-              />
-
-              <DetailItem
-                icon="schedule"
-                label="Time"
-                value={
-                  consultation?.displayTime ||
-                  "Time not available"
-                }
-              />
-
-              <DetailItem
-                icon="gavel"
-                label="Type"
-                value={
-                  consultation?.consultationType ||
-                  "Legal Consultation"
-                }
-              />
-
-              <DetailItem
-                icon={getModeIcon(
-                  mode,
-                )}
-                label="Mode"
-                value={getModeLabel(
-                  mode,
-                )}
-              />
+          {/* Reference Data */}
+          <div className="mt-6 grid grid-cols-2 gap-4 text-xs">
+            <div>
+              <p className="font-bold text-slate-400 uppercase tracking-wider text-[10px]">
+                Booking Reference
+              </p>
+              <p className="mt-1 font-mono font-semibold text-slate-900">
+                {booking.id}
+              </p>
             </div>
-          </div>
+            <div>
+              <p className="font-bold text-slate-400 uppercase tracking-wider text-[10px]">
+                Payment Status
+              </p>
+              <p className="mt-1 font-bold text-emerald-700">
+                {getPaymentStatusLabel(booking.payment?.status || "PAID")}
+              </p>
+            </div>
 
-          <div className="my-6 border-t border-slate-100" />
-
-          <div>
-            <h4 className="mb-4 text-sm font-bold text-slate-900">
-              Payment
-            </h4>
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[18px] text-slate-400">
-                    payments
-                  </span>
-
-                  <span className="text-sm text-slate-500">
-                    Amount
-                  </span>
-                </div>
-
-                <span className="text-sm font-bold text-slate-900">
-                  ₹
-                  {consultation?.displayAmount ||
-                    0}
-                </span>
+            {booking.payment?.razorpayPaymentId && (
+              <div>
+                <p className="font-bold text-slate-400 uppercase tracking-wider text-[10px]">
+                  Payment ID
+                </p>
+                <p className="mt-1 font-mono text-slate-800">
+                  {booking.payment.razorpayPaymentId}
+                </p>
               </div>
+            )}
+            {booking.payment?.razorpayOrderId && (
+              <div>
+                <p className="font-bold text-slate-400 uppercase tracking-wider text-[10px]">
+                  Order ID
+                </p>
+                <p className="mt-1 font-mono text-slate-800">
+                  {booking.payment.razorpayOrderId}
+                </p>
+              </div>
+            )}
+          </div>
 
-              {consultation?.payment?.status && (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[18px] text-slate-400">
-                      receipt_long
-                    </span>
+          {/* Consultation Item */}
+          <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50/50 p-4">
+            <div className="flex items-center justify-between border-b border-slate-200/60 pb-3 text-xs font-black uppercase tracking-wider text-slate-400">
+              <span>Service Description</span>
+              <span>Amount</span>
+            </div>
+            <div className="flex items-center justify-between pt-3">
+              <div>
+                <p className="text-sm font-bold text-slate-950">
+                  {booking.title}
+                </p>
+                <p className="mt-0.5 text-xs text-slate-500">
+                  Mode: {isVideo ? "Video Call" : "Voice Call"} • Duration: {booking.durationMinutes} min
+                </p>
+              </div>
+              <p className="text-base font-black text-slate-950">
+                {amountFormatted}
+              </p>
+            </div>
+          </div>
 
-                    <span className="text-sm text-slate-500">
-                      Payment Status
-                    </span>
-                  </div>
-
-                  <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
-                    {String(
-                      consultation.payment.status,
-                    ).replace(
-                      /_/g,
-                      " ",
-                    )}
-                  </span>
-                </div>
+          {/* Contact Details */}
+          <div className="mt-6 border-t border-slate-200 pt-4 text-xs text-slate-600">
+            <p className="font-bold text-slate-400 uppercase tracking-wider text-[10px]">
+              Client Details
+            </p>
+            <div className="mt-1 flex flex-wrap gap-x-6 gap-y-1">
+              {booking.contact?.phoneNumber && (
+                <span>Phone: {booking.contact.phoneNumber}</span>
+              )}
+              {booking.contact?.email && (
+                <span>Email: {booking.contact.email}</span>
               )}
             </div>
           </div>
 
-          <div className="my-6 border-t border-slate-100" />
-
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-500">
-              Status
+          {/* Total */}
+          <div className="mt-6 flex items-center justify-between border-t-2 border-slate-900 pt-4">
+            <span className="text-sm font-black text-slate-950">
+              Total Amount Paid
             </span>
-
-            <span
-              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold uppercase ${getStatusColor(
-                status,
-              )}`}
-            >
-              <span className="material-symbols-outlined text-[15px]">
-                {getStatusIcon(
-                  status,
-                )}
-              </span>
-
-              {getStatusLabel(
-                status,
-              )}
+            <span className="text-xl font-black text-slate-950">
+              {amountFormatted}
             </span>
           </div>
 
-          <div className="mt-7">
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-full rounded-xl bg-slate-900 px-4 py-3 font-bold text-white transition-colors hover:bg-slate-800"
-            >
-              Close
-            </button>
-          </div>
+          {/* Footer note */}
+          <p className="mt-8 text-center text-[11px] text-slate-400">
+            This is a computer-generated receipt for consultation services booked on VakeelSetu.
+          </p>
         </div>
       </div>
     </div>
   );
-};
+}
 
-export default Bookings;
+/* =========================================================================
+   NO ACCESS VIEW (Advocate / Admin)
+========================================================================= */
+
+function NoAccessView({ role, onNavigateDashboard }) {
+  return (
+    <div className="flex min-h-[70vh] items-center justify-center px-4 py-16">
+      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-lg sm:p-10">
+        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+          <FiLock className="text-3xl" />
+        </div>
+        <h2 className="text-2xl font-black text-slate-950">
+          Access forbidden
+        </h2>
+        <p className="mt-2 text-sm text-slate-500">
+          Insufficient permissions. This bookings page is specifically designed for client consultation management.
+        </p>
+        <button
+          type="button"
+          onClick={onNavigateDashboard}
+          className="mt-8 w-full rounded-xl bg-slate-950 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-amber-500"
+        >
+          {role === "advocate" ? "Go to Advocate Portal" : "Go to Dashboard"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================
+   EMPTY STATE
+========================================================================= */
+
+function EmptyBookingsTabState({ onBookConsultation }) {
+  return (
+    <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center shadow-sm sm:p-16">
+      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+        <FiCalendar className="text-3xl" />
+      </div>
+      <h3 className="text-lg font-bold text-slate-900">
+        No bookings yet
+      </h3>
+      <p className="mx-auto mt-1.5 max-w-sm text-sm text-slate-500">
+        Connect with verified legal experts and get professional advice tailored to your needs.
+      </p>
+      <button
+        type="button"
+        onClick={onBookConsultation}
+        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-amber-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-amber-600"
+      >
+        <span>Book a consultation</span>
+      </button>
+    </div>
+  );
+}
+
+/* =========================================================================
+   LOADING SKELETONS
+========================================================================= */
+
+function ListSkeleton() {
+  return (
+    <div className="space-y-4">
+      {[1, 2, 3].map((key) => (
+        <div
+          key={key}
+          className="animate-pulse rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <div className="h-12 w-12 rounded-2xl bg-slate-200" />
+              <div className="space-y-2">
+                <div className="h-5 w-48 rounded bg-slate-200" />
+                <div className="h-3 w-32 rounded bg-slate-100" />
+              </div>
+            </div>
+            <div className="h-6 w-20 rounded bg-slate-200" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DetailSkeleton() {
+  return (
+    <div className="animate-pulse space-y-6">
+      <div className="rounded-3xl border border-slate-200 bg-white p-8">
+        <div className="flex items-center gap-4">
+          <div className="h-14 w-14 rounded-2xl bg-slate-200" />
+          <div className="space-y-2">
+            <div className="h-6 w-60 rounded bg-slate-200" />
+            <div className="h-4 w-40 rounded bg-slate-100" />
+          </div>
+        </div>
+        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="h-28 rounded-2xl bg-slate-100" />
+          <div className="h-28 rounded-2xl bg-slate-100" />
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -317,3 +317,92 @@ export const getUserPayments = async ({ page = 1, limit = 20 } = {}) => {
     },
   };
 };
+
+/* ================================================================
+   GET USER BOOKINGS (List with Tab Counts & Timeline Detail)
+   Backend README §30 API Contract
+================================================================ */
+
+/**
+ * Retrieves paginated list of user's consultancy bookings with tab counts.
+ * Clamps limit to max 50 client-side to prevent backend 400 Zod error.
+ *
+ * @param {Object} options
+ * @param {'ALL'|'UPCOMING'|'PROCESSING'|'COMPLETED'|'REFUNDED'} [options.status='ALL']
+ * @param {string} [options.from] - ISO date or YYYY-MM-DD
+ * @param {string} [options.to] - ISO date or YYYY-MM-DD
+ * @param {number} [options.page=1]
+ * @param {number} [options.limit=10]
+ * @returns {Promise<{success: boolean, bookings: Array, pagination: Object, counts: Object}>}
+ */
+export const getUserBookings = async ({
+  status = "ALL",
+  from,
+  to,
+  page = 1,
+  limit = 10,
+} = {}) => {
+  const safeLimit = Math.min(Math.max(1, Number(limit) || 10), 50);
+  const safePage = Math.max(1, Number(page) || 1);
+
+  const params = new URLSearchParams();
+  if (status && String(status).toUpperCase() !== "ALL") {
+    params.set("status", String(status).toUpperCase());
+  } else {
+    params.set("status", "ALL");
+  }
+
+  if (from) params.set("from", String(from));
+  if (to) params.set("to", String(to));
+  params.set("page", String(safePage));
+  params.set("limit", String(safeLimit));
+
+  // apiRequest prepends API_BASE_URL (which ends with /api), so path has NO /api prefix
+  const response = await apiRequest(`/user/bookings?${params.toString()}`, {
+    method: "GET",
+    cache: false,
+  });
+
+  return {
+    success: response?.success ?? true,
+    bookings: Array.isArray(response?.bookings) ? response.bookings : [],
+    pagination: response?.pagination ?? {
+      page: safePage,
+      limit: safeLimit,
+      total: response?.bookings?.length || 0,
+      totalPages: 1,
+      hasNextPage: false,
+    },
+    counts: response?.counts ?? {
+      ALL: 0,
+      UPCOMING: 0,
+      PROCESSING: 0,
+      COMPLETED: 0,
+      REFUNDED: 0,
+    },
+  };
+};
+
+/**
+ * Retrieves single booking detail by ID (ConsultancyRequest ID or Payment ID for PROCESSING items)
+ * including full audit timeline.
+ *
+ * @param {string} id - Booking UUID
+ * @returns {Promise<{success: boolean, booking: Object}>}
+ */
+export const getUserBookingById = async (id) => {
+  if (!id) {
+    throw new Error("Booking ID is required.");
+  }
+
+  // apiRequest prepends API_BASE_URL (which ends with /api), so path has NO /api prefix
+  const response = await apiRequest(`/user/bookings/${encodeURIComponent(id)}`, {
+    method: "GET",
+    cache: false,
+  });
+
+  return {
+    success: response?.success ?? true,
+    booking: response?.booking || null,
+  };
+};

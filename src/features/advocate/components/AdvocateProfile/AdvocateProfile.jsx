@@ -55,7 +55,7 @@ const AdvocateProfile = ({
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn, user, token } = useAuth();
 
   const viewerIsAdvocate =
     String(user?.role || "").toLowerCase() ===
@@ -71,7 +71,7 @@ const AdvocateProfile = ({
     fetchError,
     retryToken,
     retry,
-  } = useAdvocateProfile(advocateId);
+  } = useAdvocateProfile(advocateId, token);
 
   /* =========================================================
      SAVED LAWYER
@@ -119,6 +119,9 @@ const AdvocateProfile = ({
 
     initialLikeCount:
       advocate?.likeCount ?? null,
+
+    isLoggedIn,
+    viewerIsAdvocate,
   });
 
   /* =========================================================

@@ -3,10 +3,40 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { useAuth } from "@features/auth";
 import {
+  getLikedAdvocates,
   likeAdvocate,
   unlikeAdvocate,
 } from "@features/advocate/services/advocateApi";
 import { isAdvocateUser } from "@/utils/advocateProfile";
+
+const LIKED_STORAGE_KEY = "vakeel_setu_user_liked_advocates";
+
+const getCachedLikedSet = () => {
+  if (typeof window === "undefined" || !window.sessionStorage) return new Set();
+  try {
+    const raw = window.sessionStorage.getItem(LIKED_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return new Set(Array.isArray(parsed) ? parsed.map(String) : []);
+  } catch {
+    return new Set();
+  }
+};
+
+const recordLikedInCache = (id, liked) => {
+  if (typeof window === "undefined" || !window.sessionStorage || !id) return;
+  try {
+    const set = getCachedLikedSet();
+    const strId = String(id);
+    if (liked) {
+      set.add(strId);
+    } else {
+      set.delete(strId);
+    }
+    window.sessionStorage.setItem(LIKED_STORAGE_KEY, JSON.stringify([...set]));
+  } catch {
+    // ignore sessionStorage write errors
+  }
+};
 
 const normalizeCount = (value) => {
   const count = Number(value);
@@ -17,48 +47,121 @@ export default function useAdvocateLike({
   advocateId,
   initialLiked = false,
   initialLikeCount = 0,
+  isLoggedIn: propIsLoggedIn,
+  viewerIsAdvocate: propViewerIsAdvocate,
 }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, isLoggedIn } = useAuth();
+  const { user, isLoggedIn: authIsLoggedIn } = useAuth();
 
-  const viewerIsAdvocate = isAdvocateUser(user);
-  const canLike = Boolean(isLoggedIn && !viewerIsAdvocate);
+  const isLoggedIn = propIsLoggedIn ?? authIsLoggedIn;
+  const viewerIsAdvocate = propViewerIsAdvocate ?? isAdvocateUser(user);
+  const canLike = !viewerIsAdvocate;
 
-  /*
-   * IMPORTANT:
-   * Initial state comes DIRECTLY from Advocate Profile response.
-   *
-   * No separate GET /user/liked-advocates request.
-   */
-  const [isLiked, setIsLiked] = useState(Boolean(initialLiked));
-  const [likeCount, setLikeCount] = useState(
-    normalizeCount(initialLikeCount),
-  );
+  const targetId = String(advocateId ?? "");
+  const cachedIsLiked = targetId ? getCachedLikedSet().has(targetId) : false;
+
+  const [isLiked, setIsLiked] = useState(() => {
+    if (cachedIsLiked) return true;
+    return Boolean(initialLiked);
+  });
+
+  const [likeCount, setLikeCount] = useState(() => {
+    const baseCount = normalizeCount(initialLikeCount);
+    if (cachedIsLiked && baseCount === 0) return 1;
+    return baseCount;
+  });
 
   const [isLikeLoading, setIsLikeLoading] = useState(false);
   const [likeError, setLikeError] = useState(null);
 
   const mutationPendingRef = useRef(false);
-  const activeAdvocateIdRef = useRef(String(advocateId ?? ""));
+  const activeAdvocateIdRef = useRef(targetId);
 
   useEffect(() => {
     activeAdvocateIdRef.current = String(advocateId ?? "");
   }, [advocateId]);
 
   /*
-   * As soon as Advocate Profile response arrives, synchronize immediately.
-   *
-   * No second API.
+   * Synchronize when advocate details or initial props arrive.
    */
   useEffect(() => {
     mutationPendingRef.current = false;
-
-    setIsLiked(Boolean(initialLiked));
-    setLikeCount(normalizeCount(initialLikeCount));
-    setIsLikeLoading(false);
     setLikeError(null);
+
+    const currentId = String(advocateId ?? "");
+    const isCached = currentId ? getCachedLikedSet().has(currentId) : false;
+
+    if (initialLiked === true || isCached) {
+      setIsLiked(true);
+    } else if (typeof initialLiked === "boolean") {
+      setIsLiked(initialLiked);
+    }
+
+    if (initialLikeCount !== null && initialLikeCount !== undefined) {
+      const serverNum = Number(initialLikeCount);
+      if (Number.isFinite(serverNum)) {
+        setLikeCount((prev) => {
+          if ((initialLiked || isCached) && serverNum === 0) {
+            return Math.max(prev, 1);
+          }
+          return Math.max(0, serverNum);
+        });
+      }
+    }
+
+    setIsLikeLoading(false);
   }, [advocateId, initialLiked, initialLikeCount]);
+
+  /*
+   * Background hydration from user's liked advocates list.
+   * Ensures liked state and count remain consistent across page navigations.
+   */
+  useEffect(() => {
+    if (!advocateId || !isLoggedIn || viewerIsAdvocate) {
+      return undefined;
+    }
+
+    const currentAdvocateId = String(advocateId);
+    let isCancelled = false;
+
+    const syncLikedState = async () => {
+      try {
+        const likedList = await getLikedAdvocates();
+        if (isCancelled || activeAdvocateIdRef.current !== currentAdvocateId) {
+          return;
+        }
+
+        if (Array.isArray(likedList)) {
+          const found = likedList.find(
+            (item) =>
+              String(item?.id ?? item?._id ?? item?.advocateId) ===
+              currentAdvocateId,
+          );
+
+          if (found) {
+            recordLikedInCache(currentAdvocateId, true);
+            setIsLiked(true);
+            const foundCount = Number(found.likeCount);
+            if (Number.isFinite(foundCount)) {
+              setLikeCount((prev) => Math.max(prev, foundCount));
+            }
+          } else if (!mutationPendingRef.current && initialLiked !== true) {
+            recordLikedInCache(currentAdvocateId, false);
+            setIsLiked(false);
+          }
+        }
+      } catch {
+        // Hydration error silently suppressed to protect user experience
+      }
+    };
+
+    syncLikedState();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [advocateId, isLoggedIn, viewerIsAdvocate, initialLiked]);
 
   const toggleLike = useCallback(async () => {
     if (!advocateId || mutationPendingRef.current) {
@@ -99,14 +202,13 @@ export default function useAdvocateLike({
     /*
      * ================================================================
      * OPTIMISTIC UI
-     *
-     * USER SEES THIS IMMEDIATELY.
      * ================================================================
      */
 
     setLikeError(null);
     setIsLiked(nextLiked);
     setLikeCount(optimisticCount);
+    recordLikedInCache(requestAdvocateId, nextLiked);
     setIsLikeLoading(true);
 
     try {
@@ -114,18 +216,13 @@ export default function useAdvocateLike({
         ? await likeAdvocate(advocateId)
         : await unlikeAdvocate(advocateId);
 
-      /*
-       * Ignore Advocate A response if user has already moved to Advocate B.
-       */
       if (activeAdvocateIdRef.current !== requestAdvocateId) {
         return;
       }
 
-      /*
-       * Backend is authoritative after mutation.
-       */
       if (typeof result?.liked === "boolean") {
         setIsLiked(result.liked);
+        recordLikedInCache(requestAdvocateId, result.liked);
       }
 
       const serverCount = Number(result?.likeCount);
@@ -141,22 +238,20 @@ export default function useAdvocateLike({
       const status = error?.status;
 
       /*
-       * Already liked.
-       *
-       * Backend confirms logical state is liked.
+       * 409 = Already liked on server. Keep in liked state.
        */
       if (status === 409 && nextLiked) {
         setIsLiked(true);
+        recordLikedInCache(requestAdvocateId, true);
 
         const serverCount = Number(
-          error?.data?.data?.likeCount ??
-            error?.data?.likeCount,
+          error?.data?.data?.likeCount ?? error?.data?.likeCount,
         );
 
         if (Number.isFinite(serverCount)) {
           setLikeCount(Math.max(0, serverCount));
         } else {
-          setLikeCount(previousCount);
+          setLikeCount(optimisticCount);
         }
 
         setLikeError(null);
@@ -164,22 +259,20 @@ export default function useAdvocateLike({
       }
 
       /*
-       * Already unliked.
-       *
-       * Backend confirms logical state is false.
+       * 404 = Already unliked on server. Keep in unliked state.
        */
       if (status === 404 && !nextLiked) {
         setIsLiked(false);
+        recordLikedInCache(requestAdvocateId, false);
 
         const serverCount = Number(
-          error?.data?.data?.likeCount ??
-            error?.data?.likeCount,
+          error?.data?.data?.likeCount ?? error?.data?.likeCount,
         );
 
         if (Number.isFinite(serverCount)) {
           setLikeCount(Math.max(0, serverCount));
         } else {
-          setLikeCount(previousCount);
+          setLikeCount(optimisticCount);
         }
 
         setLikeError(null);
@@ -191,6 +284,7 @@ export default function useAdvocateLike({
        */
       setIsLiked(previousLiked);
       setLikeCount(previousCount);
+      recordLikedInCache(requestAdvocateId, previousLiked);
 
       if (status === 401) {
         navigate("/login", {

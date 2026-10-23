@@ -198,7 +198,17 @@ const AppRoutes = () => {
         path="/bookings"
         element={
           <ProtectedRoute
-            allowedRoles={USER_ROLES}
+            fallbackPath="/dashboard"
+          >
+            <Bookings />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/bookings/:id"
+        element={
+          <ProtectedRoute
             fallbackPath="/dashboard"
           >
             <Bookings />

@@ -6,6 +6,9 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+
+// Keep Framer Motion recognized by ESLint configurations without JSX usage tracking.
+void motion;
 import {
   AlertCircle,
   BadgeCheck,
@@ -182,6 +185,7 @@ const ProfileStat = ({
   value,
   tone,
 }) => {
+  void Icon; // ESLint: Icon is rendered dynamically as a JSX component.
   const tones = {
     amber:
       "border-amber-100 bg-amber-50/60 text-amber-600",
@@ -259,15 +263,9 @@ export default function AdvocateMyProfile() {
     setVerificationLoading,
   ] = useState(true);
 
-  const [
-    verificationError,
-    setVerificationError,
-  ] = useState("");
+  const [, setVerificationError] = useState("");
 
-  const [
-    previewMessage,
-    setPreviewMessage,
-  ] = useState("");
+  const [, setPreviewMessage] = useState("");
 
   const [
   showPreviewApprovalPopup,
@@ -1474,6 +1472,7 @@ function InfoItem({
   label,
   value,
 }) {
+  void Icon; // JSX component reference.
   return (
     <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
       <div className="flex items-start gap-3">
@@ -1519,6 +1518,7 @@ function PricingItem({
   label,
   value,
 }) {
+  void Icon; // JSX component reference.
   return (
     <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/[0.07] bg-white/[0.05] p-4">
       <div className="flex items-center gap-3">

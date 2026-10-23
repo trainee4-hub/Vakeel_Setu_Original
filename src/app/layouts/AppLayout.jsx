@@ -30,7 +30,9 @@ function AppLayout() {
   // If the logged-in user is an Advocate, they must strictly and exclusively
   // access the Advocate panel. Any attempt to navigate back or visit
   // public/client routes redirects immediately to their Advocate Dashboard.
-  if (isAdvocate && !isAdvocateWorkspace(pathname)) {
+  // Exception: direct URL visits to /bookings allow Bookings to render its
+  // required no-access screen without a redirect loop or silent diversion.
+  if (isAdvocate && !isAdvocateWorkspace(pathname) && !pathname.startsWith("/bookings")) {
     return <Navigate to="/advocate/dashboard" replace />;
   }
 

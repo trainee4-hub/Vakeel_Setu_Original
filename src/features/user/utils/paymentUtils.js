@@ -1,11 +1,44 @@
 /**
+ * Formats an amount with an EXPLICIT unit argument ('RUPEES' or 'PAISE').
+ * NO DEFAULT UNIT. Throws error if unit is omitted or invalid.
+ *
+ * @param {number|string} amount - Monetary amount
+ * @param {'RUPEES'|'PAISE'} unit - Mandatory unit
+ * @returns {string} Formatted Indian Rupee string (e.g. "₹899")
+ */
+export function formatMoney(amount, unit) {
+  if (unit !== "RUPEES" && unit !== "PAISE") {
+    throw new Error(
+      `formatMoney requires an explicit unit argument ('RUPEES' or 'PAISE'). Received: ${unit}`
+    );
+  }
+
+  if (amount === null || amount === undefined || amount === "") {
+    return "";
+  }
+
+  const numeric = Number(amount);
+  if (!Number.isFinite(numeric)) {
+    return "";
+  }
+
+  const rupees = unit === "PAISE" ? Math.floor(numeric / 100) : numeric;
+  return `₹${rupees.toLocaleString("en-IN")}`;
+}
+
+/**
+ * Dedicated, clearly-named formatter for booking amounts (which are in RUPEES).
+ *
+ * @param {number|string} amountInRupees - Booking price/amount in rupees
+ * @returns {string} Formatted Indian Rupee string (e.g. "₹899")
+ */
+export function formatBookingAmount(amountInRupees) {
+  return formatMoney(amountInRupees, "RUPEES");
+}
+
+/**
  * Formats an amount to an Indian Rupee string (e.g. 49900 paise or 499 rupees -> "₹499").
- * 
- * Rules:
- * - When amountRupees is available (from backend response), it is used directly
- *   to eliminate any floating-point arithmetic or division risk.
- * - If only paise is provided, divides by 100 and formats using toLocaleString('en-IN').
- * - NEVER compute, infer or send a price to the backend.
+ * Preserved for backwards compatibility with legacy payment callers.
  *
  * @param {number|string} paise - Amount in paise (e.g. 49900)
  * @param {number|string} [amountRupees] - Amount in rupees from backend (e.g. 499)
@@ -13,23 +46,14 @@
  */
 export function formatPaiseToRupees(paise, amountRupees = null) {
   if (amountRupees !== null && amountRupees !== undefined && amountRupees !== "") {
-    const num = Number(amountRupees);
-    if (Number.isFinite(num)) {
-      return `₹${num.toLocaleString("en-IN")}`;
-    }
+    return formatMoney(amountRupees, "RUPEES");
   }
 
   if (paise === null || paise === undefined || paise === "") {
     return "";
   }
 
-  const numeric = Number(paise);
-  if (!Number.isFinite(numeric)) {
-    return "";
-  }
-
-  const rupees = Math.floor(numeric / 100);
-  return `₹${rupees.toLocaleString("en-IN")}`;
+  return formatMoney(paise, "PAISE");
 }
 
 /**
@@ -161,3 +185,64 @@ export function extractCapturedPaymentId(statusResult) {
   // c) otherwise null
   return null;
 }
+
+/**
+ * Returns color classes for booking status chips per design spec:
+ * - CONFIRMED / REQUESTED: blue
+ * - PAYMENT_PROCESSING: amber
+ * - COMPLETED: emerald
+ * - REFUND_IN_PROGRESS / REFUNDED: slate
+ *
+ * @param {string} status
+ * @returns {string}
+ */
+export function getBookingStatusBadgeClass(status) {
+  const normalized = String(status || "").toUpperCase();
+  switch (normalized) {
+    case "CONFIRMED":
+    case "REQUESTED":
+      return "border-blue-200 bg-blue-50 text-blue-700";
+    case "PAYMENT_PROCESSING":
+      return "border-amber-200 bg-amber-50 text-amber-700";
+    case "COMPLETED":
+      return "border-emerald-200 bg-emerald-50 text-emerald-700";
+    case "REFUND_IN_PROGRESS":
+    case "REFUNDED":
+    default:
+      return "border-slate-200 bg-slate-100 text-slate-700";
+  }
+}
+
+/**
+ * Maps raw timeline event enums to clean, user-facing sentences:
+ * - PAYMENT_PAID       → "Payment received"
+ * - BOOKING_CONFIRMED  → "Booking confirmed"
+ * - COMPLETED          → "Consultation completed"
+ * - REFUND_INITIATED   → "Refund started"
+ * - REFUNDED           → "Refunded"
+ * - anything else      → sentence case (underscores → spaces)
+ *
+ * @param {string} event
+ * @returns {string}
+ */
+export function getTimelineEventLabel(event) {
+  if (!event) return "";
+  const normalized = String(event).toUpperCase();
+  switch (normalized) {
+    case "PAYMENT_PAID":
+      return "Payment received";
+    case "BOOKING_CONFIRMED":
+      return "Booking confirmed";
+    case "COMPLETED":
+      return "Consultation completed";
+    case "REFUND_INITIATED":
+      return "Refund started";
+    case "REFUNDED":
+      return "Refunded";
+    default: {
+      const lower = String(event).replace(/_/g, " ").toLowerCase();
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    }
+  }
+}
+

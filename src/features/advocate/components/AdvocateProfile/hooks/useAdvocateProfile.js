@@ -6,7 +6,7 @@
     mapDetailAdvocate,
   } from "../utils/advocateProfileUtils";
 
-  export default function useAdvocateProfile(advocateId) {
+  export default function useAdvocateProfile(advocateId, authToken = null) {
     const [advocate, setAdvocate] = useState(null);
     const [loading, setLoading] = useState(true);
     const [fetchError, setFetchError] = useState(null);
@@ -29,7 +29,7 @@
             throw new Error("Advocate ID is missing.");
           }
 
-          const token = getAuthToken();
+          const token = authToken || getAuthToken();
 
           const response = await fetch(
             `${API_BASE_URL}/advocates/${encodeURIComponent(
@@ -39,6 +39,7 @@
               method: "GET",
               signal: controller.signal,
               credentials: "include",
+              cache: "no-cache",
               headers: {
                 Accept: "application/json",
 
@@ -203,7 +204,7 @@
       return () => {
         controller.abort();
       };
-    }, [advocateId, retryToken]);
+    }, [advocateId, retryToken, authToken]);
 
     return {
       advocate,

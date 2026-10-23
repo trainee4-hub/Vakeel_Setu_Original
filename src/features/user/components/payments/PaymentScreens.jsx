@@ -174,7 +174,7 @@ export const PaymentSuccessView = ({
           onClick={onNavigateToBookings}
           className="flex min-h-[46px] w-full items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-black text-white transition hover:bg-amber-500"
         >
-          My Consultancies
+          My Bookings
         </button>
 
         <button

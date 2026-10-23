@@ -14,7 +14,7 @@ import {
   getConsultancyRequests,
   updateConsultancyStatus,
 } from "../../../services/platform/adminConsultancyApi";
-import { formatDate } from "../../../utils/adminUtils";
+import { formatDateTime } from "../../../utils/adminUtils";
 
 export default function ConsultancyList() {
   const toast = useToast();
@@ -168,7 +168,7 @@ export default function ConsultancyList() {
                     </div>
 
                     <p className="text-[11px] text-slate-400">
-                      Requested: {formatDate(item.createdAt)}
+                      Requested: {formatDateTime(item.createdAt)}
                     </p>
                   </div>
 
