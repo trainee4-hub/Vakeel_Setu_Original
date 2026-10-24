@@ -16,7 +16,6 @@ import AdvocateProfileSkeleton from "../skeleton/AdvocateProfileSkeleton";
 import useAdvocateProfile from "./hooks/useAdvocateProfile";
 import useAdvocateLike from "./hooks/useAdvocateLike";
 import useAdvocateReviews from "./hooks/useAdvocateReviews";
-import useConsultationBooking from "./hooks/useConsultationBooking";
 import useSavedLawyer from "./hooks/useSavedLawyer";
 import useSimilarAdvocates from "./hooks/useSimilarAdvocates";
 
@@ -37,8 +36,9 @@ import WhyChooseSection from "./sections/WhyChooseSection";
 import ConsultationCard from "./sidebar/ConsultationCard";
 import OfficeInformation from "./sidebar/OfficeInformation";
 
-import BookingModal from "./modals/BookingModal";
+import AdvocateBookingModal from "./modals/AdvocateBookingModal";
 import ReviewModal from "./modals/ReviewModal";
+import { getAdvocateBookingOptions } from "../../services/advocateBookingApi";
 
 import ProfileErrorState from "./common/ProfileErrorState";
 
@@ -134,17 +134,99 @@ const AdvocateProfile = ({
   });
 
   /* =========================================================
-     BOOKING
+     ADVOCATE BOOKING
   ========================================================= */
 
-  const bookingState = useConsultationBooking({
-    advocateId,
-    advocate,
-    isLoggedIn,
-    navigate,
-    location,
-    onConsultationBooked,
-  });
+  const [bookingOptions, setBookingOptions] = useState(null);
+  const [bookingOptionsLoading, setBookingOptionsLoading] = useState(false);
+  const [selectedBookingMode, setSelectedBookingMode] = useState("");
+  const [isAdvocateBookingModalOpen, setIsAdvocateBookingModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!advocateId) return;
+    let isCancelled = false;
+    queueMicrotask(() => {
+      if (!isCancelled) setBookingOptionsLoading(true);
+    });
+    getAdvocateBookingOptions(advocateId)
+      .then((data) => {
+        if (!isCancelled) {
+          setBookingOptions(data);
+          if (data?.modes?.[0]?.mode) {
+            setSelectedBookingMode((prev) => prev || data.modes[0].mode);
+          }
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch booking options:", err);
+      })
+      .finally(() => {
+        if (!isCancelled) setBookingOptionsLoading(false);
+      });
+    return () => {
+      isCancelled = true;
+    };
+  }, [advocateId]);
+
+  // Handle auto-reopen after login
+  useEffect(() => {
+    let shouldOpen = Boolean(location.state?.openBookingModal);
+    let preferredMode = location.state?.selectedMode;
+
+    try {
+      const pendingRaw = sessionStorage.getItem("pending_advocate_booking");
+      if (pendingRaw) {
+        const pending = JSON.parse(pendingRaw);
+        if (pending?.advocateId === advocateId) {
+          shouldOpen = true;
+          if (pending.mode) preferredMode = pending.mode;
+        }
+      }
+    } catch (e) {
+      console.warn("Error reading pending booking from sessionStorage", e);
+    }
+
+    if (shouldOpen && bookingOptions) {
+      try {
+        sessionStorage.removeItem("pending_advocate_booking");
+      } catch (_e) {
+        // ignore
+      }
+      queueMicrotask(() => {
+        if (preferredMode) {
+          setSelectedBookingMode(preferredMode);
+        }
+        setIsAdvocateBookingModalOpen(true);
+      });
+    }
+  }, [advocateId, bookingOptions, location.state]);
+
+  const handleProceedToBooking = useCallback(() => {
+    if (!isLoggedIn) {
+      try {
+        sessionStorage.setItem(
+          "pending_advocate_booking",
+          JSON.stringify({
+            advocateId,
+            mode: selectedBookingMode,
+          })
+        );
+      } catch (e) {
+        console.warn("Could not save pending booking to sessionStorage", e);
+      }
+
+      navigate("/login", {
+        state: {
+          from: location.pathname,
+          openBookingModal: true,
+          selectedMode: selectedBookingMode,
+        },
+      });
+      return;
+    }
+
+    setIsAdvocateBookingModalOpen(true);
+  }, [isLoggedIn, advocateId, selectedBookingMode, navigate, location.pathname]);
 
   /* =========================================================
      PAGE STATE
@@ -373,64 +455,6 @@ useEffect(() => {
   const isOnline =
     advocate?.isOnline === true;
 
-  /* =========================================================
-     CONSULTATION SERVICES
-  ========================================================= */
-
-  const voiceCall =
-    advocate?.eliteMembership?.voiceCall ||
-    null;
-
-  const videoCall =
-    advocate?.eliteMembership?.videoCall ||
-    null;
-
-  const officeVisit =
-    advocate?.eliteMembership?.officeVisit ||
-    null;
-
-  const isVoiceActive =
-    voiceCall?.status === "active";
-
-  const isVideoActive =
-    videoCall?.status === "active";
-
-  const isOfficeActive =
-    officeVisit?.status === "active";
-
-  const voiceFee =
-    voiceCall?.fee ?? null;
-
-  const videoFee =
-    videoCall?.fee ?? null;
-
-  const officeFee =
-    officeVisit?.fee ?? null;
-
-  const voiceDuration =
-    voiceCall?.duration ?? null;
-
-  const videoDuration =
-    videoCall?.duration ?? null;
-
-  const { consultType } =
-    bookingState;
-
-  const activeFee =
-    consultType === "video"
-      ? videoFee
-      : consultType === "voice"
-        ? voiceFee
-        : consultType === "office"
-          ? officeFee
-          : null;
-
-  const activeDuration =
-    consultType === "video"
-      ? videoDuration
-      : consultType === "voice"
-        ? voiceDuration
-        : null;
 
   /* =========================================================
      PROFILE IMAGE
@@ -471,6 +495,11 @@ useEffect(() => {
   /* =========================================================
      OFFICE
   ========================================================= */
+
+  const officeVisit = advocate?.eliteMembership?.officeVisit || null;
+  const voiceFee = advocate?.eliteMembership?.voiceCall?.fee ?? null;
+  const videoFee = advocate?.eliteMembership?.videoCall?.fee ?? null;
+  const officeFee = officeVisit?.fee ?? null;
 
   const officeLocation =
     officeVisit?.officeLocation || "";
@@ -651,10 +680,6 @@ useEffect(() => {
     },
   ].filter(Boolean);
 
-  const canBook =
-    isVideoActive ||
-    isVoiceActive ||
-    isOfficeActive;
 
   /* =========================================================
      RENDER
@@ -891,29 +916,12 @@ useEffect(() => {
           <div className="lg:sticky lg:top-6 space-y-6">
             <ConsultationCard
               ref={bookingSectionRef}
-              advocateName={
-                advocateName
-              }
-              highlight={
-                highlightBooking
-              }
-              consultType={
-                consultType
-              }
-              onConsultTypeChange={
-                bookingState.setConsultType
-              }
-              activeFee={
-                activeFee
-              }
-              activeDuration={
-                activeDuration
-              }
-              canBook={canBook}
-              onBookingClick={
-                bookingState
-                  .openBookingModal
-              }
+              highlight={highlightBooking}
+              selectedMode={selectedBookingMode}
+              onSelectMode={setSelectedBookingMode}
+              bookingOptions={bookingOptions}
+              loading={bookingOptionsLoading}
+              onProceed={handleProceedToBooking}
             />
 
             <OfficeInformation
@@ -981,90 +989,16 @@ useEffect(() => {
         }
       />
 
-      {/* ================= BOOKING MODAL ================= */}
+      {/* ================= ADVOCATE BOOKING MODAL ================= */}
 
-      <BookingModal
-        open={
-          bookingState
-            .isBookingModalOpen
-        }
-        mode="book"
-        consultationId={null}
-        advocateName={
-          advocateName
-        }
-        advocatePhoto={
-          profileImageUrl
-        }
-        advocateSpecialty={
-          advocate?.bestPracticeArea ||
-          practiceAreas?.[0] ||
-          ""
-        }
-        consultType={
-          bookingState.consultType
-        }
-        onConsultTypeChange={
-          bookingState.setConsultType
-        }
-        activeFee={activeFee}
-        videoFee={videoFee}
-        voiceFee={voiceFee}
-        officeFee={officeFee}
-        gstRate={18}
-        platformFee={25}
-        selectedDate={
-          bookingState.selectedDate
-        }
-        onDateChange={
-          bookingState.onDateChange
-        }
-        selectedTimeSlot={
-          bookingState.selectedTimeSlot
-        }
-        onSlotSelect={
-          bookingState
-            .setSelectedTimeSlot
-        }
-        groupedSlots={
-          bookingState.groupedSlots
-        }
-        availabilityLoading={
-          false
-        }
-        availabilityError=""
-        isSlotPast={
-          bookingState.isSlotPast
-        }
-        subjectOptions={
-          SUBJECT_OPTIONS
-        }
-        bookingSubject={
-          bookingState.bookingSubject
-        }
-        onSubjectChange={
-          bookingState
-            .setBookingSubject
-        }
-        bookingDescription={
-          bookingState
-            .bookingDescription
-        }
-        onDescriptionChange={
-          bookingState
-            .onDescriptionChange
-        }
-        booking={
-          bookingState.booking
-        }
-        bookingError=""
-        onClose={
-          bookingState
-            .closeBookingModal
-        }
-        onConfirm={
-          bookingState.submitBooking
-        }
+      <AdvocateBookingModal
+        isOpen={isAdvocateBookingModalOpen}
+        onClose={() => setIsAdvocateBookingModalOpen(false)}
+        advocate={advocate}
+        bookingOptions={bookingOptions}
+        initialMode={selectedBookingMode}
+        currentUser={user}
+        onBookingComplete={onConsultationBooked}
       />
 
       {/* ================= REVIEW MODAL ================= */}

@@ -1,40 +1,70 @@
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 import {
   FiVideo,
   FiPhone,
   FiBriefcase,
   FiArrowRight,
+  FiAlertCircle,
 } from "react-icons/fi";
 
-/**
- * `forwardRef` is required: the container's scroll-to-booking effect calls
- * scrollIntoView() on this card's outer div.
- *
- * ⚠️ TEMPORARY BEHAVIOUR CARRIED OVER FROM THE ORIGINAL FILE ⚠️
- * The three consultation options below are rendered unconditionally, with
- * hardcoded "30 min" / "20 min" copy, rather than being driven by the real
- * eliteMembership voiceCall / videoCall / officeVisit services. That was the
- * ACTIVE implementation in the source (the real, service-driven block was
- * commented out), so it is preserved verbatim here to keep this refactor
- * structural. The obsolete commented-out duplicate has been deleted.
- *
- * Consequence to be aware of: the Proceed button is still disabled via
- * `canBook`, which IS derived from the real services — so a user can select an
- * option this advocate doesn't offer and find the button inert.
- */
+function formatDurationLabel(minutes) {
+  if (!minutes) return "";
+  if (minutes === 60) return "1 hour";
+  if (minutes > 60 && minutes % 60 === 0) return `${minutes / 60} hours`;
+  return `${minutes} min`;
+}
+
+function getModeIcon(mode) {
+  switch (mode) {
+    case "VIDEO_CALL":
+      return FiVideo;
+    case "IN_PERSON":
+      return FiBriefcase;
+    case "VOICE_CALL":
+    default:
+      return FiPhone;
+  }
+}
+
+function getModeColors(mode, isSelected) {
+  switch (mode) {
+    case "VIDEO_CALL":
+      return {
+        border: isSelected ? "border-amber-500 bg-amber-50/70" : "border-slate-200 hover:border-amber-300",
+        iconBg: "bg-amber-100 text-amber-600",
+        dot: isSelected ? "bg-amber-600" : "border-2 border-slate-300 bg-white",
+      };
+    case "IN_PERSON":
+      return {
+        border: isSelected ? "border-emerald-500 bg-emerald-50/70" : "border-slate-200 hover:border-emerald-300",
+        iconBg: "bg-emerald-100 text-emerald-600",
+        dot: isSelected ? "bg-emerald-600" : "border-2 border-slate-300 bg-white",
+      };
+    case "VOICE_CALL":
+    default:
+      return {
+        border: isSelected ? "border-sky-500 bg-sky-50/70" : "border-slate-200 hover:border-sky-300",
+        iconBg: "bg-sky-100 text-sky-600",
+        dot: isSelected ? "bg-sky-600" : "border-2 border-slate-300 bg-white",
+      };
+  }
+}
+
 const ConsultationCard = forwardRef(function ConsultationCard(
   {
-    // advocateName,
     highlight,
-    consultType,
-    onConsultTypeChange,
-    activeFee,
-    activeDuration,
-    canBook,
-    onBookingClick,
+    selectedMode,
+    onSelectMode,
+    bookingOptions,
+    loading = false,
+    onProceed,
   },
   ref,
 ) {
+  const isBookable = bookingOptions?.bookable !== false;
+  const modes = Array.isArray(bookingOptions?.modes) ? bookingOptions.modes : [];
+  const currentMode = modes.find((m) => m.mode === selectedMode) || modes[0] || null;
+
   return (
     <div
       ref={ref}
@@ -44,206 +74,121 @@ const ConsultationCard = forwardRef(function ConsultationCard(
           : "border-slate-200"
       }`}
     >
-      <h3 className="text-base font-bold text-slate-900 mb-2">
-        Consult Now
-      </h3>
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-base font-bold text-slate-900">
+          Consult Now
+        </h3>
+        {isBookable && (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            Available
+          </span>
+        )}
+      </div>
 
-      {/* <p className="text-xs text-slate-500 mb-5">
-        Secure a private session with {advocateName}.
-      </p> */}
-
-      {/* Consultation Fee */}
+      {/* Consultation Fee Display */}
       <div className="mb-5 pb-5 border-b border-slate-100">
         <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
           Consultation Fee
         </p>
 
-        <div className="flex items-end gap-2">
-          <span className="text-3xl font-bold text-slate-900 leading-none">
-            {consultType
-              ? activeFee != null
-                ? `₹${activeFee}`
-                : "Contact"
-              : "N/A"}
+        <div className="flex items-baseline gap-2">
+          <span className="text-3xl font-extrabold text-slate-900 tracking-tight">
+            {currentMode?.fee != null
+              ? `₹${Number(currentMode.fee).toLocaleString("en-IN")}`
+              : "—"}
           </span>
 
-          <span className="text-sm text-slate-500 pb-0.5">
-            {consultType === "office"
-              ? "/ meeting"
-              : activeDuration
-                ? `/ ${activeDuration} min`
-                : consultType
-                  ? "/ session"
-                  : ""}
-          </span>
+          {currentMode?.durationMinutes && (
+            <span className="text-sm font-medium text-slate-500">
+              / {formatDurationLabel(currentMode.durationMinutes)}
+            </span>
+          )}
         </div>
+        <p className="text-[11px] text-slate-400 mt-1">
+          Taxes & platform fee computed at checkout
+        </p>
       </div>
 
-      {/* TEMPORARY: always-visible consultation options — see note above. */}
-      <div className="space-y-2.5 mb-5">
-        {/* VOICE CALL */}
-        <label
-          className={`flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all duration-300 ${
-            consultType === "voice"
-              ? "border-sky-500 bg-sky-50"
-              : "border-slate-200 hover:border-sky-300"
-          }`}
-        >
-          <input
-            type="radio"
-            name="consultType"
-            checked={consultType === "voice"}
-            onChange={() => onConsultTypeChange("voice")}
-            className="sr-only"
-          />
+      {/* Dynamic Modes List from API */}
+      {!isBookable || modes.length === 0 ? (
+        <div className="py-6 px-4 bg-slate-50 rounded-2xl border border-slate-200 text-center mb-5">
+          <FiAlertCircle className="w-6 h-6 text-slate-400 mx-auto mb-2" />
+          <p className="text-sm font-semibold text-slate-700">Booking Not Available</p>
+          <p className="text-xs text-slate-500 mt-0.5">
+            This advocate is not accepting direct bookings at this time.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-2.5 mb-5" role="radiogroup" aria-label="Consultation Mode">
+          {modes.map((modeItem) => {
+            const isSelected = selectedMode === modeItem.mode;
+            const Icon = getModeIcon(modeItem.mode);
+            const colors = getModeColors(modeItem.mode, isSelected);
 
-          {/* Custom Radio Dot */}
-          <span
-            className={`w-[17px] h-[17px] rounded-full flex items-center justify-center shrink-0 transition-colors duration-200 ${
-              consultType === "voice"
-                ? "bg-blue-600"
-                : "border-2 border-slate-300 bg-white"
-            }`}
-            aria-hidden="true"
-          >
-            {consultType === "voice" && (
-              <span className="w-[6px] h-[6px] rounded-full bg-white" />
-            )}
-          </span>
+            return (
+              <label
+                key={modeItem.mode}
+                onClick={() => onSelectMode(modeItem.mode)}
+                className={`flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all duration-200 ${colors.border}`}
+              >
+                <input
+                  type="radio"
+                  name="consultationMode"
+                  value={modeItem.mode}
+                  checked={isSelected}
+                  onChange={() => onSelectMode(modeItem.mode)}
+                  className="sr-only"
+                />
 
-          <span className="w-9 h-9 rounded-full bg-sky-100 flex items-center justify-center shrink-0">
-            <FiPhone
-              className="text-lg text-sky-600"
-              aria-hidden="true"
-            />
-          </span>
+                {/* Custom Radio Dot */}
+                <span
+                  className={`w-[18px] h-[18px] rounded-full flex items-center justify-center shrink-0 transition-colors duration-200 ${colors.dot}`}
+                  aria-hidden="true"
+                >
+                  {isSelected && (
+                    <span className="w-2 h-2 rounded-full bg-white" />
+                  )}
+                </span>
 
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-slate-900 text-sm">
-              Voice Call 
-            </p>
+                <span className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${colors.iconBg}`}>
+                  <Icon className="text-lg" aria-hidden="true" />
+                </span>
 
-            {/* <p className="text-xs text-slate-500">
-              20 min phone consultation
-            </p> */}
-          </div>
-        </label>
-        {/* VIDEO CALL */}
-        <label
-          className={`flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all duration-300 ${
-            consultType === "video"
-              ? "border-amber-500 bg-amber-50"
-              : "border-slate-200 hover:border-amber-300"
-          }`}
-        >
-          <input
-            type="radio"
-            name="consultType"
-            checked={consultType === "video"}
-            onChange={() => onConsultTypeChange("video")}
-            className="sr-only"
-          />
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-slate-900 text-sm leading-tight">
+                    {modeItem.label}
+                  </p>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    {formatDurationLabel(modeItem.durationMinutes)} session
+                  </p>
+                </div>
 
-          {/* Custom Radio Dot */}
-          <span
-            className={`w-[17px] h-[17px] rounded-full flex items-center justify-center shrink-0 transition-colors duration-200 ${
-              consultType === "video"
-                ? "bg-blue-600"
-                : "border-2 border-slate-300 bg-white"
-            }`}
-            aria-hidden="true"
-          >
-            {consultType === "video" && (
-              <span className="w-[6px] h-[6px] rounded-full bg-white" />
-            )}
-          </span>
-
-          <span className="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
-            <FiVideo
-              className="text-lg text-amber-600"
-              aria-hidden="true"
-            />
-          </span>
-
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-slate-900 text-sm">
-              Video Call
-            </p>
-{/* 
-            <p className="text-xs text-slate-500">
-              30 min video consultation
-            </p> */}
-          </div>
-        </label>
-
-        
-
-        {/* OFFICE VISIT */}
-        <label
-          className={`flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all duration-300 ${
-            consultType === "office"
-              ? "border-emerald-500 bg-emerald-50"
-              : "border-slate-200 hover:border-emerald-300"
-          }`}
-        >
-          <input
-            type="radio"
-            name="consultType"
-            checked={consultType === "office"}
-            onChange={() => onConsultTypeChange("office")}
-            className="sr-only"
-          />
-
-          {/* Custom Radio Dot */}
-          <span
-            className={`w-[17px] h-[17px] rounded-full flex items-center justify-center shrink-0 transition-colors duration-200 ${
-              consultType === "office"
-                ? "bg-blue-600"
-                : "border-2 border-slate-300 bg-white"
-            }`}
-            aria-hidden="true"
-          >
-            {consultType === "office" && (
-              <span className="w-[6px] h-[6px] rounded-full bg-white" />
-            )}
-          </span>
-
-          <span className="w-9 h-9 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-            <FiBriefcase
-              className="text-lg text-emerald-600"
-              aria-hidden="true"
-            />
-          </span>
-
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-slate-900 text-sm">
-              Office Visit
-            </p>
-
-            {/* <p className="text-xs text-slate-500">
-              In-person office meeting
-            </p> */}
-          </div>
-        </label>
-      </div>
+                <div className="text-right">
+                  <p className="text-sm font-bold text-slate-900">
+                    ₹{Number(modeItem.fee).toLocaleString("en-IN")}
+                  </p>
+                </div>
+              </label>
+            );
+          })}
+        </div>
+      )}
 
       {/* Booking Button */}
       <button
         type="button"
-        onClick={onBookingClick}
-        disabled={!canBook}
-        className={`w-full h-12 rounded-2xl font-semibold text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
-          !canBook
-            ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-            : "bg-amber-500 hover:bg-amber-600 text-white shadow-sm"
+        id="proceed-to-booking-btn"
+        onClick={onProceed}
+        disabled={!isBookable || modes.length === 0 || loading}
+        className={`w-full h-12 rounded-2xl font-semibold text-sm transition-all duration-300 flex items-center justify-center gap-2 shadow-sm ${
+          !isBookable || modes.length === 0 || loading
+            ? "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
+            : "bg-amber-500 hover:bg-amber-600 text-white active:scale-[0.99]"
         }`}
       >
-        Proceed to Booking
-
-        <FiArrowRight
-          className="text-lg"
-          aria-hidden="true"
-        />
+        <span>Proceed to Booking</span>
+        <FiArrowRight className="text-lg" aria-hidden="true" />
       </button>
     </div>
   );

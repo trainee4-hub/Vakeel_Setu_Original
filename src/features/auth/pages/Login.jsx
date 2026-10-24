@@ -1095,6 +1095,7 @@ const Login = ({
             "/",
           {
             replace: true,
+            state: location.state,
           },
         );
       } catch (error) {

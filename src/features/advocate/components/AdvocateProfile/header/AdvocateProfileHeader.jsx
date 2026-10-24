@@ -124,8 +124,8 @@ return (
         <div
           className="
             absolute
-            bottom-[10px]
-            right-[10px]
+            bottom-[8px]
+            right-[9px]
             z-20
             flex
             items-center
@@ -133,7 +133,7 @@ return (
             rounded-full
             border-2
             border-white
-            bg-white
+            bg-red-300
             p-[2px]
             shadow-sm
           "
@@ -163,6 +163,7 @@ return (
                   w-[0.80rem]
                   rounded-full
                   bg-emerald-500
+              
                 "
               />
             </span>

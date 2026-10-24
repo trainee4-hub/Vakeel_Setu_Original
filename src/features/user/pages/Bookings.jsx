@@ -19,6 +19,8 @@ import {
   FiRefreshCw,
   FiVideo,
   FiX,
+  FiBriefcase,
+  FiUser,
 } from "react-icons/fi";
 import { useAuth } from "../../auth";
 import { getUserRole } from "../../../utils/advocateProfile";
@@ -63,6 +65,10 @@ export default function Bookings() {
   const rawStatus = (searchParams.get("status") || "ALL").toUpperCase();
   const validTabs = TAB_CONFIG.map((t) => t.key);
   const activeTab = validTabs.includes(rawStatus) ? rawStatus : "ALL";
+  const rawType = (searchParams.get("type") || "ALL").toUpperCase();
+  const selectedType = ["ALL", "CONSULTANCY", "ADVOCATE"].includes(rawType)
+    ? rawType
+    : "ALL";
   const [bookings, setBookings] = useState([]);
   const [counts, setCounts] = useState({
     ALL: 0,
@@ -107,6 +113,7 @@ export default function Bookings() {
       try {
         const response = await getUserBookings({
           status: activeTab,
+          type: selectedType !== "ALL" ? selectedType : undefined,
           page: pageToFetch,
           limit: 10,
         });
@@ -155,7 +162,7 @@ export default function Bookings() {
         setLoadingMore(false);
       }
     },
-    [activeTab, isForbiddenRole, navigate]
+    [activeTab, selectedType, isForbiddenRole, navigate]
   );
 
   /* -------------------------------------------------------------------------
@@ -237,6 +244,19 @@ export default function Bookings() {
     setSearchParams({ status: "ALL" });
   };
 
+  const handleTypeChange = (newType) => {
+    if (newType === selectedType) return;
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (newType === "ALL") {
+        next.delete("type");
+      } else {
+        next.set("type", newType);
+      }
+      return next;
+    });
+  };
+
   /* -------------------------------------------------------------------------
      RENDER: ROLE FORBIDDEN (Advocate / Admin)
   ------------------------------------------------------------------------- */
@@ -294,10 +314,17 @@ export default function Bookings() {
               </button>
             </div>
           ) : detailBooking ? (
-            <BookingDetailView
-              booking={detailBooking}
-              onOpenReceipt={() => setReceiptBooking(detailBooking)}
-            />
+            detailBooking.bookingType === "ADVOCATE" ? (
+              <AdvocateBookingDetailView
+                booking={detailBooking}
+                onOpenReceipt={() => setReceiptBooking(detailBooking)}
+              />
+            ) : (
+              <BookingDetailView
+                booking={detailBooking}
+                onOpenReceipt={() => setReceiptBooking(detailBooking)}
+              />
+            )
           ) : null}
         </div>
 
@@ -377,6 +404,34 @@ export default function Bookings() {
                 >
                   {count}
                 </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Type Filter Pills */}
+        <div className="mb-6 flex flex-wrap items-center gap-2">
+          <span className="mr-1 text-xs font-bold uppercase tracking-wider text-slate-400">
+            Type:
+          </span>
+          {[
+            { key: "ALL", label: "All Bookings" },
+            { key: "CONSULTANCY", label: "Consultancy" },
+            { key: "ADVOCATE", label: "Advocates" },
+          ].map((t) => {
+            const isSelected = selectedType === t.key;
+            return (
+              <button
+                key={t.key}
+                type="button"
+                onClick={() => handleTypeChange(t.key)}
+                className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all ${
+                  isSelected
+                    ? "bg-slate-900 text-white shadow-sm"
+                    : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                }`}
+              >
+                {t.label}
               </button>
             );
           })}
@@ -464,10 +519,227 @@ export default function Bookings() {
 }
 
 /* =========================================================================
+   ADVOCATE HELPERS & CARD
+========================================================================= */
+
+function formatAdvocateSlotTime(startAt, endAt) {
+  if (!startAt) return "";
+  try {
+    const start = new Date(startAt);
+    const end = endAt ? new Date(endAt) : null;
+
+    const datePart = new Intl.DateTimeFormat("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      timeZone: "Asia/Kolkata",
+    }).format(start);
+
+    const startTimePart = new Intl.DateTimeFormat("en-IN", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+      timeZone: "Asia/Kolkata",
+    }).format(start);
+
+    const endTimePart = end
+      ? new Intl.DateTimeFormat("en-IN", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+          timeZone: "Asia/Kolkata",
+        }).format(end)
+      : "";
+
+    return `${datePart}, ${startTimePart}${endTimePart ? ` – ${endTimePart}` : ""} IST`;
+  } catch {
+    return String(startAt);
+  }
+}
+
+function getAdvocateBadge(booking) {
+  const status = String(booking.status || "").toUpperCase();
+  switch (status) {
+    case "PAID":
+    case "CONFIRMED":
+      return {
+        label: "Confirmed",
+        className: "border-emerald-200 bg-emerald-50 text-emerald-700",
+      };
+    case "HOLD":
+      return {
+        label: "Slot Held",
+        className: "border-amber-200 bg-amber-50 text-amber-700",
+      };
+    case "SCHEDULED":
+      return {
+        label: "Scheduled",
+        className: "border-blue-200 bg-blue-50 text-blue-700",
+      };
+    case "PAYMENT_PROCESSING":
+      return {
+        label: "Processing",
+        className: "border-amber-200 bg-amber-50 text-amber-700",
+      };
+    case "COMPLETED":
+      return {
+        label: "Completed",
+        className: "border-emerald-200 bg-emerald-50 text-emerald-700",
+      };
+    case "CANCELLED":
+    case "EXPIRED":
+    case "FAILED":
+      return {
+        label: status.charAt(0) + status.slice(1).toLowerCase(),
+        className: "border-rose-200 bg-rose-50 text-rose-700",
+      };
+    default:
+      return {
+        label: status || "Booked",
+        className: "border-slate-200 bg-slate-100 text-slate-700",
+      };
+  }
+}
+
+function AdvocateBookingCard({ booking, onClick }) {
+  const mode = booking.mode || booking.callType;
+  const isVideo = mode === "VIDEO_CALL";
+  const isInPerson = mode === "IN_PERSON";
+  const badge = getAdvocateBadge(booking);
+
+  const rawTotal =
+    booking.total ??
+    booking.price ??
+    (booking.totalPaise ? booking.totalPaise / 100 : null) ??
+    (booking.breakdown?.total ?? 0);
+  const formattedPrice = formatBookingAmount(rawTotal);
+
+  const slotDisplay = booking.startAt
+    ? formatAdvocateSlotTime(booking.startAt, booking.endAt)
+    : formatPaymentDateTime(booking.createdAt);
+
+  return (
+    <div
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      className="group cursor-pointer rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-all hover:border-amber-400/80 hover:shadow-md sm:p-6"
+    >
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+        {/* Left: Avatar/Icon, Title, Date */}
+        <div className="flex items-start gap-4">
+          <div className="relative shrink-0">
+            {booking.advocatePhoto || booking.profilePhotoUrl ? (
+              <img
+                src={booking.advocatePhoto || booking.profilePhotoUrl}
+                alt={booking.advocateName || "Advocate"}
+                className="h-12 w-12 rounded-2xl border border-slate-200 object-cover"
+              />
+            ) : (
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-amber-200 bg-amber-100 text-lg font-black text-amber-700">
+                {(booking.advocateName || "A")[0].toUpperCase()}
+              </div>
+            )}
+            <div
+              className={`absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-md text-[10px] text-white shadow-sm ${
+                isVideo
+                  ? "bg-purple-600"
+                  : isInPerson
+                  ? "bg-emerald-600"
+                  : "bg-sky-600"
+              }`}
+              title={
+                isVideo
+                  ? "Video Call"
+                  : isInPerson
+                  ? "In-Person Consultation"
+                  : "Voice Call"
+              }
+            >
+              {isVideo ? (
+                <FiVideo />
+              ) : isInPerson ? (
+                <FiBriefcase />
+              ) : (
+                <FiPhone />
+              )}
+            </div>
+          </div>
+
+          <div>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h3 className="text-base font-bold text-slate-950 transition group-hover:text-amber-600 sm:text-lg">
+                {booking.advocateName
+                  ? `Adv. ${booking.advocateName}`
+                  : booking.title || "Advocate Consultation"}
+              </h3>
+              <span
+                className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-bold ${badge.className}`}
+              >
+                {badge.label}
+              </span>
+              {booking.bookingId && (
+                <span className="rounded-md bg-slate-100 px-2 py-0.5 font-mono text-xs font-semibold text-slate-600">
+                  {booking.bookingId}
+                </span>
+              )}
+            </div>
+
+            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+              <span className="flex items-center gap-1">
+                <FiCalendar className="text-slate-400" />
+                <span>{slotDisplay}</span>
+              </span>
+              {booking.durationMinutes && (
+                <span className="flex items-center gap-1">
+                  <FiClock className="text-slate-400" />
+                  <span>{booking.durationMinutes} min</span>
+                </span>
+              )}
+              {booking.subject && (
+                <span className="rounded-md bg-slate-100 px-2 py-0.5 font-medium text-slate-600">
+                  {booking.subject}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Price & Details Arrow */}
+        <div className="flex items-center justify-between border-t border-slate-100 pt-3 sm:flex-col sm:items-end sm:border-t-0 sm:pt-0">
+          <span className="text-lg font-black text-slate-950 sm:text-xl">
+            {formattedPrice}
+          </span>
+          <span className="text-xs font-bold text-amber-600 group-hover:underline">
+            View Details →
+          </span>
+        </div>
+      </div>
+
+      {booking.status === "PAYMENT_PROCESSING" && (
+        <div className="mt-4 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50/80 px-3.5 py-2.5 text-xs font-bold text-amber-900">
+          <FiInfo className="shrink-0 text-base text-amber-600" />
+          <span>Your bank is confirming the payment. Do not pay again.</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* =========================================================================
    BOOKING CARD COMPONENT
 ========================================================================= */
 
 function BookingCard({ booking, onClick }) {
+  if (booking.bookingType === "ADVOCATE") {
+    return <AdvocateBookingCard booking={booking} onClick={onClick} />;
+  }
   const isVideo = booking.callType === "VIDEO_CALL";
   const badge = getBookingBadge(booking);
   const formattedPrice = formatBookingAmount(booking.price);
@@ -767,6 +1039,242 @@ function BookingDetailView({ booking, onOpenReceipt }) {
 }
 
 /* =========================================================================
+   ADVOCATE BOOKING DETAIL VIEW
+========================================================================= */
+
+function AdvocateBookingDetailView({ booking, onOpenReceipt }) {
+  const mode = booking.mode || booking.callType;
+  const isVideo = mode === "VIDEO_CALL";
+  const isInPerson = mode === "IN_PERSON";
+  const badge = getAdvocateBadge(booking);
+
+  const rawTotal =
+    booking.total ??
+    booking.price ??
+    (booking.totalPaise ? booking.totalPaise / 100 : null) ??
+    (booking.breakdown?.total ?? 0);
+  const formattedPrice = formatBookingAmount(rawTotal);
+
+  const slotDisplay = booking.startAt
+    ? formatAdvocateSlotTime(booking.startAt, booking.endAt)
+    : formatPaymentDateTime(booking.createdAt);
+
+  return (
+    <div className="space-y-6">
+      {/* Overview Card */}
+      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-100 bg-slate-50/50 p-6 sm:p-8">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+            <div className="flex items-start gap-4">
+              {booking.advocatePhoto || booking.profilePhotoUrl ? (
+                <img
+                  src={booking.advocatePhoto || booking.profilePhotoUrl}
+                  alt={booking.advocateName || "Advocate"}
+                  className="h-14 w-14 shrink-0 rounded-2xl border border-slate-200 object-cover"
+                />
+              ) : (
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-amber-200 bg-amber-100 text-2xl font-black text-amber-700">
+                  {(booking.advocateName || "A")[0].toUpperCase()}
+                </div>
+              )}
+              <div>
+                <span
+                  className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-bold ${badge.className}`}
+                >
+                  {badge.label}
+                </span>
+                <h2 className="mt-2 text-xl font-black text-slate-950 sm:text-2xl">
+                  {booking.advocateName
+                    ? `Adv. ${booking.advocateName}`
+                    : booking.title || "Advocate Consultation"}
+                </h2>
+                {booking.bookingId && (
+                  <p className="mt-1 text-xs text-slate-500">
+                    Booking ID:{" "}
+                    <span className="font-mono font-semibold text-slate-700">
+                      {booking.bookingId}
+                    </span>
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-col items-start sm:items-end">
+              <span className="text-xs font-black uppercase tracking-wider text-slate-400">
+                Total Fee
+              </span>
+              <span className="mt-0.5 text-2xl font-black text-slate-950">
+                {formattedPrice}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Details Grid */}
+        <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 sm:p-8">
+          {/* Consultation Info */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-black uppercase tracking-wider text-slate-400">
+              Consultation Specifics
+            </h4>
+            <div className="space-y-3 rounded-2xl border border-slate-100 bg-slate-50/50 p-4 text-sm">
+              <div className="flex justify-between">
+                <span className="text-slate-500">Mode</span>
+                <span className="font-bold text-slate-800">
+                  {isVideo
+                    ? "Video Consultation"
+                    : isInPerson
+                    ? "In-Person Consultation"
+                    : "Voice Call Consultation"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Scheduled Slot</span>
+                <span className="font-bold text-slate-800">{slotDisplay}</span>
+              </div>
+              {booking.durationMinutes && (
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Duration</span>
+                  <span className="font-bold text-slate-800">
+                    {booking.durationMinutes} minutes
+                  </span>
+                </div>
+              )}
+              {booking.subject && (
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Subject</span>
+                  <span className="font-semibold text-slate-800">
+                    {booking.subject}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Contact Info */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-black uppercase tracking-wider text-slate-400">
+              Registered Contact
+            </h4>
+            <div className="space-y-3 rounded-2xl border border-slate-100 bg-slate-50/50 p-4 text-sm">
+              <div className="flex items-center gap-2">
+                <FiPhone className="shrink-0 text-slate-400" />
+                <span className="text-slate-500">Phone:</span>
+                <span className="font-semibold text-slate-800">
+                  {booking.contact?.phoneNumber || booking.userPhone || "—"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <FiMail className="shrink-0 text-slate-400" />
+                <span className="text-slate-500">Email:</span>
+                <span className="truncate font-semibold text-slate-800">
+                  {booking.contact?.email || booking.userEmail || "—"}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Payment Summary */}
+        {booking.payment && (
+          <div className="border-t border-slate-100 p-6 sm:p-8">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-slate-400">
+                  Payment Details
+                </h4>
+                <div className="mt-2 flex flex-wrap items-center gap-3">
+                  <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
+                    {getPaymentStatusLabel(booking.payment.status)}
+                  </span>
+                  <span className="text-base font-black text-slate-900">
+                    {formatBookingAmount(
+                      booking.payment.amountRupees ||
+                        (booking.payment.amount ? booking.payment.amount / 100 : rawTotal)
+                    )}
+                  </span>
+                  {booking.payment.paidAt && (
+                    <span className="text-xs text-slate-500">
+                      Paid on {formatPaymentDateTime(booking.payment.paidAt)}
+                    </span>
+                  )}
+                </div>
+
+                <div className="mt-3 grid grid-cols-1 gap-2 text-xs text-slate-500 sm:grid-cols-2">
+                  {booking.payment.razorpayPaymentId && (
+                    <p>
+                      Payment ID:{" "}
+                      <span className="font-mono font-semibold text-slate-700">
+                        {booking.payment.razorpayPaymentId}
+                      </span>
+                    </p>
+                  )}
+                  {booking.payment.razorpayOrderId && (
+                    <p>
+                      Order ID:{" "}
+                      <span className="font-mono font-semibold text-slate-700">
+                        {booking.payment.razorpayOrderId}
+                      </span>
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* View Receipt Button */}
+              {(booking.actions?.canViewReceipt || booking.payment?.status === "PAID") && (
+                <button
+                  type="button"
+                  onClick={onOpenReceipt}
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-800 shadow-sm transition hover:bg-slate-50 hover:text-slate-950"
+                >
+                  <FiFileText className="text-base text-amber-500" />
+                  <span>View Receipt</span>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Audit Timeline Card */}
+      {Array.isArray(booking.timeline) && booking.timeline.length > 0 && (
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <h3 className="text-sm font-black uppercase tracking-wider text-slate-400">
+            Activity Timeline
+          </h3>
+          <div className="mt-6 space-y-6">
+            {booking.timeline.map((item, index) => {
+              const isLast = index === booking.timeline.length - 1;
+              const eventLabel = getTimelineEventLabel(item.event);
+              const formattedTime = formatPaymentDateTime(item.at);
+
+              return (
+                <div key={`${item.event}-${index}`} className="relative flex items-start gap-4">
+                  {!isLast && (
+                    <div className="absolute left-3 top-6 h-full w-0.5 bg-slate-200" />
+                  )}
+                  <div className="relative z-10 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-white bg-amber-500 shadow">
+                    <div className="h-2 w-2 rounded-full bg-white" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-slate-900">
+                      {eventLabel}
+                    </p>
+                    <p className="mt-0.5 text-xs text-slate-500">
+                      {formattedTime}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* =========================================================================
    PRINTABLE RECEIPT MODAL (Zero PDF libraries, uses clean window.print)
 ========================================================================= */
 
@@ -880,10 +1388,24 @@ function PrintableReceiptModal({ booking, onClose }) {
             <div className="flex items-center justify-between pt-3">
               <div>
                 <p className="text-sm font-bold text-slate-950">
-                  {booking.title}
+                  {booking.bookingType === "ADVOCATE"
+                    ? booking.advocateName
+                      ? `Consultation with Adv. ${booking.advocateName}`
+                      : booking.title || "Advocate Consultation"
+                    : booking.title}
                 </p>
                 <p className="mt-0.5 text-xs text-slate-500">
-                  Mode: {isVideo ? "Video Call" : "Voice Call"} • Duration: {booking.durationMinutes} min
+                  {booking.bookingType === "ADVOCATE"
+                    ? `Mode: ${
+                        booking.mode === "VIDEO_CALL"
+                          ? "Video Call"
+                          : booking.mode === "IN_PERSON"
+                          ? "In-Person Consultation"
+                          : "Voice Call"
+                      }${booking.subject ? ` • ${booking.subject}` : ""}${
+                        booking.durationMinutes ? ` • ${booking.durationMinutes} min` : ""
+                      }`
+                    : `Mode: ${isVideo ? "Video Call" : "Voice Call"} • Duration: ${booking.durationMinutes} min`}
                 </p>
               </div>
               <p className="text-base font-black text-slate-950">

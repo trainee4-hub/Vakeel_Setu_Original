@@ -337,6 +337,7 @@ export const getUserPayments = async ({ page = 1, limit = 20 } = {}) => {
  */
 export const getUserBookings = async ({
   status = "ALL",
+  type,
   from,
   to,
   page = 1,
@@ -352,6 +353,10 @@ export const getUserBookings = async ({
     params.set("status", "ALL");
   }
 
+  if (type && String(type).toUpperCase() !== "ALL") {
+    params.set("type", String(type).toUpperCase());
+  }
+
   if (from) params.set("from", String(from));
   if (to) params.set("to", String(to));
   params.set("page", String(safePage));
@@ -365,6 +370,9 @@ export const getUserBookings = async ({
 
   return {
     success: response?.success ?? true,
+    availableTypes: Array.isArray(response?.availableTypes)
+      ? response.availableTypes
+      : ["CONSULTANCY", "ADVOCATE"],
     bookings: Array.isArray(response?.bookings) ? response.bookings : [],
     pagination: response?.pagination ?? {
       page: safePage,
