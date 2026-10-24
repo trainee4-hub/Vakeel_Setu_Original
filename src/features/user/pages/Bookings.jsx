@@ -19,7 +19,6 @@ import {
   FiRefreshCw,
   FiVideo,
   FiX,
-  FiCheckCircle,
 } from "react-icons/fi";
 import { useAuth } from "../../auth";
 import { getUserRole } from "../../../utils/advocateProfile";
@@ -44,7 +43,6 @@ const TAB_CONFIG = [
   { key: "UPCOMING", label: "Upcoming" },
   { key: "PROCESSING", label: "Processing" },
   { key: "COMPLETED", label: "Completed" },
-  { key: "REFUNDED", label: "Refunded" },
 ];
 
 /* =========================================================================
@@ -62,7 +60,9 @@ export default function Bookings() {
   const isForbiddenRole = role === "advocate" || role === "admin";
 
   // List State
-  const activeTab = (searchParams.get("status") || "ALL").toUpperCase();
+  const rawStatus = (searchParams.get("status") || "ALL").toUpperCase();
+  const validTabs = TAB_CONFIG.map((t) => t.key);
+  const activeTab = validTabs.includes(rawStatus) ? rawStatus : "ALL";
   const [bookings, setBookings] = useState([]);
   const [counts, setCounts] = useState({
     ALL: 0,
@@ -111,16 +111,19 @@ export default function Bookings() {
           limit: 10,
         });
 
+        const nonRefunded = (response.bookings || []).filter((b) => {
+          const st = String(b.status || "").toUpperCase();
+          return st !== "REFUNDED" && st !== "REFUND_PENDING";
+        });
+
         if (append) {
           setBookings((prev) => {
             const existingIds = new Set(prev.map((b) => b.id));
-            const newItems = (response.bookings || []).filter(
-              (b) => !existingIds.has(b.id)
-            );
+            const newItems = nonRefunded.filter((b) => !existingIds.has(b.id));
             return [...prev, ...newItems];
           });
         } else {
-          setBookings(response.bookings || []);
+          setBookings(nonRefunded);
         }
 
         if (response.counts) {
@@ -166,7 +169,8 @@ export default function Bookings() {
 
       try {
         const response = await getUserBookingById(id);
-        if (response?.booking) {
+        const bookingStatus = String(response?.booking?.status || "").toUpperCase();
+        if (response?.booking && bookingStatus !== "REFUNDED" && bookingStatus !== "REFUND_PENDING") {
           setDetailBooking(response.booking);
         } else {
           setDetailError({ status: 404, message: "Booking not found." });
@@ -538,20 +542,6 @@ function BookingCard({ booking, onClick }) {
           <span>Your bank is confirming the payment. Do not pay again.</span>
         </div>
       )}
-
-{/* { this is this fee return notification that is removed by instruction} */}
-      {/* {booking.status === "CONFIRMED" && booking.payment?.refundEligibleAt && (
-        <div className="mt-4 flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50/80 px-3.5 py-2.5 text-xs font-medium text-blue-900">
-          <FiInfo className="shrink-0 text-base text-blue-600" />
-          <span>
-            If the call doesn&apos;t happen by{" "}
-            <strong className="font-bold">
-              {formatPaymentDateTime(booking.payment.refundEligibleAt)}
-            </strong>
-            , you&apos;re eligible for a refund.
-          </span>
-        </div>
-      )} */}
     </div>
   );
 }
@@ -712,12 +702,6 @@ function BookingDetailView({ booking, onOpenReceipt }) {
                       </span>
                     </p>
                   )}
-                  {booking.payment.refundedAt && (
-                    <p className="col-span-full font-semibold text-slate-700">
-                      Refunded on:{" "}
-                      {formatPaymentDateTime(booking.payment.refundedAt)}
-                    </p>
-                  )}
                 </div>
               </div>
 
@@ -736,31 +720,7 @@ function BookingDetailView({ booking, onOpenReceipt }) {
           </div>
         )}
 
-        {/* Refund Policy Information */}
-        <div className="border-t border-slate-100 bg-slate-50/60 p-6 sm:p-8">
-          {booking.actions?.refundEligibleNow ? (
-            <div className="rounded-2xl border border-emerald-200 bg-emerald-50/90 p-4 text-emerald-950">
-              <div className="flex items-center gap-2 text-sm font-bold">
-                <FiCheckCircle className="text-emerald-600" />
-                <span>You&apos;re eligible for a refund. Our team will process it.</span>
-              </div>
-              <p className="mt-1 text-xs text-emerald-800">
-                Our support team automatically initiates eligible refunds back to your original source of payment within standard bank timelines.
-              </p>
-            </div>
-          ) : booking.payment?.refundEligibleAt ? (
-            <div className="flex items-start gap-3 text-xs text-slate-600">
-              <FiInfo className="mt-0.5 text-base text-blue-500 shrink-0" />
-              <p>
-                If your scheduled consultation does not occur by{" "}
-                <strong className="font-bold text-slate-900">
-                  {formatPaymentDateTime(booking.payment.refundEligibleAt)}
-                </strong>
-                , your booking becomes eligible for a full refund processed by our team.
-              </p>
-            </div>
-          ) : null}
-        </div>
+        {/* End Card */}
       </div>
 
       {/* Audit Timeline Card */}

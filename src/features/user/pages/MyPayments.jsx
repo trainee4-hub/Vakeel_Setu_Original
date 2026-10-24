@@ -13,12 +13,10 @@ import {
   FiHash,
   FiInfo,
   FiRefreshCw,
-  FiShield,
 } from "react-icons/fi";
 import { getUserPayments } from "../services/consultancyApi";
 import {
   formatPaiseToRupees,
-  formatPaymentDate,
   formatPaymentDateTime,
   getPaymentStatusLabel,
   getPaymentStatusBadgeClass,
@@ -42,12 +40,17 @@ export default function MyPayments() {
     setError(null);
     try {
       const response = await getUserPayments({ page, limit: 10 });
-      setPayments(response.data || []);
+      const rawPayments = response.data || [];
+      const visiblePayments = rawPayments.filter((p) => {
+        const st = String(p.status || "").toUpperCase();
+        return st !== "REFUNDED" && st !== "REFUND_PENDING" && st !== "DUPLICATE_REFUNDED";
+      });
+      setPayments(visiblePayments);
       setPagination(
         response.pagination || {
           page,
           limit: 10,
-          total: response.data?.length || 0,
+          total: visiblePayments.length,
           totalPages: 1,
         }
       );
@@ -99,7 +102,7 @@ export default function MyPayments() {
                 My Payments
               </h1>
               <p className="mt-0.5 text-xs font-semibold text-slate-500">
-                Track your consultation transactions, booking links, and refund status
+                Track your consultation transactions and booking links
               </p>
             </div>
           </div>
@@ -201,15 +204,9 @@ export default function MyPayments() {
               const statusLabel = getPaymentStatusLabel(item.status);
               const statusBadgeClass = getPaymentStatusBadgeClass(item.status);
               const isPaid = String(item.status).toUpperCase() === "PAID";
-              const isRefunded = String(item.status).toUpperCase() === "REFUNDED";
-              const isRefundPending = String(item.status).toUpperCase() === "REFUND_PENDING";
-              const isDuplicateRefunded = String(item.status).toUpperCase() === "DUPLICATE_REFUNDED";
               const amountDisplay = formatPaiseToRupees(item.amount, item.amountRupees);
               const orderId = item.razorpayOrderId || "—";
               const createdDate = formatPaymentDateTime(item.createdAt);
-
-              // Consultation has not completed yet if completedAt is missing
-              const consultationCompleted = !!item.consultancyRequest?.completedAt;
 
               return (
                 <div
@@ -280,45 +277,6 @@ export default function MyPayments() {
                       )}
                     </div>
                   </div>
-
-                  {/* Refund Information Banner */}
-                  {isPaid && item.refundEligibleAt && !consultationCompleted && (
-                    <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50/80 px-3.5 py-2.5 text-xs text-amber-900">
-                      <FiInfo className="mt-0.5 size-4 shrink-0 text-amber-600" />
-                      <p className="leading-5">
-                        If your consultation doesn't happen by{" "}
-                        <span className="font-black text-amber-950">
-                          {formatPaymentDate(item.refundEligibleAt)}
-                        </span>
-                        , you're eligible for a refund.
-                      </p>
-                    </div>
-                  )}
-
-                  {isRefundPending && (
-                    <div className="mt-4 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2 text-xs font-semibold text-amber-800">
-                      <FiRefreshCw className="size-3.5 animate-spin text-amber-600" />
-                      <span>Refund in progress with payment gateway.</span>
-                    </div>
-                  )}
-
-                  {isRefunded && (
-                    <div className="mt-4 flex items-center gap-2 rounded-xl border border-purple-200 bg-purple-50 px-3.5 py-2 text-xs font-semibold text-purple-800">
-                      <FiShield className="size-3.5 text-purple-600" />
-                      <span>
-                        Refunded
-                        {item.refundedAt ? ` on ${formatPaymentDate(item.refundedAt)}` : ""}
-                        {item.refundReason ? ` • Reason: ${item.refundReason}` : ""}
-                      </span>
-                    </div>
-                  )}
-
-                  {isDuplicateRefunded && (
-                    <div className="mt-4 flex items-center gap-2 rounded-xl border border-purple-200 bg-purple-50 px-3.5 py-2 text-xs font-semibold text-purple-800">
-                      <FiShield className="size-3.5 text-purple-600" />
-                      <span>Extra concurrent payment was automatically refunded by bank.</span>
-                    </div>
-                  )}
                 </div>
               );
             })}

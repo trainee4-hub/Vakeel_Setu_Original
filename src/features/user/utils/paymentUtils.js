@@ -65,9 +65,9 @@ export const PAYMENT_STATUS_LABELS = {
   PAID: "Paid ✓",
   FAILED: "Failed",
   EXPIRED: "Not completed (expired)",
-  REFUND_PENDING: "Refund in progress",
-  REFUNDED: "Refunded",
-  DUPLICATE_REFUNDED: "Extra payment refunded",
+  REFUND_PENDING: "Cancelled",
+  REFUNDED: "Cancelled",
+  DUPLICATE_REFUNDED: "Cancelled",
 };
 
 /**
@@ -91,14 +91,13 @@ export function getPaymentStatusBadgeClass(status) {
     case "PAID":
       return "border-emerald-200 bg-emerald-50 text-emerald-700";
     case "PROCESSING":
-    case "REFUND_PENDING":
       return "border-amber-200 bg-amber-50 text-amber-700";
     case "FAILED":
     case "EXPIRED":
       return "border-rose-200 bg-rose-50 text-rose-700";
     case "REFUNDED":
     case "DUPLICATE_REFUNDED":
-      return "border-purple-200 bg-purple-50 text-purple-700";
+    case "REFUND_PENDING":
     case "CREATED":
     default:
       return "border-slate-200 bg-slate-100 text-slate-600";
@@ -206,8 +205,6 @@ export function getBookingStatusBadgeClass(status) {
       return "border-amber-200 bg-amber-50 text-amber-700";
     case "COMPLETED":
       return "border-emerald-200 bg-emerald-50 text-emerald-700";
-    case "REFUND_IN_PROGRESS":
-    case "REFUNDED":
     default:
       return "border-slate-200 bg-slate-100 text-slate-700";
   }
@@ -257,8 +254,8 @@ export function getBookingBadge(booking) {
  * - PAYMENT_PAID       → "Payment received"
  * - BOOKING_CONFIRMED  → "Booking confirmed"
  * - COMPLETED          → "Consultation completed"
- * - REFUND_INITIATED   → "Refund started"
- * - REFUNDED           → "Refunded"
+ * - REFUND_INITIATED   → "Booking cancelled"
+ * - REFUNDED           → "Booking cancelled"
  * - anything else      → sentence case (underscores → spaces)
  *
  * @param {string} event
@@ -275,9 +272,8 @@ export function getTimelineEventLabel(event) {
     case "COMPLETED":
       return "Consultation completed";
     case "REFUND_INITIATED":
-      return "Refund started";
     case "REFUNDED":
-      return "Refunded";
+      return "Booking cancelled";
     default: {
       const lower = String(event).replace(/_/g, " ").toLowerCase();
       return lower.charAt(0).toUpperCase() + lower.slice(1);
