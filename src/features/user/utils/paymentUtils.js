@@ -214,6 +214,45 @@ export function getBookingStatusBadgeClass(status) {
 }
 
 /**
+ * Resolves the badge label and styling for a booking.
+ * Strictly follows README §30.5.C priority to avoid the trap where PAYMENT_PROCESSING
+ * or REFUNDED bookings carry callStatus: "PENDING" or "COMPLETED".
+ *
+ * @param {object} booking
+ * @returns {{ label: string, className: string }}
+ */
+export function getBookingBadge(booking) {
+  if (!booking) {
+    return { label: "", className: "" };
+  }
+
+  const status = String(booking.status || "").toUpperCase();
+  const callStatus = String(booking.callStatus || "").toUpperCase();
+
+  if (["CONFIRMED", "REQUESTED", "COMPLETED"].includes(status)) {
+    if (callStatus === "PENDING") {
+      return {
+        label: "Pending",
+        className: "border-amber-200 bg-amber-50 text-amber-700",
+      };
+    }
+    if (callStatus === "COMPLETED") {
+      return {
+        label: "Completed",
+        className: "border-emerald-200 bg-emerald-50 text-emerald-700",
+      };
+    }
+  }
+
+  // Trap protection for PAYMENT_PROCESSING, REFUND_IN_PROGRESS, REFUNDED,
+  // or fallback when callStatus is missing/unrecognised on CONFIRMED/REQUESTED/COMPLETED
+  return {
+    label: booking.statusLabel || status,
+    className: getBookingStatusBadgeClass(status),
+  };
+}
+
+/**
  * Maps raw timeline event enums to clean, user-facing sentences:
  * - PAYMENT_PAID       → "Payment received"
  * - BOOKING_CONFIRMED  → "Booking confirmed"

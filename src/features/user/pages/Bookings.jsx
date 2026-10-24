@@ -30,7 +30,7 @@ import {
 import {
   formatBookingAmount,
   formatPaymentDateTime,
-  getBookingStatusBadgeClass,
+  getBookingBadge,
   getTimelineEventLabel,
   getPaymentStatusLabel,
 } from "../utils/paymentUtils";
@@ -465,7 +465,7 @@ export default function Bookings() {
 
 function BookingCard({ booking, onClick }) {
   const isVideo = booking.callType === "VIDEO_CALL";
-  const badgeClass = getBookingStatusBadgeClass(booking.status);
+  const badge = getBookingBadge(booking);
   const formattedPrice = formatBookingAmount(booking.price);
   const formattedCreatedAt = formatPaymentDateTime(booking.createdAt);
 
@@ -501,9 +501,9 @@ function BookingCard({ booking, onClick }) {
                 {booking.title}
               </h3>
               <span
-                className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-bold ${badgeClass}`}
+                className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-bold ${badge.className}`}
               >
-                {booking.statusLabel}
+                {badge.label}
               </span>
             </div>
 
@@ -539,7 +539,8 @@ function BookingCard({ booking, onClick }) {
         </div>
       )}
 
-      {booking.status === "CONFIRMED" && booking.payment?.refundEligibleAt && (
+{/* { this is this fee return notification that is removed by instruction} */}
+      {/* {booking.status === "CONFIRMED" && booking.payment?.refundEligibleAt && (
         <div className="mt-4 flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50/80 px-3.5 py-2.5 text-xs font-medium text-blue-900">
           <FiInfo className="shrink-0 text-base text-blue-600" />
           <span>
@@ -550,7 +551,7 @@ function BookingCard({ booking, onClick }) {
             , you&apos;re eligible for a refund.
           </span>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
@@ -561,7 +562,7 @@ function BookingCard({ booking, onClick }) {
 
 function BookingDetailView({ booking, onOpenReceipt }) {
   const isVideo = booking.callType === "VIDEO_CALL";
-  const badgeClass = getBookingStatusBadgeClass(booking.status);
+  const badge = getBookingBadge(booking);
   const formattedPrice = formatBookingAmount(booking.price);
 
   return (
@@ -582,19 +583,21 @@ function BookingDetailView({ booking, onOpenReceipt }) {
               </div>
               <div>
                 <span
-                  className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-bold ${badgeClass}`}
+                  className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-bold ${badge.className}`}
                 >
-                  {booking.statusLabel}
+                  {badge.label}
                 </span>
                 <h2 className="mt-2 text-xl font-black text-slate-950 sm:text-2xl">
                   {booking.title}
                 </h2>
-                <p className="mt-1 text-xs text-slate-500">
-                  Booking ID:{" "}
-                  <span className="font-mono font-semibold text-slate-700">
-                    {booking.id}
-                  </span>
-                </p>
+                {booking.bookingId && (
+                  <p className="mt-1 text-xs text-slate-500">
+                    Booking ID:{" "}
+                    <span className="font-mono font-semibold text-slate-700">
+                      {booking.bookingId}
+                    </span>
+                  </p>
+                )}
               </div>
             </div>
 
@@ -874,7 +877,7 @@ function PrintableReceiptModal({ booking, onClose }) {
                 Booking Reference
               </p>
               <p className="mt-1 font-mono font-semibold text-slate-900">
-                {booking.id}
+                {booking.bookingId || booking.id}
               </p>
             </div>
             <div>
