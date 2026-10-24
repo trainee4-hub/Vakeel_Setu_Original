@@ -29,7 +29,7 @@ import {
 } from "../services/authApi";
 
 import { API_BASE_URL } from "@shared/services/apiClient";
-import { setAuthToken } from "@/utils/auth";
+import { getAuthToken, setAuthToken } from "@/utils/auth";
 
 import LoginShell from "../components/login/LoginShell";
 import LoginHeroPanel from "../components/login/LoginHeroPanel";
@@ -903,29 +903,68 @@ const Login = ({
   ============================================================ */
 
   const resolveUserFromResponse =
-    async (data) => {
+    async (data, token = null) => {
       const direct =
         data?.user ||
         data?.data?.user ||
-        data?.data?.data
-          ?.user ||
-        null;
+        data?.data?.data?.user ||
+        data?.client ||
+        data?.data?.client ||
+        data?.account ||
+        data?.data?.account ||
+        (data?.data && typeof data.data === "object" && !data.data.token && (data.data.id || data.data._id || data.data.name || data.data.phone || data.data.email) ? data.data : null);
 
       if (direct) {
         return direct;
       }
 
-      const meResponse =
-        await getCurrentUser();
+      const effectiveToken =
+        token ||
+        getAuthToken();
 
-      return (
-        meResponse?.user ||
-        meResponse?.data
-          ?.user ||
-        meResponse?.data
-          ?.data?.user ||
-        null
-      );
+      try {
+        const meResponse =
+          await getCurrentUser({ token: effectiveToken });
+
+        const userFromMe =
+          meResponse?.user ||
+          meResponse?.data?.user ||
+          meResponse?.data?.data?.user ||
+          meResponse?.client ||
+          meResponse?.data?.client ||
+          (meResponse?.data && typeof meResponse.data === "object" && (meResponse.data.id || meResponse.data._id || meResponse.data.name || meResponse.data.phone || meResponse.data.email) ? meResponse.data : null);
+
+        if (userFromMe) {
+          return userFromMe;
+        }
+      } catch (meError) {
+        console.warn("Could not fetch user profile from /auth/me:", meError);
+      }
+
+      // Fallback: decode JWT token payload if available
+      if (effectiveToken && typeof effectiveToken === "string") {
+        try {
+          const parts = effectiveToken.split(".");
+          if (parts.length === 3) {
+            const payload = JSON.parse(atob(parts[1]));
+            if (payload && (payload.id || payload._id || payload.userId || payload.sub || payload.phone || payload.email)) {
+              return {
+                _id: payload.id || payload._id || payload.userId || payload.sub,
+                id: payload.id || payload._id || payload.userId || payload.sub,
+                phone: payload.phone || data?.phone || "",
+                email: payload.email || data?.email || "",
+                name: payload.name || payload.fullName || "User",
+                role: payload.role || "citizen",
+                accountType: payload.accountType || "citizen",
+              };
+            }
+          }
+        } catch (jwtErr) {
+          console.warn("Could not decode token payload:", jwtErr);
+        }
+      }
+
+      return null;
     };
 
   const verifyUserLogin =
@@ -1012,13 +1051,19 @@ const Login = ({
 
         const token =
           response?.token ||
-          response?.data
-            ?.token ||
+          response?.data?.token ||
+          response?.accessToken ||
+          response?.data?.accessToken ||
           null;
+
+        if (token) {
+          setAuthToken(token);
+        }
 
         const authenticatedUser =
           await resolveUserFromResponse(
             response,
+            token,
           );
 
         if (

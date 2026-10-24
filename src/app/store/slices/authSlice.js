@@ -318,8 +318,13 @@ export const restoreAuthSession =
        * authApi must use:
        * credentials: "include"
        */
+      const token =
+        getAuthToken() ||
+        getState()?.auth?.token ||
+        null;
+
       const response =
-        await getCurrentUser();
+        await getCurrentUser({ token });
 
       const rawUser =
         extractAuthenticatedUser(

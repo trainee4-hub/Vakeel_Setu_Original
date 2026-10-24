@@ -159,6 +159,19 @@ function safeClone(data) {
    REQUEST
 ============================================================================ */
 
+function getStoredToken() {
+  if (typeof window === "undefined") return null;
+  try {
+    return (
+      window.sessionStorage?.getItem("vakeel_setu_auth_token") ||
+      window.localStorage?.getItem("vakeel_setu_auth_token") ||
+      null
+    );
+  } catch {
+    return null;
+  }
+}
+
 export async function apiRequest(
   path,
   {
@@ -180,8 +193,11 @@ export async function apiRequest(
   const url =
     `${API_BASE_URL}${normalizedPath}`;
 
+  const resolvedToken =
+    token !== undefined ? token : getStoredToken();
+
   const isGet = method.toUpperCase() === "GET";
-  const cacheKey = `${token || "anon"}:${url}`;
+  const cacheKey = `${resolvedToken || "anon"}:${url}`;
 
   // 1. Cache hit check
   if (isGet && cache !== false && !forceRefresh) {
@@ -229,10 +245,10 @@ export async function apiRequest(
                   "application/json",
               }),
 
-            ...(token
+            ...(resolvedToken
               ? {
                 Authorization:
-                  `Bearer ${token}`,
+                  `Bearer ${resolvedToken}`,
               }
               : {}),
 

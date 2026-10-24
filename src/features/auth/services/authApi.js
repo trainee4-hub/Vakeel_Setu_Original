@@ -1252,11 +1252,17 @@ export async function loginVerifyEmailOtp({
    CURRENT AUTH USER
 ============================================================================ */
 
-export async function getCurrentUser() {
+export async function getCurrentUser(options = {}) {
+  const token =
+    typeof options === "string"
+      ? options
+      : options?.token;
+
   return authRequest(
     "/auth/me",
     {
       method: "GET",
+      ...(token ? { token } : {}),
     },
   );
 }
