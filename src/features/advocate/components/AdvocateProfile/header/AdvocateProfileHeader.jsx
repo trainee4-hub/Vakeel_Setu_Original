@@ -62,8 +62,6 @@ return (
     <div className="flex flex-col sm:flex-row items-center sm:items-center gap-6">
 
       {/* ================= PHOTO ================= */}
-
-      {/* 👇 YAHAN NEW CODE PASTE KARO */}
       <div className="relative shrink-0 self-center">
         {/* Profile Image */}
         <div
@@ -122,53 +120,28 @@ return (
           </div>
         </div>
 
-        {/* Verified Badge */}
-        <div
-          className="
-            absolute
-            -right-1
-            top-1
-            z-20
-            flex
-            h-8
-            w-8
-            items-center
-            justify-center
-            rounded-full
-            bg-white
-            shadow-sm
-          "
-          title="Verified Advocate"
-        >
-          <MdVerified
-            size={26}
-            className="text-[#1D9BF0]"
-          />
-        </div>
-
         {/* Online / Offline Dot */}
         <div
           className="
             absolute
-            -bottom-1
-            right-1
+            bottom-[10px]
+            right-[10px]
             z-20
             flex
-            h-9
-            w-9
             items-center
             justify-center
             rounded-full
-            border-[4px]
+            border-2
             border-white
             bg-white
+            p-[2px]
             shadow-sm
           "
           title={isOnline ? "Online" : "Offline"}
           aria-label={isOnline ? "Online" : "Offline"}
         >
           {isOnline ? (
-            <span className="relative flex h-5 w-5">
+            <span className="relative flex h-4 w-4">
               <span
                 className="
                   absolute
@@ -178,7 +151,7 @@ return (
                   animate-ping
                   rounded-full
                   bg-emerald-400
-                  opacity-50
+                  opacity-75
                 "
               />
 
@@ -186,8 +159,8 @@ return (
                 className="
                   relative
                   inline-flex
-                  h-5
-                  w-5
+                  h-[0.80rem]
+                  w-[0.80rem]
                   rounded-full
                   bg-emerald-500
                 "
@@ -196,8 +169,8 @@ return (
           ) : (
             <span
               className="
-                h-5
-                w-5
+                h-[0.80rem]
+                w-[0.80rem]
                 rounded-full
                 bg-slate-400
               "
@@ -206,15 +179,22 @@ return (
         </div>
       </div>
 
-      {/* 👆 NEW CODE ENDS HERE */}
-
       {/* ================= PROFILE INFO ================= */}
       <div className="flex-1 min-w-0">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
             <div className="text-center sm:text-left">
-              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-                {advocateName}
-              </h1>
+              <div className="flex items-center justify-center sm:justify-start gap-2">
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                  {advocateName}
+                </h1>
+                <span
+                  title="Verified Advocate"
+                  aria-label="Verified Advocate"
+                  className="inline-flex items-center text-[#1D9BF0] shrink-0 transition-transform duration-150 hover:scale-110 cursor-default"
+                >
+                  <MdVerified className="text-[20px] sm:text-[22px]" />
+                </span>
+              </div>
 
               <p className="text-sm sm:text-base text-slate-500 font-medium mt-0.5">
                 {formatPracticeArea(practiceAreas?.[0])}

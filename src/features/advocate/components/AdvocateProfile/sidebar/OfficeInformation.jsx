@@ -47,7 +47,7 @@ export default function OfficeInformation({
       <div className="px-6 pt-6 pb-4">
         <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
           <FiBriefcase className="text-amber-500 text-lg" />
-          Office Information
+          Office Location and Address
         </h3>
       </div>
 
@@ -58,7 +58,7 @@ export default function OfficeInformation({
             <iframe
               title={`Office location of ${advocateName}`}
               src={officeMapEmbedUrl}
-              className="absolute inset-0 w-full h-full border-0"
+              className="absolute -top-[65px] inset-x-0 w-full h-[calc(100%+65px)] border-0"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               allowFullScreen
@@ -72,27 +72,34 @@ export default function OfficeInformation({
                 className="
                   absolute
                   top-3
-                  left-3
+                  right-3
+                  z-10
                   inline-flex
                   items-center
                   gap-1.5
-                  rounded-lg
-                  bg-white
+                  rounded-xl
+                  bg-white/95
+                  backdrop-blur-md
                   px-3
                   py-2
-                  text-sm
+                
+                  text-xs
                   font-semibold
-                  text-blue-600
+                  text-slate-700
                   shadow-md
                   border
-                  border-slate-200
-                  hover:bg-slate-50
+                  border-slate-200/90
+                  hover:bg-amber-50
+                  hover:text-blue-600
+                  hover:border-blue-200
+                  hover:shadow-lg
                   transition-all
                   duration-200
                 "
               >
-                Open in Maps
-                <FiExternalLink className="text-base" />
+                <FiMapPin className="text-amber-500 text-[1rem] shrink-0" />
+                <span className="text-[0.80rem]">Maps</span>
+                <FiExternalLink className="text-xs text-slate-400 group-hover:text-blue-600 transition-colors" />
               </a>
             )}
           </div>
@@ -110,9 +117,9 @@ export default function OfficeInformation({
               </div>
 
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">
+                {/* <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">
                   Office Address
-                </p>
+                </p> */}
 
                 <p className="text-sm text-slate-600 leading-relaxed">
                   {officeLocation}
