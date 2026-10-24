@@ -125,7 +125,7 @@ return (
           className="
             absolute
             bottom-[8px]
-            right-[9px]
+            right-[12px]
             z-20
             flex
             items-center
@@ -133,7 +133,7 @@ return (
             rounded-full
             border-2
             border-white
-            bg-red-300
+            bg-white
             p-[2px]
             shadow-sm
           "
@@ -141,7 +141,7 @@ return (
           aria-label={isOnline ? "Online" : "Offline"}
         >
           {isOnline ? (
-            <span className="relative flex h-4 w-4">
+            <span className="relative flex items-center justify-center h-[0.80rem] w-[0.80rem]">
               <span
                 className="
                   absolute
@@ -159,11 +159,10 @@ return (
                 className="
                   relative
                   inline-flex
-                  h-[0.80rem]
-                  w-[0.80rem]
+                  h-full
+                  w-full
                   rounded-full
                   bg-emerald-500
-              
                 "
               />
             </span>
