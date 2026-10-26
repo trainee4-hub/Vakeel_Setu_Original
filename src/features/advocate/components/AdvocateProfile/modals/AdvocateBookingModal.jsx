@@ -343,7 +343,7 @@ export default function AdvocateBookingModal({
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
                 Step {step} of 6 — {
-                  step === 1 ? "Choose Mode" :
+                  step === 1 ? "Confirm Mode" :
                   step === 2 ? "Select Date" :
                   step === 3 ? "Pick Time Slot" :
                   step === 4 ? "Consultation Details" :
@@ -378,50 +378,36 @@ export default function AdvocateBookingModal({
           {step === 1 && (
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-bold text-slate-900">Select Consultation Mode</h3>
+                <h3 className="text-sm font-bold text-slate-900">Confirm Consultation Mode</h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Pick how you would like to connect with {advocateName}.
+                  You have chosen the following mode for your consultation with {advocateName}.
                 </p>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-1">
-                {modes.map((modeItem) => {
-                  const isSelected = selectedMode === modeItem.mode;
-                  const Icon = getModeIcon(modeItem.mode);
-                  return (
-                    <div
-                      key={modeItem.mode}
-                      onClick={() => setSelectedMode(modeItem.mode)}
-                      className={`flex items-center gap-4 p-4 rounded-2xl border cursor-pointer transition-all ${
-                        isSelected
-                          ? "border-amber-500 bg-amber-50/50 shadow-sm ring-1 ring-amber-500/20"
-                          : "border-slate-200 hover:border-slate-300 bg-white"
-                      }`}
-                    >
-                      <div className={`p-3 rounded-xl ${isSelected ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600"}`}>
-                        <Icon className="w-6 h-6" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="font-bold text-slate-900 text-base">{modeItem.label}</p>
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium">
-                            {modeItem.durationMinutes} mins
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-500 mt-0.5">
-                          Professional 1-on-1 legal advice
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-lg font-black text-slate-900">
-                          ₹{Number(modeItem.fee).toLocaleString("en-IN")}
-                        </span>
-                        <p className="text-[11px] text-slate-400">Fee</p>
-                      </div>
+              {activeModeObj ? (
+                <div className="flex items-center gap-4 p-4 rounded-2xl border border-amber-500 bg-amber-50/50 shadow-sm ring-1 ring-amber-500/20">
+                  <div className="p-3 rounded-xl bg-amber-100 text-amber-700">
+                    {React.createElement(getModeIcon(activeModeObj.mode), { className: "w-6 h-6" })}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="font-bold text-slate-900 text-base">{activeModeObj.label}</p>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium">
+                        {activeModeObj.durationMinutes} mins
+                      </span>
                     </div>
-                  );
-                })}
-              </div>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Professional 1-on-1 legal advice
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-lg font-black text-slate-900">
+                      ₹{Number(activeModeObj.fee).toLocaleString("en-IN")}
+                    </span>
+                    <p className="text-[11px] text-slate-400">Fee</p>
+                  </div>
+                </div>
+              ) : null}
             </div>
           )}
 
@@ -816,28 +802,55 @@ export default function AdvocateBookingModal({
 
         {/* Modal Footer Controls */}
         {step < 6 && (
-          <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100 bg-slate-50/50">
-            <button
-              type="button"
-              onClick={step === 1 ? onClose : handleBack}
-              className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors"
-            >
-              {step === 1 ? "Cancel" : "Back"}
-            </button>
+          <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/50">
+            {step === 1 ? (
+              <div className="flex flex-col items-center justify-center gap-2">
+                <button
+                  type="button"
+                  disabled={!canProceedFromStep(1) || loadingQuote}
+                  onClick={handleNext}
+                  className={`flex items-center justify-center gap-2 px-8 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm ${
+                    !canProceedFromStep(1) || loadingQuote
+                      ? "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
+                      : "bg-amber-500 hover:bg-amber-600 text-white active:scale-95"
+                  }`}
+                >
+                  <span>Continue</span>
+                  <FiArrowRight className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="text-xs text-slate-400 hover:text-slate-600 transition-colors py-0.5"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors"
+                >
+                  Back
+                </button>
 
-            <button
-              type="button"
-              disabled={!canProceedFromStep(step) || loadingQuote}
-              onClick={handleNext}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm ${
-                !canProceedFromStep(step) || loadingQuote
-                  ? "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
-                  : "bg-amber-500 hover:bg-amber-600 text-white active:scale-95"
-              }`}
-            >
-              <span>{step === 5 ? "Proceed to Payment" : "Continue"}</span>
-              <FiArrowRight className="w-4 h-4" />
-            </button>
+                <button
+                  type="button"
+                  disabled={!canProceedFromStep(step) || loadingQuote}
+                  onClick={handleNext}
+                  className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm ${
+                    !canProceedFromStep(step) || loadingQuote
+                      ? "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
+                      : "bg-amber-500 hover:bg-amber-600 text-white active:scale-95"
+                  }`}
+                >
+                  <span>{step === 5 ? "Proceed to Payment" : "Continue"}</span>
+                  <FiArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

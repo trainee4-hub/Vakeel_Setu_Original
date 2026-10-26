@@ -281,3 +281,87 @@ export function getTimelineEventLabel(event) {
   }
 }
 
+/**
+ * Resolves title for advocate booking:
+ * "{Mode} with {advocateName} • {duration} min"
+ * e.g. "Video Call with JOY • 15 min"
+ */
+export function getAdvocateBookingTitle(booking) {
+  if (!booking) return "";
+  const rawMode = booking.mode || booking.callType;
+  const modeLabel =
+    rawMode === "VIDEO_CALL"
+      ? "Video Call"
+      : rawMode === "IN_PERSON"
+      ? "In-Person Meeting"
+      : "Voice Call";
+
+  const advocateName =
+    booking.advocate?.fullName ||
+    booking.advocateName ||
+    booking.advocate?.name ||
+    "";
+
+  const duration = booking.durationMinutes || booking.duration || 15;
+
+  if (advocateName) {
+    return `${modeLabel} with ${advocateName} • ${duration} min`;
+  }
+  return `${modeLabel} Consultation • ${duration} min`;
+}
+
+/**
+ * Resolves title for consultancy booking:
+ * "Expert Consultation • {Mode} • {duration} min"
+ * e.g. "Expert Consultation • Video Call • 15 min"
+ */
+export function getConsultancyBookingTitle(booking) {
+  if (!booking) return "";
+  const isVideo = (booking.callType || booking.mode) === "VIDEO_CALL";
+  const modeLabel = isVideo ? "Video Call" : "Voice Call";
+  const duration = booking.durationMinutes || booking.duration || 15;
+  return `Expert Consultation • ${modeLabel} • ${duration} min`;
+}
+
+/**
+ * Resolves the display title based on bookingType.
+ */
+export function getBookingDisplayTitle(booking) {
+  if (!booking) return "";
+  if (booking.bookingType === "ADVOCATE") {
+    return getAdvocateBookingTitle(booking);
+  }
+  return getConsultancyBookingTitle(booking);
+}
+
+/**
+ * Resolves avatar information for an advocate booking:
+ * - photo: real photo url if present
+ * - name: advocate's full name
+ * - initial: derived strictly from the advocate's real name (removing "Adv." prefix)
+ */
+export function getAdvocateAvatarData(booking) {
+  if (!booking) return { photo: null, name: "", initial: null };
+  const photo =
+    booking.advocate?.profilePhotoUrl ||
+    booking.advocatePhoto ||
+    booking.profilePhotoUrl ||
+    null;
+
+  const rawName =
+    booking.advocate?.fullName ||
+    booking.advocateName ||
+    booking.advocate?.name ||
+    "";
+
+  const cleaned = rawName.trim().replace(/^Adv\.?\s+/i, "");
+  const initial = cleaned ? cleaned[0].toUpperCase() : null;
+
+  return {
+    photo,
+    name: rawName,
+    initial,
+  };
+}
+
+

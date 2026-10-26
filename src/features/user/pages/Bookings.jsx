@@ -34,6 +34,10 @@ import {
   getBookingBadge,
   getTimelineEventLabel,
   getPaymentStatusLabel,
+  getAdvocateBookingTitle,
+  getConsultancyBookingTitle,
+  getBookingDisplayTitle,
+  getAdvocateAvatarData,
 } from "../utils/paymentUtils";
 
 /* =========================================================================
@@ -606,6 +610,8 @@ function AdvocateBookingCard({ booking, onClick }) {
   const isVideo = mode === "VIDEO_CALL";
   const isInPerson = mode === "IN_PERSON";
   const badge = getAdvocateBadge(booking);
+  const avatar = getAdvocateAvatarData(booking);
+  const title = getAdvocateBookingTitle(booking);
 
   const rawTotal =
     booking.total ??
@@ -635,15 +641,25 @@ function AdvocateBookingCard({ booking, onClick }) {
         {/* Left: Avatar/Icon, Title, Date */}
         <div className="flex items-start gap-4">
           <div className="relative shrink-0">
-            {booking.advocatePhoto || booking.profilePhotoUrl ? (
+            {avatar.photo ? (
               <img
-                src={booking.advocatePhoto || booking.profilePhotoUrl}
-                alt={booking.advocateName || "Advocate"}
+                src={avatar.photo}
+                alt={avatar.name || "Advocate"}
                 className="h-12 w-12 rounded-2xl border border-slate-200 object-cover"
               />
-            ) : (
+            ) : avatar.initial ? (
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-amber-200 bg-amber-100 text-lg font-black text-amber-700">
-                {(booking.advocateName || "A")[0].toUpperCase()}
+                {avatar.initial}
+              </div>
+            ) : (
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 text-slate-600">
+                {isVideo ? (
+                  <FiVideo className="text-xl" />
+                ) : isInPerson ? (
+                  <FiBriefcase className="text-xl" />
+                ) : (
+                  <FiPhone className="text-xl" />
+                )}
               </div>
             )}
             <div
@@ -675,9 +691,7 @@ function AdvocateBookingCard({ booking, onClick }) {
           <div>
             <div className="flex flex-wrap items-center gap-2.5">
               <h3 className="text-base font-bold text-slate-950 transition group-hover:text-amber-600 sm:text-lg">
-                {booking.advocateName
-                  ? `Adv. ${booking.advocateName}`
-                  : booking.title || "Advocate Consultation"}
+                {title}
               </h3>
               <span
                 className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-bold ${badge.className}`}
@@ -744,6 +758,7 @@ function BookingCard({ booking, onClick }) {
   const badge = getBookingBadge(booking);
   const formattedPrice = formatBookingAmount(booking.price);
   const formattedCreatedAt = formatPaymentDateTime(booking.createdAt);
+  const title = getConsultancyBookingTitle(booking);
 
   return (
     <div
@@ -774,7 +789,7 @@ function BookingCard({ booking, onClick }) {
           <div>
             <div className="flex flex-wrap items-center gap-2.5">
               <h3 className="text-base font-bold text-slate-950 transition group-hover:text-amber-600 sm:text-lg">
-                {booking.title}
+                {title}
               </h3>
               <span
                 className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-bold ${badge.className}`}
@@ -850,7 +865,7 @@ function BookingDetailView({ booking, onOpenReceipt }) {
                   {badge.label}
                 </span>
                 <h2 className="mt-2 text-xl font-black text-slate-950 sm:text-2xl">
-                  {booking.title}
+                  {getConsultancyBookingTitle(booking)}
                 </h2>
                 {booking.bookingId && (
                   <p className="mt-1 text-xs text-slate-500">
@@ -1047,6 +1062,8 @@ function AdvocateBookingDetailView({ booking, onOpenReceipt }) {
   const isVideo = mode === "VIDEO_CALL";
   const isInPerson = mode === "IN_PERSON";
   const badge = getAdvocateBadge(booking);
+  const avatar = getAdvocateAvatarData(booking);
+  const title = getAdvocateBookingTitle(booking);
 
   const rawTotal =
     booking.total ??
@@ -1066,15 +1083,25 @@ function AdvocateBookingDetailView({ booking, onOpenReceipt }) {
         <div className="border-b border-slate-100 bg-slate-50/50 p-6 sm:p-8">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <div className="flex items-start gap-4">
-              {booking.advocatePhoto || booking.profilePhotoUrl ? (
+              {avatar.photo ? (
                 <img
-                  src={booking.advocatePhoto || booking.profilePhotoUrl}
-                  alt={booking.advocateName || "Advocate"}
+                  src={avatar.photo}
+                  alt={avatar.name || "Advocate"}
                   className="h-14 w-14 shrink-0 rounded-2xl border border-slate-200 object-cover"
                 />
-              ) : (
+              ) : avatar.initial ? (
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-amber-200 bg-amber-100 text-2xl font-black text-amber-700">
-                  {(booking.advocateName || "A")[0].toUpperCase()}
+                  {avatar.initial}
+                </div>
+              ) : (
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 text-slate-600">
+                  {isVideo ? (
+                    <FiVideo className="text-2xl" />
+                  ) : isInPerson ? (
+                    <FiBriefcase className="text-2xl" />
+                  ) : (
+                    <FiPhone className="text-2xl" />
+                  )}
                 </div>
               )}
               <div>
@@ -1084,9 +1111,7 @@ function AdvocateBookingDetailView({ booking, onOpenReceipt }) {
                   {badge.label}
                 </span>
                 <h2 className="mt-2 text-xl font-black text-slate-950 sm:text-2xl">
-                  {booking.advocateName
-                    ? `Adv. ${booking.advocateName}`
-                    : booking.title || "Advocate Consultation"}
+                  {title}
                 </h2>
                 {booking.bookingId && (
                   <p className="mt-1 text-xs text-slate-500">
@@ -1388,11 +1413,7 @@ function PrintableReceiptModal({ booking, onClose }) {
             <div className="flex items-center justify-between pt-3">
               <div>
                 <p className="text-sm font-bold text-slate-950">
-                  {booking.bookingType === "ADVOCATE"
-                    ? booking.advocateName
-                      ? `Consultation with Adv. ${booking.advocateName}`
-                      : booking.title || "Advocate Consultation"
-                    : booking.title}
+                  {getBookingDisplayTitle(booking)}
                 </p>
                 <p className="mt-0.5 text-xs text-slate-500">
                   {booking.bookingType === "ADVOCATE"
@@ -1400,12 +1421,12 @@ function PrintableReceiptModal({ booking, onClose }) {
                         booking.mode === "VIDEO_CALL"
                           ? "Video Call"
                           : booking.mode === "IN_PERSON"
-                          ? "In-Person Consultation"
+                          ? "In-Person Meeting"
                           : "Voice Call"
                       }${booking.subject ? ` • ${booking.subject}` : ""}${
                         booking.durationMinutes ? ` • ${booking.durationMinutes} min` : ""
                       }`
-                    : `Mode: ${isVideo ? "Video Call" : "Voice Call"} • Duration: ${booking.durationMinutes} min`}
+                    : `Expert Consultation • Mode: ${isVideo ? "Video Call" : "Voice Call"} • Duration: ${booking.durationMinutes} min`}
                 </p>
               </div>
               <p className="text-base font-black text-slate-950">
