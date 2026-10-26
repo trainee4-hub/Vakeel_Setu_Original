@@ -226,23 +226,60 @@ export function getBookingBadge(booking) {
   const status = String(booking.status || "").toUpperCase();
   const callStatus = String(booking.callStatus || "").toUpperCase();
 
-  if (["CONFIRMED", "REQUESTED", "COMPLETED"].includes(status)) {
-    if (callStatus === "PENDING") {
-      return {
-        label: "Pending",
-        className: "border-amber-200 bg-amber-50 text-amber-700",
-      };
-    }
-    if (callStatus === "COMPLETED") {
-      return {
-        label: "Completed",
-        className: "border-emerald-200 bg-emerald-50 text-emerald-700",
-      };
-    }
+  // 1. Payment problem states win over everything
+  if (status === "PAYMENT_PROCESSING") {
+    return {
+      label: "Processing",
+      className: "border-amber-200 bg-amber-50 text-amber-700",
+    };
+  }
+  if (["CANCELLED", "EXPIRED", "FAILED"].includes(status)) {
+    return {
+      label: status.charAt(0) + status.slice(1).toLowerCase(),
+      className: "border-rose-200 bg-rose-50 text-rose-700",
+    };
+  }
+  if (status === "HOLD") {
+    return {
+      label: "Slot Held",
+      className: "border-amber-200 bg-amber-50 text-amber-700",
+    };
+  }
+  if (["REFUND_PENDING", "REFUNDED"].includes(status)) {
+    return {
+      label: status === "REFUND_PENDING" ? "Refund Pending" : "Refunded",
+      className: getBookingStatusBadgeClass(status),
+    };
   }
 
-  // Trap protection for PAYMENT_PROCESSING, REFUND_IN_PROGRESS, REFUNDED,
-  // or fallback when callStatus is missing/unrecognised on CONFIRMED/REQUESTED/COMPLETED
+  // 2. Consultation call status
+  if (callStatus === "PENDING") {
+    return {
+      label: "Pending",
+      className: "border-amber-200 bg-amber-50 text-amber-700",
+    };
+  }
+  if (callStatus === "COMPLETED") {
+    return {
+      label: "Completed",
+      className: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    };
+  }
+
+  // 3. Otherwise normal mapping
+  if (status === "SCHEDULED") {
+    return {
+      label: "Scheduled",
+      className: "border-blue-200 bg-blue-50 text-blue-700",
+    };
+  }
+  if (["CONFIRMED", "REQUESTED", "PAID"].includes(status)) {
+    return {
+      label: "Confirmed",
+      className: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    };
+  }
+
   return {
     label: booking.statusLabel || status,
     className: getBookingStatusBadgeClass(status),

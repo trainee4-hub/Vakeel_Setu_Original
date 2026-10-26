@@ -50,6 +50,9 @@ export const ADMIN_PATHS = {
   consultancy: {
     list: `${BASE}/consultancy`,
   },
+  advocateBookings: {
+    list: `${BASE}/advocate-bookings`,
+  },
   feedback: {
     list: `${BASE}/feedback`,
   },

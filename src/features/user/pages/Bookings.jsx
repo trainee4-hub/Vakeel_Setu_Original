@@ -562,47 +562,7 @@ function formatAdvocateSlotTime(startAt, endAt) {
 }
 
 function getAdvocateBadge(booking) {
-  const status = String(booking.status || "").toUpperCase();
-  switch (status) {
-    case "PAID":
-    case "CONFIRMED":
-      return {
-        label: "Confirmed",
-        className: "border-emerald-200 bg-emerald-50 text-emerald-700",
-      };
-    case "HOLD":
-      return {
-        label: "Slot Held",
-        className: "border-amber-200 bg-amber-50 text-amber-700",
-      };
-    case "SCHEDULED":
-      return {
-        label: "Scheduled",
-        className: "border-blue-200 bg-blue-50 text-blue-700",
-      };
-    case "PAYMENT_PROCESSING":
-      return {
-        label: "Processing",
-        className: "border-amber-200 bg-amber-50 text-amber-700",
-      };
-    case "COMPLETED":
-      return {
-        label: "Completed",
-        className: "border-emerald-200 bg-emerald-50 text-emerald-700",
-      };
-    case "CANCELLED":
-    case "EXPIRED":
-    case "FAILED":
-      return {
-        label: status.charAt(0) + status.slice(1).toLowerCase(),
-        className: "border-rose-200 bg-rose-50 text-rose-700",
-      };
-    default:
-      return {
-        label: status || "Booked",
-        className: "border-slate-200 bg-slate-100 text-slate-700",
-      };
-  }
+  return getBookingBadge(booking);
 }
 
 function AdvocateBookingCard({ booking, onClick }) {

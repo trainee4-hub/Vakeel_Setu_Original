@@ -34,6 +34,12 @@ export const ADMIN_NAV_GROUPS = [
         permissions: [ADMIN_PERMISSIONS.CONSULTANCY_VIEW],
       },
       {
+        to: ADMIN_PATHS.advocateBookings.list,
+        label: "Private Advocate",
+        icon: "event_note",
+        permissions: [ADMIN_PERMISSIONS.ADVOCATE_BOOKINGS_VIEW],
+      },
+      {
         to: ADMIN_PATHS.feedback.list,
         label: "Feedback",
         icon: "rate_review",

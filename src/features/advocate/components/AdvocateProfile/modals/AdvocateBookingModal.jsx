@@ -276,7 +276,7 @@ export default function AdvocateBookingModal({
     }
   }, [isOpen, subjects, resetPayment]);
 
-  if (!isOpen) return null;
+  if (!isOpen || advocate?.isOnline === false) return null;
 
   // Step Nav validation
   const canProceedFromStep = (s) => {

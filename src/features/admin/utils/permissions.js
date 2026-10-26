@@ -20,6 +20,9 @@ export const ADMIN_PERMISSIONS = Object.freeze({
   CONSULTANCY_VIEW: "consultancy:view",
   CONSULTANCY_UPDATE: "consultancy:update",
 
+  // Private Advocate Bookings
+  ADVOCATE_BOOKINGS_VIEW: "advocate_bookings:view",
+
   // Feedback
   FEEDBACK_VIEW: "feedback:view",
   FEEDBACK_DELETE: "feedback:delete",

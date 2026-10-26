@@ -244,7 +244,7 @@ const FloatingConsultant = () => {
      OPEN MODAL
   ============================================================== */
 
-  const handleOpen = () => {
+  const handleOpen = useCallback(() => {
     setError("");
     setSuccess(false);
     setCreatedRequest(null);
@@ -254,7 +254,28 @@ const FloatingConsultant = () => {
       setContactEmail(getUserEmail(user));
     }
     setModalOpen(true);
-  };
+  }, [user, resetToIdle]);
+
+  /* ==============================================================
+     GLOBAL EVENT LISTENER FOR REDIRECTS (Advocate Offline -> Expert)
+  ============================================================== */
+
+  useEffect(() => {
+    const handleOpenEvent = (event) => {
+      if (typeof event?.preventDefault === "function") {
+        event.preventDefault();
+      }
+      if (event?.detail) {
+        event.detail.handled = true;
+      }
+      handleOpen();
+    };
+
+    window.addEventListener("vakeelsetu:open-consultancy", handleOpenEvent);
+    return () => {
+      window.removeEventListener("vakeelsetu:open-consultancy", handleOpenEvent);
+    };
+  }, [handleOpen]);
 
   /* ==============================================================
      CLOSE MODAL

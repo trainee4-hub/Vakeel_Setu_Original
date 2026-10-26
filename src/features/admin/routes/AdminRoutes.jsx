@@ -20,6 +20,7 @@ const UserDetail = lazy(() => import("../pages/platform/users/UserDetail"));
 const RolesList = lazy(() => import("../pages/platform/roles/RolesList"));
 const RoleEditor = lazy(() => import("../pages/platform/roles/RoleEditor"));
 const ConsultancyList = lazy(() => import("../pages/platform/consultancy/ConsultancyList"));
+const AdvocateBookingsList = lazy(() => import("../pages/platform/advocateBookings/AdvocateBookingsList"));
 const FeedbackList = lazy(() => import("../pages/platform/feedback/FeedbackList"));
 const HelpRequestsList = lazy(() => import("../pages/platform/help/HelpRequestsList"));
 const HelpRequestDetail = lazy(() => import("../pages/platform/help/HelpRequestDetail"));
@@ -185,6 +186,10 @@ export default function AdminRoutes() {
 
           <Route element={<PermissionRouteGuard required={[ADMIN_PERMISSIONS.CONSULTANCY_VIEW]} />}>
             <Route path="consultancy" element={<ConsultancyList />} />
+          </Route>
+
+          <Route element={<PermissionRouteGuard required={[ADMIN_PERMISSIONS.ADVOCATE_BOOKINGS_VIEW]} />}>
+            <Route path="advocate-bookings" element={<AdvocateBookingsList />} />
           </Route>
 
           <Route element={<PermissionRouteGuard required={[ADMIN_PERMISSIONS.FEEDBACK_VIEW]} />}>

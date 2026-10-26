@@ -37,6 +37,7 @@ import ConsultationCard from "./sidebar/ConsultationCard";
 import OfficeInformation from "./sidebar/OfficeInformation";
 
 import AdvocateBookingModal from "./modals/AdvocateBookingModal";
+import OfflineAdvocateDialog from "./modals/OfflineAdvocateDialog";
 import ReviewModal from "./modals/ReviewModal";
 import { getAdvocateBookingOptions } from "../../services/advocateBookingApi";
 
@@ -72,6 +73,8 @@ const AdvocateProfile = ({
     retryToken,
     retry,
   } = useAdvocateProfile(advocateId, token);
+
+  const isOnline = advocate?.isOnline === true;
 
   /* =========================================================
      SAVED LAWYER
@@ -141,6 +144,26 @@ const AdvocateProfile = ({
   const [bookingOptionsLoading, setBookingOptionsLoading] = useState(false);
   const [selectedBookingMode, setSelectedBookingMode] = useState("");
   const [isAdvocateBookingModalOpen, setIsAdvocateBookingModalOpen] = useState(false);
+  const [isOfflineDialogOpen, setIsOfflineDialogOpen] = useState(false);
+
+  const handleBookExpertFromOffline = useCallback(() => {
+    const eventDetail = { handled: false };
+    const customEvent = new CustomEvent("vakeelsetu:open-consultancy", {
+      bubbles: true,
+      cancelable: true,
+      detail: eventDetail,
+    });
+    window.dispatchEvent(customEvent);
+
+    setIsOfflineDialogOpen(false);
+
+    if (!eventDetail.handled) {
+      console.warn("No handler responded to vakeelsetu:open-consultancy");
+      alert(
+        "Our Expert Consultation assistant could not be opened automatically. Please click the Expert Consultation button at the bottom of your screen."
+      );
+    }
+  }, []);
 
   useEffect(() => {
     if (!advocateId) return;
@@ -189,19 +212,31 @@ const AdvocateProfile = ({
     if (shouldOpen && bookingOptions) {
       try {
         sessionStorage.removeItem("pending_advocate_booking");
-      } catch (_e) {
+      } catch {
         // ignore
       }
+
       queueMicrotask(() => {
         if (preferredMode) {
           setSelectedBookingMode(preferredMode);
         }
-        setIsAdvocateBookingModalOpen(true);
+
+        // If the advocate is offline, do NOT open the booking modal!
+        if (!isOnline) {
+          setIsOfflineDialogOpen(true);
+        } else {
+          setIsAdvocateBookingModalOpen(true);
+        }
       });
     }
-  }, [advocateId, bookingOptions, location.state]);
+  }, [advocateId, bookingOptions, location.state, isOnline]);
 
   const handleProceedToBooking = useCallback(() => {
+    if (!isOnline) {
+      setIsOfflineDialogOpen(true);
+      return;
+    }
+
     if (!isLoggedIn) {
       try {
         sessionStorage.setItem(
@@ -226,7 +261,7 @@ const AdvocateProfile = ({
     }
 
     setIsAdvocateBookingModalOpen(true);
-  }, [isLoggedIn, advocateId, selectedBookingMode, navigate, location.pathname]);
+  }, [isOnline, isLoggedIn, advocateId, selectedBookingMode, navigate, location.pathname]);
 
   /* =========================================================
      PAGE STATE
@@ -449,11 +484,8 @@ useEffect(() => {
      status === ACTIVE is NOT online status.
      callAvailability is NOT online status.
 
-     Only API isOnline controls presence.
+     Only API isOnline controls presence (defined above).
   ========================================================= */
-
-  const isOnline =
-    advocate?.isOnline === true;
 
 
   /* =========================================================
@@ -920,6 +952,7 @@ useEffect(() => {
               selectedMode={selectedBookingMode}
               onSelectMode={setSelectedBookingMode}
               bookingOptions={bookingOptions}
+              isOnline={isOnline}
               loading={bookingOptionsLoading}
               onProceed={handleProceedToBooking}
             />
@@ -999,6 +1032,13 @@ useEffect(() => {
         initialMode={selectedBookingMode}
         currentUser={user}
         onBookingComplete={onConsultationBooked}
+      />
+
+      <OfflineAdvocateDialog
+        isOpen={isOfflineDialogOpen}
+        onClose={() => setIsOfflineDialogOpen(false)}
+        onBookExpert={handleBookExpertFromOffline}
+        advocateName={advocateName}
       />
 
       {/* ================= REVIEW MODAL ================= */}
