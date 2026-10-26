@@ -93,3 +93,16 @@ export async function getAdvocateAppointments({ status = "ALL", page = 1, limit 
 
   return apiRequest(`/advocate/appointments?${query.toString()}`);
 }
+
+/**
+ * PATCH /api/advocate/appointments/:id/complete
+ * Authenticated advocate only.
+ * Marks an advocate's own appointment as complete.
+ */
+export async function completeAdvocateAppointment(id) {
+  if (!id) throw new Error("Appointment ID is required");
+  return apiRequest(`/advocate/appointments/${encodeURIComponent(id)}/complete`, {
+    method: "PATCH",
+  });
+}
+

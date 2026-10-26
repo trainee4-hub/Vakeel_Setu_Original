@@ -8,7 +8,85 @@ import { TableSkeleton } from "@shared/components/feedback/LoadingSkeleton";
 import { Icon } from "@shared/components/ui/Button";
 import { getAdminAdvocateBookings } from "../../../services/platform/adminAdvocateBookingsApi";
 import { formatDateTime, formatDate } from "../../../utils/adminUtils";
-import { FiVideo, FiPhone, FiBriefcase, FiSearch, FiX } from "react-icons/fi";
+import { FiVideo, FiPhone, FiBriefcase, FiSearch, FiX, FiCopy, FiCheck, FiAlertCircle } from "react-icons/fi";
+
+function BookingRefButton({ reference, className = "" }) {
+  const [copied, setCopied] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  const handleCopy = async (e) => {
+    e.stopPropagation();
+    if (!reference) return;
+
+    let successful = false;
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(reference);
+        successful = true;
+      } else {
+        throw new Error("Clipboard API unavailable");
+      }
+    } catch {
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = reference;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        successful = document.execCommand("copy");
+        document.body.removeChild(textarea);
+      } catch {
+        successful = false;
+      }
+    }
+
+    if (successful) {
+      setCopied(true);
+      setFailed(false);
+      setTimeout(() => setCopied(false), 2000);
+    } else {
+      setFailed(true);
+      setCopied(false);
+      setTimeout(() => setFailed(false), 2000);
+    }
+  };
+
+  if (!reference) return <span className="text-slate-400 font-mono text-xs">—</span>;
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      title={copied ? "Copied!" : failed ? "Failed to copy" : "Click to copy booking reference"}
+      aria-label={`Copy booking reference ${reference}`}
+      className={`group/ref inline-flex items-center gap-1.5 font-mono text-xs font-bold px-2 py-1 rounded-md border transition cursor-pointer select-all focus:outline-none focus:ring-2 focus:ring-amber-500/40 ${
+        copied
+          ? "border-emerald-300 bg-emerald-50 text-emerald-700"
+          : failed
+          ? "border-rose-300 bg-rose-50 text-rose-700"
+          : "border-slate-200 bg-slate-100 text-slate-800 hover:bg-slate-200 hover:border-slate-300"
+      } ${className}`}
+    >
+      {copied ? (
+        <>
+          <FiCheck className="text-emerald-600 shrink-0" size={12} />
+          <span>Copied</span>
+        </>
+      ) : failed ? (
+        <>
+          <FiAlertCircle className="text-rose-600 shrink-0" size={12} />
+          <span>Failed</span>
+        </>
+      ) : (
+        <>
+          <FiCopy className="text-slate-400 group-hover/ref:text-slate-600 shrink-0" size={11} />
+          <span>{reference}</span>
+        </>
+      )}
+    </button>
+  );
+}
 
 const STATUS_OPTIONS = [
   { value: "", label: "All Statuses" },
@@ -137,9 +215,7 @@ export default function AdvocateBookingsList() {
       primary: true,
       render: (item) => (
         <div>
-          <span className="font-mono text-xs font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded-md">
-            {item.bookingId || item.id}
-          </span>
+          <BookingRefButton reference={item.bookingId || item.id} />
         </div>
       ),
     },
@@ -148,7 +224,9 @@ export default function AdvocateBookingsList() {
       header: "Client Details",
       render: (item) => (
         <div className="space-y-0.5 min-w-[140px]">
-          <p className="font-semibold text-slate-900 text-sm">{item.user?.fullName || "—"}</p>
+          <p className="font-semibold text-slate-900 text-sm">
+            {item.user?.name || item.user?.fullName || "—"}
+          </p>
           <p className="font-mono text-xs text-slate-500">{item.user?.phone || "—"}</p>
           {item.user?.email && (
             <p className="text-[11px] text-slate-400 truncate max-w-[160px]">{item.user.email}</p>
@@ -161,7 +239,7 @@ export default function AdvocateBookingsList() {
       header: "Advocate Details",
       render: (item) => (
         <div className="space-y-0.5 min-w-[140px]">
-          <p className="font-semibold text-slate-900 text-sm">{item.advocate?.fullName || "—"}</p>
+          <p className="font-semibold text-slate-900 text-sm">{item.advocate?.fullName || item.advocate?.name || "—"}</p>
           {item.advocate?.barCouncilId && (
             <p className="font-mono text-xs text-slate-500">ID: {item.advocate.barCouncilId}</p>
           )}
@@ -206,10 +284,18 @@ export default function AdvocateBookingsList() {
       key: "amount",
       header: "Amount",
       render: (item) => {
-        const amt = item.amount ?? item.total ?? (item.totalPaise ? item.totalPaise / 100 : 0);
+        const amt = item.breakdown?.total;
+        if (amt == null || Number.isNaN(Number(amt))) {
+          return <span className="text-xs text-slate-400 font-medium">—</span>;
+        }
+        const num = Number(amt);
+        const isWhole = Number.isInteger(num);
         return (
           <span className="font-bold text-slate-900 text-sm whitespace-nowrap">
-            ₹{Number(amt).toLocaleString("en-IN")}
+            ₹{num.toLocaleString("en-IN", {
+              minimumFractionDigits: isWhole ? 0 : 2,
+              maximumFractionDigits: isWhole ? 0 : 2,
+            })}
           </span>
         );
       },
@@ -280,7 +366,7 @@ export default function AdvocateBookingsList() {
       header: "Booked On",
       render: (item) => (
         <span className="text-xs text-slate-500 whitespace-nowrap">
-          {formatDateTime(item.createdAt)}
+          {formatDateTime(item.confirmedAt || item.payment?.paidAt || item.createdAt)}
         </span>
       ),
     },

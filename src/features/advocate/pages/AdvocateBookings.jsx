@@ -12,9 +12,11 @@ import {
   BriefcaseBusiness,
   CalendarCheck2,
   CalendarDays,
+  Check,
   CheckCircle2,
   ChevronRight,
   Clock3,
+  Copy,
   Mail,
   MapPin,
   MessageSquare,
@@ -23,9 +25,13 @@ import {
   Search,
   ShieldCheck,
   Video,
+  X,
 } from "lucide-react";
 
-import { getAdvocateAppointments } from "../services/advocateBookingApi";
+import {
+  getAdvocateAppointments,
+  completeAdvocateAppointment,
+} from "../services/advocateBookingApi";
 
 /* =========================================================================
    ADVOCATE BOOKINGS
@@ -39,6 +45,84 @@ const cleanText = (value) => {
   }
   return String(value).trim();
 };
+
+function BookingRefButton({ reference, className = "" }) {
+  const [copied, setCopied] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  const handleCopy = async (e) => {
+    e.stopPropagation();
+    if (!reference) return;
+
+    let successful = false;
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(reference);
+        successful = true;
+      } else {
+        throw new Error("Clipboard API unavailable");
+      }
+    } catch {
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = reference;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        successful = document.execCommand("copy");
+        document.body.removeChild(textarea);
+      } catch {
+        successful = false;
+      }
+    }
+
+    if (successful) {
+      setCopied(true);
+      setFailed(false);
+      setTimeout(() => setCopied(false), 2000);
+    } else {
+      setFailed(true);
+      setCopied(false);
+      setTimeout(() => setFailed(false), 2000);
+    }
+  };
+
+  if (!reference) return null;
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      title={copied ? "Copied to clipboard" : failed ? "Failed to copy" : "Click to copy booking reference"}
+      aria-label={`Copy booking reference ${reference}`}
+      className={`group/ref inline-flex items-center gap-1 font-mono text-[10px] font-bold px-1.5 py-0.5 rounded border transition cursor-pointer select-all focus:outline-none focus:ring-1 focus:ring-amber-500 ${
+        copied
+          ? "border-emerald-300 bg-emerald-50 text-emerald-700"
+          : failed
+          ? "border-rose-300 bg-rose-50 text-rose-700"
+          : "border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:border-slate-300"
+      } ${className}`}
+    >
+      {copied ? (
+        <>
+          <Check size={10} className="text-emerald-600 shrink-0" />
+          <span>Copied</span>
+        </>
+      ) : failed ? (
+        <>
+          <AlertCircle size={10} className="text-rose-600 shrink-0" />
+          <span>Failed</span>
+        </>
+      ) : (
+        <>
+          <Copy size={10} className="text-slate-400 group-hover/ref:text-slate-600 shrink-0" />
+          <span>{reference}</span>
+        </>
+      )}
+    </button>
+  );
+}
 
 const getBookingId = (booking) =>
   booking?.bookingId ||
@@ -128,8 +212,8 @@ const formatISTTimeSlot = (startAt, endAt, durationMinutes) => {
 };
 
 /**
- * FIX B: Consultation state derivation
- * Aligns with user side ("Pending" / "Completed") and admin ("Consultation Pending" / "Consultation Completed")
+ * Derived consultation state matching user side ("Pending" / "Completed")
+ * and admin ("Consultation Pending" / "Consultation Completed").
  */
 const getDerivedStatus = (booking) => {
   const isCompleted = Boolean(booking?.completedAt || booking?.status === "COMPLETED");
@@ -172,6 +256,23 @@ const getDerivedStatus = (booking) => {
     className: "border-slate-200 bg-slate-50 text-slate-700",
     tone: "slate",
   };
+};
+
+/**
+ * Check if booking can be marked complete:
+ * 1. Paid/confirmed
+ * 2. Not already completed
+ * 3. Slot time has started or passed (never on bookings still in the future)
+ */
+const canMarkComplete = (booking) => {
+  if (!booking) return false;
+  const isPaidOrConfirmed = ["CONFIRMED", "PAID"].includes(booking?.status);
+  const isNotCompleted = !booking?.completedAt && booking?.status !== "COMPLETED";
+  const slotStartedOrPassed = booking?.startAt
+    ? new Date(booking.startAt).getTime() <= Date.now()
+    : false;
+
+  return isPaidOrConfirmed && isNotCompleted && slotStartedOrPassed;
 };
 
 const getMode = (booking) => {
@@ -315,6 +416,12 @@ export default function AdvocateBookings() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  /* Mark as complete flow state */
+  const [confirmBooking, setConfirmBooking] = useState(null);
+  const [completing, setCompleting] = useState(false);
+  const [completeError, setCompleteError] = useState(null);
+  const [successToast, setSuccessToast] = useState(null);
+
   const loadAppointments = useCallback(async (selectedTab) => {
     setLoading(true);
     setError(null);
@@ -345,30 +452,83 @@ export default function AdvocateBookings() {
   }, [loadAppointments, tab]);
 
   /* =========================================================================
-     FILTER & SEARCH
+     MARK AS COMPLETED ACTION
+  ========================================================================== */
+
+  const handleConfirmComplete = async () => {
+    if (!confirmBooking) return;
+    const targetId = confirmBooking.id || confirmBooking.bookingId;
+    setCompleting(true);
+    setCompleteError(null);
+    try {
+      const res = await completeAdvocateAppointment(targetId);
+      if (res?.success) {
+        const completedRef = confirmBooking.bookingId || "Booking";
+        setConfirmBooking(null);
+        setSuccessToast(`Consultation ${completedRef} marked as completed.`);
+        setTimeout(() => setSuccessToast(null), 5000);
+        await loadAppointments(tab);
+      } else {
+        throw new Error(res?.message || "Failed to mark consultation complete.");
+      }
+    } catch (err) {
+      setCompleteError(err?.message || "Failed to mark consultation complete.");
+    } finally {
+      setCompleting(false);
+    }
+  };
+
+  /* =========================================================================
+     FILTER & SORT — ONE RULE PER TAB
+     - UPCOMING tab: soonest slot FIRST (startAt ascending)
+     - ALL OTHER TABS (ALL, PAST_DUE, COMPLETED, REFUNDED): newest booking FIRST (confirmedAt descending)
+     - Stable tiebreaker: String(a.id || a.bookingId).localeCompare(String(b.id || b.bookingId))
   ========================================================================== */
 
   const filteredBookings = useMemo(() => {
+    let list = appointments;
+
     const query = search.trim().toLowerCase();
-    if (!query) return appointments;
+    if (query) {
+      list = list.filter((booking) => {
+        const client = getClient(booking);
+        const searchable = [
+          getClientName(booking),
+          cleanText(booking?.bookingId),
+          cleanText(booking?.subject),
+          cleanText(client?.phone),
+          cleanText(client?.email),
+          cleanText(booking?.mode),
+          cleanText(booking?.status),
+        ]
+          .join(" ")
+          .toLowerCase();
 
-    return appointments.filter((booking) => {
-      const client = getClient(booking);
-      const searchable = [
-        getClientName(booking),
-        cleanText(booking?.bookingId),
-        cleanText(booking?.subject),
-        cleanText(client?.phone),
-        cleanText(client?.email),
-        cleanText(booking?.mode),
-        cleanText(booking?.status),
-      ]
-        .join(" ")
-        .toLowerCase();
+        return searchable.includes(query);
+      });
+    }
 
-      return searchable.includes(query);
+    const sorted = [...list].sort((a, b) => {
+      const idA = String(a?.id || a?.bookingId || "");
+      const idB = String(b?.id || b?.bookingId || "");
+
+      if (tab === "UPCOMING") {
+        // Soonest slot first (startAt ascending)
+        const timeA = a?.startAt ? new Date(a.startAt).getTime() : Number.POSITIVE_INFINITY;
+        const timeB = b?.startAt ? new Date(b.startAt).getTime() : Number.POSITIVE_INFINITY;
+        if (timeA !== timeB) return timeA - timeB;
+        return idA.localeCompare(idB);
+      }
+
+      // Every other tab (ALL, PAST_DUE, COMPLETED, REFUNDED): newest booking first (confirmedAt descending)
+      const dateA = new Date(a?.confirmedAt || a?.payment?.paidAt || a?.createdAt || 0).getTime();
+      const dateB = new Date(b?.confirmedAt || b?.payment?.paidAt || b?.createdAt || 0).getTime();
+      if (dateB !== dateA) return dateB - dateA;
+      return idA.localeCompare(idB);
     });
-  }, [appointments, search]);
+
+    return sorted;
+  }, [appointments, search, tab]);
 
   /* =========================================================================
      SELECTED BOOKING
@@ -518,6 +678,25 @@ export default function AdvocateBookings() {
         </MotionSection>
 
         {/* ===============================================================
+            SUCCESS NOTIFICATION
+        =============================================================== */}
+        {successToast && (
+          <div className="flex items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800 shadow-sm">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
+              <span>{successToast}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSuccessToast(null)}
+              className="text-emerald-600 hover:text-emerald-800"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        )}
+
+        {/* ===============================================================
             ERROR BANNER
         =============================================================== */}
         {error && (
@@ -622,6 +801,7 @@ export default function AdvocateBookings() {
                   const status = getDerivedStatus(booking);
                   const client = getClient(booking);
                   const clientName = getClientName(booking);
+                  const markable = canMarkComplete(booking);
 
                   return (
                     <button
@@ -654,9 +834,7 @@ export default function AdvocateBookings() {
                             {booking.subject || "Legal Consultation"}
                           </p>
                           {booking.bookingId && (
-                            <span className="font-mono text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
-                              {booking.bookingId}
-                            </span>
+                            <BookingRefButton reference={booking.bookingId} />
                           )}
                         </div>
 
@@ -680,9 +858,9 @@ export default function AdvocateBookings() {
                           </span>
                         </div>
 
-                        {/* Tappable client phone */}
-                        {client?.phone && (
-                          <div className="mt-2.5 pt-2 border-t border-slate-100/80 flex items-center justify-between">
+                        {/* Tappable client phone and action bar */}
+                        <div className="mt-2.5 pt-2 border-t border-slate-100/80 flex flex-wrap items-center justify-between gap-2">
+                          {client?.phone ? (
                             <a
                               href={`tel:${client.phone}`}
                               onClick={(e) => e.stopPropagation()}
@@ -691,12 +869,44 @@ export default function AdvocateBookings() {
                               <Phone size={11} />
                               {client.phone}
                             </a>
+                          ) : (
+                            <span className="text-xs text-slate-400">—</span>
+                          )}
 
-                            <span className="font-extrabold text-slate-900 text-xs">
-                              ₹{Number(booking.fee || 0).toLocaleString("en-IN")}
-                            </span>
+                          <div className="flex items-center gap-2">
+                            {markable && (
+                              <span
+                                role="button"
+                                tabIndex={0}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setCompleteError(null);
+                                  setConfirmBooking(booking);
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter" || e.key === " ") {
+                                    e.stopPropagation();
+                                    setCompleteError(null);
+                                    setConfirmBooking(booking);
+                                  }
+                                }}
+                                className="inline-flex items-center gap-1 rounded-md border border-emerald-300 bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700 transition hover:bg-emerald-100 cursor-pointer"
+                              >
+                                <CheckCircle2 size={11} />
+                                Mark Complete
+                              </span>
+                            )}
+
+                            <div className="text-right">
+                              <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider block leading-none mb-0.5">
+                                Consultation Fee
+                              </span>
+                              <span className="font-extrabold text-slate-900 text-xs">
+                                ₹{Number(booking.fee || 0).toLocaleString("en-IN")}
+                              </span>
+                            </div>
                           </div>
-                        )}
+                        </div>
                       </div>
 
                       <ChevronRight
@@ -735,7 +945,14 @@ export default function AdvocateBookings() {
           ============================================================= */}
           <section className="h-full min-h-[620px] rounded-[26px] border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.035)] xl:col-span-7">
             {selectedBooking ? (
-              <BookingDetails booking={selectedBooking} />
+              <BookingDetails
+                booking={selectedBooking}
+                onInitiateComplete={(b) => {
+                  setCompleteError(null);
+                  setConfirmBooking(b);
+                }}
+                completing={completing}
+              />
             ) : (
               <div className="flex h-full min-h-[620px] flex-col items-center justify-center px-6 text-center">
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-amber-100 bg-amber-50 text-amber-600">
@@ -754,6 +971,112 @@ export default function AdvocateBookings() {
           </section>
         </div>
       </div>
+
+      {/* ===============================================================
+          CONFIRMATION MODAL FOR "MARK AS COMPLETED"
+      =============================================================== */}
+      {confirmBooking && (
+        <div
+          className="fixed inset-0 z-[800] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm"
+          onClick={() => !completing && setConfirmBooking(null)}
+        >
+          <div
+            className="relative w-full max-w-md overflow-hidden rounded-[24px] border border-slate-200 bg-white p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50 text-emerald-600">
+                <CheckCircle2 size={24} />
+              </div>
+
+              {!completing && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setConfirmBooking(null);
+                    setCompleteError(null);
+                  }}
+                  className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                >
+                  <X size={18} />
+                </button>
+              )}
+            </div>
+
+            <h3 className="mt-4 text-lg font-extrabold text-slate-950">
+              Mark Consultation as Completed?
+            </h3>
+
+            <p className="mt-1 text-xs text-slate-500 leading-relaxed">
+              Confirm that you have completed this consultation session with the client.
+            </p>
+
+            <div className="mt-4 rounded-xl border border-slate-100 bg-slate-50/80 p-3.5 space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span className="text-slate-500 font-medium">Client:</span>
+                <span className="font-bold text-slate-900">{getClientName(confirmBooking)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500 font-medium">Reference:</span>
+                <span className="font-mono font-bold text-slate-900">{confirmBooking.bookingId}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500 font-medium">Slot Time:</span>
+                <span className="font-semibold text-slate-800">
+                  {formatISTDate(confirmBooking.startAt)} • {formatISTTimeSlot(confirmBooking.startAt, confirmBooking.endAt, confirmBooking.durationMinutes)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500 font-medium">Subject:</span>
+                <span className="font-semibold text-slate-800">{confirmBooking.subject || "General Consultation"}</span>
+              </div>
+            </div>
+
+            {/* <p className="mt-3 text-[11px] leading-relaxed text-amber-800 bg-amber-50 border border-amber-200/70 rounded-xl p-2.5 font-medium">
+              ⚠️ This action is permanent and cannot be undone from the UI. Once marked complete, this consultation will be displayed as Completed across client, advocate, and admin dashboards.
+            </p> */}
+
+            {completeError && (
+              <div className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-semibold text-red-700">
+                {completeError}
+              </div>
+            )}
+
+            <div className="mt-6 flex items-center gap-3">
+              <button
+                type="button"
+                disabled={completing}
+                onClick={() => {
+                  setConfirmBooking(null);
+                  setCompleteError(null);
+                }}
+                className="flex-1 rounded-xl border border-slate-200 bg-white py-2.5 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                disabled={completing}
+                onClick={handleConfirmComplete}
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 text-sm font-extrabold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {completing ? (
+                  <>
+                    <RefreshCw size={15} className="animate-spin" />
+                    Completing...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 size={16} />
+                    Confirm Complete
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
@@ -793,11 +1116,13 @@ function BookingStat(props) {
    DETAIL PANEL
 ============================================================================ */
 
-function BookingDetails({ booking }) {
+function BookingDetails({ booking, onInitiateComplete, completing }) {
   const client = getClient(booking);
   const clientName = getClientName(booking);
   const mode = getMode(booking);
   const status = getDerivedStatus(booking);
+  const markable = canMarkComplete(booking);
+  const isCompleted = Boolean(booking?.completedAt || booking?.status === "COMPLETED");
 
   const phone = cleanText(client?.phone);
   const email = cleanText(client?.email);
@@ -822,20 +1147,40 @@ function BookingDetails({ booking }) {
               </span>
             </div>
 
-            <p className="mt-1 text-sm font-semibold text-slate-500">
+            {/* <p className="mt-1 text-sm font-semibold text-slate-500">
               {booking.subject || "General Consultation"}
-            </p>
+            </p> */}
 
             {booking.bookingId && (
-              <p className="mt-1 font-mono text-xs font-bold text-slate-600">
-                Ref: {booking.bookingId}
-              </p>
+              <div className="mt-1 flex items-center gap-1.5">
+                <span className="text-xs font-bold text-slate-500">Ref:</span>
+                <BookingRefButton reference={booking.bookingId} />
+              </div>
             )}
           </div>
         </div>
 
-        {/* CALL / EMAIL ACTIONS */}
-        <div className="flex flex-wrap gap-2">
+        {/* CALL / EMAIL / MARK COMPLETE ACTIONS */}
+        <div className="flex flex-wrap items-center gap-2">
+          {markable && (
+            <button
+              type="button"
+              disabled={completing}
+              onClick={() => onInitiateComplete(booking)}
+              className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-extrabold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50"
+            >
+              <CheckCircle2 size={16} />
+              Mark as Completed
+            </button>
+          )}
+
+          {isCompleted && (
+            <span className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 text-xs font-extrabold text-emerald-800">
+              <CheckCircle2 size={15} className="text-emerald-600" />
+              Completed
+            </span>
+          )}
+
           {phone && (
             <a
               href={`tel:${phone}`}
@@ -904,7 +1249,7 @@ function BookingDetails({ booking }) {
       </div>
 
       {/* BACKEND INSTRUCTION MESSAGE */}
-      {booking.message && (
+      {/* {booking.message && (
         <div className="mt-5 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50/80 p-4">
           <AlertCircle size={18} className="mt-0.5 shrink-0 text-red-600" />
           <div>
@@ -916,7 +1261,7 @@ function BookingDetails({ booking }) {
             </p>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* CLIENT CONTACT & CONSULTATION INFORMATION */}
       <section className="mt-5 rounded-[22px] border border-slate-200 bg-white p-5">
@@ -990,7 +1335,7 @@ function BookingDetails({ booking }) {
       </section>
 
       {/* CONFIRMATION / WORKSPACE NOTE */}
-      <div className="mt-6 flex items-start gap-3 rounded-[22px] border border-blue-100 bg-blue-50/60 p-4">
+      {/* <div className="mt-6 flex items-start gap-3 rounded-[22px] border border-blue-100 bg-blue-50/60 p-4">
         <CheckCircle2 size={17} className="mt-0.5 shrink-0 text-blue-600" />
         <div>
           <p className="text-xs font-extrabold text-blue-900">
@@ -1001,7 +1346,7 @@ function BookingDetails({ booking }) {
             <code className="font-mono font-bold">/api/advocate/appointments</code>.
           </p>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
