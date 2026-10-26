@@ -37,17 +37,16 @@ export async function getAdvocateBookingQuote(advocateId, { mode, startAt }) {
 /**
  * POST /api/user/advocate-bookings/checkout
  * Authenticated user only.
- * Body: { advocateId, mode, startAt, subject, notes? }
+ * Body: { advocateId, mode, startAt, notes? }
  * Returns: { success: true, checkout: { checkoutId, razorpayOrderId, amount, currency, keyId, status, expiresAt, booking, prefill } }
  */
-export async function createAdvocateCheckout({ advocateId, mode, startAt, subject, notes }) {
+export async function createAdvocateCheckout({ advocateId, mode, startAt, notes }) {
   return apiRequest("/user/advocate-bookings/checkout", {
     method: "POST",
     body: {
       advocateId,
       mode,
       startAt,
-      subject,
       ...(notes ? { notes: String(notes).trim() } : {}),
     },
   });

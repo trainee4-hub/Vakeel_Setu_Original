@@ -199,3 +199,98 @@ export function getAvailableDatesList(maxDaysAhead = 30) {
 
   return dates;
 }
+
+/**
+ * Returns today's date in YYYY-MM-DD for Asia/Kolkata timezone.
+ */
+export function getTodayISTDateString() {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  return formatter.format(new Date());
+}
+
+/**
+ * Adds N days to a YYYY-MM-DD date string.
+ */
+export function addDaysToISTDateString(dateStr, days) {
+  if (!dateStr) return "";
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d + days, 12, 0, 0));
+  return date.toISOString().split("T")[0];
+}
+
+/**
+ * Formats YYYY-MM-DD to long human-readable date in Asia/Kolkata.
+ * E.g. "Tuesday, 27 Oct 2026"
+ */
+export function formatISTDateLong(dateStr) {
+  if (!dateStr) return "";
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+  return new Intl.DateTimeFormat("en-IN", {
+    timeZone: "Asia/Kolkata",
+    weekday: "long",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}
+
+/**
+ * Formats slot start time string to 12h display without padding e.g. "5:30 PM".
+ */
+export function formatSlotStartTime(startAt) {
+  if (!startAt) return "";
+  const timePart = startAt.split("T")[1];
+  if (!timePart) return "";
+  const [hourStr, minStr] = timePart.split(":");
+  const hour = Number(hourStr);
+  const min = Number(minStr);
+  const meridiem = hour >= 12 ? "PM" : "AM";
+  const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+  return `${displayHour}:${pad(min)} ${meridiem}`;
+}
+
+/**
+ * Generates calendar weeks matrix for a given year & month (0-indexed month).
+ */
+export function getCalendarMonthMatrix(year, monthIndex) {
+  const firstDay = new Date(Date.UTC(year, monthIndex, 1));
+  const startingDayOfWeek = firstDay.getUTCDay(); // 0 = Sun ... 6 = Sat
+  const daysInMonth = new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
+
+  const weeks = [];
+  let currentWeek = [];
+
+  // Pad beginning of first week
+  for (let i = 0; i < startingDayOfWeek; i++) {
+    currentWeek.push(null);
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${year}-${pad(monthIndex + 1)}-${pad(day)}`;
+    currentWeek.push({
+      day,
+      dateString: dateStr,
+    });
+
+    if (currentWeek.length === 7) {
+      weeks.push(currentWeek);
+      currentWeek = [];
+    }
+  }
+
+  // Pad end of last week
+  if (currentWeek.length > 0) {
+    while (currentWeek.length < 7) {
+      currentWeek.push(null);
+    }
+    weeks.push(currentWeek);
+  }
+
+  return weeks;
+}

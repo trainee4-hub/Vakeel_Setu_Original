@@ -581,7 +581,6 @@ export default function AdvocateBookings() {
     { id: "UPCOMING", label: "Upcoming", count: counts.UPCOMING ?? 0 },
     { id: "PAST_DUE", label: "Past Due", count: counts.PAST_DUE ?? 0 },
     { id: "COMPLETED", label: "Completed", count: counts.COMPLETED ?? 0 },
-    { id: "REFUNDED", label: "Refunded", count: counts.REFUNDED ?? 0 },
   ];
 
   /* =========================================================================
@@ -628,19 +627,6 @@ export default function AdvocateBookings() {
                 </span>
               </div>
             </div>
-
-            <button
-              type="button"
-              disabled={loading}
-              onClick={() => loadAppointments(tab)}
-              className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 transition hover:border-amber-200 hover:bg-amber-50 hover:text-amber-700 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <RefreshCw
-                size={16}
-                className={loading ? "animate-spin" : ""}
-              />
-              Refresh
-            </button>
           </div>
 
           {/* =============================================================
@@ -787,7 +773,20 @@ export default function AdvocateBookings() {
                 </p>
               </div>
 
-              <CalendarCheck2 size={19} className="text-amber-500" />
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => loadAppointments(tab)}
+                aria-label="Refresh bookings"
+                title="Refresh bookings"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:border-amber-200 hover:bg-amber-50 hover:text-amber-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <RefreshCw
+                  size={14}
+                  className={loading ? "animate-spin text-amber-600" : "text-slate-500"}
+                />
+                Refresh
+              </button>
             </div>
 
             {/* SCROLLABLE LIST */}
@@ -829,14 +828,21 @@ export default function AdvocateBookings() {
                           </span>
                         </div>
 
-                        <div className="mt-1 flex items-center justify-between gap-2">
-                          <p className="truncate text-xs font-medium text-slate-600">
-                            {booking.subject || "Legal Consultation"}
-                          </p>
-                          {booking.bookingId && (
+                        {Boolean(booking.subject) && (
+                          <div className="mt-1 flex items-center justify-between gap-2">
+                            <p className="truncate text-xs font-medium text-slate-600">
+                              {booking.subject}
+                            </p>
+                            {booking.bookingId && (
+                              <BookingRefButton reference={booking.bookingId} />
+                            )}
+                          </div>
+                        )}
+                        {!booking.subject && booking.bookingId && (
+                          <div className="mt-1 flex items-center justify-end">
                             <BookingRefButton reference={booking.bookingId} />
-                          )}
-                        </div>
+                          </div>
+                        )}
 
                         <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-medium text-slate-400">
                           <span className="inline-flex items-center gap-1 text-slate-600 font-semibold">
@@ -859,19 +865,23 @@ export default function AdvocateBookings() {
                         </div>
 
                         {/* Tappable client phone and action bar */}
-                        <div className="mt-2.5 pt-2 border-t border-slate-100/80 flex flex-wrap items-center justify-between gap-2">
-                          {client?.phone ? (
-                            <a
-                              href={`tel:${client.phone}`}
-                              onClick={(e) => e.stopPropagation()}
-                              className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 hover:text-amber-700 hover:underline"
-                            >
-                              <Phone size={11} />
-                              {client.phone}
-                            </a>
-                          ) : (
-                            <span className="text-xs text-slate-400">—</span>
-                          )}
+                        <div className="mt-2.5 pt-2 border-t border-slate-100/80 flex items-center justify-between gap-2">
+                          <div>
+                            {client?.phone ? (
+                              <a
+                                href={`tel:${client.phone}`}
+                                onClick={(e) => e.stopPropagation()}
+                                aria-label={`Call client at ${client.phone}`}
+                                title={`Call ${client.phone}`}
+                                className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-700 hover:underline"
+                              >
+                                <Phone size={11} className="shrink-0" />
+                                <span className="font-mono">{client.phone}</span>
+                              </a>
+                            ) : (
+                              <span className="text-xs text-slate-400 font-medium">—</span>
+                            )}
+                          </div>
 
                           <div className="flex items-center gap-2">
                             {markable && (
@@ -893,7 +903,7 @@ export default function AdvocateBookings() {
                                 className="inline-flex items-center gap-1 rounded-md border border-emerald-300 bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700 transition hover:bg-emerald-100 cursor-pointer"
                               >
                                 <CheckCircle2 size={11} />
-                                Mark Complete
+                                Mark as Completed
                               </span>
                             )}
 
@@ -1026,10 +1036,12 @@ export default function AdvocateBookings() {
                   {formatISTDate(confirmBooking.startAt)} • {formatISTTimeSlot(confirmBooking.startAt, confirmBooking.endAt, confirmBooking.durationMinutes)}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500 font-medium">Subject:</span>
-                <span className="font-semibold text-slate-800">{confirmBooking.subject || "General Consultation"}</span>
-              </div>
+              {Boolean(confirmBooking.subject) && (
+                <div className="flex justify-between">
+                  <span className="text-slate-500 font-medium">Subject:</span>
+                  <span className="font-semibold text-slate-800">{confirmBooking.subject}</span>
+                </div>
+              )}
             </div>
 
             {/* <p className="mt-3 text-[11px] leading-relaxed text-amber-800 bg-amber-50 border border-amber-200/70 rounded-xl p-2.5 font-medium">
@@ -1147,9 +1159,11 @@ function BookingDetails({ booking, onInitiateComplete, completing }) {
               </span>
             </div>
 
-            {/* <p className="mt-1 text-sm font-semibold text-slate-500">
-              {booking.subject || "General Consultation"}
-            </p> */}
+            {Boolean(cleanText(booking?.subject)) && (
+              <p className="mt-1 text-sm font-semibold text-slate-500">
+                {cleanText(booking?.subject)}
+              </p>
+            )}
 
             {booking.bookingId && (
               <div className="mt-1 flex items-center gap-1.5">
@@ -1287,10 +1301,12 @@ function BookingDetails({ booking, onInitiateComplete, completing }) {
             {phone ? (
               <a
                 href={`tel:${phone}`}
-                className="mt-1 inline-flex items-center gap-1.5 text-sm font-bold text-amber-600 hover:underline"
+                aria-label={`Dial client at ${phone}`}
+                title={`Call ${phone}`}
+                className="mt-1 inline-flex items-center gap-1.5 text-base sm:text-lg font-black text-slate-900 hover:text-amber-600 transition"
               >
-                <Phone size={13} />
-                {phone}
+                <Phone size={13} className="shrink-0 text-amber-600" />
+                <span className="font-mono tracking-tight">{phone}</span>
               </a>
             ) : (
               <p className="mt-1 text-sm text-slate-500">—</p>
@@ -1304,10 +1320,12 @@ function BookingDetails({ booking, onInitiateComplete, completing }) {
             {email ? (
               <a
                 href={`mailto:${email}`}
-                className="mt-1 inline-flex items-center gap-1.5 text-sm font-bold text-amber-600 hover:underline truncate max-w-full"
+                aria-label={`Email client at ${email}`}
+                title={`Email ${email}`}
+                className="mt-1 inline-flex items-center gap-1.5 text-sm font-bold text-slate-900 hover:text-amber-600 hover:underline truncate max-w-full"
               >
-                <Mail size={13} />
-                {email}
+                <Mail size={13} className="shrink-0 text-amber-600" />
+                <span className="truncate">{email}</span>
               </a>
             ) : (
               <p className="mt-1 text-sm text-slate-500">—</p>
@@ -1318,17 +1336,8 @@ function BookingDetails({ booking, onInitiateComplete, completing }) {
             <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">
               Consultation Fee
             </p>
-            <p className="mt-1 text-sm font-extrabold text-slate-900">
+            <p className="mt-1 text-sm font-bold text-slate-900">
               ₹{Number(booking.fee || 0).toLocaleString("en-IN")}
-            </p>
-          </div>
-
-          <div className="sm:col-span-2">
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">
-              Subject
-            </p>
-            <p className="mt-1 text-sm font-semibold text-slate-800">
-              {cleanText(booking?.subject) || "General Consultation"}
             </p>
           </div>
         </div>

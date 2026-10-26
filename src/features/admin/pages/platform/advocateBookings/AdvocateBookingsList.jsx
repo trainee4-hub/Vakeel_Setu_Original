@@ -269,9 +269,11 @@ export default function AdvocateBookingsList() {
       header: "Subject",
       render: (item) => (
         <div className="text-xs max-w-[180px] space-y-0.5">
-          <p className="font-medium text-slate-900 truncate" title={item.subject}>
-            {item.subject || "General Consultation"}
-          </p>
+          {item.subject && (
+            <p className="font-medium text-slate-900 truncate" title={item.subject}>
+              {item.subject}
+            </p>
+          )}
           {item.notes && (
             <p className="text-slate-400 truncate text-[11px]" title={item.notes}>
               {item.notes}
