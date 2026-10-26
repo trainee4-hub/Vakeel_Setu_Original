@@ -94,7 +94,7 @@ export default function AdvocateSidebar({
       Icon: LayoutDashboard,
     },
     {
-      label: "Bookings",
+      label: "My Bookings",
       path: "/advocate/bookings",
       Icon: CalendarDays,
     },
@@ -194,7 +194,10 @@ export default function AdvocateSidebar({
           </div>
 
           <div className="min-w-0">
-            <p className="truncate text-[15px] font-extrabold tracking-tight text-white">
+            <p
+              className="notranslate truncate text-[15px] font-extrabold tracking-tight text-white"
+              translate="no"
+            >
               Vakeel
               <span className="text-amber-400">
                 Setu

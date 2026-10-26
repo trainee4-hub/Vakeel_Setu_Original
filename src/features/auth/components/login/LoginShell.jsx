@@ -69,7 +69,7 @@ const LoginShell = ({ children }) => {
           {/* BOTTOM LABEL */}
 
           <p className="mt-5 text-center text-[10px] uppercase tracking-[0.2em] text-slate-400">
-            Vakeel Setu • Secure Encrypted Access
+            <span className="notranslate" translate="no">Vakeel Setu</span> • Secure Encrypted Access
           </p>
         </div>
       </div>

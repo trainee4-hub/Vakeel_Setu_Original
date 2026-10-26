@@ -194,7 +194,10 @@ const Navbar = () => {
               <FaScaleBalanced className="text-2xl" />
             </div>
 
-            <span className="text-lg font-bold text-slate-900 sm:text-xl">
+            <span
+              className="notranslate text-lg font-bold text-slate-900 sm:text-xl"
+              translate="no"
+            >
               Vakeel<span className="text-amber-600">Setu</span>
             </span>
           </Link>

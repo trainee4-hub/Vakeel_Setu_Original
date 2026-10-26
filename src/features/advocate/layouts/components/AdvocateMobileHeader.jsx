@@ -24,7 +24,10 @@ export default function AdvocateMobileHeader({
           <Scale size={19} />
         </div>
 
-        <span className="text-sm font-extrabold tracking-tight text-slate-950">
+        <span
+          className="notranslate text-sm font-extrabold tracking-tight text-slate-950"
+          translate="no"
+        >
           Vakeel<span className="text-amber-500">Setu</span>
         </span>
       </div>

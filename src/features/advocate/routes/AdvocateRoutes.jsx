@@ -16,6 +16,7 @@ import {
   AdvocateBookings,
   AdvocateMessages,
   AdvocateTeam,
+  AdvocateTeamMemberProfile,
   AdvocateMyProfile,
   AdvocateEditProfile,
   AdvocateAccountSettings,
@@ -108,6 +109,11 @@ export default function AdvocateRoutes() {
             <Route
               path="team"
               element={<AdvocateTeam />}
+            />
+
+            <Route
+              path="team/:id"
+              element={<AdvocateTeamMemberProfile />}
             />
 
             {/* PRICING */}

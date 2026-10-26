@@ -7,9 +7,6 @@ import { getAdvocateProfileCompletion } from "@/utils/advocateProfile";
    ADVOCATE DASHBOARD DATA
 
    Advocate profile is already restored/synced by AdvocateProfileGuard.
-
-   Consultation / booking API is NOT implemented in backend yet,
-   therefore no consultation request is made from this hook.
    ========================================================================= */
 
 export default function useAdvocateDashboard() {

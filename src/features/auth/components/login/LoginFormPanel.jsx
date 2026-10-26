@@ -82,7 +82,10 @@ const LoginFormPanel = ({
             <div className="flex items-center gap-2">
               <FaBalanceScale className="text-[20px] text-amber-500" />
 
-              <span className="text-lg font-bold text-slate-900">
+              <span
+                className="notranslate text-lg font-bold text-slate-900"
+                translate="no"
+              >
                 Vakeel
                 <span className="text-amber-500"> Setu</span>
               </span>
@@ -385,7 +388,7 @@ const LoginFormPanel = ({
       <div className="w-full border-t border-slate-100 bg-slate-50/60 px-5 py-6 sm:px-8 lg:px-10 xl:px-14">
         <div className="mx-auto w-full max-w-[400px] text-center">
           <p className="text-sm text-slate-500">
-            New to Vakeel Setu?{" "}
+            New to <span className="notranslate font-semibold" translate="no">Vakeel Setu</span>?{" "}
             <button
               type="button"
               onClick={onCreateAccount}

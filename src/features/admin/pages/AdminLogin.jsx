@@ -81,7 +81,12 @@ export default function AdminLogin() {
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500 text-slate-950">
             <Icon name="balance" filled className="text-[24px]" />
           </div>
-          <p className="text-lg font-bold text-white">VakeelSetu</p>
+          <p
+            className="notranslate text-lg font-bold text-white"
+            translate="no"
+          >
+            VakeelSetu
+          </p>
         </div>
         <div className="max-w-sm">
           <h2 className="text-3xl font-bold leading-tight text-white">Publish the law people need to understand.</h2>
@@ -98,10 +103,20 @@ export default function AdminLogin() {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-slate-950">
               <Icon name="balance" filled className="text-[22px]" />
             </div>
-            <p className="text-lg font-bold text-slate-950">VakeelSetu</p>
+            <p
+              className="notranslate text-lg font-bold text-slate-950"
+              translate="no"
+            >
+              VakeelSetu
+            </p>
           </div>
 
-          <h1 className="text-2xl font-bold tracking-tight text-slate-950">Vakeel Setu Back Office</h1>
+          <h1
+            className="notranslate text-2xl font-bold tracking-tight text-slate-950"
+            translate="no"
+          >
+            Vakeel Setu Back Office
+          </h1>
           <p className="mt-1 text-sm text-slate-600">Manage legal knowledge, publishing, and system content.</p>
 
           <div className="mt-6 space-y-3">
@@ -168,7 +183,11 @@ export default function AdminLogin() {
 
           <p className="mt-8 text-center text-sm text-slate-500">
             Not an admin?{" "}
-            <Link to="/" className="font-semibold text-amber-700 hover:text-amber-800">
+            <Link
+              to="/"
+              className="notranslate font-semibold text-amber-700 hover:text-amber-800"
+              translate="no"
+            >
               Go to VakeelSetu
             </Link>
           </p>

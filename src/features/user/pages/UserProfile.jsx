@@ -1856,7 +1856,7 @@ const handleLanguageChange = (
       <div className="shrink-0 border-t border-slate-100 bg-slate-50/80 px-5 py-4 sm:px-7">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-[11px] leading-5 text-slate-400">
-            Vakeel Setu • Operated by Techvunex Innovations
+            <span className="notranslate" translate="no">Vakeel Setu</span> • Operated by Techvunex Innovations
           </p>
 
           <button

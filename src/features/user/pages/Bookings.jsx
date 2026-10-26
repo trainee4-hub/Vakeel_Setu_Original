@@ -1306,7 +1306,10 @@ function PrintableReceiptModal({ booking, onClose }) {
           {/* Receipt Header */}
           <div className="flex items-start justify-between border-b border-slate-200 pb-6">
             <div>
-              <h2 className="text-2xl font-black text-slate-950">
+              <h2
+                className="notranslate text-2xl font-black text-slate-950"
+                translate="no"
+              >
                 Vakeel<span className="text-amber-500">Setu</span>
               </h2>
               <p className="mt-1 text-xs text-slate-500">
@@ -1422,7 +1425,11 @@ function PrintableReceiptModal({ booking, onClose }) {
 
           {/* Footer note */}
           <p className="mt-8 text-center text-[11px] text-slate-400">
-            This is a computer-generated receipt for consultation services booked on VakeelSetu.
+            This is a computer-generated receipt for consultation services booked on{" "}
+            <span className="notranslate font-semibold" translate="no">
+              VakeelSetu
+            </span>
+            .
           </p>
         </div>
       </div>

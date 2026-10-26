@@ -57,7 +57,10 @@ const LoginHeroPanel = () => {
             <FaBalanceScale className="text-[20px]" />
           </div>
 
-          <span className="text-base font-bold tracking-tight">
+          <span
+            className="notranslate text-base font-bold tracking-tight"
+            translate="no"
+          >
             Vakeel
             <span className="text-amber-400"> Setu</span>
           </span>
@@ -128,7 +131,7 @@ const LoginHeroPanel = () => {
 
       <div className="relative z-10 flex items-center justify-between border-t border-white/[0.06] px-8 py-6 xl:px-10">
         <p className="text-[10px] text-slate-600">
-          © {new Date().getFullYear()} Vakeel Setu.
+          © {new Date().getFullYear()} <span className="notranslate" translate="no">Vakeel Setu</span>.
           All rights reserved.
         </p>
 

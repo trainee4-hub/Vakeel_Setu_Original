@@ -218,6 +218,10 @@ export default function AddTeamMateModal({
         return;
       }
 
+      const targetId =
+        request?.targetAdvocateId ||
+        request?.targetAdvocate?.id;
+
       const result =
         await team.verifyPendingRequest(
           otp,
@@ -226,9 +230,19 @@ export default function AddTeamMateModal({
       if (
         result?.verified
       ) {
+        const newMemberId =
+          result?.teamMate?.id ||
+          targetId;
+
         setOtp("");
 
         onClose?.();
+
+        if (newMemberId) {
+          navigate(
+            `/advocate/team/${newMemberId}`,
+          );
+        }
       }
     };
 
@@ -534,8 +548,9 @@ export default function AddTeamMateModal({
                                 if (
                                   id
                                 ) {
+                                  onClose?.();
                                   navigate(
-                                    `/find-lawyer/${id}`,
+                                    `/advocate/team/${id}`,
                                   );
                                 }
                               }}

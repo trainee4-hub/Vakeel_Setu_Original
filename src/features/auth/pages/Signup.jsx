@@ -3924,7 +3924,10 @@ restoreUserSession(
                   </span>
                 </div>
 
-                <span className="text-base font-bold tracking-tight">
+                <span
+                  className="notranslate text-base font-bold tracking-tight"
+                  translate="no"
+                >
                   Vakeel
                   <span className="text-amber-400"> Setu</span>
                 </span>
@@ -4144,7 +4147,7 @@ restoreUserSession(
             "
             >
               <p className="text-[10px] text-slate-600">
-                © {new Date().getFullYear()} Vakeel Setu. All rights reserved.
+                © {new Date().getFullYear()} <span className="notranslate" translate="no">Vakeel Setu</span>. All rights reserved.
               </p>
 
               <span className="material-symbols-outlined text-[15px] text-slate-700">
@@ -4187,7 +4190,10 @@ restoreUserSession(
                       balance
                     </span>
 
-                    <span className="text-lg font-bold text-slate-900">
+                    <span
+                      className="notranslate text-lg font-bold text-slate-900"
+                      translate="no"
+                    >
                       Vakeel
                       <span className="text-amber-500"> Setu</span>
                     </span>

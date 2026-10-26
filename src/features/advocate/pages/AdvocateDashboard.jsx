@@ -1607,7 +1607,7 @@ const HelpCard = ({
     </div>
 
     <h2 className="mt-4 text-base font-extrabold text-slate-950">
-      Help Improve Vakeel Setu
+      Help Improve <span className="notranslate" translate="no">Vakeel Setu</span>
     </h2>
 
     <p className="mt-2 text-sm leading-6 text-slate-500">
@@ -2942,7 +2942,7 @@ export default function AdvocateDashboard() {
 
                   if (mateId) {
                     navigate(
-                      `/find-lawyer/${mateId}`,
+                      `/advocate/team/${mateId}`,
                     );
                   }
                 }}

@@ -62,7 +62,12 @@ export default function AdminSidebar({ user, onNavigate, onSignOut, signingOut =
           <Icon name="balance" filled className="text-[22px]" />
         </div>
         <div className="leading-tight">
-          <p className="text-base font-bold text-white">VakeelSetu</p>
+          <p
+            className="notranslate text-base font-bold text-white"
+            translate="no"
+          >
+            VakeelSetu
+          </p>
           <p className="text-xs text-slate-400">{getDisplayRole(user)}</p>
         </div>
       </div>

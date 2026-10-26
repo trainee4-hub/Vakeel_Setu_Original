@@ -280,7 +280,8 @@ const TeamMemberCard = ({
       transition={{
         duration: 0.2,
       }}
-      className="flex h-full flex-col rounded-[22px] border border-slate-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(15,23,42,0.035)] transition-shadow hover:shadow-[0_14px_36px_rgba(15,23,42,0.07)] sm:p-5"
+      className="flex h-full flex-col rounded-[22px] border border-slate-200/80 bg-white p-4 shadow-[0_8px_28px_rgba(15,23,42,0.035)] transition-shadow hover:shadow-[0_14px_36px_rgba(15,23,42,0.07)] sm:p-5 cursor-pointer"
+      onClick={() => onView(mate)}
     >
       <div className="flex items-start gap-3">
         <TeamAvatar mate={mate} />
@@ -359,9 +360,10 @@ const TeamMemberCard = ({
         <button
           type="button"
           disabled={removing}
-          onClick={() =>
-            onRemove(mate)
-          }
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove(mate);
+          }}
           className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 transition hover:border-red-200 hover:bg-red-50 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50"
           aria-label={`Remove ${getMateName(
             mate,
@@ -891,7 +893,7 @@ export default function AdvocateTeam() {
                             mateId
                           ) {
                             navigate(
-                              `/find-lawyer/${mateId}`,
+                              `/advocate/team/${mateId}`,
                             );
                           }
                         }}

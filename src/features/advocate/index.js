@@ -6,6 +6,7 @@ export { default as AdvocateCompleteProfile } from "./pages/AdvocateCompleteProf
 export { default as AdvocateBookings } from "./pages/AdvocateBookings";
 export { default as AdvocateMessages } from "./pages/AdvocateMessages";
 export { default as AdvocateTeam } from "./pages/AdvocateTeam";
+export { default as AdvocateTeamMemberProfile } from "./pages/AdvocateTeamMemberProfile";
 export { default as AdvocatePricing } from "./pages/AdvocatePricing";
 export { default as AdvocateMyProfile } from "./pages/AdvocateMyProfile";
 export { default as AdvocateEditProfile } from "./pages/AdvocateEditProfile";
