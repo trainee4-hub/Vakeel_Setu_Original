@@ -63,7 +63,7 @@ async function fetchSections(endpoint, { page = 1, limit = 15 } = {}) {
   return {
     items: sections,
     pagination: {
-      currentPage: toInt(rawPagination.currentPage, p),
+      currentPage: toInt(rawPagination.currentPage ?? rawPagination.page, p),
       limit: toInt(rawPagination.limit, l),
       total: toInt(rawPagination.total ?? rawPagination.totalSections, sections.length),
       totalPages: toInt(rawPagination.totalPages, sections.length ? 1 : 0),

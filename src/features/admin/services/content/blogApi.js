@@ -23,7 +23,7 @@ export async function getBlogs({ page = 1, limit = 10 } = {}) {
   return {
     items: blogs,
     pagination: {
-      currentPage: toInt(raw.currentPage, p),
+      currentPage: toInt(raw.currentPage ?? raw.page, p),
       limit: toInt(raw.limit, l),
       total: toInt(raw.totalBlogs ?? raw.total, blogs.length),
       totalPages: toInt(raw.totalPages, blogs.length ? 1 : 0),

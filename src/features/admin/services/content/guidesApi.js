@@ -23,7 +23,7 @@ export async function getGuides({ page = 1, limit = 10 } = {}) {
   return {
     items: guides,
     pagination: {
-      currentPage: toInt(raw.currentPage, p),
+      currentPage: toInt(raw.currentPage ?? raw.page, p),
       limit: toInt(raw.limit, l),
       total: toInt(raw.totalGuides ?? raw.total, guides.length),
       totalPages: toInt(raw.totalPages, guides.length ? 1 : 0),

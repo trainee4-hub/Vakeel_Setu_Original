@@ -27,7 +27,7 @@ export async function getUserRights({ page = 1, limit = 10 } = {}) {
   return {
     items: list,
     pagination: {
-      currentPage: toInt(raw.currentPage, safePage),
+      currentPage: toInt(raw.currentPage ?? raw.page, safePage),
       limit: toInt(raw.limit, safeLimit),
       total: toInt(raw.totalRights, list.length),
       totalPages: toInt(raw.totalPages, list.length ? 1 : 0),

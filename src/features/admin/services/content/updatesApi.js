@@ -27,7 +27,7 @@ export async function getUpdates({ page = 1, limit = 10 } = {}) {
   return {
     items: updates,
     pagination: {
-      currentPage: toInt(raw.currentPage, p),
+      currentPage: toInt(raw.currentPage ?? raw.page, p),
       limit: toInt(raw.limit, l),
       total: toInt(raw.totalUpdates ?? raw.total, updates.length),
       totalPages: toInt(raw.totalPages, updates.length ? 1 : 0),
