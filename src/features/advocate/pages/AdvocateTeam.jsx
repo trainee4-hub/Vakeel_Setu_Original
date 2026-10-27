@@ -1,9 +1,13 @@
 import {
+  useCallback,
   useMemo,
   useState,
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+
+const MotionArticle = motion.article;
+const MotionSection = motion.section;
 import {
   AlertCircle,
   BriefcaseBusiness,
@@ -224,7 +228,7 @@ const AdvocateTeamSkeleton = () => (
 ============================================================================ */
 
 const TeamStat = ({
-  Icon,
+  Icon: _Icon,
   label,
   value,
   tone = "amber",
@@ -238,6 +242,8 @@ const TeamStat = ({
       "border-emerald-100 bg-emerald-50/60 text-emerald-600",
   };
 
+  const IconComp = _Icon;
+
   return (
     <div
       className={`rounded-[20px] border p-4 ${tones[tone] ||
@@ -245,7 +251,7 @@ const TeamStat = ({
         }`}
     >
       <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white shadow-sm">
-        <Icon size={17} />
+        {IconComp ? <IconComp size={17} /> : null}
       </div>
 
       <p className="mt-4 text-xs font-semibold text-slate-500">
@@ -273,7 +279,7 @@ const TeamMemberCard = ({
     getExperience(mate);
 
   return (
-    <motion.article
+    <MotionArticle
       whileHover={{
         y: -3,
       }}
@@ -376,7 +382,7 @@ const TeamMemberCard = ({
           )}
         </button>
       </div>
-    </motion.article>
+    </MotionArticle>
   );
 };
 
@@ -405,10 +411,33 @@ export default function AdvocateTeam() {
     setSearch,
   ] = useState("");
 
-  const teamMates =
-    Array.isArray(team.teamMates)
-      ? team.teamMates
-      : [];
+  const [
+    isManualRefreshing,
+    setIsManualRefreshing,
+  ] = useState(false);
+
+  const handleRefresh = useCallback(async () => {
+    if (isManualRefreshing || team.teamLoading) return;
+    setIsManualRefreshing(true);
+    const startTime = Date.now();
+    try {
+      await team.refreshTeam(700);
+    } finally {
+      const elapsed = Date.now() - startTime;
+      const minSpinMs = 700;
+      if (elapsed < minSpinMs) {
+        await new Promise((resolve) => setTimeout(resolve, minSpinMs - elapsed));
+      }
+      setIsManualRefreshing(false);
+    }
+  }, [isManualRefreshing, team]);
+
+  const isSpinning = Boolean(team.teamLoading || isManualRefreshing);
+
+  const teamMates = useMemo(
+    () => (Array.isArray(team.teamMates) ? team.teamMates : []),
+    [team.teamMates]
+  );
 
   /* =========================================================================
      ADD TEAM MATE
@@ -634,7 +663,7 @@ export default function AdvocateTeam() {
               HEADER
           ========================================================= */}
 
-          <motion.section
+          <MotionSection
             initial={{
               opacity: 0,
               y: 14,
@@ -691,18 +720,20 @@ export default function AdvocateTeam() {
                 <button
                   type="button"
                   disabled={
-                    team.teamLoading
+                    isSpinning
                   }
                   onClick={
-                    team.refreshTeam
+                    handleRefresh
                   }
-                  className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 transition hover:border-amber-200 hover:bg-amber-50 hover:text-amber-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  title="Refresh team members"
+                  aria-label="Refresh team members"
+                  className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 transition hover:border-amber-200 hover:bg-amber-50 hover:text-amber-700 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
                 >
                   <RefreshCw
                     size={16}
                     className={
-                      team.teamLoading
-                        ? "animate-spin"
+                      isSpinning
+                        ? "animate-spin text-amber-600"
                         : ""
                     }
                   />
@@ -759,7 +790,7 @@ export default function AdvocateTeam() {
                 tone="emerald"
               />
             </div>
-          </motion.section>
+          </MotionSection>
 
           {/* =========================================================
               ERROR
@@ -790,7 +821,7 @@ export default function AdvocateTeam() {
               <button
                 type="button"
                 onClick={
-                  team.refreshTeam
+                  handleRefresh
                 }
                 className="shrink-0 text-xs font-extrabold text-red-700 hover:text-red-800"
               >

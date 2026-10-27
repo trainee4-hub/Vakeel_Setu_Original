@@ -400,7 +400,7 @@ export default function AdvocateBookingsList() {
               setModeFilter(e.target.value);
               setPage(1);
             }}
-            className="rounded-xl border border-slate-300 bg-white pl-5 pl-2 text-sm text-slate-800 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+            className="rounded-xl border border-slate-300 bg-white pl-5 py-2 text-sm text-slate-800 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
           >
             {MODE_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>

@@ -3,6 +3,8 @@ import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { FiX, FiMail, FiCheck, FiVideo, FiPhone, FiBriefcase } from "react-icons/fi";
 import CallPhoneButton from "@/features/advocate/components/CallPhoneButton";
+import { API_BASE_URL } from "@shared/services/apiClient";
+import { getAuthToken } from "@/utils/auth";
 import { ADMIN_PATHS, formatDate } from "../../../utils/adminUtils";
 
 
@@ -246,12 +248,15 @@ function ClickCardPopover({
   );
 }
 
+const advocatePresenceCache = new Map();
+const PRESENCE_CACHE_TTL_MS = 30 * 1000;
+
 /**
- * Advocate Cell with Click Info Card:
- * Styled per the modern card layout reference (coloured header, avatar with initials,
- * name, ID beneath, status pills, 2-column labelled field grid, and full profile button).
+ * Live presence card content for Advocate.
+ * Fetches single advocate live status (GET /api/advocates/:id) only when opened.
+ * Cancels request via AbortController if closed first.
  */
-export function AdvocateHoverCell({ advocate, className = "" }) {
+function AdvocateCardContent({ advocate, close }) {
   const name = advocate?.fullName || advocate?.name || "—";
   const barCouncilId = advocate?.barCouncilId || "";
   const advocateId = advocate?.id || advocate?._id || "";
@@ -264,10 +269,250 @@ export function AdvocateHoverCell({ advocate, className = "" }) {
     advocate?.photo ||
     advocate?.image ||
     null;
-  const isOnline = Boolean(advocate?.isOnline ?? advocate?.online ?? false);
   const firstLetter = name?.trim()?.charAt(0)?.toUpperCase() || "?";
-
   const profileUrl = advocateId ? ADMIN_PATHS.advocates.detail(advocateId) : null;
+
+  const [presence, setPresence] = useState(() => {
+    if (!advocateId) return { status: "error", isOnline: false };
+    const cached = advocatePresenceCache.get(advocateId);
+    if (cached && Date.now() - cached.timestamp < PRESENCE_CACHE_TTL_MS) {
+      return { status: "success", isOnline: cached.isOnline };
+    }
+    return { status: "loading", isOnline: null };
+  });
+
+  useEffect(() => {
+    if (!advocateId) return;
+
+    const cached = advocatePresenceCache.get(advocateId);
+    if (cached && Date.now() - cached.timestamp < PRESENCE_CACHE_TTL_MS) {
+      setPresence({ status: "success", isOnline: cached.isOnline });
+      return;
+    }
+
+    const controller = new AbortController();
+
+    async function fetchLivePresence() {
+      try {
+        const token = getAuthToken();
+        const res = await fetch(
+          `${API_BASE_URL}/advocates/${encodeURIComponent(advocateId)}`,
+          {
+            method: "GET",
+            signal: controller.signal,
+            credentials: "include",
+            headers: {
+              Accept: "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+          }
+        );
+
+        if (!res.ok) {
+          throw new Error(`Status ${res.status}`);
+        }
+
+        const json = await res.json();
+        const raw = json?.data || json?.advocate || null;
+        const liveIsOnline = Boolean(raw?.isOnline === true);
+
+        advocatePresenceCache.set(advocateId, {
+          isOnline: liveIsOnline,
+          timestamp: Date.now(),
+        });
+
+        setPresence({ status: "success", isOnline: liveIsOnline });
+      } catch (err) {
+        if (err?.name === "AbortError" || controller.signal.aborted) {
+          return;
+        }
+        setPresence({ status: "error", isOnline: null });
+      }
+    }
+
+    fetchLivePresence();
+
+    return () => {
+      controller.abort();
+    };
+  }, [advocateId]);
+
+  return (
+    <>
+      {/* Header Banner: Dark slate with amber accent, styled per reference */}
+      <div className="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 text-white relative border-t-4 border-amber-500">
+        {/* Top row: Category tag + Close button */}
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <span className="text-[10px] font-extrabold uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+            Advocate Details
+          </span>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              close();
+            }}
+            className="h-6 w-6 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white flex items-center justify-center transition focus:outline-none focus:ring-1 focus:ring-amber-400"
+            aria-label="Close advocate card"
+          >
+            <FiX size={14} />
+          </button>
+        </div>
+
+        {/* Profile Row: Avatar + Name + Pills */}
+        <div className="flex items-start gap-3">
+          {/* Avatar Box with crisp white border frame & status dot */}
+          <div className="relative shrink-0">
+            <div className="h-12 w-12 rounded-xl bg-white p-0.5 shadow-md shadow-slate-950/40 ring-1 ring-white/20 flex items-center justify-center overflow-hidden">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={name}
+                  className="h-full w-full rounded-lg object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                    const fallback = e.currentTarget.parentElement?.querySelector(".avatar-fallback");
+                    if (fallback) fallback.style.display = "flex";
+                  }}
+                />
+              ) : null}
+              <div
+                style={{ display: avatarUrl ? "none" : "flex" }}
+                className="avatar-fallback h-full w-full rounded-lg bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 text-slate-950 font-black text-base items-center justify-center shadow-inner"
+              >
+                {firstLetter}
+              </div>
+            </div>
+
+            {/* Status dot on the border of the avatar photo box */}
+            {presence.status === "loading" ? (
+              <span
+                className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full ring-2 ring-slate-950 bg-slate-500 animate-pulse transition-colors"
+                title="Checking status…"
+                aria-label="Checking status…"
+              />
+            ) : presence.status === "error" ? (
+              <span
+                className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full ring-2 ring-slate-950 bg-slate-500 transition-colors"
+                title="Status unavailable"
+                aria-label="Status unavailable"
+              />
+            ) : (
+              <span
+                className={`absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full ring-2 ring-slate-950 transition-colors ${
+                  presence.isOnline ? "bg-emerald-500" : "bg-slate-400"
+                }`}
+                title={presence.isOnline ? "Online" : "Offline"}
+                aria-label={presence.isOnline ? "Online" : "Offline"}
+              />
+            )}
+          </div>
+
+          {/* Title and Badges (only name, no ID beneath per user instruction) */}
+          <div className="min-w-0 flex-1">
+            <h4 className="text-base font-bold text-white leading-tight truncate" title={name}>
+              {name}
+            </h4>
+
+            {/* Status Pills */}
+            <div className="flex flex-wrap items-center gap-1.5 mt-2">
+              {presence.status === "loading" ? (
+                <span className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-semibold border bg-slate-700/40 text-slate-300 border-white/15">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+                  Checking…
+                </span>
+              ) : presence.status === "error" ? (
+                <span className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-semibold border bg-slate-700/40 text-slate-400 border-white/15">
+                  Status unavailable
+                </span>
+              ) : (
+                <span
+                  className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-semibold border ${
+                    presence.isOnline
+                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                      : "bg-slate-700/40 text-slate-300 border-white/15"
+                  }`}
+                >
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full ${
+                      presence.isOnline ? "bg-emerald-400" : "bg-slate-400"
+                    }`}
+                  />
+                  {presence.isOnline ? "Online" : "Offline"}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Body: Two-column grid of labelled real fields */}
+      <div className="p-4 bg-slate-50/60 border-t border-slate-200/70">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Mobile Number
+            </span>
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className="font-mono text-xs font-semibold text-slate-800">
+                {phone || "—"}
+              </span>
+              {phone && (
+                <CallPhoneButton phone={phone} clientName={name} size="sm" />
+              )}
+            </div>
+          </div>
+
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Bar Council ID
+            </span>
+            <p
+              className="font-mono text-xs font-semibold text-slate-800 mt-1 truncate"
+              title={barCouncilId}
+            >
+              {barCouncilId || "—"}
+            </p>
+          </div>
+
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Verification
+            </span>
+            <p className="text-xs font-semibold text-emerald-700 mt-1 flex items-center gap-1">
+              <FiCheck size={12} className="text-emerald-600 shrink-0" />
+              <span>Verified Legal Counsel</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Action Button (styled per reference image) */}
+      {profileUrl ? (
+        <div className="p-3 bg-white border-t border-slate-100">
+          <Link
+            to={profileUrl}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-slate-800 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+          >
+            <span>Open Advocate Profile</span>
+            <span aria-hidden="true" className="text-amber-400">→</span>
+          </Link>
+        </div>
+      ) : null}
+    </>
+  );
+}
+
+/**
+ * Advocate Cell with Click Info Card:
+ * Styled per the modern card layout reference (coloured header, avatar with initials,
+ * name, status pills, 2-column labelled field grid, and full profile button).
+ */
+export function AdvocateHoverCell({ advocate, className = "" }) {
+  const name = advocate?.fullName || advocate?.name || "—";
+  const barCouncilId = advocate?.barCouncilId || "";
+  const phone = advocate?.phone || "";
 
   return (
     <ClickCardPopover
@@ -279,7 +524,9 @@ export function AdvocateHoverCell({ advocate, className = "" }) {
             <p className="font-semibold text-slate-900 text-sm group-hover/cell:text-amber-700 transition-colors truncate">
               {name}
             </p>
-      
+            <span className="text-[10px] font-bold text-amber-600/80 opacity-0 group-hover/cell:opacity-100 transition-opacity shrink-0">
+              Details
+            </span>
           </div>
           {barCouncilId ? (
             <p className="font-mono text-xs text-slate-500 truncate">ID: {barCouncilId}</p>
@@ -288,145 +535,7 @@ export function AdvocateHoverCell({ advocate, className = "" }) {
         </div>
       }
       renderCard={({ close }) => (
-        <>
-          {/* Header Banner: Dark slate with amber accent, styled per reference */}
-          <div className="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 text-white relative border-t-4 border-amber-500">
-            {/* Top row: Category tag + Close button */}
-            <div className="flex items-center justify-between gap-2 mb-3">
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-                Advocate Details
-              </span>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  close();
-                }}
-                className="h-6 w-6 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white flex items-center justify-center transition focus:outline-none focus:ring-1 focus:ring-amber-400"
-                aria-label="Close advocate card"
-              >
-                <FiX size={14} />
-              </button>
-            </div>
-
-            {/* Profile Row: Avatar + Name + Status on the same line */}
-            <div className="flex items-center gap-3">
-              {/* Avatar Box with dynamic status border & pulsing status dot */}
-              <div className="relative shrink-0">
-                <div
-                  className={`h-12 w-12 rounded-xl p-0.5 shadow-md shadow-slate-950/40 border-2 transition-all duration-300 flex items-center justify-center overflow-hidden bg-slate-900 ${
-                    isOnline
-                      ? "border-emerald-500 ring-2 ring-emerald-500/25"
-                      : "border-slate-700 ring-1 ring-slate-800"
-                  }`}
-                >
-                  {avatarUrl ? (
-                    <img
-                      src={avatarUrl}
-                      alt={name}
-                      className="h-full w-full rounded-lg object-cover"
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                        const fallback = e.currentTarget.parentElement?.querySelector(".avatar-fallback");
-                        if (fallback) fallback.style.display = "flex";
-                      }}
-                    />
-                  ) : null}
-                  <div
-                    style={{ display: avatarUrl ? "none" : "flex" }}
-                    className="avatar-fallback h-full w-full rounded-lg bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 text-slate-950 font-black text-base items-center justify-center shadow-inner"
-                  >
-                    {firstLetter}
-                  </div>
-                </div>
-
-                {/* Small status dot on the border that pulses on both online and offline */}
-                <span
-                  className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-slate-950 transition-colors animate-pulse ${
-                    isOnline ? "bg-emerald-400" : "bg-slate-500"
-                  }`}
-                  title={isOnline ? "Online" : "Offline"}
-                  aria-label={isOnline ? "Online" : "Offline"}
-                />
-              </div>
-
-              {/* Title and Online/Offline Badge in front of the name */}
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h4 className="text-base font-bold text-white leading-tight truncate" title={name}>
-                    {name}
-                  </h4>
-                  <span
-                    className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-semibold border shrink-0 ${
-                      isOnline
-                        ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
-                        : "bg-slate-800/80 text-slate-300 border-slate-700"
-                    }`}
-                  >
-                    {isOnline ? "Online" : "Offline"}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Body: Two-column grid of labelled real fields */}
-          <div className="p-4 bg-slate-50/60 border-t border-slate-200/70">
-            <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  Mobile Number
-                </span>
-                <div className="flex items-center gap-1.5 mt-1">
-                  <span className="font-mono text-xs font-semibold text-slate-800">
-                    {phone || "—"}
-                  </span>
-                  {phone && (
-                    <CallPhoneButton phone={phone} clientName={name} size="sm" />
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  Bar Council ID
-                </span>
-                <p
-                  className="font-mono text-xs font-semibold text-slate-800 mt-1 truncate"
-                  title={barCouncilId}
-                >
-                  {barCouncilId || "—"}
-                </p>
-              </div>
-
-            
-
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  Verification
-                </span>
-                <p className="text-xs font-semibold text-emerald-700 mt-1 flex items-center gap-1">
-                  <FiCheck size={12} className="text-emerald-600 shrink-0" />
-                  <span>Verified Legal Counsel</span>
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Footer Action Button (styled per reference image) */}
-          {profileUrl ? (
-            <div className="p-3 bg-white border-t border-slate-100">
-              <Link
-                to={profileUrl}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-slate-800 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-amber-500/40"
-              >
-                <span>Open Advocate Profile</span>
-                <span aria-hidden="true" className="text-amber-400">→</span>
-              </Link>
-            </div>
-          ) : null}
-        </>
+        <AdvocateCardContent advocate={advocate} close={close} />
       )}
     />
   );
@@ -458,69 +567,48 @@ export function ClientHoverCell({ item, className = "" }) {
 
   const profileUrl = userId ? ADMIN_PATHS.users.detail(userId) : null;
 
-  // Derived status strictly matching the Private Advocate Bookings tab's STATUS column
-  const isCompleted = Boolean(
-    item?.completedAt ||
-    item?.status === "COMPLETED" ||
-    item?.callStatus === "COMPLETED"
-  );
+  // Booking status calculation
+  const isCompleted = Boolean(item?.completedAt || item?.status === "COMPLETED");
   const isConfirmedOrPaid = ["CONFIRMED", "PAID"].includes(item?.status);
   const isHold = item?.status === "HOLD";
   const isRefundPending = item?.status === "REFUND_PENDING";
   const isRefunded = item?.status === "REFUNDED";
-  const isCancelled = ["CANCELLED", "EXPIRED", "FAILED"].includes(item?.status);
 
   let statusBadge;
   if (isCompleted) {
     statusBadge = (
-      <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-300 border border-emerald-500/30">
-        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-        Consultation Completed
+      <span className="inline-flex items-center rounded-md bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-300 border border-emerald-500/30">
+        Completed
       </span>
     );
-  } else if (isConfirmedOrPaid || item?.status === "PENDING" || item?.callStatus === "PENDING") {
-    // When confirmed/paid, consultation call is pending — exactly matching the table's "Consultation Pending" status
+  } else if (isConfirmedOrPaid) {
     statusBadge = (
-      <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-400/20 px-2.5 py-0.5 text-[10px] font-semibold text-amber-300 border border-amber-400/30">
-        <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-        Consultation Pending
+      <span className="inline-flex items-center rounded-md bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold text-amber-300 border border-amber-400/30">
+        Confirmed
       </span>
     );
   } else if (isHold) {
     statusBadge = (
-      <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-400/20 px-2.5 py-0.5 text-[10px] font-semibold text-amber-300 border border-amber-400/30">
-        <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-        Slot Held
+      <span className="inline-flex items-center rounded-md bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold text-amber-300 border border-amber-400/30">
+        Held
       </span>
     );
   } else if (isRefundPending) {
     statusBadge = (
-      <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-400/20 px-2.5 py-0.5 text-[10px] font-semibold text-amber-300 border border-amber-400/30">
-        <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+      <span className="inline-flex items-center rounded-md bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold text-amber-300 border border-amber-400/30">
         Refund Pending
       </span>
     );
   } else if (isRefunded) {
     statusBadge = (
-      <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-400/20 px-2.5 py-0.5 text-[10px] font-semibold text-slate-300 border border-slate-400/30">
-        <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
+      <span className="inline-flex items-center rounded-md bg-slate-400/20 px-2 py-0.5 text-[10px] font-semibold text-slate-300 border border-slate-400/30">
         Refunded
-      </span>
-    );
-  } else if (isCancelled) {
-    const raw = String(item?.status || "Cancelled");
-    const label = raw.charAt(0) + raw.slice(1).toLowerCase();
-    statusBadge = (
-      <span className="inline-flex items-center gap-1.5 rounded-md bg-rose-500/20 px-2.5 py-0.5 text-[10px] font-semibold text-rose-300 border border-rose-500/30">
-        <span className="h-1.5 w-1.5 rounded-full bg-rose-400" />
-        {label}
       </span>
     );
   } else {
     statusBadge = (
-      <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-500/20 px-2.5 py-0.5 text-[10px] font-semibold text-slate-300 border border-slate-500/30">
-        <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
-        {item?.status || "—"}
+      <span className="inline-flex items-center rounded-md bg-rose-500/20 px-2 py-0.5 text-[10px] font-semibold text-rose-300 border border-rose-500/30">
+        {item?.status || "Pending"}
       </span>
     );
   }
@@ -537,7 +625,9 @@ export function ClientHoverCell({ item, className = "" }) {
             <p className="font-semibold text-slate-900 text-sm group-hover/cell:text-amber-700 transition-colors truncate">
               {name}
             </p>
-            
+            <span className="text-[10px] font-bold text-amber-600/80 opacity-0 group-hover/cell:opacity-100 transition-opacity shrink-0">
+              Details
+            </span>
           </div>
           <p className="font-mono text-xs text-slate-500 truncate">{phone || "—"}</p>
           {email ? (
@@ -552,7 +642,7 @@ export function ClientHoverCell({ item, className = "" }) {
             {/* Top row: Category tag + Close button */}
             <div className="flex items-center justify-between gap-2 mb-3">
               <span className="text-[10px] font-extrabold uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-amber-400 " />
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
                 Client Details
               </span>
               <button
@@ -601,8 +691,11 @@ export function ClientHoverCell({ item, className = "" }) {
                   {bookingRef ? `Ref: ${bookingRef}` : "Client Consultation"}
                 </p>
 
-                {/* Status Pills (Client tag removed per user request) */}
+                {/* Status Pills */}
                 <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                  <span className="inline-flex items-center rounded-md bg-amber-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-950 shadow-2xs">
+                    Client
+                  </span>
                   {statusBadge}
                 </div>
               </div>
@@ -635,14 +728,14 @@ export function ClientHoverCell({ item, className = "" }) {
                     <a
                       href={`mailto:${email}`}
                       onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center gap-1.5 font-sans text-xs font-medium text-slate-800 hover:text-amber-600 hover:underline transition-colors truncate max-w-full tracking-normal"
+                      className="inline-flex items-center gap-1 font-mono text-[11px] text-slate-700 hover:text-amber-700 hover:underline truncate max-w-full"
                       title={email}
                     >
-                      <FiMail className="shrink-0 text-slate-400" size={13} />
+                      <FiMail className="shrink-0 text-slate-400" size={11} />
                       <span className="truncate">{email}</span>
                     </a>
                   ) : (
-                    <span className="font-sans text-xs text-slate-400">—</span>
+                    <span className="text-xs text-slate-400">—</span>
                   )}
                 </div>
               </div>

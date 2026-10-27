@@ -169,9 +169,10 @@ const [
   ======================================================================= */
 
   const refreshTeam =
-    useCallback(async () => {
+    useCallback(async (minDuration = 0) => {
       setTeamLoading(true);
       setTeamError(null);
+      const startTime = Date.now();
 
       try {
         const data =
@@ -189,6 +190,12 @@ const [
 
         return null;
       } finally {
+        if (minDuration > 0) {
+          const elapsed = Date.now() - startTime;
+          if (elapsed < minDuration) {
+            await new Promise((r) => setTimeout(r, minDuration - elapsed));
+          }
+        }
         setTeamLoading(false);
       }
     }, []);
@@ -588,8 +595,12 @@ const [
     /* request */
     pendingRequest,
     requestLoading,
+    requestingAdvocateId,
     requestError,
+    sentRequestIds,
+    isRequestSent,
     sendTeamRequest,
+    backToSearch,
 
     /* verify */
     verifyLoading,
@@ -600,15 +611,5 @@ const [
     removingId,
     removeError,
     removeTeamMate,
-
-    /* request */
-pendingRequest,
-requestLoading,
-requestingAdvocateId,
-requestError,
-sentRequestIds,
-isRequestSent,
-sendTeamRequest,
-backToSearch,
   };
 }
