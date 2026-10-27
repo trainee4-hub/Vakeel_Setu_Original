@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useAuth } from "../../auth";
 import { getAdvocateProfileCompletion } from "@/utils/advocateProfile";
@@ -55,8 +55,12 @@ export default function useAdvocateDashboard() {
      FETCH REAL APPOINTMENT DATA
   ----------------------------------------------------------------------- */
 
+  const lastFetchTimeRef = useRef(0);
+  const isFetchingRef = useRef(false);
+
   const fetchDashboardData = useCallback(async () => {
-    if (!user) return;
+    if (!user || isFetchingRef.current) return;
+    isFetchingRef.current = true;
     setIsLoading(true);
     setError(null);
     try {
@@ -82,11 +86,26 @@ export default function useAdvocateDashboard() {
       setError(err?.message || "Could not load consultation bookings.");
     } finally {
       setIsLoading(false);
+      isFetchingRef.current = false;
+      lastFetchTimeRef.current = Date.now();
     }
   }, [user]);
 
   useEffect(() => {
     fetchDashboardData();
+
+    // Re-fetch on window focus, throttled to at most once every 10 seconds
+    const onFocus = () => {
+      if (Date.now() - lastFetchTimeRef.current < 10000 || isFetchingRef.current) {
+        return;
+      }
+      fetchDashboardData();
+    };
+
+    window.addEventListener("focus", onFocus);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+    };
   }, [fetchDashboardData]);
 
   /* -----------------------------------------------------------------------
@@ -115,7 +134,11 @@ export default function useAdvocateDashboard() {
 
     const active = appointments.filter((b) => {
       if (!b) return false;
-      const isCompleted = Boolean(b.completedAt || b.status === "COMPLETED");
+      const isCompleted = Boolean(
+        b.completedAt ||
+        b.status === "COMPLETED" ||
+        b.callStatus === "COMPLETED"
+      );
       const isRefunded = b.status === "REFUNDED" || b.status === "CANCELLED";
       return !isCompleted && !isRefunded;
     });
@@ -153,15 +176,38 @@ export default function useAdvocateDashboard() {
   }, [nextUpcoming]);
 
   /* -----------------------------------------------------------------------
-     RECENT ACTIVITY (NEWEST FIRST)
+     RECENT ACTIVITY (NEWEST BOOKING FIRST - confirmedAt descending)
   ----------------------------------------------------------------------- */
 
   const recentList = useMemo(() => {
     if (!appointments.length) return [];
     return [...appointments].sort((a, b) => {
-      const timeA = new Date(a.createdAt || a.startAt || 0).getTime();
-      const timeB = new Date(b.createdAt || b.startAt || 0).getTime();
-      return timeB - timeA;
+      const idA = String(a?.id || a?.bookingId || a?._id || "");
+      const idB = String(b?.id || b?.bookingId || b?._id || "");
+
+      const getBookingTimestamp = (item) => {
+        const raw =
+          item?.confirmedAt ||
+          item?.payment?.paidAt ||
+          item?.createdAt ||
+          item?.updatedAt;
+        if (raw) {
+          const t = new Date(raw).getTime();
+          if (!Number.isNaN(t) && t > 0) return t;
+        }
+        const id = String(item?._id || item?.id || "");
+        if (id.length === 24 && /^[0-9a-fA-F]{24}$/.test(id)) {
+          const t = parseInt(id.substring(0, 8), 16) * 1000;
+          if (!Number.isNaN(t) && t > 0) return t;
+        }
+        return 0;
+      };
+
+      const dateA = getBookingTimestamp(a);
+      const dateB = getBookingTimestamp(b);
+
+      if (dateB !== dateA) return dateB - dateA;
+      return idA.localeCompare(idB);
     });
   }, [appointments]);
 

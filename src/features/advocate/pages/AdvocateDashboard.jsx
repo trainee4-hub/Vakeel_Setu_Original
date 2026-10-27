@@ -56,6 +56,7 @@ import DashboardErrorState from "../components/DashboardErrorState";
 import AdvocateTeamSection from "../components/team/AdvocateTeamSection";
 import AddTeamMateModal from "../components/team/AddTeamMateModal";
 import RemoveTeamMateModal from "../components/team/RemoveTeamMateModal";
+import CallPhoneButton from "../components/CallPhoneButton";
 
 
 /* =========================================================================
@@ -297,7 +298,11 @@ const getMode = (consultation) => {
 };
 
 const getDerivedStatus = (booking) => {
-  const isCompleted = Boolean(booking?.completedAt || booking?.status === "COMPLETED");
+  const isCompleted = Boolean(
+    booking?.completedAt ||
+    booking?.status === "COMPLETED" ||
+    booking?.callStatus === "COMPLETED"
+  );
   const isConfirmedOrPaid = ["CONFIRMED", "PAID"].includes(booking?.status);
 
   if (isCompleted) {
@@ -308,46 +313,48 @@ const getDerivedStatus = (booking) => {
     };
   }
 
-  if (isConfirmedOrPaid) {
+  if (booking?.status === "REFUNDED" || booking?.status === "REFUND_PENDING") {
     return {
-      label: "Pending",
-      className: "border-amber-200 bg-amber-50 text-amber-700",
-      tone: "amber",
+      label: "Refunded",
+      className: "border-purple-200 bg-purple-50 text-purple-700",
+      tone: "purple",
     };
   }
 
-  if (booking?.status === "REFUNDED") {
+  if (booking?.status === "CANCELLED") {
     return {
-      label: "Refunded",
+      label: "Cancelled",
       className: "border-rose-200 bg-rose-50 text-rose-700",
       tone: "rose",
     };
   }
 
+  if (isConfirmedOrPaid) {
+    const isSlotPast = booking?.startAt
+      ? new Date(booking.startAt).getTime() < Date.now()
+      : false;
+
+    if (isSlotPast) {
+      return {
+        label: "Past Due",
+        className: "border-amber-200 bg-amber-50 text-amber-800",
+        tone: "amber",
+      };
+    }
+
+    return {
+      label: "Upcoming",
+      className: "border-blue-200 bg-blue-50 text-blue-700",
+      tone: "blue",
+    };
+  }
+
   return {
-    label: cleanText(booking?.status) || "Pending",
+    label: cleanText(booking?.status) || "Upcoming",
     className: "border-slate-200 bg-slate-50 text-slate-700",
     tone: "slate",
   };
 };
-
-function CallPhoneButton({ phone, clientName, size = "md", className = "" }) {
-  if (!phone) return null;
-  const sizeClasses = size === "lg" ? "h-9 w-9" : "h-7 w-7";
-  const iconSize = size === "lg" ? 15 : 12;
-
-  return (
-    <a
-      href={`tel:${phone}`}
-      onClick={(e) => e.stopPropagation()}
-      aria-label={`Call ${clientName || "client"}`}
-      title={`Call ${clientName || "client"}`}
-      className={`inline-flex shrink-0 items-center justify-center rounded-xl border-2 border-amber-300 bg-amber-50 text-amber-700 shadow-xs transition hover:border-green-400 hover:bg-amber-100 hover:text-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500/25 active:scale-95 ${sizeClasses} ${className}`}
-    >
-      <Phone size={iconSize} className="shrink-0" />
-    </a>
-  );
-}
 
 const isMembershipActive = (
   advocate,

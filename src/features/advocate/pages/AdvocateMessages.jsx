@@ -5,7 +5,9 @@ import {
   useState,
 } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
+const motion = Motion;
+void motion;
 import {
   AlertCircle,
   BriefcaseBusiness,
@@ -16,7 +18,6 @@ import {
   MapPin,
   MessageSquare,
   Paperclip,
-  Phone,
   RefreshCw,
   Search,
   ShieldCheck,
@@ -25,6 +26,7 @@ import {
 
 import { apiRequest } from "@shared/services/apiClient";
 import { getAuthToken } from "@/utils/auth";
+import CallPhoneButton from "../components/CallPhoneButton";
 
 /* =========================================================================
    ADVOCATE MESSAGES / CONNECTED CLIENTS
@@ -736,6 +738,7 @@ export default function AdvocateMessages() {
 
 function ConnectionDetails({ connection }) {
   const client = getClient(connection);
+  const clientName = getClientName(connection);
   const attachments = getAttachments(connection);
 
   const email = cleanText(client?.email);
@@ -790,54 +793,40 @@ function ConnectionDetails({ connection }) {
           </div>
         </div>
 
-        {/* Real contact channels returned by API */}
+        {/* Standardized Client Contact Controls matching Dashboard and My Bookings */}
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-3">
           {phone && (
-            <a
-              href={`tel:${phone}`}
-              className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-bold text-white transition hover:bg-slate-800"
-            >
-              <Phone size={15} />
-              Call
-            </a>
+            <div className="flex items-center gap-2 rounded-xl border border-slate-200/80 bg-white px-3.5 py-2 shadow-2xs">
+              <CallPhoneButton
+                phone={phone}
+                clientName={clientName}
+                size="md"
+              />
+              <a
+                href={`tel:${phone}`}
+                onClick={(e) => e.stopPropagation()}
+                aria-label={`Call ${clientName} at ${phone}`}
+                title={`Call ${phone}`}
+                className="font-mono text-xs sm:text-sm font-bold text-slate-800 hover:text-amber-600 hover:underline transition-colors"
+              >
+                {phone}
+              </a>
+            </div>
           )}
 
           {email && (
             <a
               href={`mailto:${email}`}
-              className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 transition hover:border-amber-200 hover:bg-amber-50 hover:text-amber-700"
+              onClick={(e) => e.stopPropagation()}
+              aria-label={`Email ${clientName} at ${email}`}
+              title={`Email ${email}`}
+              className="inline-flex min-h-[40px] items-center gap-2 rounded-xl border border-slate-200/80 bg-white px-3.5 py-2 text-xs sm:text-sm font-bold text-slate-700 shadow-2xs transition hover:border-amber-200 hover:bg-amber-50 hover:text-amber-700"
             >
-              <Mail size={15} />
-              Email
+              <Mail size={15} className="shrink-0 text-amber-600" />
+              <span className="truncate max-w-[220px]">{email}</span>
             </a>
           )}
-        </div>
-      </div>
-
-      {/* ===============================================================
-          CLIENT CONTACT
-      =============================================================== */}
-
-      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">
-            Phone
-          </p>
-
-          <p className="mt-1.5 text-sm font-bold text-slate-800">
-            {phone || "Not provided"}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">
-            Email
-          </p>
-
-          <p className="mt-1.5 truncate text-sm font-bold text-slate-800">
-            {email || "Not provided"}
-          </p>
         </div>
       </div>
 

@@ -33,6 +33,7 @@ import {
   getAdvocateAppointments,
   completeAdvocateAppointment,
 } from "../services/advocateBookingApi";
+import CallPhoneButton from "../components/CallPhoneButton";
 
 /* =========================================================================
    ADVOCATE BOOKINGS
@@ -125,24 +126,6 @@ function BookingRefButton({ reference, className = "" }) {
   );
 }
 
-function CallPhoneButton({ phone, clientName, size = "md", className = "" }) {
-  if (!phone) return null;
-  const sizeClasses = size === "lg" ? "h-8 w-8" : "h-7 w-7";
-  const iconSize = size === "lg" ? 14 : 12;
-
-  return (
-    <a
-      href={`tel:${phone}`}
-      onClick={(e) => e.stopPropagation()}
-      aria-label={`Call ${clientName || "client"}`}
-      title={`Call ${clientName || "client"}`}
-      className={`inline-flex shrink-0 items-center justify-center rounded-lg border-2 border-amber-300 bg-amber-50 text-amber-700 shadow-xs transition hover:border-green-400 hover:bg-amber-100 hover:text-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500/25 active:scale-95 ${sizeClasses} ${className}`}
-    >
-      <Phone size={iconSize} className="shrink-0" />
-    </a>
-  );
-}
-
 const getBookingId = (booking) =>
   booking?.bookingId ||
   booking?.id ||
@@ -217,7 +200,11 @@ const formatISTStartTime = (startAt) => {
  * and admin ("Consultation Pending" / "Consultation Completed").
  */
 const getDerivedStatus = (booking) => {
-  const isCompleted = Boolean(booking?.completedAt || booking?.status === "COMPLETED");
+  const isCompleted = Boolean(
+    booking?.completedAt ||
+    booking?.status === "COMPLETED" ||
+    booking?.callStatus === "COMPLETED"
+  );
   const isConfirmedOrPaid = ["CONFIRMED", "PAID"].includes(booking?.status);
 
   if (isCompleted) {
@@ -228,15 +215,7 @@ const getDerivedStatus = (booking) => {
     };
   }
 
-  if (isConfirmedOrPaid) {
-    return {
-      label: "Pending",
-      className: "border-amber-200 bg-amber-50 text-amber-700",
-      tone: "amber",
-    };
-  }
-
-  if (booking?.status === "REFUNDED") {
+  if (booking?.status === "REFUNDED" || booking?.status === "REFUND_PENDING") {
     return {
       label: "Refunded",
       className: "border-purple-200 bg-purple-50 text-purple-700",
@@ -252,8 +231,28 @@ const getDerivedStatus = (booking) => {
     };
   }
 
+  if (isConfirmedOrPaid) {
+    const isSlotPast = booking?.startAt
+      ? new Date(booking.startAt).getTime() < Date.now()
+      : false;
+
+    if (isSlotPast) {
+      return {
+        label: "Past Due",
+        className: "border-amber-200 bg-amber-50 text-amber-800",
+        tone: "amber",
+      };
+    }
+
+    return {
+      label: "Upcoming",
+      className: "border-blue-200 bg-blue-50 text-blue-700",
+      tone: "blue",
+    };
+  }
+
   return {
-    label: booking?.status || "Pending",
+    label: cleanText(booking?.status) || "Upcoming",
     className: "border-slate-200 bg-slate-50 text-slate-700",
     tone: "slate",
   };
@@ -268,7 +267,10 @@ const getDerivedStatus = (booking) => {
 const canMarkComplete = (booking) => {
   if (!booking) return false;
   const isPaidOrConfirmed = ["CONFIRMED", "PAID"].includes(booking?.status);
-  const isNotCompleted = !booking?.completedAt && booking?.status !== "COMPLETED";
+  const isNotCompleted =
+    !booking?.completedAt &&
+    booking?.status !== "COMPLETED" &&
+    booking?.callStatus !== "COMPLETED";
   const slotStartedOrPassed = booking?.startAt
     ? new Date(booking.startAt).getTime() <= Date.now()
     : false;
@@ -1163,7 +1165,11 @@ function BookingDetails({ booking, onInitiateComplete, completing }) {
   const mode = getMode(booking);
   const status = getDerivedStatus(booking);
   const markable = canMarkComplete(booking);
-  const isCompleted = Boolean(booking?.completedAt || booking?.status === "COMPLETED");
+  const isCompleted = Boolean(
+    booking?.completedAt ||
+    booking?.status === "COMPLETED" ||
+    booking?.callStatus === "COMPLETED"
+  );
 
   const phone = cleanText(client?.phone);
   const email = cleanText(client?.email);
