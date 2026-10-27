@@ -4,6 +4,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const MotionSection = motion.section;
@@ -401,9 +402,17 @@ const ClientAvatar = ({ booking, size = "md" }) => {
 ============================================================================ */
 
 export default function AdvocateBookings() {
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const initialId =
+    searchParams.get("id") ||
+    searchParams.get("bookingId") ||
+    location.state?.selectedId ||
+    null;
+
   const [tab, setTab] = useState("ALL");
   const [search, setSearch] = useState("");
-  const [selectedId, setSelectedId] = useState(null);
+  const [selectedId, setSelectedId] = useState(initialId);
 
   const [appointments, setAppointments] = useState([]);
   const [counts, setCounts] = useState({
@@ -465,6 +474,16 @@ export default function AdvocateBookings() {
   useEffect(() => {
     loadAppointments(tab);
   }, [loadAppointments, tab]);
+
+  useEffect(() => {
+    const paramId =
+      searchParams.get("id") ||
+      searchParams.get("bookingId") ||
+      location.state?.selectedId;
+    if (paramId) {
+      setSelectedId(paramId);
+    }
+  }, [searchParams, location.state]);
 
   /* =========================================================================
      MARK AS COMPLETED ACTION

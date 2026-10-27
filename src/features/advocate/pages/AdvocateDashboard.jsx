@@ -8,7 +8,9 @@ import {
   useNavigate,
   useOutletContext,
 } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
+const motion = Motion;
+void motion;
 import {
   ArrowRight,
   Bell,
@@ -105,24 +107,6 @@ const getFirstValue = (source, keys, fallback = null) => {
   return fallback;
 };
 
-const getNumericValue = (source, keys, fallback = 0) => {
-  const value = getFirstValue(source, keys, null);
-
-  if (
-    value === null ||
-    value === undefined ||
-    value === ""
-  ) {
-    return fallback;
-  }
-
-  const number = Number(value);
-
-  return Number.isFinite(number)
-    ? number
-    : fallback;
-};
-
 const hasObjectValues = (value) =>
   Boolean(
     value &&
@@ -131,68 +115,49 @@ const hasObjectValues = (value) =>
     Object.keys(value).length > 0,
   );
 
-const formatCurrency = (value) => {
-  const number = Number(value);
-
-  if (!Number.isFinite(number)) {
-    return "₹0";
-  }
-
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(number);
-};
-
 const formatShortDate = (value) => {
   if (!value) {
     return "Date unavailable";
   }
 
-  const input = String(value);
-
-  const date =
-    /^\d{4}-\d{2}-\d{2}$/.test(input)
-      ? new Date(`${input}T00:00:00`)
-      : new Date(input);
-
+  const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return input;
+    return String(value);
   }
 
-  const today = new Date();
-  const tomorrow = new Date();
+  try {
+    const getISTKey = (d) =>
+      new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(d);
 
-  tomorrow.setDate(
-    today.getDate() + 1,
-  );
+    const today = new Date();
+    const tomorrow = new Date(Date.now() + 86400000);
 
-  const isSameDay = (a, b) =>
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate();
+    const dateKey = getISTKey(date);
+    if (dateKey === getISTKey(today)) {
+      return "Today";
+    }
 
-  if (isSameDay(date, today)) {
-    return "Today";
-  }
+    if (dateKey === getISTKey(tomorrow)) {
+      return "Tomorrow";
+    }
 
-  if (isSameDay(date, tomorrow)) {
-    return "Tomorrow";
-  }
-
-  return new Intl.DateTimeFormat(
-    "en-IN",
-    {
+    return new Intl.DateTimeFormat("en-IN", {
+      timeZone: "Asia/Kolkata",
       day: "numeric",
       month: "short",
       year:
-        date.getFullYear() !==
-          today.getFullYear()
+        date.getFullYear() !== today.getFullYear()
           ? "numeric"
           : undefined,
-    },
-  ).format(date);
+    }).format(date);
+  } catch {
+    return "Date unavailable";
+  }
 };
 
 const getConsultationClient = (
@@ -218,13 +183,29 @@ const getClientName = (
     cleanText(
       consultation?.clientName,
     ) ||
+    cleanText(
+      consultation?.userName,
+    ) ||
     "Client"
+  );
+};
+
+const getClientPhone = (consultation) => {
+  const client = getConsultationClient(consultation);
+  return (
+    cleanText(client?.phone) ||
+    cleanText(consultation?.clientPhone) ||
+    cleanText(consultation?.phone) ||
+    ""
   );
 };
 
 const getPracticeArea = (
   consultation,
 ) =>
+  cleanText(
+    consultation?.subject,
+  ) ||
   cleanText(
     consultation?.practiceArea,
   ) ||
@@ -239,6 +220,7 @@ const getPracticeArea = (
 const getConsultationDate = (
   consultation,
 ) =>
+  consultation?.startAt ||
   consultation?.scheduledDate ||
   consultation?.date ||
   consultation?.consultationDate ||
@@ -246,15 +228,34 @@ const getConsultationDate = (
 
 const getConsultationTime = (
   consultation,
-) =>
-  cleanText(
-    consultation?.scheduledTime,
-  ) ||
-  cleanText(
-    consultation?.scheduledTimeSlot,
-  ) ||
-  cleanText(consultation?.time) ||
-  "Time unavailable";
+) => {
+  if (consultation?.startAt) {
+    try {
+      const start = new Date(consultation.startAt);
+      if (!Number.isNaN(start.getTime())) {
+        return new Intl.DateTimeFormat("en-IN", {
+          timeZone: "Asia/Kolkata",
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        }).format(start);
+      }
+    } catch {
+      // fallback
+    }
+  }
+
+  return (
+    cleanText(
+      consultation?.scheduledTime,
+    ) ||
+    cleanText(
+      consultation?.scheduledTimeSlot,
+    ) ||
+    cleanText(consultation?.time) ||
+    "Time unavailable"
+  );
+};
 
 const getMeetingUrl = (
   consultation,
@@ -270,42 +271,25 @@ const getMode = (consultation) => {
     consultation?.consultationMode ||
     consultation?.mode ||
     consultation?.consultationType,
-  )
-    .toLowerCase()
-    .replace(/\s+/g, "_");
+  ).toUpperCase();
 
-  if (
-    [
-      "video",
-      "video_call",
-      "videocall",
-    ].includes(raw)
-  ) {
+  if (raw.includes("VIDEO")) {
     return {
       type: "video",
-      label: "Video Consultation",
+      label: "Video Call",
       Icon: Video,
     };
   }
 
-  if (
-    [
-      "call",
-      "voice",
-      "phone",
-      "voice_call",
-    ].includes(raw)
-  ) {
+  if (raw.includes("CALL") || raw.includes("PHONE") || raw.includes("VOICE")) {
     return {
       type: "call",
-      label: "Voice Consultation",
+      label: "Voice Call",
       Icon: Phone,
     };
   }
 
-  if (
-    ["message", "chat"].includes(raw)
-  ) {
+  if (raw.includes("CHAT") || raw.includes("MESSAGE")) {
     return {
       type: "message",
       label: "Message Consultation",
@@ -314,11 +298,64 @@ const getMode = (consultation) => {
   }
 
   return {
-    type: "offline",
-    label: "Office Consultation",
+    type: "office",
+    label: "In-Person Consultation",
     Icon: BriefcaseBusiness,
   };
 };
+
+const getDerivedStatus = (booking) => {
+  const isCompleted = Boolean(booking?.completedAt || booking?.status === "COMPLETED");
+  const isConfirmedOrPaid = ["CONFIRMED", "PAID"].includes(booking?.status);
+
+  if (isCompleted) {
+    return {
+      label: "Completed",
+      className: "border-emerald-200 bg-emerald-50 text-emerald-700",
+      tone: "emerald",
+    };
+  }
+
+  if (isConfirmedOrPaid) {
+    return {
+      label: "Pending",
+      className: "border-amber-200 bg-amber-50 text-amber-700",
+      tone: "amber",
+    };
+  }
+
+  if (booking?.status === "REFUNDED") {
+    return {
+      label: "Refunded",
+      className: "border-rose-200 bg-rose-50 text-rose-700",
+      tone: "rose",
+    };
+  }
+
+  return {
+    label: cleanText(booking?.status) || "Pending",
+    className: "border-slate-200 bg-slate-50 text-slate-700",
+    tone: "slate",
+  };
+};
+
+function CallPhoneButton({ phone, clientName, size = "md", className = "" }) {
+  if (!phone) return null;
+  const sizeClasses = size === "lg" ? "h-9 w-9" : "h-7 w-7";
+  const iconSize = size === "lg" ? 15 : 12;
+
+  return (
+    <a
+      href={`tel:${phone}`}
+      onClick={(e) => e.stopPropagation()}
+      aria-label={`Call ${clientName || "client"}`}
+      title={`Call ${clientName || "client"}`}
+      className={`inline-flex shrink-0 items-center justify-center rounded-xl border-2 border-amber-300 bg-amber-50 text-amber-700 shadow-xs transition hover:border-green-400 hover:bg-amber-100 hover:text-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500/25 active:scale-95 ${sizeClasses} ${className}`}
+    >
+      <Phone size={iconSize} className="shrink-0" />
+    </a>
+  );
+}
 
 const isMembershipActive = (
   advocate,
@@ -567,6 +604,7 @@ const StatCard = ({
   value,
   tone,
 }) => {
+  void Icon;
   const tones = {
     amber:
       "bg-amber-50 text-amber-600 border-amber-100",
@@ -598,7 +636,13 @@ const StatCard = ({
         {label}
       </p>
 
-      <p className="mt-auto pt-1 text-[21px] font-extrabold leading-tight tracking-tight text-slate-950 sm:text-[24px]">
+      <p
+        className={`mt-auto pt-1 leading-tight tracking-tight text-slate-950 ${
+          typeof value === "string" && value.length > 8
+            ? "text-[13px] font-bold text-slate-500 sm:text-[14px]"
+            : "text-[21px] font-extrabold sm:text-[24px]"
+        }`}
+      >
         {value}
       </p>
     </motion.article>
@@ -607,51 +651,21 @@ const StatCard = ({
 
 const OverviewStats = ({
   stats,
-  upcomingCount,
-  recentCount,
+  todayCount = 0,
+  upcomingCount = 0,
+  completedCount = 0,
 }) => {
-  const today = getNumericValue(
-    stats,
-    [
-      "todayBookings",
-      "todaysBookings",
-      "todayConsultations",
-    ],
-    0,
-  );
+  const today = Number.isFinite(stats?.todayBookings)
+    ? stats.todayBookings
+    : todayCount;
 
-  const upcoming =
-    getNumericValue(
-      stats,
-      [
-        "upcoming",
-        "upcomingBookings",
-        "upcomingConsultations",
-      ],
-      upcomingCount,
-    );
+  const upcoming = Number.isFinite(stats?.upcoming)
+    ? stats.upcoming
+    : upcomingCount;
 
-  const completed =
-    getNumericValue(
-      stats,
-      [
-        "completed",
-        "completedBookings",
-        "completedConsultations",
-      ],
-      recentCount,
-    );
-
-  const earnings =
-    getNumericValue(
-      stats,
-      [
-        "earnings",
-        "totalEarnings",
-        "monthlyEarnings",
-      ],
-      0,
-    );
+  const completed = Number.isFinite(stats?.completed)
+    ? stats.completed
+    : completedCount;
 
   return (
     <section>
@@ -685,9 +699,7 @@ const OverviewStats = ({
         <StatCard
           Icon={CircleDollarSign}
           label="Earnings"
-          value={formatCurrency(
-            earnings,
-          )}
+          value="Not available yet"
           tone="violet"
         />
       </div>
@@ -703,7 +715,6 @@ const UpcomingConsultation = ({
   consultation,
   onBookings,
   onMessages,
-  onViewClient,
   onOpenCalendar,
   onAddAvailability,
 }) => {
@@ -784,13 +795,13 @@ const UpcomingConsultation = ({
      EXISTING UPCOMING CONSULTATION
   ========================================================================= */
 
-  const client =
-    getConsultationClient(
+  const clientName =
+    getClientName(
       consultation,
     );
 
-  const clientName =
-    getClientName(
+  const clientPhone =
+    getClientPhone(
       consultation,
     );
 
@@ -798,6 +809,7 @@ const UpcomingConsultation = ({
     getMode(
       consultation,
     );
+  void mode;
 
   const meetingUrl =
     getMeetingUrl(
@@ -861,24 +873,41 @@ const UpcomingConsultation = ({
 
         {/* CLIENT */}
 
-        <div className="mt-6 flex items-center gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-sm font-extrabold text-slate-700">
-            {getInitials(
-              clientName,
-            )}
-          </div>
-
-          <div className="min-w-0">
-            <h3 className="truncate text-[17px] font-extrabold text-slate-950">
-              {clientName}
-            </h3>
-
-            <p className="mt-1 text-sm font-medium text-slate-500">
-              {getPracticeArea(
-                consultation,
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4 min-w-0">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-sm font-extrabold text-slate-700">
+              {getInitials(
+                clientName,
               )}
-            </p>
+            </div>
+
+            <div className="min-w-0">
+              <h3 className="truncate text-[17px] font-extrabold text-slate-950">
+                {clientName}
+              </h3>
+
+              <p className="mt-1 text-sm font-medium text-slate-500">
+                {consultation?.subject || getPracticeArea(consultation)}
+              </p>
+            </div>
           </div>
+
+          {clientPhone && (
+            <div className="flex items-center gap-2">
+              <CallPhoneButton
+                phone={clientPhone}
+                clientName={clientName}
+                size="lg"
+              />
+              <a
+                href={`tel:${clientPhone}`}
+                onClick={(e) => e.stopPropagation()}
+                className="text-xs font-semibold text-slate-700 hover:text-amber-600 hover:underline"
+              >
+                {clientPhone}
+              </a>
+            </div>
+          )}
         </div>
 
         {/* CONSULTATION DETAILS */}
@@ -925,7 +954,7 @@ const UpcomingConsultation = ({
             }
             className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-slate-950/10 transition hover:-translate-y-0.5 hover:bg-slate-800"
           >
-            <mode.Icon size={17} />
+            {/* <mode.Icon size={17} /> */}
 
             {mode.type === "message"
               ? "Open Chat"
@@ -936,17 +965,7 @@ const UpcomingConsultation = ({
 
           <button
             type="button"
-            onClick={() => {
-              if (client) {
-                onViewClient?.(
-                  client,
-                );
-
-                return;
-              }
-
-              onBookings?.();
-            }}
+            onClick={() => onBookings?.()}
             className="min-h-[44px] rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950"
           >
             View Details
@@ -1152,77 +1171,75 @@ const RecentActivity = ({
         title="Recent Activity"
         description="Your latest consultation activity."
         action="View all"
-        onAction={onBookings}
+        onAction={() => onBookings?.()}
       />
 
       <div className="flex flex-1 flex-col overflow-hidden rounded-[24px] border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.035)]">
         {entries.length ? (
           entries.map(
-            (item, index) => (
-              <button
-                key={
-                  getEntityId(
-                    item,
-                  ) || index
-                }
-                type="button"
-                onClick={
-                  onBookings
-                }
-                className={`group flex min-h-[82px] flex-1 items-center gap-4 px-4 py-3.5 text-left transition-colors duration-200 hover:bg-slate-50 sm:px-5 ${index !==
-                  entries.length -
-                  1
-                  ? "border-b border-slate-100"
-                  : ""
-                  }`}
-              >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-100 bg-amber-50 text-amber-600">
-                  <Gavel
-                    size={17}
-                  />
-                </div>
+            (item, index) => {
+              const derived = getDerivedStatus(item);
+              const dateStr = item?.startAt
+                ? formatShortDate(item.startAt)
+                : getConsultationDate(item)
+                  ? formatShortDate(getConsultationDate(item))
+                  : "";
+              const timeStr = item?.startAt ? getConsultationTime(item) : "";
+              const ItemMode = getMode(item);
+              void ItemMode;
 
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[13px] font-bold leading-5 text-slate-700 sm:text-sm">
-                    Consultation
-                    with{" "}
-                    {getClientName(
+              return (
+                <button
+                  key={
+                    getEntityId(
                       item,
-                    )}
-                  </p>
+                    ) || index
+                  }
+                  type="button"
+                  onClick={() =>
+                    onBookings?.(item)
+                  }
+                  className={`group flex min-h-[82px] flex-1 items-center gap-4 px-4 py-3.5 text-left transition-colors duration-200 hover:bg-slate-50 sm:px-5 ${index !==
+                    entries.length -
+                    1
+                    ? "border-b border-slate-100"
+                    : ""
+                    }`}
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-100 bg-amber-50 text-amber-600">
+                    <ItemMode.Icon
+                      size={17}
+                    />
+                  </div>
 
-                  <p className="mt-1 truncate text-[11px] font-medium leading-4 text-slate-400 sm:text-xs">
-                    {getPracticeArea(
-                      item,
-                    )}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-bold leading-5 text-slate-700 sm:text-sm">
+                      Consultation with{" "}
+                      {getClientName(
+                        item,
+                      )}
+                    </p>
 
-                    {getConsultationDate(
-                      item,
-                    )
-                      ? ` • ${formatShortDate(
-                        getConsultationDate(
-                          item,
-                        ),
-                      )}`
-                      : ""}
-                  </p>
-                </div>
+                    <p className="mt-1 truncate text-[11px] font-medium leading-4 text-slate-400 sm:text-xs">
+                      {item.subject || getPracticeArea(item)}
+                      {dateStr ? ` • ${dateStr}` : ""}
+                      {timeStr && timeStr !== "Time unavailable" ? ` • ${timeStr}` : ""}
+                    </p>
+                  </div>
 
-                <div className="flex shrink-0 items-center gap-3">
-                  <span className="hidden rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-[10px] font-bold capitalize text-emerald-600 sm:inline-flex">
-                    {cleanText(
-                      item?.status,
-                    ) ||
-                      "Completed"}
-                  </span>
+                  <div className="flex shrink-0 items-center gap-3">
+                    <span className={`hidden rounded-full border px-3 py-1.5 text-[10px] font-bold capitalize sm:inline-flex ${derived.className}`}>
+                      {derived.label}
+                    </span>
 
-                  <ChevronRight
-                    size={17}
-                    className="text-slate-300 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-slate-400"
-                  />
-                </div>
-              </button>
-            ),
+                    <ChevronRight
+                      size={17}
+                      className="text-slate-300 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-slate-400"
+                    />
+                  </div>
+                </button>
+              );
+            },
           )
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center px-5 py-10 text-center">
@@ -1235,9 +1252,7 @@ const RecentActivity = ({
             </p>
 
             <p className="mt-1 text-xs text-slate-500">
-              Your recent
-              consultations will
-              appear here.
+              Your recent consultations will appear here.
             </p>
           </div>
         )}
@@ -2290,9 +2305,12 @@ export default function AdvocateDashboard() {
   const {
     advocate = null,
     upcoming = [],
+    nextUpcoming = null,
     pending = [],
     recent = [],
     stats = {},
+    counts = {},
+    todayBookingsCount = 0,
     completion = null,
     isLoading = false,
     error = null,
@@ -2765,11 +2783,12 @@ export default function AdvocateDashboard() {
 
           <OverviewStats
             stats={displayStats}
+            todayCount={todayBookingsCount}
             upcomingCount={
-              displayUpcoming.length
+              counts?.UPCOMING ?? displayUpcoming.length
             }
-            recentCount={
-              displayRecent.length
+            completedCount={
+              counts?.COMPLETED ?? 0
             }
           />
 
@@ -2781,14 +2800,21 @@ export default function AdvocateDashboard() {
             <div className="h-full xl:col-span-8">
               <UpcomingConsultation
                 consultation={
+                  nextUpcoming ||
                   displayUpcoming[0] ||
                   null
                 }
-                onBookings={() =>
-                  navigate(
-                    "/advocate/bookings",
-                  )
-                }
+                onBookings={() => {
+                  const target = nextUpcoming || displayUpcoming[0];
+                  const targetId = getEntityId(target);
+                  if (targetId) {
+                    navigate(`/advocate/bookings?id=${targetId}`, {
+                      state: { selectedId: targetId },
+                    });
+                  } else {
+                    navigate("/advocate/bookings");
+                  }
+                }}
                 onMessages={() =>
                   navigate(
                     "/advocate/messages",
@@ -2852,11 +2878,16 @@ export default function AdvocateDashboard() {
                 recent={
                   displayRecent
                 }
-                onBookings={() =>
-                  navigate(
-                    "/advocate/bookings",
-                  )
-                }
+                onBookings={(item) => {
+                  if (item) {
+                    const id = getEntityId(item);
+                    navigate(`/advocate/bookings?id=${id}`, {
+                      state: { selectedId: id },
+                    });
+                  } else {
+                    navigate("/advocate/bookings");
+                  }
+                }}
               />
             </div>
           </div>
