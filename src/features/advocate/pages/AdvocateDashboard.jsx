@@ -28,7 +28,6 @@ import {
   Gavel,
   Lightbulb,
   LockKeyhole,
-  MessageSquare,
   Phone,
   Plus,
   Sparkles,
@@ -36,6 +35,7 @@ import {
   TrendingUp,
   UserRound,
   UserRoundPlus,
+  Users,
   Video,
   X,
 } from "lucide-react";
@@ -289,18 +289,10 @@ const getMode = (consultation) => {
     };
   }
 
-  if (raw.includes("CHAT") || raw.includes("MESSAGE")) {
-    return {
-      type: "message",
-      label: "Message Consultation",
-      Icon: MessageSquare,
-    };
-  }
-
   return {
-    type: "office",
-    label: "In-Person Consultation",
-    Icon: BriefcaseBusiness,
+    type: "in_person",
+    label: "Personal Meeting",
+    Icon: Users,
   };
 };
 
@@ -714,7 +706,6 @@ const OverviewStats = ({
 const UpcomingConsultation = ({
   consultation,
   onBookings,
-  onMessages,
   onOpenCalendar,
   onAddAvailability,
 }) => {
@@ -817,19 +808,25 @@ const UpcomingConsultation = ({
     );
 
   const handlePrimary = () => {
-    if (meetingUrl) {
-      window.open(
-        meetingUrl,
-        "_blank",
-        "noopener,noreferrer",
-      );
-
+    if (mode.type === "video") {
+      if (meetingUrl) {
+        window.open(
+          meetingUrl,
+          "_blank",
+          "noopener,noreferrer",
+        );
+        return;
+      }
+      onBookings?.();
       return;
     }
 
-    if (mode.type === "message") {
-      onMessages?.();
-
+    if (mode.type === "call") {
+      if (clientPhone) {
+        window.location.href = `tel:${clientPhone}`;
+        return;
+      }
+      onBookings?.();
       return;
     }
 
@@ -949,18 +946,17 @@ const UpcomingConsultation = ({
         <div className="mt-6 flex flex-wrap gap-3">
           <button
             type="button"
-            onClick={
-              handlePrimary
-            }
+            onClick={handlePrimary}
             className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-slate-950/10 transition hover:-translate-y-0.5 hover:bg-slate-800"
           >
-            {/* <mode.Icon size={17} /> */}
-
-            {mode.type === "message"
-              ? "Open Chat"
-              : meetingUrl
-                ? "Join Meeting"
-                : "Open Booking"}
+            <mode.Icon size={17} />
+            <span>
+              {mode.type === "video"
+                ? (meetingUrl ? "Join Video Call" : "Join Meeting")
+                : mode.type === "call"
+                  ? "Call Client"
+                  : "Meeting Details"}
+            </span>
           </button>
 
           <button
@@ -2815,11 +2811,6 @@ export default function AdvocateDashboard() {
                     navigate("/advocate/bookings");
                   }
                 }}
-                onMessages={() =>
-                  navigate(
-                    "/advocate/messages",
-                  )
-                }
                 onViewClient={
                   setSelectedClient
                 }

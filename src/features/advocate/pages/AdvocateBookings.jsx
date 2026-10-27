@@ -20,11 +20,11 @@ import {
   Copy,
   Mail,
   MapPin,
-  MessageSquare,
   Phone,
   RefreshCw,
   Search,
   ShieldCheck,
+  Users,
   Video,
   X,
 } from "lucide-react";
@@ -277,7 +277,11 @@ const canMarkComplete = (booking) => {
 };
 
 const getMode = (booking) => {
-  const raw = cleanText(booking?.mode).toUpperCase();
+  const raw = cleanText(
+    booking?.consultationMode ||
+    booking?.mode ||
+    booking?.consultationType
+  ).toUpperCase();
 
   if (raw.includes("VIDEO")) {
     return {
@@ -295,18 +299,10 @@ const getMode = (booking) => {
     };
   }
 
-  if (raw.includes("CHAT") || raw.includes("MESSAGE")) {
-    return {
-      type: "message",
-      label: "Message Consultation",
-      Icon: MessageSquare,
-    };
-  }
-
   return {
-    type: "office",
-    label: "In-Person Consultation",
-    Icon: BriefcaseBusiness,
+    type: "in_person",
+    label: "Personal Meeting",
+    Icon: Users,
   };
 };
 
@@ -1171,6 +1167,13 @@ function BookingDetails({ booking, onInitiateComplete, completing }) {
 
   const phone = cleanText(client?.phone);
   const email = cleanText(client?.email);
+  const meetingUrl = cleanText(
+    booking?.meetingUrl ||
+    booking?.joinLink ||
+    booking?.videoCallLink ||
+    booking?.videoCall?.joinUrl ||
+    booking?.consultationMeetingUrl
+  );
 
   return (
     <div className="p-5 sm:p-6 lg:p-7">
@@ -1226,6 +1229,18 @@ function BookingDetails({ booking, onInitiateComplete, completing }) {
               <CheckCircle2 size={15} className="text-emerald-600" />
               Completed
             </span>
+          )}
+
+          {meetingUrl && (
+            <a
+              href={meetingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-extrabold text-white shadow-sm transition hover:bg-slate-800"
+            >
+              <Video size={15} />
+              Join Video Call
+            </a>
           )}
 
           {phone && (
