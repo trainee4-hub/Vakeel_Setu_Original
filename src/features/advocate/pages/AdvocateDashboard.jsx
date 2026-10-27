@@ -897,16 +897,18 @@ const UpcomingConsultation = ({
           </div>
 
           {clientPhone && (
-            <div className="flex items-center gap-2">
+            <div className="inline-flex items-center gap-2.5 rounded-2xl border border-slate-200/90 bg-white px-3 py-1.5 shadow-2xs transition-colors hover:border-amber-200">
               <CallPhoneButton
                 phone={clientPhone}
                 clientName={clientName}
-                size="lg"
+                size="md"
               />
               <a
                 href={`tel:${clientPhone}`}
                 onClick={(e) => e.stopPropagation()}
-                className="text-xs font-semibold text-slate-700 hover:text-amber-600 hover:underline"
+                aria-label={`Call ${clientName} at ${clientPhone}`}
+                title={`Call ${clientPhone}`}
+                className="font-mono text-xs sm:text-sm font-bold tracking-tight text-slate-800 hover:text-amber-600 hover:underline transition-colors"
               >
                 {clientPhone}
               </a>

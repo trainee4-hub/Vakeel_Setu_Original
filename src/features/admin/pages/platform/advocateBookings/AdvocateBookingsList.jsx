@@ -1,14 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import PageHeader from "@shared/components/ui/PageHeader";
-import ResourceTable from "@shared/components/ui/ResourceTable";
 import Pagination from "@shared/components/ui/Pagination";
 import { EmptyState } from "@shared/components/feedback/EmptyState";
 import { ErrorState } from "@shared/components/feedback/ErrorState";
 import { TableSkeleton } from "@shared/components/feedback/LoadingSkeleton";
-import { Icon } from "@shared/components/ui/Button";
 import { getAdminAdvocateBookings } from "../../../services/platform/adminAdvocateBookingsApi";
 import { formatDateTime, formatDate } from "../../../utils/adminUtils";
 import { FiVideo, FiPhone, FiBriefcase, FiSearch, FiX, FiCopy, FiCheck, FiAlertCircle } from "react-icons/fi";
+import { AdvocateHoverCell, ClientHoverCell } from "./BookingHoverCards";
 
 function BookingRefButton({ reference, className = "" }) {
   const [copied, setCopied] = useState(false);
@@ -208,10 +207,12 @@ export default function AdvocateBookingsList() {
     setPage(1);
   };
 
+  // 8 columns — Subject column removed per requirement 4
   const columns = [
     {
       key: "bookingReference",
       header: "Booking Reference",
+      className: "whitespace-nowrap w-[150px]",
       primary: true,
       render: (item) => (
         <div>
@@ -222,69 +223,38 @@ export default function AdvocateBookingsList() {
     {
       key: "client",
       header: "Client Details",
-      render: (item) => (
-        <div className="space-y-0.5 min-w-[140px]">
-          <p className="font-semibold text-slate-900 text-sm">
-            {item.user?.name || item.user?.fullName || "—"}
-          </p>
-          <p className="font-mono text-xs text-slate-500">{item.user?.phone || "—"}</p>
-          {item.user?.email && (
-            <p className="text-[11px] text-slate-400 truncate max-w-[160px]">{item.user.email}</p>
-          )}
-        </div>
-      ),
+      className: "min-w-[150px]",
+      render: (item) => <ClientHoverCell item={item} />,
     },
     {
       key: "advocate",
       header: "Advocate Details",
-      render: (item) => (
-        <div className="space-y-0.5 min-w-[140px]">
-          <p className="font-semibold text-slate-900 text-sm">{item.advocate?.fullName || item.advocate?.name || "—"}</p>
-          {item.advocate?.barCouncilId && (
-            <p className="font-mono text-xs text-slate-500">ID: {item.advocate.barCouncilId}</p>
-          )}
-          {item.advocate?.phone && (
-            <p className="font-mono text-[11px] text-slate-400">{item.advocate.phone}</p>
-          )}
-        </div>
-      ),
+      className: "min-w-[150px]",
+      render: (item) => <AdvocateHoverCell advocate={item.advocate} />,
     },
     {
       key: "mode",
       header: "Mode",
+      className: "whitespace-nowrap w-[110px]",
       render: (item) => renderModeBadge(item.mode),
     },
     {
       key: "slot",
       header: "Slot",
+      className: "min-w-[140px]",
       render: (item) => (
-        <div className="text-xs space-y-0.5 min-w-[130px]">
+        <div className="text-xs space-y-0.5">
           <p className="font-semibold text-slate-900">{formatDate(item.startAt)}</p>
-          <p className="text-slate-500">{formatTimeSlot(item.startAt, item.endAt, item.durationMinutes)}</p>
-        </div>
-      ),
-    },
-    {
-      key: "subject",
-      header: "Subject",
-      render: (item) => (
-        <div className="text-xs max-w-[180px] space-y-0.5">
-          {item.subject && (
-            <p className="font-medium text-slate-900 truncate" title={item.subject}>
-              {item.subject}
-            </p>
-          )}
-          {item.notes && (
-            <p className="text-slate-400 truncate text-[11px]" title={item.notes}>
-              {item.notes}
-            </p>
-          )}
+          <p className="text-slate-500 font-mono text-[11px]">
+            {formatTimeSlot(item.startAt, item.endAt, item.durationMinutes)}
+          </p>
         </div>
       ),
     },
     {
       key: "amount",
       header: "Amount",
+      className: "whitespace-nowrap w-[90px]",
       render: (item) => {
         const amt = item.breakdown?.total;
         if (amt == null || Number.isNaN(Number(amt))) {
@@ -305,6 +275,7 @@ export default function AdvocateBookingsList() {
     {
       key: "status",
       header: "Status",
+      className: "min-w-[160px]",
       render: (item) => {
         const isCompleted = Boolean(item.completedAt || item.status === "COMPLETED");
         const isConfirmedOrPaid = ["CONFIRMED", "PAID"].includes(item.status);
@@ -366,6 +337,7 @@ export default function AdvocateBookingsList() {
     {
       key: "date",
       header: "Booked On",
+      className: "whitespace-nowrap w-[140px]",
       render: (item) => (
         <span className="text-xs text-slate-500 whitespace-nowrap">
           {formatDateTime(item.confirmedAt || item.payment?.paidAt || item.createdAt)}
@@ -443,7 +415,7 @@ export default function AdvocateBookingsList() {
       </div>
 
       {loading ? (
-        <TableSkeleton rows={6} cols={9} />
+        <TableSkeleton rows={6} cols={8} />
       ) : error ? (
         <ErrorState
           title="Could not load advocate bookings"
@@ -463,12 +435,61 @@ export default function AdvocateBookingsList() {
         />
       ) : (
         <div className="space-y-4">
-          <ResourceTable
-            items={data.items}
-            columns={columns}
-            keyField="id"
-            caption="Private Advocate Bookings"
-          />
+          {/* Responsive Table Container with horizontal scroll on narrow screens */}
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="hidden w-full min-w-[920px] text-left text-sm md:table">
+                <caption className="sr-only">Private Advocate Bookings</caption>
+                <thead className="border-b border-slate-200 bg-slate-50/80 text-xs font-semibold text-slate-500">
+                  <tr>
+                    {columns.map((column) => (
+                      <th
+                        key={column.key}
+                        scope="col"
+                        className={`px-3.5 py-3 sm:px-4 ${column.className ?? ""}`}
+                      >
+                        {column.header}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {data.items.map((item) => (
+                    <tr
+                      key={item.id || item._id}
+                      className="align-middle hover:bg-slate-50/60 transition-colors"
+                    >
+                      {columns.map((column) => (
+                        <td
+                          key={column.key}
+                          className={`px-3.5 py-3 sm:px-4 sm:py-3.5 text-slate-600 ${column.className ?? ""}`}
+                        >
+                          {column.render(item)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile stacked card view (< 768px) */}
+            <ul className="divide-y divide-slate-100 md:hidden" aria-label="Private Advocate Bookings">
+              {data.items.map((item) => (
+                <li key={item.id || item._id} className="space-y-3 p-4">
+                  <div>{columns[0].render(item)}</div>
+                  <dl className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-xs">
+                    {columns.slice(1).map((column) => (
+                      <div key={column.key} className="min-w-0">
+                        <dt className="text-[11px] font-semibold text-slate-400">{column.header}</dt>
+                        <dd className="mt-0.5 text-slate-700">{column.render(item)}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </li>
+              ))}
+            </ul>
+          </div>
 
           <Pagination
             pagination={data.pagination}
