@@ -124,6 +124,24 @@ function BookingRefButton({ reference, className = "" }) {
   );
 }
 
+function CallPhoneButton({ phone, clientName, size = "md", className = "" }) {
+  if (!phone) return null;
+  const sizeClasses = size === "lg" ? "h-8 w-8" : "h-7 w-7";
+  const iconSize = size === "lg" ? 14 : 12;
+
+  return (
+    <a
+      href={`tel:${phone}`}
+      onClick={(e) => e.stopPropagation()}
+      aria-label={`Call ${clientName || "client"}`}
+      title={`Call ${clientName || "client"}`}
+      className={`inline-flex shrink-0 items-center justify-center rounded-lg border-2 border-amber-300 bg-amber-50 text-amber-700 shadow-xs transition hover:border-green-400 hover:bg-amber-100 hover:text-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500/25 active:scale-95 ${sizeClasses} ${className}`}
+    >
+      <Phone size={iconSize} className="shrink-0" />
+    </a>
+  );
+}
+
 const getBookingId = (booking) =>
   booking?.bookingId ||
   booking?.id ||
@@ -205,6 +223,23 @@ const formatISTTimeSlot = (startAt, endAt, durationMinutes) => {
       return `${startStr} (${durationMinutes} mins IST)`;
     }
 
+    return `${startStr} (IST)`;
+  } catch {
+    return "—";
+  }
+};
+
+const formatISTStartTime = (startAt) => {
+  if (!startAt) return "—";
+  try {
+    const start = new Date(startAt);
+    if (Number.isNaN(start.getTime())) return "—";
+    const startStr = new Intl.DateTimeFormat("en-IN", {
+      timeZone: "Asia/Kolkata",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    }).format(start);
     return `${startStr} (IST)`;
   } catch {
     return "—";
@@ -803,11 +838,18 @@ export default function AdvocateBookings() {
                   const markable = canMarkComplete(booking);
 
                   return (
-                    <button
+                    <div
                       key={id || `booking-${index}`}
-                      type="button"
+                      role="button"
+                      tabIndex={0}
                       onClick={() => setSelectedId(id)}
-                      className={`group mb-2 flex w-full items-start gap-3 rounded-2xl border p-3.5 text-left transition-all last:mb-0 ${
+                      onKeyDown={(e) => {
+                        if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) {
+                          e.preventDefault();
+                          setSelectedId(id);
+                        }
+                      }}
+                      className={`group mb-2 flex w-full items-start gap-3 rounded-2xl border p-3.5 text-left transition-all last:mb-0 cursor-pointer ${
                         selected
                           ? "border-amber-300 bg-amber-50/70 shadow-sm"
                           : "border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50/60"
@@ -853,7 +895,7 @@ export default function AdvocateBookings() {
                           <span>•</span>
 
                           <span>
-                            {formatISTTimeSlot(booking.startAt, booking.endAt, booking.durationMinutes)}
+                            {formatISTStartTime(booking.startAt)}
                           </span>
 
                           <span>•</span>
@@ -868,16 +910,18 @@ export default function AdvocateBookings() {
                         <div className="mt-2.5 pt-2 border-t border-slate-100/80 flex items-center justify-between gap-2">
                           <div>
                             {client?.phone ? (
-                              <a
-                                href={`tel:${client.phone}`}
-                                onClick={(e) => e.stopPropagation()}
-                                aria-label={`Call client at ${client.phone}`}
-                                title={`Call ${client.phone}`}
-                                className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-700 hover:underline"
-                              >
-                                <Phone size={11} className="shrink-0" />
-                                <span className="font-mono">{client.phone}</span>
-                              </a>
+                              <div className="flex items-center gap-2">
+                                <CallPhoneButton phone={client.phone} clientName={clientName} size="md" />
+                                <a
+                                  href={`tel:${client.phone}`}
+                                  onClick={(e) => e.stopPropagation()}
+                                  aria-label={`Call ${clientName} at ${client.phone}`}
+                                  title={`Call ${client.phone}`}
+                                  className="font-mono text-xs font-bold text-slate-800 hover:text-amber-600 hover:underline transition-colors"
+                                >
+                                  {client.phone}
+                                </a>
+                              </div>
                             ) : (
                               <span className="text-xs text-slate-400 font-medium">—</span>
                             )}
@@ -927,7 +971,7 @@ export default function AdvocateBookings() {
                             : "text-slate-300 group-hover:translate-x-0.5"
                         }`}
                       />
-                    </button>
+                    </div>
                   );
                 })
               ) : (
@@ -953,7 +997,7 @@ export default function AdvocateBookings() {
           {/* =============================================================
               BOOKING DETAILS (RIGHT PANEL)
           ============================================================= */}
-          <section className="h-full min-h-[620px] rounded-[26px] border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.035)] xl:col-span-7">
+          <section className="self-start rounded-[26px] border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.035)] xl:col-span-7">
             {selectedBooking ? (
               <BookingDetails
                 booking={selectedBooking}
@@ -964,7 +1008,7 @@ export default function AdvocateBookings() {
                 completing={completing}
               />
             ) : (
-              <div className="flex h-full min-h-[620px] flex-col items-center justify-center px-6 text-center">
+              <div className="flex min-h-[500px] flex-col items-center justify-center px-6 text-center">
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-amber-100 bg-amber-50 text-amber-600">
                   <CalendarCheck2 size={24} />
                 </div>
@@ -1278,7 +1322,7 @@ function BookingDetails({ booking, onInitiateComplete, completing }) {
       )} */}
 
       {/* CLIENT CONTACT & CONSULTATION INFORMATION */}
-      <section className="mt-5 rounded-[22px] border border-slate-200 bg-white p-5">
+      <section className="mt-5 rounded-[22px] border border-amber-200/70 bg-amber-50/25 p-5 sm:p-6">
         <div className="flex items-center gap-2">
           <BriefcaseBusiness size={17} className="text-amber-600" />
           <h3 className="text-sm font-extrabold text-slate-950">
@@ -1286,31 +1330,38 @@ function BookingDetails({ booking, onInitiateComplete, completing }) {
           </h3>
         </div>
 
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* PHONE NUMBER - CLEAR FOCAL POINT */}
+        <div className="mt-4 pb-4 border-b border-slate-200/70">
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">
+            Phone Number
+          </p>
+          {phone ? (
+            <div className="mt-1.5 flex items-center gap-2.5">
+              <CallPhoneButton phone={phone} clientName={clientName} size="lg" />
+              <a
+                href={`tel:${phone}`}
+                onClick={(e) => e.stopPropagation()}
+                aria-label={`Call ${clientName} at ${phone}`}
+                title={`Call ${phone}`}
+                className="font-mono text-xl sm:text-2xl font-black tracking-tight text-slate-950 hover:text-amber-600 transition"
+              >
+                {phone}
+              </a>
+            </div>
+          ) : (
+            <p className="mt-1 text-sm text-slate-500">—</p>
+          )}
+        </div>
+
+        {/* REMAINING FIELDS - BALANCED (3 COLUMNS) */}
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">
               Client Name
             </p>
-            <p className="mt-1 text-sm font-bold text-slate-900">{clientName}</p>
-          </div>
-
-          <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">
-              Phone Number
+            <p className="mt-1 text-sm font-bold text-slate-900 truncate">
+              {clientName}
             </p>
-            {phone ? (
-              <a
-                href={`tel:${phone}`}
-                aria-label={`Dial client at ${phone}`}
-                title={`Call ${phone}`}
-                className="mt-1 inline-flex items-center gap-1.5 text-base sm:text-lg font-black text-slate-900 hover:text-amber-600 transition"
-              >
-                <Phone size={13} className="shrink-0 text-amber-600" />
-                <span className="font-mono tracking-tight">{phone}</span>
-              </a>
-            ) : (
-              <p className="mt-1 text-sm text-slate-500">—</p>
-            )}
           </div>
 
           <div>
