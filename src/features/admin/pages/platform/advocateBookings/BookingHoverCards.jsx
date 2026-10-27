@@ -344,7 +344,7 @@ function AdvocateCardContent({ advocate, close }) {
         {/* Top row: Category tag + Close button */}
         <div className="flex items-center justify-between gap-2 mb-3">
           <span className="text-[10px] font-extrabold uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
             Advocate Details
           </span>
           <button
@@ -360,11 +360,17 @@ function AdvocateCardContent({ advocate, close }) {
           </button>
         </div>
 
-        {/* Profile Row: Avatar + Name + Pills */}
-        <div className="flex items-start gap-3">
-          {/* Avatar Box with crisp white border frame & status dot */}
+        {/* Profile Row: Avatar + Name + Status on the same line */}
+        <div className="flex items-center gap-3">
+          {/* Avatar Box with dynamic status border & pulsing status dot */}
           <div className="relative shrink-0">
-            <div className="h-12 w-12 rounded-xl bg-white p-0.5 shadow-md shadow-slate-950/40 ring-1 ring-white/20 flex items-center justify-center overflow-hidden">
+            <div
+              className={`h-12 w-12 rounded-xl p-0.5 shadow-md shadow-slate-950/40 border-2 transition-all duration-300 flex items-center justify-center overflow-hidden bg-slate-900 ${
+                presence.status === "success" && presence.isOnline
+                  ? "border-emerald-500 ring-2 ring-emerald-500/25"
+                  : "border-slate-700 ring-1 ring-slate-800"
+              }`}
+            >
               {avatarUrl ? (
                 <img
                   src={avatarUrl}
@@ -385,60 +391,61 @@ function AdvocateCardContent({ advocate, close }) {
               </div>
             </div>
 
-            {/* Status dot on the border of the avatar photo box */}
-            {presence.status === "loading" ? (
-              <span
-                className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full ring-2 ring-slate-950 bg-slate-500 animate-pulse transition-colors"
-                title="Checking status…"
-                aria-label="Checking status…"
-              />
-            ) : presence.status === "error" ? (
-              <span
-                className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full ring-2 ring-slate-950 bg-slate-500 transition-colors"
-                title="Status unavailable"
-                aria-label="Status unavailable"
-              />
-            ) : (
-              <span
-                className={`absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full ring-2 ring-slate-950 transition-colors ${
-                  presence.isOnline ? "bg-emerald-500" : "bg-slate-400"
-                }`}
-                title={presence.isOnline ? "Online" : "Offline"}
-                aria-label={presence.isOnline ? "Online" : "Offline"}
-              />
-            )}
+            {/* Small status dot on the border that pulses on both online and offline */}
+            <span
+              className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-slate-950 transition-colors animate-pulse ${
+                presence.status === "loading"
+                  ? "bg-slate-500"
+                  : presence.status === "error"
+                  ? "bg-slate-600"
+                  : presence.isOnline
+                  ? "bg-emerald-400"
+                  : "bg-slate-500"
+              }`}
+              title={
+                presence.status === "loading"
+                  ? "Checking…"
+                  : presence.status === "error"
+                  ? "Status unavailable"
+                  : presence.isOnline
+                  ? "Online"
+                  : "Offline"
+              }
+              aria-label={
+                presence.status === "loading"
+                  ? "Checking…"
+                  : presence.status === "error"
+                  ? "Status unavailable"
+                  : presence.isOnline
+                  ? "Online"
+                  : "Offline"
+              }
+            />
           </div>
 
-          {/* Title and Badges (only name, no ID beneath per user instruction) */}
+          {/* Title and Online/Offline Badge in front of the name */}
           <div className="min-w-0 flex-1">
-            <h4 className="text-base font-bold text-white leading-tight truncate" title={name}>
-              {name}
-            </h4>
-
-            {/* Status Pills */}
-            <div className="flex flex-wrap items-center gap-1.5 mt-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h4 className="text-base font-bold text-white leading-tight truncate" title={name}>
+                {name}
+              </h4>
               {presence.status === "loading" ? (
-                <span className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-semibold border bg-slate-700/40 text-slate-300 border-white/15">
+                <span className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-semibold border shrink-0 bg-slate-800/80 text-slate-300 border-slate-700">
                   <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
                   Checking…
                 </span>
               ) : presence.status === "error" ? (
-                <span className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-semibold border bg-slate-700/40 text-slate-400 border-white/15">
+                <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-semibold border shrink-0 bg-slate-800/80 text-slate-400 border-slate-700">
                   Status unavailable
                 </span>
               ) : (
                 <span
-                  className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-semibold border ${
+                  className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-semibold border shrink-0 ${
                     presence.isOnline
                       ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
-                      : "bg-slate-700/40 text-slate-300 border-white/15"
+                      : "bg-slate-800/80 text-slate-300 border-slate-700"
                   }`}
                 >
-                  <span
-                    className={`h-1.5 w-1.5 rounded-full ${
-                      presence.isOnline ? "bg-emerald-400" : "bg-slate-400"
-                    }`}
-                  />
                   {presence.isOnline ? "Online" : "Offline"}
                 </span>
               )}
@@ -642,7 +649,7 @@ export function ClientHoverCell({ item, className = "" }) {
             {/* Top row: Category tag + Close button */}
             <div className="flex items-center justify-between gap-2 mb-3">
               <span className="text-[10px] font-extrabold uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-400 " />
                 Client Details
               </span>
               <button
