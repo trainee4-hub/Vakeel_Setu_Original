@@ -194,41 +194,6 @@ const formatISTDate = (isoString) => {
   }
 };
 
-const formatISTTimeSlot = (startAt, endAt, durationMinutes) => {
-  if (!startAt) return "—";
-  try {
-    const start = new Date(startAt);
-    if (Number.isNaN(start.getTime())) return "—";
-    const startStr = new Intl.DateTimeFormat("en-IN", {
-      timeZone: "Asia/Kolkata",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    }).format(start);
-
-    if (endAt) {
-      const end = new Date(endAt);
-      if (!Number.isNaN(end.getTime())) {
-        const endStr = new Intl.DateTimeFormat("en-IN", {
-          timeZone: "Asia/Kolkata",
-          hour: "numeric",
-          minute: "2-digit",
-          hour12: true,
-        }).format(end);
-        return `${startStr} – ${endStr} (IST)`;
-      }
-    }
-
-    if (durationMinutes) {
-      return `${startStr} (${durationMinutes} mins IST)`;
-    }
-
-    return `${startStr} (IST)`;
-  } catch {
-    return "—";
-  }
-};
-
 const formatISTStartTime = (startAt) => {
   if (!startAt) return "—";
   try {
@@ -240,7 +205,7 @@ const formatISTStartTime = (startAt) => {
       minute: "2-digit",
       hour12: true,
     }).format(start);
-    return `${startStr} (IST)`;
+    return startStr;
   } catch {
     return "—";
   }
@@ -449,6 +414,7 @@ export default function AdvocateBookings() {
     REFUNDED: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
   /* Mark as complete flow state */
@@ -457,15 +423,24 @@ export default function AdvocateBookings() {
   const [completeError, setCompleteError] = useState(null);
   const [successToast, setSuccessToast] = useState(null);
 
-  const loadAppointments = useCallback(async (selectedTab) => {
-    setLoading(true);
+  const loadAppointments = useCallback(async (selectedTab, isManual = false) => {
+    if (isManual) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
     setError(null);
+    const startTime = Date.now();
     try {
-      const res = await getAdvocateAppointments({
-        status: selectedTab,
-        page: 1,
-        limit: 50,
-      });
+      const res = await getAdvocateAppointments(
+        {
+          status: selectedTab,
+          page: 1,
+          limit: 50,
+          _t: Date.now(),
+        },
+        { forceRefresh: true, cache: false },
+      );
 
       if (res?.success) {
         setAppointments(res.appointments || []);
@@ -478,7 +453,12 @@ export default function AdvocateBookings() {
     } catch (err) {
       setError(err?.message || "Could not load consultation bookings.");
     } finally {
+      const elapsed = Date.now() - startTime;
+      if (isManual && elapsed < 400) {
+        await new Promise((r) => setTimeout(r, 400 - elapsed));
+      }
       setLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
@@ -731,7 +711,7 @@ export default function AdvocateBookings() {
             </div>
             <button
               type="button"
-              onClick={() => loadAppointments(tab)}
+              onClick={() => loadAppointments(tab, true)}
               className="shrink-0 text-xs font-extrabold text-amber-700 hover:text-amber-900"
             >
               Retry
@@ -810,15 +790,15 @@ export default function AdvocateBookings() {
 
               <button
                 type="button"
-                disabled={loading}
-                onClick={() => loadAppointments(tab)}
+                disabled={loading || refreshing}
+                onClick={() => loadAppointments(tab, true)}
                 aria-label="Refresh bookings"
                 title="Refresh bookings"
                 className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:border-amber-200 hover:bg-amber-50 hover:text-amber-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <RefreshCw
                   size={14}
-                  className={loading ? "animate-spin text-amber-600" : "text-slate-500"}
+                  className={loading || refreshing ? "animate-spin text-amber-600" : "text-slate-500"}
                 />
                 Refresh
               </button>
@@ -871,19 +851,9 @@ export default function AdvocateBookings() {
                         </div>
 
                         {Boolean(booking.subject) && (
-                          <div className="mt-1 flex items-center justify-between gap-2">
-                            <p className="truncate text-xs font-medium text-slate-600">
-                              {booking.subject}
-                            </p>
-                            {booking.bookingId && (
-                              <BookingRefButton reference={booking.bookingId} />
-                            )}
-                          </div>
-                        )}
-                        {!booking.subject && booking.bookingId && (
-                          <div className="mt-1 flex items-center justify-end">
-                            <BookingRefButton reference={booking.bookingId} />
-                          </div>
+                          <p className="mt-1 truncate text-xs font-medium text-slate-600">
+                            {booking.subject}
+                          </p>
                         )}
 
                         <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-medium text-slate-400">
@@ -1077,7 +1047,7 @@ export default function AdvocateBookings() {
               <div className="flex justify-between">
                 <span className="text-slate-500 font-medium">Slot Time:</span>
                 <span className="font-semibold text-slate-800">
-                  {formatISTDate(confirmBooking.startAt)} • {formatISTTimeSlot(confirmBooking.startAt, confirmBooking.endAt, confirmBooking.durationMinutes)}
+                  {formatISTDate(confirmBooking.startAt)} • {formatISTStartTime(confirmBooking.startAt)}
                 </span>
               </div>
               {Boolean(confirmBooking.subject) && (
@@ -1269,7 +1239,7 @@ function BookingDetails({ booking, onInitiateComplete, completing }) {
           </div>
 
           <p className="mt-3 text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">
-            Date (IST)
+            Date
           </p>
 
           <p className="mt-1 text-sm font-extrabold text-slate-800">
@@ -1283,11 +1253,11 @@ function BookingDetails({ booking, onInitiateComplete, completing }) {
           </div>
 
           <p className="mt-3 text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">
-            Time Slot
+            Time Starting
           </p>
 
           <p className="mt-1 text-sm font-extrabold text-slate-800">
-            {formatISTTimeSlot(booking.startAt, booking.endAt, booking.durationMinutes)}
+            {formatISTStartTime(booking.startAt)}
           </p>
         </div>
 

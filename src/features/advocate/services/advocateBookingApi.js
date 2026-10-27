@@ -84,13 +84,21 @@ export async function getAdvocateCheckoutStatus(checkoutId) {
  * Valid statuses: ALL, UPCOMING, PAST_DUE, COMPLETED, REFUNDED.
  * Returns: { success: true, appointments: [...], counts: { ALL, UPCOMING, PAST_DUE, COMPLETED, REFUNDED }, pagination: { page, limit, total, totalPages } }
  */
-export async function getAdvocateAppointments({ status = "ALL", page = 1, limit = 50 } = {}) {
+export async function getAdvocateAppointments(
+  { status = "ALL", page = 1, limit = 50, _t } = {},
+  options = {},
+) {
   const query = new URLSearchParams();
   if (status) query.set("status", String(status).toUpperCase());
   if (page) query.set("page", String(page));
   if (limit) query.set("limit", String(limit));
+  if (_t) query.set("_t", String(_t));
 
-  return apiRequest(`/advocate/appointments?${query.toString()}`);
+  return apiRequest(`/advocate/appointments?${query.toString()}`, {
+    cache: false,
+    forceRefresh: true,
+    ...options,
+  });
 }
 
 /**
