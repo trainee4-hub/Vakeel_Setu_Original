@@ -24,6 +24,7 @@ import { ListSkeleton } from "@shared/components/feedback/LoadingSkeleton";
 import { LinkButton } from "@shared/components/ui/Button";
 import { FormField } from "@shared/components/ui/FormControls";
 import { fieldClass } from "@shared/components/ui/styles";
+import { cleanChapterName, cleanChapterNo } from "@features/legalHub/components/lawLibrary/lawLibraryUtils";
 
 /* =========================================================================
    BARE ACTS — Categories → Acts → Sections.
@@ -248,28 +249,40 @@ const SECTION_COLUMNS = [
     key: "chapter",
     header: "Chapter",
     render: (section) => {
-      const cNo =
-        section.chapterNo != null && String(section.chapterNo).trim() !== ""
-          ? `Ch. ${String(section.chapterNo).trim()}`
-          : null;
-      const cName =
-        section.chapterName != null && String(section.chapterName).trim() !== ""
-          ? String(section.chapterName).trim()
-          : null;
-      return [cNo, cName].filter(Boolean).join(" · ") || "—";
+      const cNo = cleanChapterNo(section.chapterNo);
+      const cName = cleanChapterName(section.chapterName);
+      const cNoFormatted = cNo ? `Ch. ${cNo}` : null;
+      return [cNoFormatted, cName].filter(Boolean).join(" · ") || "—";
     },
   },
   { key: "updatedAt", header: "Updated", render: (section) => formatDate(section.updatedAt) },
 ];
 
 function SectionsPanel() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const categoryId = searchParams.get("category") || "";
+  const actId = searchParams.get("act") || "";
+
   const loadCategories = useCallback(() => getAllBearerActs(), []);
   const categories = useAsyncOptions(loadCategories);
-  const [categoryId, setCategoryId] = useState("");
-  const [actId, setActId] = useState("");
 
   const loadActs = useCallback(() => getAllActs(categoryId), [categoryId]);
   const acts = useAsyncOptions(loadActs, { enabled: Boolean(categoryId) });
+
+  const handleCategoryChange = (val) => {
+    const next = new URLSearchParams(searchParams);
+    if (val) next.set("category", val);
+    else next.delete("category");
+    next.delete("act");
+    setSearchParams(next, { replace: true });
+  };
+
+  const handleActChange = (val) => {
+    const next = new URLSearchParams(searchParams);
+    if (val) next.set("act", val);
+    else next.delete("act");
+    setSearchParams(next, { replace: true });
+  };
 
   const createQuery = [categoryId ? `category=${encodeURIComponent(categoryId)}` : "", actId ? `act=${encodeURIComponent(actId)}` : ""]
     .filter(Boolean)
@@ -284,11 +297,7 @@ function SectionsPanel() {
               <select
                 id="sections-category"
                 value={categoryId}
-                onChange={(event) => {
-                  // Clears the stale Act and, through the keyed list, its sections.
-                  setCategoryId(event.target.value);
-                  setActId("");
-                }}
+                onChange={(event) => handleCategoryChange(event.target.value)}
                 disabled={categories.status === "loading"}
                 className={fieldClass(false)}
               >
@@ -305,7 +314,7 @@ function SectionsPanel() {
               <select
                 id="sections-act"
                 value={actId}
-                onChange={(event) => setActId(event.target.value)}
+                onChange={(event) => handleActChange(event.target.value)}
                 disabled={!categoryId || acts.status === "loading"}
                 className={fieldClass(false)}
               >

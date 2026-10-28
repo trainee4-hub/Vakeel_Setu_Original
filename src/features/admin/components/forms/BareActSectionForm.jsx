@@ -30,7 +30,7 @@ import { richTextToPlain } from "@shared/utils/richText";
  * `sectionNo` is NOT in the documented payload and is never sent.
  */
 const TEXT_FIELDS = ["section", "chapterNo", "chapterName", "title", "description", "metaData", "metaDescription", "metaTitle"];
-const OPTIONAL_FIELDS = ["chapterName", "metaData", "metaDescription", "metaTitle"];
+const OPTIONAL_FIELDS = ["chapterNo", "chapterName", "metaData", "metaDescription", "metaTitle"];
 const RICH_FIELDS = ["description"];
 
 export default function BareActSectionForm({ mode, initialSection, defaultCategoryId = "", defaultActId = "", onSaved }) {
@@ -38,7 +38,15 @@ export default function BareActSectionForm({ mode, initialSection, defaultCatego
   const toast = useCCToast();
 
   const initial = useMemo(() => {
-    const value = (field) => (initialSection?.[field] == null ? "" : String(initialSection[field]));
+    const value = (field) => {
+      const raw = initialSection?.[field];
+      if (raw == null) return "";
+      const str = String(raw).trim();
+      if ((field === "chapterNo" || field === "chapterName") && (str.toLowerCase() === "null" || str.toLowerCase() === "undefined")) {
+        return "";
+      }
+      return str;
+    };
     return {
       categoryId: String(initialSection?.act?.bearerActId ?? defaultCategoryId ?? ""),
       actId: String(initialSection?.actId ?? initialSection?.act?.id ?? defaultActId ?? ""),
@@ -67,7 +75,15 @@ export default function BareActSectionForm({ mode, initialSection, defaultCatego
 
   const isDirty = [...TEXT_FIELDS, "actId"].some((field) => form[field] !== initial[field]);
   const { requestLeave, discardModal } = useUnsavedChangesGuard(isDirty && !submitting);
-  const backTo = `${ADMIN_PATHS.bareActs.list}?tab=sections`;
+
+  const backTo = useMemo(() => {
+    const params = new URLSearchParams({ tab: "sections" });
+    const catId = form.categoryId || defaultCategoryId;
+    const actId = form.actId || defaultActId;
+    if (catId) params.set("category", catId);
+    if (actId) params.set("act", actId);
+    return `${ADMIN_PATHS.bareActs.list}?${params.toString()}`;
+  }, [form.categoryId, form.actId, defaultCategoryId, defaultActId]);
 
   const setField = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -88,7 +104,14 @@ export default function BareActSectionForm({ mode, initialSection, defaultCatego
     const next = {};
     if (isCreate) requireText(next, "actId", form.actId, "Choose an Act.");
     requireText(next, "section", form.section, "Enter the section, e.g. Section 25A.");
-    requireText(next, "chapterNo", form.chapterNo, "Enter the chapter number.");
+
+    // Conditional rule: if Chapter No is filled, Chapter Name becomes required.
+    const cleanNo = form.chapterNo.trim();
+    const cleanName = form.chapterName.trim();
+    if (cleanNo && !cleanName) {
+      next.chapterName = "Chapter name is required when chapter number is provided.";
+    }
+
     requireText(next, "title", form.title, "Enter the section title.");
     requireRichText(next, "description", form.description, "Enter the section text.");
     return next;
@@ -98,6 +121,12 @@ export default function BareActSectionForm({ mode, initialSection, defaultCatego
   const valueFor = (field) => {
     if (RICH_FIELDS.includes(field)) return richTextToPlain(form[field]) ? form[field] : "";
     const raw = form[field].trim();
+    if (field === "chapterNo" || field === "chapterName") {
+      if (!raw || raw.toLowerCase() === "null" || raw.toLowerCase() === "undefined") {
+        return "";
+      }
+      return raw;
+    }
     return raw;
   };
 
@@ -140,7 +169,7 @@ export default function BareActSectionForm({ mode, initialSection, defaultCatego
         saved = await updateSection(data);
       }
       toast.success(isCreate ? "Section added." : "Section updated.");
-      onSaved?.(saved);
+      onSaved?.(saved, backTo);
     } catch (error) {
       if (error?.status === 401) return;
       setErrors(error?.fieldErrors ?? {});
@@ -220,10 +249,10 @@ export default function BareActSectionForm({ mode, initialSection, defaultCatego
             <FormField id="section-section" label="Section" required error={errors.section}>
               <input type="text" placeholder="Section 25A" {...inputProps("section")} />
             </FormField>
-            <FormField id="section-chapterNo" label="Chapter Number" required error={errors.chapterNo}>
-              <input type="text" placeholder="1, 4A, IV, IX-A" {...inputProps("chapterNo")} />
+            <FormField id="section-chapterNo" label="Chapter No" error={errors.chapterNo}>
+              <input type="text" placeholder="1, 4A, IV" {...inputProps("chapterNo")} />
             </FormField>
-            <FormField id="section-chapterName" label="Chapter Name" error={errors.chapterName}>
+            <FormField id="section-chapterName" label="Chapter Name" required={Boolean(form.chapterNo.trim())} error={errors.chapterName}>
               <input type="text" placeholder="Preliminary" {...inputProps("chapterName")} />
             </FormField>
           </div>

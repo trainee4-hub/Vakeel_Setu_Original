@@ -94,7 +94,13 @@ export function SectionEditor() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { status, record, error, reload } = useRecord(getSection, id);
-  const onSaved = () => navigate(listPath("sections"));
+  const onSaved = (saved, backTo) => {
+    if (backTo) {
+      navigate(backTo);
+      return;
+    }
+    navigate(listPath("sections"));
+  };
 
   if (!id) {
     return (

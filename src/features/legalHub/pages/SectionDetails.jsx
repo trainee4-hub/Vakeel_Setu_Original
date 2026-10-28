@@ -33,6 +33,8 @@ import {
 
 import {
   actTitle,
+  cleanChapterName,
+  cleanChapterNo,
   getSequentialSections,
   sectionLabel,
 } from "../components/lawLibrary/lawLibraryUtils";
@@ -300,11 +302,15 @@ const SectionDetails = () => {
      ROUTES
   ======================================================= */
 
+  const secChapNo = cleanChapterNo(section?.chapterNo);
+  const secChapName = cleanChapterName(section?.chapterName);
+  const backParam = secChapNo || secChapName || null;
+
   const backToIndex =
     `/legal-hub/law-library/acts/${actId}${
-      section?.chapterNo != null && String(section.chapterNo).trim() !== ""
+      backParam
         ? `?chapter=${encodeURIComponent(
-            String(section.chapterNo).trim(),
+            backParam,
           )}`
         : ""
     }`;
@@ -457,13 +463,18 @@ const SectionDetails = () => {
               </span>
             )}
 
-            {section.chapterNo != null && String(section.chapterNo).trim() !== "" && (
-              <span className="inline-flex items-center rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-600">
-                {String(section.chapterName ?? "").trim()
-                  ? `Chapter ${String(section.chapterNo).trim()} \u2013 ${String(section.chapterName).trim()}`
-                  : `Chapter ${String(section.chapterNo).trim()}`}
-              </span>
-            )}
+            {(() => {
+              const badgeText = secChapNo
+                ? secChapName
+                  ? `Chapter ${secChapNo} \u2013 ${secChapName}`
+                  : `Chapter ${secChapNo}`
+                : secChapName || null;
+              return badgeText ? (
+                <span className="inline-flex items-center rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-600">
+                  {badgeText}
+                </span>
+              ) : null;
+            })()}
           </div>
 
           {/* Section Title */}

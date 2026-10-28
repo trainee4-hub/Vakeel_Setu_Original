@@ -43,9 +43,12 @@ import {
 import {
   ALL_CHAPTERS,
   MIN_SEARCH_LENGTH,
+  NO_CHAPTER,
   SEARCH_DEBOUNCE_MS,
   actTitle,
   chapterLabel,
+  cleanChapterName,
+  cleanChapterNo,
   filterSectionsSmart,
   groupByChapter,
   sectionLabel,
@@ -513,13 +516,17 @@ const ActDetails = () => {
         return chapters;
       }
       return chapters.filter(
-        (group) =>
-          String(
-            group.chapterNo ?? "",
-          ).trim().toLowerCase() ===
-          String(
-            chapterParam ?? "",
-          ).trim().toLowerCase(),
+        (group) => {
+          const cNo = cleanChapterNo(group.chapterNo);
+          if (cNo != null) {
+            return cNo.toLowerCase() === String(chapterParam).trim().toLowerCase();
+          }
+          if (chapterParam === NO_CHAPTER) {
+            return true;
+          }
+          const cName = cleanChapterName(group.chapterName);
+          return cName ? cName.toLowerCase() === String(chapterParam).trim().toLowerCase() : false;
+        },
       );
     }, [
       allSections,
@@ -532,29 +539,41 @@ const ActDetails = () => {
 
   const sidebarNavRef = useRef(null);
 
-  // Set of chapter numbers that contain the search results
+  // Set of chapter identifiers that contain the search results
   const searchResultChapterNos = useMemo(() => {
     if (!searching || searchResults.length === 0) {
       return null;
     }
     const set = new Set();
     searchResults.forEach((s) => {
-      const cNo = s?.chapterNo != null ? String(s.chapterNo).trim().toLowerCase() : "";
-      if (cNo) set.add(cNo);
+      const cNo = cleanChapterNo(s?.chapterNo);
+      if (cNo) {
+        set.add(cNo.toLowerCase());
+      } else {
+        const cName = cleanChapterName(s?.chapterName);
+        set.add(cName ? cName.toLowerCase() : NO_CHAPTER);
+      }
     });
     return set;
   }, [searching, searchResults]);
 
   // Helper to check if a chapter is active (works for both normal browsing and searching)
-  const isChapterActive = (groupChapterNo) => {
-    const cleanGroupNo = groupChapterNo != null ? String(groupChapterNo).trim().toLowerCase() : "";
+  const isChapterActive = (groupChapterNo, groupChapterName) => {
+    const cleanGroupNo = cleanChapterNo(groupChapterNo);
+    const cleanName = cleanChapterName(groupChapterName);
+    const groupIdentifier = cleanGroupNo
+      ? cleanGroupNo.toLowerCase()
+      : cleanName
+        ? cleanName.toLowerCase()
+        : NO_CHAPTER;
+
     if (searching) {
       if (!searchResultChapterNos || searchResultChapterNos.size === 0) {
         return false;
       }
-      return searchResultChapterNos.has(cleanGroupNo);
+      return searchResultChapterNos.has(groupIdentifier);
     }
-    return cleanGroupNo === String(chapterParam ?? "").trim().toLowerCase();
+    return groupIdentifier === String(chapterParam ?? "").trim().toLowerCase();
   };
 
   // When searching, auto-scroll to the highlighted chapter in the sidebar
@@ -706,18 +725,23 @@ const ActDetails = () => {
       </button>
       {chapters.map(
         (group, index) => {
-          const key = group.chapterNo
-            ? `chapter-${group.chapterNo}-${index}`
-            : `unchaptered-${index}`;
-          const active = isChapterActive(group.chapterNo);
+          const label = chapterLabel(group);
+          if (!label) return null;
+
+          const cNo = cleanChapterNo(group.chapterNo);
+          const cName = cleanChapterName(group.chapterName);
+          const groupVal = cNo || cName;
+          const key = cNo
+            ? `chapter-${cNo}-${index}`
+            : `unchaptered-${cName || index}`;
+          const active = isChapterActive(group.chapterNo, group.chapterName);
           return (
             <button
               key={key}
               type="button"
               onClick={() =>
                 selectChapter(
-                  group.chapterNo ??
-                    ALL_CHAPTERS,
+                  groupVal,
                 )
               }
               aria-current={
@@ -731,9 +755,7 @@ const ActDetails = () => {
                   : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
               }`}
             >
-              {chapterLabel(
-                group,
-              )}
+              {label}
             </button>
           );
         },
@@ -1421,35 +1443,32 @@ return (
                         {viewingSchedules
                           ? "Schedules"
                           : searching && searchResults.length > 0
-                            ? chapters.find((g) =>
-                                searchResultChapterNos?.has(
-                                  String(g.chapterNo ?? "").trim().toLowerCase(),
-                                ),
-                              )
+                            ? chapters.find((g) => {
+                                const cNo = cleanChapterNo(g?.chapterNo);
+                                const id = cNo ? cNo.toLowerCase() : (cleanChapterName(g?.chapterName)?.toLowerCase() || NO_CHAPTER);
+                                return searchResultChapterNos?.has(id);
+                              })
                               ? chapterLabel(
-                                  chapters.find((g) =>
-                                    searchResultChapterNos?.has(
-                                      String(g.chapterNo ?? "").trim().toLowerCase(),
-                                    ),
-                                  ),
+                                  chapters.find((g) => {
+                                    const cNo = cleanChapterNo(g?.chapterNo);
+                                    const id = cNo ? cNo.toLowerCase() : (cleanChapterName(g?.chapterName)?.toLowerCase() || NO_CHAPTER);
+                                    return searchResultChapterNos?.has(id);
+                                  }),
                                 )
                               : "Search Results"
                             : chapterParam ===
                                 ALL_CHAPTERS
                               ? "All Sections"
-                              : chapterLabel(
-                                  chapters.find(
-                                    (
-                                      group,
-                                    ) =>
-                                      String(
-                                        group.chapterNo ?? "",
-                                      ).trim().toLowerCase() ===
-                                      String(
-                                        chapterParam ?? "",
-                                      ).trim().toLowerCase(),
-                                  ),
-                                )}
+                              : (() => {
+                                  const matchingGroup = chapters.find((group) => {
+                                    const cNo = cleanChapterNo(group.chapterNo);
+                                    if (cNo != null) return cNo.toLowerCase() === String(chapterParam).trim().toLowerCase();
+                                    if (chapterParam === NO_CHAPTER) return true;
+                                    const cName = cleanChapterName(group.chapterName);
+                                    return cName ? cName.toLowerCase() === String(chapterParam).trim().toLowerCase() : false;
+                                  });
+                                  return matchingGroup ? chapterLabel(matchingGroup) : "Sections";
+                                })()}
                       </span>
                     </span>
                     <FiChevronDown
@@ -1554,19 +1573,20 @@ return (
                       group,
                       index,
                     ) => {
+                      const heading = chapterLabel(group);
                       return (
                         <div
                           key={
-                            group.chapterNo
-                              ? `chapter-${group.chapterNo}-${index}`
-                              : `unchaptered-${index}`
+                            cleanChapterNo(group.chapterNo)
+                              ? `chapter-${cleanChapterNo(group.chapterNo)}-${index}`
+                              : `unchaptered-${cleanChapterName(group.chapterName) || index}`
                           }
                         >
-                          <h2 className="mb-4 text-lg font-bold text-slate-900">
-                            {chapterLabel(
-                              group,
-                            )}
-                          </h2>
+                          {heading && (
+                            <h2 className="mb-4 text-lg font-bold text-slate-900">
+                              {heading}
+                            </h2>
+                          )}
                           <ul className="space-y-3">
                             {group.sections.map(
                               (
