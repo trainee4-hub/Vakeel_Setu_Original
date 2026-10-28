@@ -515,11 +515,11 @@ const ActDetails = () => {
       return chapters.filter(
         (group) =>
           String(
-            group.chapterNo,
-          ) ===
+            group.chapterNo ?? "",
+          ).trim().toLowerCase() ===
           String(
-            chapterParam,
-          ),
+            chapterParam ?? "",
+          ).trim().toLowerCase(),
       );
     }, [
       allSections,
@@ -539,20 +539,22 @@ const ActDetails = () => {
     }
     const set = new Set();
     searchResults.forEach((s) => {
-      set.add(String(s?.chapterNo ?? ""));
+      const cNo = s?.chapterNo != null ? String(s.chapterNo).trim().toLowerCase() : "";
+      if (cNo) set.add(cNo);
     });
     return set;
   }, [searching, searchResults]);
 
   // Helper to check if a chapter is active (works for both normal browsing and searching)
   const isChapterActive = (groupChapterNo) => {
+    const cleanGroupNo = groupChapterNo != null ? String(groupChapterNo).trim().toLowerCase() : "";
     if (searching) {
       if (!searchResultChapterNos || searchResultChapterNos.size === 0) {
         return false;
       }
-      return searchResultChapterNos.has(String(groupChapterNo ?? ""));
+      return searchResultChapterNos.has(cleanGroupNo);
     }
-    return String(chapterParam) === String(groupChapterNo);
+    return cleanGroupNo === String(chapterParam ?? "").trim().toLowerCase();
   };
 
   // When searching, auto-scroll to the highlighted chapter in the sidebar
@@ -703,10 +705,10 @@ const ActDetails = () => {
         All Sections
       </button>
       {chapters.map(
-        (group) => {
-          const key =
-            group.chapterNo ??
-            ALL_CHAPTERS;
+        (group, index) => {
+          const key = group.chapterNo
+            ? `chapter-${group.chapterNo}-${index}`
+            : `unchaptered-${index}`;
           const active = isChapterActive(group.chapterNo);
           return (
             <button
@@ -1421,13 +1423,13 @@ return (
                           : searching && searchResults.length > 0
                             ? chapters.find((g) =>
                                 searchResultChapterNos?.has(
-                                  String(g.chapterNo ?? ""),
+                                  String(g.chapterNo ?? "").trim().toLowerCase(),
                                 ),
                               )
                               ? chapterLabel(
                                   chapters.find((g) =>
                                     searchResultChapterNos?.has(
-                                      String(g.chapterNo ?? ""),
+                                      String(g.chapterNo ?? "").trim().toLowerCase(),
                                     ),
                                   ),
                                 )
@@ -1441,11 +1443,11 @@ return (
                                       group,
                                     ) =>
                                       String(
-                                        group.chapterNo,
-                                      ) ===
+                                        group.chapterNo ?? "",
+                                      ).trim().toLowerCase() ===
                                       String(
-                                        chapterParam,
-                                      ),
+                                        chapterParam ?? "",
+                                      ).trim().toLowerCase(),
                                   ),
                                 )}
                       </span>
@@ -1550,12 +1552,14 @@ return (
                   {visibleGroups.map(
                     (
                       group,
+                      index,
                     ) => {
-return (
+                      return (
                         <div
                           key={
-                            group.chapterNo ??
-                            ALL_CHAPTERS
+                            group.chapterNo
+                              ? `chapter-${group.chapterNo}-${index}`
+                              : `unchaptered-${index}`
                           }
                         >
                           <h2 className="mb-4 text-lg font-bold text-slate-900">

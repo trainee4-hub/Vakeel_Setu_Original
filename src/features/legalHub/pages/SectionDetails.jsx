@@ -302,9 +302,9 @@ const SectionDetails = () => {
 
   const backToIndex =
     `/legal-hub/law-library/acts/${actId}${
-      section?.chapterNo
+      section?.chapterNo != null && String(section.chapterNo).trim() !== ""
         ? `?chapter=${encodeURIComponent(
-            section.chapterNo,
+            String(section.chapterNo).trim(),
           )}`
         : ""
     }`;
@@ -457,11 +457,11 @@ const SectionDetails = () => {
               </span>
             )}
 
-            {section.chapterNo && (
+            {section.chapterNo != null && String(section.chapterNo).trim() !== "" && (
               <span className="inline-flex items-center rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-600">
-                {section.chapterName
-                  ? `Chapter ${section.chapterNo} — ${section.chapterName}`
-                  : `Chapter ${section.chapterNo}`}
+                {String(section.chapterName ?? "").trim()
+                  ? `Chapter ${String(section.chapterNo).trim()} \u2013 ${String(section.chapterName).trim()}`
+                  : `Chapter ${String(section.chapterNo).trim()}`}
               </span>
             )}
           </div>

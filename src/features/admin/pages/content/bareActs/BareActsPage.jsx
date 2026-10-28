@@ -247,8 +247,17 @@ const SECTION_COLUMNS = [
   {
     key: "chapter",
     header: "Chapter",
-    render: (section) =>
-      [section.chapterNo != null ? `Ch. ${section.chapterNo}` : null, section.chapterName].filter(Boolean).join(" · ") || "—",
+    render: (section) => {
+      const cNo =
+        section.chapterNo != null && String(section.chapterNo).trim() !== ""
+          ? `Ch. ${String(section.chapterNo).trim()}`
+          : null;
+      const cName =
+        section.chapterName != null && String(section.chapterName).trim() !== ""
+          ? String(section.chapterName).trim()
+          : null;
+      return [cNo, cName].filter(Boolean).join(" · ") || "—";
+    },
   },
   { key: "updatedAt", header: "Updated", render: (section) => formatDate(section.updatedAt) },
 ];

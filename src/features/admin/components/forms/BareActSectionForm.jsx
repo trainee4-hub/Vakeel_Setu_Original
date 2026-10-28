@@ -26,11 +26,11 @@ import { richTextToPlain } from "@shared/utils/richText";
  *            metaData, metaDescription, metaTitle }
  *   UPDATE { id, …changed fields }   ← the contract has no act move, so the
  *                                      Act is read-only on edit
- * `section` is a string ("Section 25A"); `chapterNo` is numeric.
+ * `section` is a string ("Section 25A"); `chapterNo` is a string ("1", "4A", "IV", "IX-A").
  * `sectionNo` is NOT in the documented payload and is never sent.
  */
 const TEXT_FIELDS = ["section", "chapterNo", "chapterName", "title", "description", "metaData", "metaDescription", "metaTitle"];
-const OPTIONAL_FIELDS = ["chapterNo", "chapterName", "metaData", "metaDescription", "metaTitle"];
+const OPTIONAL_FIELDS = ["chapterName", "metaData", "metaDescription", "metaTitle"];
 const RICH_FIELDS = ["description"];
 
 export default function BareActSectionForm({ mode, initialSection, defaultCategoryId = "", defaultActId = "", onSaved }) {
@@ -88,20 +88,16 @@ export default function BareActSectionForm({ mode, initialSection, defaultCatego
     const next = {};
     if (isCreate) requireText(next, "actId", form.actId, "Choose an Act.");
     requireText(next, "section", form.section, "Enter the section, e.g. Section 25A.");
+    requireText(next, "chapterNo", form.chapterNo, "Enter the chapter number.");
     requireText(next, "title", form.title, "Enter the section title.");
-        requireRichText(next, "description", form.description, "Enter the section text.");
-    if (form.chapterNo.trim() && !/^\d+$/.test(form.chapterNo.trim())) {
-      next.chapterNo = "Chapter number must be a number.";
-    }
+    requireRichText(next, "description", form.description, "Enter the section text.");
     return next;
   };
 
-  /** Trimmed value for a field; chapterNo becomes a number. */
-    /** Value sent to the API: chapterNo numeric, rich fields kept as editor HTML. */
+  /** Trimmed value for a field; rich fields kept as editor HTML. */
   const valueFor = (field) => {
     if (RICH_FIELDS.includes(field)) return richTextToPlain(form[field]) ? form[field] : "";
     const raw = form[field].trim();
-    if (field === "chapterNo") return raw ? Number(raw) : null;
     return raw;
   };
 
@@ -224,8 +220,8 @@ export default function BareActSectionForm({ mode, initialSection, defaultCatego
             <FormField id="section-section" label="Section" required error={errors.section}>
               <input type="text" placeholder="Section 25A" {...inputProps("section")} />
             </FormField>
-            <FormField id="section-chapterNo" label="Chapter Number" error={errors.chapterNo}>
-              <input type="text" inputMode="numeric" placeholder="4" {...inputProps("chapterNo")} />
+            <FormField id="section-chapterNo" label="Chapter Number" required error={errors.chapterNo}>
+              <input type="text" placeholder="1, 4A, IV, IX-A" {...inputProps("chapterNo")} />
             </FormField>
             <FormField id="section-chapterName" label="Chapter Name" error={errors.chapterName}>
               <input type="text" placeholder="Preliminary" {...inputProps("chapterName")} />

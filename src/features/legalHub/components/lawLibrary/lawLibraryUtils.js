@@ -5,12 +5,7 @@ export const SEARCH_DEBOUNCE_MS = 350;
 
 export const ALL_CHAPTERS = "__all__";
 
-/** Sections order inside a chapter must follow the act, not the label. */
-const naturalCompare = (a, b) =>
-  String(a ?? "").localeCompare(String(b ?? ""), undefined, {
-    numeric: true,
-    sensitivity: "base",
-  });
+
 
 /**
  * Groups sections by chapterNo, preserving the order the backend returned
@@ -18,38 +13,53 @@ const naturalCompare = (a, b) =>
  * invented chapter IDs, never a fabricated label.
  */ 
 export function groupByChapter(sections = []) {
-  const map = new Map();
+  if (!Array.isArray(sections) || sections.length === 0) return [];
+
+  const groups = [];
+  let currentGroup = null;
 
   sections.forEach((section) => {
-    const key =
-      String(section?.chapterNo ?? "").trim() || ALL_CHAPTERS;
+    const rawNo = section?.chapterNo;
+    const chapterNo =
+      rawNo != null && String(rawNo).trim() !== ""
+        ? String(rawNo).trim()
+        : null;
 
-    if (!map.has(key)) {
-      map.set(key, {
-        chapterNo: key === ALL_CHAPTERS ? null : section.chapterNo,
-        chapterName: String(section?.chapterName ?? "").trim() || null,
-        sections: [],
-      });
+    const rawName = section?.chapterName;
+    const chapterName =
+      rawName != null && String(rawName).trim() !== ""
+        ? String(rawName).trim()
+        : null;
+
+    if (
+      !currentGroup ||
+      currentGroup.chapterNo !== chapterNo ||
+      currentGroup.chapterName !== chapterName
+    ) {
+      currentGroup = {
+        chapterNo,
+        chapterName,
+        sections: [section],
+      };
+      groups.push(currentGroup);
+    } else {
+      currentGroup.sections.push(section);
     }
-
-    map.get(key).sections.push(section);
   });
 
-  const groups = [...map.values()];
-
-  const unchaptered = groups.filter((group) => group.chapterNo === null);
-  const chaptered = groups
-    .filter((group) => group.chapterNo !== null)
-    .sort((a, b) => naturalCompare(a.chapterNo, b.chapterNo));
-
-  return [...chaptered, ...unchaptered];
+  return groups;
 }
 
 export const chapterLabel = (group) => {
-  if (!group?.chapterNo) return "Other Sections";
-  return group.chapterName
-    ? `Chapter ${group.chapterNo} — ${group.chapterName}`
-    : `Chapter ${group.chapterNo}`;
+  const rawNo = group?.chapterNo;
+  const hasChapterNo = rawNo != null && String(rawNo).trim() !== "";
+  const chapterNo = hasChapterNo ? String(rawNo).trim() : null;
+  const chapterName = String(group?.chapterName ?? "").trim();
+
+  if (!chapterNo) return chapterName || "Other Sections";
+  return chapterName
+    ? `Chapter ${chapterNo} \u2013 ${chapterName}`
+    : `Chapter ${chapterNo}`;
 };
 
 export const actTitle = (act) =>
@@ -60,25 +70,11 @@ export const sectionLabel = (section) =>
 
 /**
  * Flattens chapter groups into a continuous sequential reading order for an Act.
- * Preserves the exact chapter hierarchy (Chapter 1 -> Chapter 2 -> Chapter 3...)
- * and orders sections naturally within each chapter.
+ * Preserves the exact sequence returned from the backend API.
  */
 export function getSequentialSections(sections = []) {
   if (!Array.isArray(sections) || sections.length === 0) return [];
-  const groups = groupByChapter(sections);
-  const sequential = [];
-  groups.forEach((group) => {
-    const sorted = [...group.sections].sort((a, b) => {
-      const orderA = a?.sectionOrder !== undefined && a?.sectionOrder !== null ? Number(a.sectionOrder) : NaN;
-      const orderB = b?.sectionOrder !== undefined && b?.sectionOrder !== null ? Number(b.sectionOrder) : NaN;
-      if (Number.isFinite(orderA) && Number.isFinite(orderB)) {
-        return orderA - orderB;
-      }
-      return naturalCompare(a?.section || a?.title, b?.section || b?.title);
-    });
-    sequential.push(...sorted);
-  });
-  return sequential;
+  return [...sections];
 }
 
 /**
@@ -96,7 +92,7 @@ export function parseSectionNumber(str) {
   if (!str) return null;
   const cleaned = String(str)
     .trim()
-    .replace(/^(?:section|sec|s\.|article|art|art\.|\#)\s*/i, "")
+    .replace(/^(?:section|sec|s\.|article|art|art\.|#)\s*/i, "")
     .trim();
 
   const match = cleaned.match(/^(\d+)[-_\s]*([a-zA-Z]*)$/i);
@@ -124,26 +120,46 @@ export function getSectionParsed(sec) {
 
 /**
  * Filters sections smartly:
- * 1. If searching a section number (e.g. "2", "8", "28", "2A", "Section 28"):
- *    - Matches EXACT section number (so "2" only gives Section 2, not 12, 20, 21, 28!).
- *    - Searching "8" only gives Section 8 (not 18, 28, 38!).
- *    - Searching "28" gives Section 28.
- *    - If no exact match (e.g. searched "2" and act only has "2A"), matches base number.
- * 2. If searching a text keyword (e.g. "power of state", "lok adalat", "rules"):
- *    - Performs normal text matching across title, section label, and description.
+ * 1. If searching an explicit chapter (e.g. "Chapter 4", "Chapter IV", "Ch 4A"):
+ *    - Matches all sections in that chapter by string comparison.
+ * 2. If searching a section/chapter number (e.g. "4", "2", "28", "2A", "Section 28"):
+ *    - Matches exact section number OR exact chapter value (as strings).
+ * 3. If searching a non-numeric chapter value (e.g. "IV", "4A", "IX-A"):
+ *    - Matches exact chapter value (as strings).
+ * 4. Keyword search across title, section label, description, and chapter metadata.
  */
 export function filterSectionsSmart(sections = [], query = "") {
   if (!Array.isArray(sections) || sections.length === 0) return [];
   const qTrim = String(query || "").trim();
   if (!qTrim) return [];
 
+  const isExplicitChapter = /^(?:chapter|ch|ch\.)\s+/i.test(qTrim);
+  const cleanChapterQuery = qTrim
+    .replace(/^(?:chapter|ch|ch\.)\s*/i, "")
+    .trim()
+    .toLowerCase();
+
+  if (isExplicitChapter && cleanChapterQuery) {
+    const chapterMatches = sections.filter((sec) => {
+      const cNo = String(sec?.chapterNo ?? "").trim().toLowerCase();
+      return cNo !== "" && cNo === cleanChapterQuery;
+    });
+    if (chapterMatches.length > 0) {
+      return chapterMatches;
+    }
+  }
+
+  const qLower = qTrim.toLowerCase();
   const qSec = parseSectionNumber(qTrim);
 
   if (qSec) {
-    // Exact match on section number (e.g. "2" === "2", "28" === "28", "2a" === "2a")
+    // Exact match on section number OR exact chapter value
     const exactMatches = sections.filter((sec) => {
       const sParsed = getSectionParsed(sec);
-      return sParsed && sParsed.full === qSec.full;
+      const isSecMatch = sParsed && sParsed.full === qSec.full;
+      const cNo = String(sec?.chapterNo ?? "").trim().toLowerCase();
+      const isChapMatch = cNo !== "" && cNo === qLower;
+      return isSecMatch || isChapMatch;
     });
 
     if (exactMatches.length > 0) {
@@ -159,18 +175,34 @@ export function filterSectionsSmart(sections = [], query = "") {
     if (baseMatches.length > 0) {
       return baseMatches;
     }
+  } else {
+    // Check for exact chapter value match (e.g. "IV", "IX-A")
+    const chapterMatches = sections.filter((sec) => {
+      const cNo = String(sec?.chapterNo ?? "").trim().toLowerCase();
+      return cNo !== "" && cNo === qLower;
+    });
+
+    if (chapterMatches.length > 0) {
+      return chapterMatches;
+    }
   }
 
   // Text keyword search
-  const qLower = qTrim.toLowerCase();
   return sections.filter((sec) => {
     const sStr = String(sec?.section || "").toLowerCase();
     const tStr = String(sec?.title || "").toLowerCase();
     const dStr = String(sec?.description || "").toLowerCase();
+    const cNo = String(sec?.chapterNo ?? "").trim().toLowerCase();
+    const cName = String(sec?.chapterName ?? "").toLowerCase();
+    const cHeading = cNo ? `chapter ${cNo}` : "";
+
     return (
       sStr.includes(qLower) ||
       tStr.includes(qLower) ||
-      dStr.includes(qLower)
+      dStr.includes(qLower) ||
+      (cNo !== "" && cNo === qLower) ||
+      (cHeading !== "" && cHeading.includes(qLower)) ||
+      cName.includes(qLower)
     );
   });
 }
