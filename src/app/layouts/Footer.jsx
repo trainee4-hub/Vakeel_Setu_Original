@@ -1,9 +1,23 @@
 import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   FiArrowRight,
   FiHeadphones,
   FiShield,
+  FiHome,
+  FiSearch,
+  FiCalendar,
+  FiMessageSquare,
+  FiCpu,
+  FiFileText,
+  FiBookOpen,
+  FiBell,
+  FiLayers,
+  FiCheckSquare,
+  FiHelpCircle,
+  FiGrid,
+  FiBookmark,
+  FiLifeBuoy,
 } from "react-icons/fi";
 import {
   FaBalanceScale,
@@ -14,7 +28,6 @@ import { useAuth } from "../../features/auth";
 
 const Footer = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { isLoggedIn } = useAuth();
 
   const currentYear = new Date().getFullYear();
@@ -30,38 +43,6 @@ const Footer = () => {
     }
 
     navigate(path);
-  };
-
-  const handleNavigate = (path) => {
-    // Hash navigation
-    if (path.includes("#")) {
-      const [pathname, hash] = path.split("#");
-
-      if (location.pathname === pathname) {
-        const element = document.getElementById(hash);
-
-        if (element) {
-          element.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        }
-
-        return;
-      }
-
-      navigate(path);
-      return;
-    }
-
-    navigate(path);
-
-    requestAnimationFrame(() => {
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    });
   };
 
   return (
@@ -238,9 +219,8 @@ const Footer = () => {
               </div>
 
               {/* CTA BUTTON */}
-              <button
-                type="button"
-                onClick={() => handleNavigate("/find-lawyer")}
+              <Link
+                to="/find-lawyer"
                 className="
                   group/cta
                   inline-flex
@@ -281,7 +261,7 @@ const Footer = () => {
                     group-hover/cta:translate-x-1
                   "
                 />
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -308,9 +288,8 @@ const Footer = () => {
           ================================================= */}
           <div className="min-w-0">
             {/* BRAND LOGO */}
-            <button
-              type="button"
-              onClick={() => handleNavigate("/")}
+            <Link
+              to="/"
               className="
                 group/logo
                 flex
@@ -381,7 +360,7 @@ const Footer = () => {
                   Legal Tech Excellence
                 </p>
               </div>
-            </button>
+            </Link>
 
             {/* BRAND DESCRIPTION */}
             <p
@@ -419,32 +398,37 @@ const Footer = () => {
               PLATFORM
           ================================================= */}
           <div className="min-w-0">
-            <FooterHeading>Platform</FooterHeading>
+            <FooterHeading icon={FiGrid}>Platform</FooterHeading>
 
             <FooterNav ariaLabel="Platform">
               <FooterLink
                 label="Home"
-                onClick={() => handleNavigate("/")}
+                to="/"
+                icon={FiHome}
               />
 
               <FooterLink
                 label="Find Lawyer"
-                onClick={() => handleNavigate("/find-lawyer")}
+                to="/find-lawyer"
+                icon={FiSearch}
               />
 
               <FooterLink
                 label="Bookings"
                 onClick={() => handleProtectedNavigation("/bookings")}
+                icon={FiCalendar}
               />
 
               <FooterLink
                 label="Messages"
                 onClick={() => handleProtectedNavigation("/messages")}
+                icon={FiMessageSquare}
               />
 
               <FooterLink
                 label="Legal Assistant"
                 onClick={() => handleProtectedNavigation("/legal-assistant")}
+                icon={FiCpu}
               />
             </FooterNav>
           </div>
@@ -453,32 +437,37 @@ const Footer = () => {
               RESOURCES
           ================================================= */}
           <div className="min-w-0">
-            <FooterHeading>Resources</FooterHeading>
+            <FooterHeading icon={FiBookmark}>Resources</FooterHeading>
 
             <FooterNav ariaLabel="Resources">
               <FooterLink
                 label="Rights"
-                onClick={() => handleNavigate("/resources#rights")}
+                to="/legal-hub/rights"
+                icon={FiShield}
               />
 
               <FooterLink
                 label="Articles"
-                onClick={() => handleNavigate("/resources#articles")}
+                to="/legal-hub/articles"
+                icon={FiFileText}
               />
 
               <FooterLink
                 label="Guides"
-                onClick={() => handleNavigate("/resources#guides")}
+                to="/legal-hub/guides"
+                icon={FiBookOpen}
               />
 
               <FooterLink
                 label="Updates"
-                onClick={() => handleNavigate("/resources#updates")}
+                to="/legal-hub/updates"
+                icon={FiBell}
               />
 
               <FooterLink
                 label="All Resources"
-                onClick={() => handleNavigate("/resources")}
+                to="/legal-hub"
+                icon={FiLayers}
               />
             </FooterNav>
           </div>
@@ -487,29 +476,25 @@ const Footer = () => {
               LEGAL & SUPPORT
           ================================================= */}
           <div className="min-w-0">
-            <FooterHeading>Legal & Support</FooterHeading>
+            <FooterHeading icon={FiLifeBuoy}>Legal & Support</FooterHeading>
 
             <FooterNav ariaLabel="Legal and Support">
               <FooterLink
-                label="Privacy Policy"
-                onClick={() => handleNavigate("/privacy-policy")}
-              />
-
-              <FooterLink
                 label="Terms of Service"
-                onClick={() => handleNavigate("/terms")}
+                to="/terms"
+                icon={FiCheckSquare}
               />
 
               <FooterLink
                 label="Support"
-                onClick={() => handleNavigate("/help")}
+                to="/help"
+                icon={FiHelpCircle}
               />
             </FooterNav>
 
             {/* SUPPORT CARD */}
-            <button
-              type="button"
-              onClick={() => handleNavigate("/help")}
+            <Link
+              to="/help"
               className="
                 group/support
                 mt-3
@@ -583,7 +568,7 @@ const Footer = () => {
                   Visit Support Center
                 </p>
               </div>
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -659,19 +644,44 @@ const Footer = () => {
    FOOTER HEADING
 ============================================================ */
 
-const FooterHeading = ({ children }) => {
+const FooterHeading = ({ icon: Icon, children }) => {
   return (
-    <h4
-      className="
-        text-[11px]
-        font-extrabold
-        uppercase
-        tracking-[0.16em]
-        text-slate-200
-      "
-    >
-      {children}
-    </h4>
+    <div className="flex items-center gap-2.5">
+      {Icon && (
+        <span
+          className="
+            flex
+            h-7
+            w-7
+            shrink-0
+            items-center
+            justify-center
+            rounded-lg
+            border
+            border-amber-500/25
+            bg-gradient-to-br
+            from-amber-500/15
+            to-amber-500/5
+            text-amber-400
+            shadow-[0_0_12px_rgba(245,158,11,0.12)]
+          "
+          aria-hidden="true"
+        >
+          <Icon className="text-sm" />
+        </span>
+      )}
+      <h4
+        className="
+          text-[11px]
+          font-extrabold
+          uppercase
+          tracking-[0.16em]
+          text-slate-200
+        "
+      >
+        {children}
+      </h4>
+    </div>
   );
 };
 
@@ -700,35 +710,60 @@ const FooterNav = ({ children, ariaLabel }) => {
    FOOTER LINK
 ============================================================ */
 
-const FooterLink = ({ label, onClick }) => {
+const FooterLink = ({ label, to, onClick, icon: Icon }) => {
+  const content = (
+    <>
+      {Icon && (
+        <span
+          className="
+            flex
+            h-6
+            w-6
+            shrink-0
+            items-center
+            justify-center
+            rounded-md
+            border
+            border-slate-800/90
+            bg-slate-900/80
+            text-slate-400
+            transition-all
+            duration-250
+            ease-out
+            group-hover/link:border-amber-500/30
+            group-hover/link:bg-amber-500/10
+            group-hover/link:text-amber-400
+            group-hover/link:scale-105
+          "
+          aria-hidden="true"
+        >
+          <Icon className="text-xs transition-colors duration-250" />
+        </span>
+      )}
+      <span className="transition-colors duration-250 group-hover/link:text-white">
+        {label}
+      </span>
+    </>
+  );
+
+  const className =
+    "group/link inline-flex items-center gap-2.5 text-left text-[13px] font-medium leading-5 text-slate-300 transition-all duration-250 ease-out hover:translate-x-1 focus:outline-none focus-visible:translate-x-1 focus-visible:text-amber-500";
+
+  if (to) {
+    return (
+      <Link to={to} className={className}>
+        {content}
+      </Link>
+    );
+  }
+
   return (
     <button
       type="button"
       onClick={onClick}
-      className="
-        group/link
-        block
-        w-fit
-        shrink-0
-        p-0
-        m-0
-        whitespace-nowrap
-        text-left
-        text-[13px]
-        font-medium
-        leading-5
-        text-slate-300
-        transition-all
-        duration-250
-        ease-out
-        hover:translate-x-1
-        hover:text-white
-        focus:outline-none
-        focus-visible:translate-x-1
-        focus-visible:text-amber-500
-      "
+      className={className}
     >
-      {label}
+      {content}
     </button>
   );
 };

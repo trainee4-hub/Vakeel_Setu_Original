@@ -26,7 +26,7 @@ import {
   AdvocatePricing,
   AdvocateRoutes,
 } from "../../features/advocate";
-import { Help, NotFoundPage } from "../../features/marketing";
+import { Help, NotFoundPage, TermsPage } from "../../features/marketing";
 import ErrorBoundary from "@shared/components/feedback/ErrorBoundary";
 
 import ProtectedRoute from "./ProtectedRoute";
@@ -359,11 +359,16 @@ const AppRoutes = () => {
         element={<LegalHubDetail />}
       />
 
-      {/* ================= HELP ================= */}
+      {/* ================= HELP & LEGAL ================= */}
 
       <Route
         path="/help"
         element={<Help />}
+      />
+
+      <Route
+        path="/terms"
+        element={<TermsPage />}
       />
 
       {/* ================= FALLBACK ================= */}
