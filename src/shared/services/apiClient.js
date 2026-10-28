@@ -3,7 +3,7 @@
 ============================================================================ */
 
 const RAW_API_URL = (
-  import.meta.env.VITE_API_URL ||
+  import.meta.env?.VITE_API_URL ||
   "backend-vakeelsetu.vercel.app"
 ).trim();
 
@@ -113,18 +113,91 @@ const inFlightRequests = new Map();
 
 const DEFAULT_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes
 
+/* =========================================================================
+   CENTRAL MUTATION -> READ CACHE INVALIDATION MAP
+   Maps each admin mutation endpoint to every public & admin read resource path
+   it affects (including query-param and sub-path variants).
+============================================================================ */
+
+export const MUTATION_INVALIDATION_MAP = {
+  // Bare Acts: categories, acts, sections, search
+  "/admin/bearer-acts": ["/bearer-acts", "/acts", "/sections", "/laws", "/admin/bearer-acts", "/admin/acts", "/admin/sections"],
+  "/admin/acts":        ["/bearer-acts", "/acts", "/sections", "/laws", "/admin/bearer-acts", "/admin/acts", "/admin/sections"],
+  "/admin/sections":    ["/bearer-acts", "/acts", "/sections", "/laws", "/admin/bearer-acts", "/admin/acts", "/admin/sections"],
+
+  // Other Legal Hub content:
+  "/admin/blogs":       ["/blogs", "/admin/blogs"],
+  "/admin/ipc":         ["/ipc", "/admin/ipc"],
+  "/admin/bns":         ["/bns", "/admin/bns"],
+  "/admin/guides":      ["/guides", "/admin/guides"],
+  "/admin/updates":     ["/updates", "/admin/updates"],
+  "/admin/user-rights": ["/user-rights", "/admin/user-rights"],
+};
+
+function getApiPathFromCacheKey(key) {
+  const colonIndex = key.indexOf(":");
+  if (colonIndex === -1) return "";
+  const urlStr = key.slice(colonIndex + 1);
+
+  if (urlStr.startsWith(API_BASE_URL)) {
+    const rel = urlStr.slice(API_BASE_URL.length);
+    return rel.split("?")[0];
+  }
+
+  try {
+    const parsed = new URL(urlStr);
+    let pathname = parsed.pathname;
+    if (pathname.startsWith("/api/")) {
+      pathname = pathname.slice(4);
+    } else if (pathname === "/api") {
+      pathname = "/";
+    }
+    return pathname;
+  } catch {
+    return urlStr.split("?")[0];
+  }
+}
+
+function isPathMatchingResource(cachedPath, targetResource) {
+  const normCached = cachedPath.startsWith("/") ? cachedPath : `/${cachedPath}`;
+  const normTarget = targetResource.startsWith("/") ? targetResource : `/${targetResource}`;
+
+  if (normCached === normTarget) return true;
+  if (normCached.startsWith(`${normTarget}/`)) return true;
+
+  return false;
+}
+
 /**
  * Clear entries from the in-memory cache.
- * If prefix is provided, only keys containing prefix are cleared.
- * Otherwise, the entire cache is cleared.
+ * Accepts a resource string or an array of resource strings.
+ * Matches exact resource boundaries regardless of token (admin, user, anon).
+ * If empty/omitted, clears the entire cache.
  */
-export function clearApiCache(prefix = "") {
-  if (!prefix) {
+export function clearApiCache(resources = "") {
+  if (!resources) {
     apiCache.clear();
     return;
   }
+
+  const targets = Array.isArray(resources)
+    ? resources.filter(Boolean)
+    : [resources].filter(Boolean);
+
+  if (targets.length === 0) {
+    apiCache.clear();
+    return;
+  }
+
   for (const key of apiCache.keys()) {
-    if (key.includes(prefix)) {
+    const cachedPath = getApiPathFromCacheKey(key);
+    const shouldDelete = targets.some((target) => {
+      if (typeof target === "string" && target.startsWith("/")) {
+        return isPathMatchingResource(cachedPath, target);
+      }
+      return key.includes(target);
+    });
+    if (shouldDelete) {
       apiCache.delete(key);
     }
   }
@@ -338,7 +411,13 @@ export async function apiRequest(
     } else if (!isGet) {
       // 4. Invalidate related cache on mutation
       const prefix = getResourcePrefix(normalizedPath);
-      if (prefix) {
+      const mappedTargets = MUTATION_INVALIDATION_MAP[prefix];
+      if (mappedTargets && mappedTargets.length > 0) {
+        if (import.meta.env.DEV) {
+          console.log(`[apiClient] (cache invalidate) mutation ${normalizedPath} clearing:`, mappedTargets);
+        }
+        clearApiCache(mappedTargets);
+      } else if (prefix) {
         clearApiCache(prefix);
       }
     }
