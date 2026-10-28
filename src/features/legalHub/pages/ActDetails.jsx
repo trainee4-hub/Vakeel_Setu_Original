@@ -1467,7 +1467,7 @@ return (
                                     const cName = cleanChapterName(group.chapterName);
                                     return cName ? cName.toLowerCase() === String(chapterParam).trim().toLowerCase() : false;
                                   });
-                                  return matchingGroup ? chapterLabel(matchingGroup) : "Sections";
+                                  return matchingGroup ? chapterLabel(matchingGroup) || "Sections" : "Sections";
                                 })()}
                       </span>
                     </span>
