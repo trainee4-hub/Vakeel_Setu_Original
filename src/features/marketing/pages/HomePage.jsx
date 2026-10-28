@@ -9,6 +9,7 @@ import CategoriesSection from "../components/sections/CategoriesSection";
 import LegalExcellenceSection from "../components/sections/LegalExcellenceSection";
 import HowItWorksSection from "../components/sections/HowItWorksSection";
 import TestimonialsSection from "../components/sections/TestimonialsSection";
+import NationalLegacySection from "../components/sections/NationalLegacySection";
 import FaqSection from "../components/sections/FaqSection";
 import HelpSection from "../components/sections/HelpSection";
 
@@ -134,6 +135,8 @@ const HomePage = () => {
       />
 
       <TestimonialsSection />
+
+      <NationalLegacySection />
 
       <FaqSection />
 

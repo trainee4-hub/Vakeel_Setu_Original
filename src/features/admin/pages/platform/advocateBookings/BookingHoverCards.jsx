@@ -531,9 +531,6 @@ export function AdvocateHoverCell({ advocate, className = "" }) {
             <p className="font-semibold text-slate-900 text-sm group-hover/cell:text-amber-700 transition-colors truncate">
               {name}
             </p>
-            <span className="text-[10px] font-bold text-amber-600/80 opacity-0 group-hover/cell:opacity-100 transition-opacity shrink-0">
-              Details
-            </span>
           </div>
           {barCouncilId ? (
             <p className="font-mono text-xs text-slate-500 truncate">ID: {barCouncilId}</p>
@@ -574,48 +571,69 @@ export function ClientHoverCell({ item, className = "" }) {
 
   const profileUrl = userId ? ADMIN_PATHS.users.detail(userId) : null;
 
-  // Booking status calculation
-  const isCompleted = Boolean(item?.completedAt || item?.status === "COMPLETED");
+  // Derived status strictly matching the Private Advocate Bookings tab's STATUS column
+  const isCompleted = Boolean(
+    item?.completedAt ||
+    item?.status === "COMPLETED" ||
+    item?.callStatus === "COMPLETED"
+  );
   const isConfirmedOrPaid = ["CONFIRMED", "PAID"].includes(item?.status);
   const isHold = item?.status === "HOLD";
   const isRefundPending = item?.status === "REFUND_PENDING";
   const isRefunded = item?.status === "REFUNDED";
+  const isCancelled = ["CANCELLED", "EXPIRED", "FAILED"].includes(item?.status);
 
   let statusBadge;
   if (isCompleted) {
     statusBadge = (
-      <span className="inline-flex items-center rounded-md bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-300 border border-emerald-500/30">
-        Completed
+      <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-300 border border-emerald-500/30">
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+        Consultation Completed
       </span>
     );
-  } else if (isConfirmedOrPaid) {
+  } else if (isConfirmedOrPaid || item?.status === "PENDING" || item?.callStatus === "PENDING") {
+    // When confirmed/paid, consultation call is pending — exactly matching the table's "Consultation Pending" status
     statusBadge = (
-      <span className="inline-flex items-center rounded-md bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold text-amber-300 border border-amber-400/30">
-        Confirmed
+      <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-400/20 px-2.5 py-0.5 text-[10px] font-semibold text-amber-300 border border-amber-400/30">
+        <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+        Consultation Pending
       </span>
     );
   } else if (isHold) {
     statusBadge = (
-      <span className="inline-flex items-center rounded-md bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold text-amber-300 border border-amber-400/30">
-        Held
+      <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-400/20 px-2.5 py-0.5 text-[10px] font-semibold text-amber-300 border border-amber-400/30">
+        <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+        Slot Held
       </span>
     );
   } else if (isRefundPending) {
     statusBadge = (
-      <span className="inline-flex items-center rounded-md bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold text-amber-300 border border-amber-400/30">
+      <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-400/20 px-2.5 py-0.5 text-[10px] font-semibold text-amber-300 border border-amber-400/30">
+        <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
         Refund Pending
       </span>
     );
   } else if (isRefunded) {
     statusBadge = (
-      <span className="inline-flex items-center rounded-md bg-slate-400/20 px-2 py-0.5 text-[10px] font-semibold text-slate-300 border border-slate-400/30">
+      <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-400/20 px-2.5 py-0.5 text-[10px] font-semibold text-slate-300 border border-slate-400/30">
+        <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
         Refunded
+      </span>
+    );
+  } else if (isCancelled) {
+    const raw = String(item?.status || "Cancelled");
+    const label = raw.charAt(0) + raw.slice(1).toLowerCase();
+    statusBadge = (
+      <span className="inline-flex items-center gap-1.5 rounded-md bg-rose-500/20 px-2.5 py-0.5 text-[10px] font-semibold text-rose-300 border border-rose-500/30">
+        <span className="h-1.5 w-1.5 rounded-full bg-rose-400" />
+        {label}
       </span>
     );
   } else {
     statusBadge = (
-      <span className="inline-flex items-center rounded-md bg-rose-500/20 px-2 py-0.5 text-[10px] font-semibold text-rose-300 border border-rose-500/30">
-        {item?.status || "Pending"}
+      <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-500/20 px-2.5 py-0.5 text-[10px] font-semibold text-slate-300 border border-slate-500/30">
+        <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
+        {item?.status || "—"}
       </span>
     );
   }
@@ -632,9 +650,6 @@ export function ClientHoverCell({ item, className = "" }) {
             <p className="font-semibold text-slate-900 text-sm group-hover/cell:text-amber-700 transition-colors truncate">
               {name}
             </p>
-            <span className="text-[10px] font-bold text-amber-600/80 opacity-0 group-hover/cell:opacity-100 transition-opacity shrink-0">
-              Details
-            </span>
           </div>
           <p className="font-mono text-xs text-slate-500 truncate">{phone || "—"}</p>
           {email ? (
@@ -649,7 +664,7 @@ export function ClientHoverCell({ item, className = "" }) {
             {/* Top row: Category tag + Close button */}
             <div className="flex items-center justify-between gap-2 mb-3">
               <span className="text-[10px] font-extrabold uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-amber-400 " />
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
                 Client Details
               </span>
               <button
@@ -698,11 +713,8 @@ export function ClientHoverCell({ item, className = "" }) {
                   {bookingRef ? `Ref: ${bookingRef}` : "Client Consultation"}
                 </p>
 
-                {/* Status Pills */}
+                {/* Status Pills (Client tag removed per user request) */}
                 <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                  <span className="inline-flex items-center rounded-md bg-amber-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-950 shadow-2xs">
-                    Client
-                  </span>
                   {statusBadge}
                 </div>
               </div>
@@ -735,14 +747,14 @@ export function ClientHoverCell({ item, className = "" }) {
                     <a
                       href={`mailto:${email}`}
                       onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center gap-1 font-mono text-[11px] text-slate-700 hover:text-amber-700 hover:underline truncate max-w-full"
+                      className="inline-flex items-center gap-1.5 font-sans text-xs font-medium text-slate-800 hover:text-amber-600 hover:underline transition-colors truncate max-w-full tracking-normal"
                       title={email}
                     >
-                      <FiMail className="shrink-0 text-slate-400" size={11} />
+                      <FiMail className="shrink-0 text-slate-400" size={13} />
                       <span className="truncate">{email}</span>
                     </a>
                   ) : (
-                    <span className="text-xs text-slate-400">—</span>
+                    <span className="font-sans text-xs text-slate-400">—</span>
                   )}
                 </div>
               </div>
