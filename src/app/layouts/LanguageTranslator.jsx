@@ -220,11 +220,11 @@ const LanguageTranslator = ({ mobile = false }) => {
         <button
           type="button"
           onClick={() => setOpen((prev) => !prev)}
-          className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-700 transition-colors hover:bg-white"
+          className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-300 transition-colors hover:bg-slate-800/60"
           aria-expanded={open}
         >
           <span className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-xl text-amber-600">
+            <span className="material-symbols-outlined text-xl text-amber-400">
               language
             </span>
 
@@ -234,7 +234,7 @@ const LanguageTranslator = ({ mobile = false }) => {
           </span>
 
           <span className="flex items-center gap-2">
-            <span className="max-w-[110px] truncate text-xs font-bold text-amber-600">
+            <span className="max-w-[110px] truncate text-xs font-bold text-amber-400">
               {selected.nativeName}
             </span>
 
@@ -249,8 +249,8 @@ const LanguageTranslator = ({ mobile = false }) => {
         </button>
 
         {open && (
-          <div className="mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-100 p-2">
+          <div className="mt-2 overflow-hidden rounded-xl border border-slate-800 bg-[#0d1424] shadow-xl">
+            <div className="border-b border-slate-800/80 p-2">
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400">
                   search
@@ -263,7 +263,7 @@ const LanguageTranslator = ({ mobile = false }) => {
                     setSearch(event.target.value)
                   }
                   placeholder="Search language..."
-                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm text-slate-700 outline-none transition focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-100"
+                  className="h-10 w-full rounded-lg border border-slate-700 bg-slate-900/90 pl-10 pr-3 text-sm text-slate-200 placeholder-slate-400 outline-none transition focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20"
                 />
               </div>
             </div>
@@ -282,8 +282,8 @@ const LanguageTranslator = ({ mobile = false }) => {
                     }
                     className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left transition-colors ${
                       active
-                        ? "bg-amber-50 text-amber-700"
-                        : "text-slate-700 hover:bg-slate-50"
+                        ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                        : "text-slate-300 hover:bg-slate-800/60 hover:text-white"
                     }`}
                   >
                     <span>
@@ -300,7 +300,7 @@ const LanguageTranslator = ({ mobile = false }) => {
                     </span>
 
                     {active && (
-                      <span className="material-symbols-outlined text-lg text-amber-600">
+                      <span className="material-symbols-outlined text-lg text-amber-400">
                         check
                       </span>
                     )}
@@ -329,8 +329,8 @@ const LanguageTranslator = ({ mobile = false }) => {
         onClick={() => setOpen((prev) => !prev)}
         className={`flex h-10 items-center gap-2 rounded-xl border px-3 transition-all duration-200 ${
           open
-            ? "border-amber-300 bg-amber-50 text-amber-700"
-            : "border-slate-200 bg-white text-slate-600 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700"
+            ? "border-amber-500/80 bg-slate-800 text-amber-400 shadow-sm"
+            : "border-slate-700/80 bg-slate-800/40 text-slate-200 hover:border-amber-500/60 hover:bg-slate-800/80 hover:text-amber-300"
         }`}
         aria-label="Select language"
         aria-expanded={open}
@@ -353,21 +353,21 @@ const LanguageTranslator = ({ mobile = false }) => {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-[300] mt-3 w-[340px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/10">
-          <div className="border-b border-slate-100 p-4">
+        <div className="absolute right-0 top-full z-[300] mt-3 w-[340px] overflow-hidden rounded-2xl border border-slate-800 bg-[#0d1424] shadow-2xl shadow-black/70 backdrop-blur-xl">
+          <div className="border-b border-slate-800/80 p-4">
             <div className="mb-3 flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400">
                 <span className="material-symbols-outlined">
                   translate
                 </span>
               </div>
 
               <div>
-                <p className="text-sm font-bold text-slate-900">
+                <p className="text-sm font-bold text-slate-100">
                   Choose Language
                 </p>
 
-                <p className="mt-0.5 text-xs leading-5 text-slate-500">
+                <p className="mt-0.5 text-xs leading-5 text-slate-400">
                   Translate Vakeel Setu into your preferred
                   language.
                 </p>
@@ -387,7 +387,7 @@ const LanguageTranslator = ({ mobile = false }) => {
                 }
                 placeholder="Search languages..."
                 autoFocus
-                className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm text-slate-700 outline-none transition-all focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-100"
+                className="h-10 w-full rounded-xl border border-slate-700 bg-slate-900/90 pl-10 pr-3 text-sm text-slate-200 placeholder-slate-400 outline-none transition-all focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20"
               />
             </div>
           </div>
@@ -406,8 +406,8 @@ const LanguageTranslator = ({ mobile = false }) => {
                   }
                   className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left transition-all ${
                     active
-                      ? "bg-amber-50 text-amber-700"
-                      : "text-slate-700 hover:bg-slate-50"
+                      ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                      : "text-slate-200 hover:bg-slate-800/70 hover:text-white"
                   }`}
                 >
                   <div className="min-w-0">
@@ -424,7 +424,7 @@ const LanguageTranslator = ({ mobile = false }) => {
                   </div>
 
                   {active && (
-                    <span className="material-symbols-outlined text-lg text-amber-600">
+                    <span className="material-symbols-outlined text-lg text-amber-400">
                       check_circle
                     </span>
                   )}
@@ -434,18 +434,18 @@ const LanguageTranslator = ({ mobile = false }) => {
 
             {filteredLanguages.length === 0 && (
               <div className="px-4 py-8 text-center">
-                <span className="material-symbols-outlined text-3xl text-slate-300">
+                <span className="material-symbols-outlined text-3xl text-slate-600">
                   search_off
                 </span>
 
-                <p className="mt-2 text-sm font-semibold text-slate-500">
+                <p className="mt-2 text-sm font-semibold text-slate-400">
                   No language found
                 </p>
               </div>
             )}
           </div>
 
-          <div className="border-t border-slate-100 bg-slate-50/70 px-4 py-2.5">
+          <div className="border-t border-slate-800/80 bg-slate-900/60 px-4 py-2.5">
             <p className="text-[10px] leading-4 text-slate-400">
               Translation is provided automatically and may
               not preserve the exact meaning of legal terms.

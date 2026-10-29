@@ -12,6 +12,7 @@ import {
 } from "react-icons/fi";
 
 import { HERO_STATS, PAGE_CONTAINER } from "../../data/dashboardData";
+import heroBg from "../../../../assets/home/hero-bg.jpg";
 
 /**
  * Converts the existing Material Symbol icon names coming from HERO_STATS
@@ -50,15 +51,30 @@ const HeroSection = ({
   onHowItWorks,
 }) => {
   return (
-    <section className="relative overflow-hidden bg-slate-900 pb-20 pt-12 sm:pb-20 sm:pt-14 lg:pb-20 lg:pt-14">
-      {/* Background Effects */}
+    <section className="relative overflow-hidden bg-[#070b14] pb-20 pt-12 sm:pb-20 sm:pt-14 lg:pb-20 lg:pt-14">
+      {/* ── Background: Clearly Visible Law Chamber & Library with Deep Navy/Slate Tint ── */}
       <div
-        className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+        className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none"
         aria-hidden="true"
       >
-        <div className="absolute -left-[10%] -top-[20%] h-[60%] w-[60%] animate-float rounded-full bg-amber-500/10 blur-[120px]" />
+        {/* Law Chamber & Library Photo (Clearly visible: bookshelves, desk lamp on right, scales on left) */}
+        <img
+          src={heroBg}
+          alt=""
+          role="presentation"
+          fetchPriority="high"
+          className="absolute inset-0 h-full w-full object-cover object-center opacity-80 sm:opacity-85 filter brightness-[0.82] contrast-[1.08] saturate-[0.92]"
+        />
 
-        <div className="absolute right-0 top-[30%] h-[70%] w-[50%] animate-float-delayed rounded-full bg-blue-600/10 blur-[100px]" />
+        {/* Deep Slate/Navy Directional Overlay (Preserves visible chamber detail while providing contrast) */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#070b14]/75 via-[#070b14]/40 to-[#070b14]/85" />
+
+        {/* Soft Radial Focus behind text */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_35%,rgba(7,11,20,0.25)_0%,rgba(7,11,20,0.55)_65%,rgba(7,11,20,0.85)_100%)]" />
+
+        {/* Warm Amber Glow on the Right (Echoes the cozy desk lamp warmth) */}
+        <div className="absolute right-[5%] top-[15%] h-[65%] w-[45%] rounded-full bg-amber-500/[0.14] blur-[90px]" />
+        <div className="absolute -left-[5%] top-[25%] h-[50%] w-[35%] rounded-full bg-slate-800/[0.20] blur-[100px]" />
       </div>
 
       <div
