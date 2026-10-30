@@ -143,13 +143,48 @@ export default function ProfileChangeRequestsList() {
     setSearchParams(next);
   };
 
+function getRowAdvocateInfo(row) {
+  const advocate = row?.advocate || {};
+  const advocateId = row?.advocateId || advocate.id || row?.id;
+  const fullName = advocate.fullName || row?.fullName || advocate.name || row?.name || "Advocate";
+  const email = advocate.email || row?.email || "";
+  const phone = advocate.phone || row?.phone || "";
+  const barCouncilId = advocate.barCouncilId || advocate.barId || row?.barCouncilId || row?.barId || "";
+  const profileImage = advocate.profileImage || advocate.profilePhotoUrl || row?.profilePhotoUrl || "";
+  const changedFields =
+    (Array.isArray(row?.changedFields) && row.changedFields) ||
+    (Array.isArray(row?.requestedFields) && row.requestedFields) ||
+    (typeof row?.requestedFields === "object" && row?.requestedFields !== null && Object.keys(row.requestedFields)) ||
+    (Array.isArray(row?.fields) && row.fields) ||
+    [];
+  const status = row?.profileChangeStatus || row?.status || "SUBMITTED";
+  const submittedAt =
+    row?.profileChangeSubmittedAt ||
+    row?.submittedAt ||
+    row?.profileChangeUpdatedAt ||
+    row?.updatedAt ||
+    null;
+
+  return {
+    advocateId,
+    fullName,
+    email,
+    phone,
+    barCouncilId,
+    profileImage,
+    changedFields,
+    status,
+    submittedAt,
+  };
+}
+
   const counts = data.counts || {};
-  const pendingCount = counts.submitted ?? counts.pending ?? 0;
-  const approvedCount = counts.approved ?? 0;
-  const rejectedCount = counts.rejected ?? 0;
+  const pendingCount = counts.submitted ?? counts.SUBMITTED ?? counts.pending ?? counts.PENDING ?? 0;
+  const approvedCount = counts.approved ?? counts.APPROVED ?? 0;
+  const rejectedCount = counts.rejected ?? counts.REJECTED ?? 0;
   const totalCount =
-    counts.total ??
-    Number(pendingCount) + Number(approvedCount) + Number(rejectedCount);
+    counts.all ?? counts.ALL ?? counts.total ?? counts.TOTAL ??
+    (Number(pendingCount) + Number(approvedCount) + Number(rejectedCount));
 
   const tabs = [
     { key: "SUBMITTED", label: "Pending Review", count: pendingCount },
@@ -165,22 +200,29 @@ export default function ProfileChangeRequestsList() {
         header: "Advocate",
         primary: true,
         render: (row) => {
-          const name = row.fullName || row.name || "Advocate";
-          const advocateId = row.advocateId || row.id;
+          const { advocateId, fullName, email, profileImage } = getRowAdvocateInfo(row);
           return (
             <div className="flex items-center gap-3 min-w-0">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-xs font-bold text-white shadow-2xs">
-                {name.slice(0, 2).toUpperCase()}
-              </div>
+              {profileImage ? (
+                <img
+                  src={profileImage}
+                  alt={fullName}
+                  className="h-9 w-9 shrink-0 rounded-xl object-cover ring-1 ring-slate-200"
+                />
+              ) : (
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-xs font-bold text-white shadow-2xs">
+                  {fullName.slice(0, 2).toUpperCase()}
+                </div>
+              )}
               <div className="flex flex-col min-w-0">
                 <Link
                   to={ADMIN_PATHS.profileChanges.detail(advocateId)}
                   className="font-bold text-slate-900 hover:text-amber-600 truncate transition"
                 >
-                  {name}
+                  {fullName}
                 </Link>
                 <span className="text-xs text-slate-500 truncate">
-                  {row.email || "—"}
+                  {email || "—"}
                 </span>
               </div>
             </div>
@@ -191,38 +233,38 @@ export default function ProfileChangeRequestsList() {
         key: "phone",
         header: "Phone",
         className: "whitespace-nowrap",
-        render: (row) => (
-          <span className="text-xs text-slate-700 whitespace-nowrap">
-            {row.phone || "—"}
-          </span>
-        ),
+        render: (row) => {
+          const { phone } = getRowAdvocateInfo(row);
+          return (
+            <span className="text-xs text-slate-700 whitespace-nowrap">
+              {phone || "—"}
+            </span>
+          );
+        },
       },
       {
         key: "barCouncilId",
         header: "Bar Council ID",
         className: "whitespace-nowrap",
-        render: (row) => (
-          <span className="font-mono text-xs text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md whitespace-nowrap">
-            {row.barCouncilId || "—"}
-          </span>
-        ),
+        render: (row) => {
+          const { barCouncilId } = getRowAdvocateInfo(row);
+          return (
+            <span className="font-mono text-xs text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md whitespace-nowrap">
+              {barCouncilId || "—"}
+            </span>
+          );
+        },
       },
       {
         key: "requestedFields",
         header: "Changed Fields",
         render: (row) => {
-          const fields = Array.isArray(row.requestedFields)
-            ? row.requestedFields
-            : typeof row.requestedFields === "object" && row.requestedFields !== null
-              ? Object.keys(row.requestedFields)
-              : Array.isArray(row.fields)
-                ? row.fields
-                : [];
+          const { changedFields } = getRowAdvocateInfo(row);
 
           // Deduplicate officeLatitude and officeLongitude into a single "Office GPS Pin"
           const displayFields = [];
           let hasGps = false;
-          fields.forEach((f) => {
+          changedFields.forEach((f) => {
             if (f === "officeLatitude" || f === "officeLongitude") {
               if (!hasGps) {
                 displayFields.push("Office GPS Pin");
@@ -260,23 +302,20 @@ export default function ProfileChangeRequestsList() {
         key: "status",
         header: "Status",
         className: "whitespace-nowrap",
-        render: (row) => (
-          <StatusBadge status={row.profileChangeStatus || row.status} />
-        ),
+        render: (row) => {
+          const { status } = getRowAdvocateInfo(row);
+          return <StatusBadge status={status} />;
+        },
       },
       {
         key: "submittedAt",
         header: "Submitted At",
         className: "whitespace-nowrap",
         render: (row) => {
-          const date =
-            row.profileChangeSubmittedAt ||
-            row.submittedAt ||
-            row.profileChangeUpdatedAt ||
-            row.updatedAt;
+          const { submittedAt } = getRowAdvocateInfo(row);
           return (
             <span className="text-xs text-slate-500 whitespace-nowrap">
-              {date ? formatDateTime(date) : "—"}
+              {submittedAt ? formatDateTime(submittedAt) : "—"}
             </span>
           );
         },
@@ -286,7 +325,7 @@ export default function ProfileChangeRequestsList() {
         header: "",
         className: "text-right whitespace-nowrap",
         render: (row) => {
-          const advocateId = row.advocateId || row.id;
+          const { advocateId } = getRowAdvocateInfo(row);
           return (
             <Link
               to={ADMIN_PATHS.profileChanges.detail(advocateId)}
@@ -402,6 +441,7 @@ export default function ProfileChangeRequestsList() {
             <ResourceTable
               data={data.items}
               keyField="advocateId"
+              getKey={(row) => row.advocateId || row.advocate?.id || row.id || row.barCouncilId || row.advocate?.barCouncilId}
               columns={columns}
             />
           </div>

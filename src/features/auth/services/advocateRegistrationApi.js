@@ -22,6 +22,7 @@ import {
   verifyAdvocateAadhaarOtp,
   initiateAdvocateDigilocker,
   verifyAdvocateDigilocker,
+  saveAdvocateOfficeProfile,
   completeAdvocateRegistration,
   getAdvocateRegistrationSession,
   getAdvocateGoogleRegisterUrl,
@@ -34,6 +35,8 @@ export {
 export {
   getAdvocateGoogleRegisterUrl,
   getAdvocateRegistrationSession,
+  saveAdvocateOfficeProfile,
+  completeAdvocateRegistration,
 };
 
 export const advocateApi = {
@@ -68,6 +71,9 @@ export const advocateApi = {
     verifyAdvocateDigilocker,
 
   completeProfile:
+    saveAdvocateOfficeProfile,
+
+  completeRegistration:
     completeAdvocateRegistration,
 
   getSession:

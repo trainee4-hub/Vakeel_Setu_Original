@@ -1026,10 +1026,11 @@ export async function verifyAdvocateDigilocker({
 }
 
 /* =========================================================================
-   COMPLETE ADVOCATE REGISTRATION
+   SAVE ADVOCATE OFFICE PROFILE (STEP 6)
+   POST /api/auth/advocate/profile (multipart/form-data)
 ============================================================================ */
 
-export async function completeAdvocateRegistration(payload) {
+export async function saveAdvocateOfficeProfile(payload) {
   if (payload instanceof FormData) {
     return authRequest(
       "/auth/advocate/profile",
@@ -1042,10 +1043,6 @@ export async function completeAdvocateRegistration(payload) {
 
   const {
     registrationId,
-    barCouncilId,
-    aadhaarNumber,
-    password,
-    languagesSpoken,
     state,
     city,
     pincode,
@@ -1100,27 +1097,71 @@ export async function completeAdvocateRegistration(payload) {
     formData.append("officePhoto", officePhoto);
   }
 
-  if (barCouncilId) {
-    formData.append("barCouncilId", String(barCouncilId).trim());
-  }
-
-  if (aadhaarNumber) {
-    formData.append("aadhaarNumber", String(aadhaarNumber).replace(/\D/g, "").slice(0, 12));
-  }
-
-  if (password) {
-    formData.append("password", String(password));
-  }
-
-  if (Array.isArray(languagesSpoken)) {
-    formData.append("languagesSpoken", JSON.stringify(languagesSpoken));
-  }
-
   return authRequest(
     "/auth/advocate/profile",
     {
       method: "POST",
       formData,
+    },
+  );
+}
+
+/* =========================================================================
+   COMPLETE ADVOCATE REGISTRATION (FINAL STEP)
+   POST /api/auth/advocate/register/complete (application/json)
+============================================================================ */
+
+export async function completeAdvocateRegistration(payload) {
+  const {
+    registrationId,
+    barCouncilId,
+    aadhaarNumber,
+    password,
+    languagesSpoken,
+    state,
+    city,
+    pincode,
+  } = payload || {};
+
+  if (!registrationId) {
+    throw new AuthApiError(
+      "Registration session is missing.",
+    );
+  }
+
+  const cleanPincode =
+    String(
+      pincode || "",
+    ).trim();
+
+  if (
+    !/^\d{6}$/.test(
+      cleanPincode,
+    )
+  ) {
+    throw new AuthApiError(
+      "Pincode must be exactly 6 digits.",
+    );
+  }
+
+  const body = {
+    registrationId,
+    barCouncilId: String(barCouncilId || "").trim(),
+    aadhaarNumber: String(aadhaarNumber || "").replace(/\D/g, "").slice(0, 12),
+    password: String(password || ""),
+    languagesSpoken: Array.isArray(languagesSpoken)
+      ? languagesSpoken.filter((l) => l && l.toLowerCase() !== "no")
+      : [],
+    state: String(state || "").trim(),
+    city: String(city || "").trim(),
+    pincode: cleanPincode,
+  };
+
+  return authRequest(
+    "/auth/advocate/register/complete",
+    {
+      method: "POST",
+      body,
     },
   );
 }

@@ -826,10 +826,14 @@ export default function AdvocateCompleteProfile() {
 
               <ReadOnlyRow
                 label="Languages"
-                value={(
-                  user?.languagesSpoken ||
-                  []
-                ).join(", ")}
+                value={
+                  <span className="notranslate" translate="no">
+                    {(user?.languagesSpoken || [])
+                      .filter((l) => Boolean(l) && l.toLowerCase() !== "no")
+                      .map((l) => l.charAt(0).toUpperCase() + l.slice(1))
+                      .join(", ") || "—"}
+                  </span>
+                }
               />
 
               <ReadOnlyRow

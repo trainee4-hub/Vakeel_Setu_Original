@@ -5,6 +5,7 @@ import { Button, Icon } from "@shared/components/ui/Button";
 import { ErrorState } from "@shared/components/feedback/ErrorState";
 import {
   approveProfileChange,
+  getAdvocate,
   getProfileChangeDetail,
   rejectProfileChange,
 } from "../../../services/platform/adminAdvocatesApi";
@@ -83,6 +84,7 @@ export default function ProfileChangeDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
+  const [advocate, setAdvocate] = useState(null);
 
   // Actions state
   const [actionLoading, setActionLoading] = useState(false);
@@ -99,8 +101,18 @@ export default function ProfileChangeDetail() {
     setLoading(true);
     setError(null);
     try {
-      const result = await getProfileChangeDetail(id);
-      setData(result);
+      const [resultSettled, advSettled] = await Promise.allSettled([
+        getProfileChangeDetail(id),
+        getAdvocate(id),
+      ]);
+      if (resultSettled.status === "fulfilled") {
+        setData(resultSettled.value);
+      } else {
+        throw resultSettled.reason;
+      }
+      if (advSettled.status === "fulfilled") {
+        setAdvocate(advSettled.value);
+      }
     } catch (err) {
       console.error("Failed to load profile change detail:", err);
       setError(err?.message || "Failed to load profile change request.");
@@ -189,10 +201,25 @@ export default function ProfileChangeDetail() {
   }
 
   const change = data.profileChange || data;
-  const current = change.current || {};
-  const requested = change.requested || {};
-  const advocateId = change.advocateId || id;
+  const advocateInfo = change.advocate || advocate || {};
+  const fullName = change.fullName || advocateInfo.fullName || advocateInfo.name || "Advocate";
+  const phone = change.phone || advocateInfo.phone || "—";
+  const barCouncilId = change.barCouncilId || advocateInfo.barCouncilId || advocateInfo.barId || "—";
+  const advocateId = change.advocateId || advocateInfo.id || id;
   const isPending = change.status === "SUBMITTED" || change.status === "PENDING";
+
+  const current = { ...(advocateInfo || {}), ...(change.current || {}) };
+  const requested = { ...(change.requested || {}) };
+
+  // If backend returns `changes` array of objects:
+  if (Array.isArray(change.changes)) {
+    change.changes.forEach((c) => {
+      if (c && c.field) {
+        if (current[c.field] === undefined) current[c.field] = c.current;
+        if (requested[c.field] === undefined) requested[c.field] = c.requested;
+      }
+    });
+  }
 
   // Check which fields have differences
   const differences = [];
@@ -279,6 +306,32 @@ export default function ProfileChangeDetail() {
     });
   }
 
+  // Any extra fields in change.changes not already included
+  if (Array.isArray(change.changes)) {
+    change.changes.forEach((c) => {
+      if (!c || !c.field) return;
+      const alreadyHandled =
+        differences.some((d) => d.key === c.field) ||
+        c.field === "officeLatitude" ||
+        c.field === "officeLongitude" ||
+        c.field === "profilePhotoUrl" ||
+        c.field === "officePhotoUrl";
+      if (!alreadyHandled) {
+        const isFee = ["videoCallChargePerMinute", "voiceCallChargePerMinute", "offlineVisitingFee"].includes(c.field);
+        const unit = c.field === "offlineVisitingFee" ? " flat" : isFee ? "/ min" : "";
+        differences.push({
+          key: c.field,
+          label: c.label || c.field.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()),
+          current: c.current,
+          requested: c.requested,
+          isFee,
+          unit,
+          isLongText: c.field === "about",
+        });
+      }
+    });
+  }
+
   // 6. Coordinates
   const hasCoordDiff =
     (requested.officeLatitude !== undefined && Number(requested.officeLatitude) !== Number(current.officeLatitude)) ||
@@ -302,7 +355,7 @@ export default function ProfileChangeDetail() {
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-xl font-extrabold text-slate-950">
-                {change.fullName || "Advocate"}
+                {fullName}
               </h1>
               <StatusBadge status={change.status} />
             </div>
@@ -384,15 +437,15 @@ export default function ProfileChangeDetail() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <span className="block text-xs text-slate-500">Full Name</span>
-            <span className="font-bold text-sm text-slate-900">{change.fullName || "—"}</span>
+            <span className="font-bold text-sm text-slate-900">{fullName}</span>
           </div>
           <div>
             <span className="block text-xs text-slate-500">Phone Number</span>
-            <span className="font-bold text-sm text-slate-900">{change.phone || "—"}</span>
+            <span className="font-bold text-sm text-slate-900">{phone}</span>
           </div>
           <div>
             <span className="block text-xs text-slate-500">Bar Council ID</span>
-            <span className="font-mono font-bold text-sm text-slate-900">{change.barCouncilId || "—"}</span>
+            <span className="font-mono font-bold text-sm text-slate-900">{barCouncilId}</span>
           </div>
           <div>
             <span className="block text-xs text-slate-500">Account Profile</span>

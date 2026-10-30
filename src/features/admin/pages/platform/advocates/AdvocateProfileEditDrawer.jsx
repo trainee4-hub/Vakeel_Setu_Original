@@ -744,21 +744,24 @@ export default function AdvocateProfileEditDrawer({
                   </div>
                   {(formState.languagesSpoken || []).length > 0 ? (
                     <div className="flex flex-wrap gap-1.5 pt-1">
-                      {formState.languagesSpoken.map((lang) => (
-                        <span
-                          key={lang}
-                          className="inline-flex items-center gap-1 rounded-md bg-amber-50 border border-amber-200 px-2 py-1 text-xs font-medium text-amber-900"
-                        >
-                          {lang}
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveLanguage(lang)}
-                            className="text-amber-600 hover:text-red-600"
+                      {formState.languagesSpoken
+                        .filter((lang) => Boolean(lang) && lang.toLowerCase() !== "no")
+                        .map((lang) => (
+                          <span
+                            key={lang}
+                            translate="no"
+                            className="notranslate inline-flex items-center gap-1 rounded-md bg-amber-50 border border-amber-200 px-2 py-1 text-xs font-medium text-amber-900"
                           >
-                            <Icon name="close" className="text-[12px]" />
-                          </button>
-                        </span>
-                      ))}
+                            {lang.charAt(0).toUpperCase() + lang.slice(1)}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveLanguage(lang)}
+                              className="text-amber-600 hover:text-red-600"
+                            >
+                              <Icon name="close" className="text-[12px]" />
+                            </button>
+                          </span>
+                        ))}
                     </div>
                   ) : null}
                 </div>

@@ -579,9 +579,12 @@ export default function AdvocateDetail() {
               </div>
               <div className="min-w-0">
                 <dt className="text-xs text-slate-500">Languages Spoken</dt>
-                <dd className="mt-1 font-medium text-slate-900 break-words">
+                <dd className="notranslate mt-1 font-medium text-slate-900 break-words" translate="no">
                   {Array.isArray(advocate.languagesSpoken) && advocate.languagesSpoken.length > 0
-                    ? advocate.languagesSpoken.join(", ")
+                    ? advocate.languagesSpoken
+                        .filter((l) => Boolean(l) && l.toLowerCase() !== "no")
+                        .map((l) => l.charAt(0).toUpperCase() + l.slice(1))
+                        .join(", ") || "—"
                     : "—"}
                 </dd>
               </div>

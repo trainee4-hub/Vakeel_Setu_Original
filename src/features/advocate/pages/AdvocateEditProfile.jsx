@@ -1682,14 +1682,17 @@ export default function AdvocateEditProfile() {
 
                   {languages.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-2">
-                      {languages.map((language, idx) => (
-                        <span
-                          key={`${language}-${idx}`}
-                          className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[11px] font-bold text-blue-700"
-                        >
-                          {language}
-                        </span>
-                      ))}
+                      {languages
+                        .filter((language) => Boolean(language) && language.toLowerCase() !== "no")
+                        .map((language, idx) => (
+                          <span
+                            key={`${language}-${idx}`}
+                            translate="no"
+                            className="notranslate rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[11px] font-bold text-blue-700"
+                          >
+                            {language.charAt(0).toUpperCase() + language.slice(1)}
+                          </span>
+                        ))}
                     </div>
                   )}
                 </Field>

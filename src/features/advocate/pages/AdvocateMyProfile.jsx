@@ -31,6 +31,7 @@ import {
   UserRound,
   Clock3,
   Video,
+  X,
 } from "lucide-react";
 
 import {
@@ -86,7 +87,8 @@ const getList = (value) =>
   Array.isArray(value)
     ? value
       .map(cleanText)
-      .filter(Boolean)
+      .filter((item) => Boolean(item) && item.toLowerCase() !== "no")
+      .map((item) => item.charAt(0).toUpperCase() + item.slice(1))
     : [];
 
 const formatMoney = (
@@ -271,6 +273,17 @@ export default function AdvocateMyProfile() {
   showPreviewApprovalPopup,
   setShowPreviewApprovalPopup,
 ] = useState(false);
+
+  const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
+  const [pricingForm, setPricingForm] = useState({
+    videoCallChargePerMinute: "0",
+    voiceCallChargePerMinute: "0",
+    offlineVisitingFee: "0",
+  });
+  const [pricingErrors, setPricingErrors] = useState({});
+  const [pricingSaving, setPricingSaving] = useState(false);
+  const [pricingWithdrawing, setPricingWithdrawing] = useState(false);
+  const [pricingApiError, setPricingApiError] = useState("");
 
   const fetchVerificationStatus =
     useCallback(
@@ -698,6 +711,188 @@ export default function AdvocateMyProfile() {
   //       "text-amber-700",
   //   };
   // })();
+
+  /* =========================================================================
+     PRICING APPROVAL & EDIT WORKFLOW
+  ========================================================================== */
+
+  const isApprovedAdvocate =
+    isAdminApproved ||
+    String(advocate?.approvalStatus || "").trim().toUpperCase() === "APPROVED";
+
+  const profileChange = advocate?.profileChange || null;
+  const isProfileChangeSubmitted =
+    isApprovedAdvocate && profileChange?.status === "SUBMITTED";
+
+  const requestedChanges =
+    profileChange?.requestedChanges || profileChange?.changes || {};
+
+  const pendingVideoFee = requestedChanges.videoCallChargePerMinute;
+  const pendingVoiceFee = requestedChanges.voiceCallChargePerMinute;
+  const pendingOfficeFee = requestedChanges.offlineVisitingFee;
+
+  const hasPendingFeeChanges =
+    pendingVideoFee !== undefined ||
+    pendingVoiceFee !== undefined ||
+    pendingOfficeFee !== undefined;
+
+  const handleOpenPricingModal = () => {
+    setPricingApiError("");
+    setPricingErrors({});
+
+    const sourceChanges = requestedChanges;
+
+    setPricingForm({
+      videoCallChargePerMinute:
+        sourceChanges.videoCallChargePerMinute !== undefined &&
+        sourceChanges.videoCallChargePerMinute !== null
+          ? String(sourceChanges.videoCallChargePerMinute)
+          : advocate?.videoCallChargePerMinute !== undefined &&
+            advocate?.videoCallChargePerMinute !== null
+            ? String(advocate.videoCallChargePerMinute)
+            : "0",
+      voiceCallChargePerMinute:
+        sourceChanges.voiceCallChargePerMinute !== undefined &&
+        sourceChanges.voiceCallChargePerMinute !== null
+          ? String(sourceChanges.voiceCallChargePerMinute)
+          : advocate?.voiceCallChargePerMinute !== undefined &&
+            advocate?.voiceCallChargePerMinute !== null
+            ? String(advocate.voiceCallChargePerMinute)
+            : "0",
+      offlineVisitingFee:
+        sourceChanges.offlineVisitingFee !== undefined &&
+        sourceChanges.offlineVisitingFee !== null
+          ? String(sourceChanges.offlineVisitingFee)
+          : advocate?.offlineVisitingFee !== undefined &&
+            advocate?.offlineVisitingFee !== null
+            ? String(advocate.offlineVisitingFee)
+            : "0",
+    });
+
+    setIsPricingModalOpen(true);
+  };
+
+  const handleClosePricingModal = () => {
+    if (pricingSaving || pricingWithdrawing) return;
+    setIsPricingModalOpen(false);
+    setPricingApiError("");
+    setPricingErrors({});
+  };
+
+  const handleWithdrawPricingRequest = async () => {
+    if (pricingWithdrawing) return;
+    setPricingWithdrawing(true);
+    setPricingApiError("");
+
+    try {
+      const res = await advocateProfileApi.withdrawProfileChange();
+      if (!res?.success) {
+        throw new Error(res?.message || "Failed to withdraw change request.");
+      }
+
+      await fetchProfile({ silent: true });
+      setIsPricingModalOpen(false);
+    } catch (err) {
+      console.error("Withdraw pricing error:", err);
+      setPricingApiError(
+        err?.data?.message || err?.message || "Failed to withdraw request.",
+      );
+    } finally {
+      setPricingWithdrawing(false);
+    }
+  };
+
+  const handleSavePricing = async (e) => {
+    if (e?.preventDefault) e.preventDefault();
+    if (pricingSaving) return;
+
+    if (isProfileChangeSubmitted) {
+      setPricingApiError(
+        "Your profile changes are currently submitted and under review. Please withdraw the request before making further edits.",
+      );
+      return;
+    }
+
+    const nextErrors = {};
+    const vCall = Number(pricingForm.videoCallChargePerMinute);
+    const vVoice = Number(pricingForm.voiceCallChargePerMinute);
+    const vOffice = Number(pricingForm.offlineVisitingFee);
+
+    if (
+      pricingForm.videoCallChargePerMinute === "" ||
+      !Number.isFinite(vCall) ||
+      vCall < 0
+    ) {
+      nextErrors.videoCallChargePerMinute =
+        "Video call charge must be 0 or greater.";
+    }
+    if (
+      pricingForm.voiceCallChargePerMinute === "" ||
+      !Number.isFinite(vVoice) ||
+      vVoice < 0
+    ) {
+      nextErrors.voiceCallChargePerMinute =
+        "Voice call charge must be 0 or greater.";
+    }
+    if (
+      pricingForm.offlineVisitingFee === "" ||
+      !Number.isFinite(vOffice) ||
+      vOffice < 0
+    ) {
+      nextErrors.offlineVisitingFee =
+        "Office visiting fee must be 0 or greater.";
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setPricingErrors(nextErrors);
+      return;
+    }
+
+    setPricingSaving(true);
+    setPricingApiError("");
+
+    try {
+      const payload = {
+        videoCallChargePerMinute: vCall,
+        voiceCallChargePerMinute: vVoice,
+        offlineVisitingFee: vOffice,
+      };
+
+      // 1. Save via PATCH /api/advocate/profile
+      const updateRes = await advocateProfileApi.updateProfile(payload);
+      if (!updateRes?.success) {
+        throw new Error(updateRes?.message || "Failed to update pricing.");
+      }
+
+      // 2. If advocate is approved, submit for approval
+      if (isApprovedAdvocate) {
+        const submitRes = await advocateProfileApi.submitForApproval();
+        if (!submitRes?.success) {
+          throw new Error(
+            submitRes?.message || "Failed to submit request for approval.",
+          );
+        }
+      }
+
+      // 3. Refresh profile
+      await fetchProfile({ silent: true });
+      setIsPricingModalOpen(false);
+    } catch (err) {
+      console.error("Save pricing error:", err);
+      if (err?.status === 409) {
+        setPricingApiError(
+          err?.data?.message ||
+            "Your profile changes are currently submitted and under review. Please withdraw the request before making further edits.",
+        );
+      } else {
+        setPricingApiError(
+          err?.data?.message || err?.message || "Failed to save pricing changes.",
+        );
+      }
+    } finally {
+      setPricingSaving(false);
+    }
+  };
 
   return (
     <>
@@ -1325,7 +1520,8 @@ export default function AdvocateMyProfile() {
                           key={
                             language
                           }
-                          className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700"
+                          translate="no"
+                          className="notranslate inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700"
                         >
                           <Languages
                             size={12}
@@ -1350,10 +1546,23 @@ export default function AdvocateMyProfile() {
 
             <aside className="space-y-5 xl:sticky xl:top-6 xl:col-span-4">
               <section className="rounded-[26px] bg-slate-950 p-5 text-white shadow-[0_16px_45px_rgba(15,23,42,0.16)] sm:p-6">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-400">
-                  <IndianRupee
-                    size={20}
-                  />
+                <div className="flex items-center justify-between">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-400">
+                    <IndianRupee
+                      size={20}
+                    />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleOpenPricingModal}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-white/20 active:scale-95"
+                  >
+                    <Edit3 size={13} />
+                    {isProfileChangeSubmitted && hasPendingFeeChanges
+                      ? "View Pending Request"
+                      : "Edit"}
+                  </button>
                 </div>
 
                 <h2 className="mt-5 text-lg font-extrabold">
@@ -1364,6 +1573,68 @@ export default function AdvocateMyProfile() {
                   Your current consultation charges.
                 </p>
 
+                {/* PENDING ADMIN APPROVAL STATE (IF SUBMITTED) */}
+                {isProfileChangeSubmitted && hasPendingFeeChanges && (
+                  <div className="mt-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <Clock3
+                          size={15}
+                          className="shrink-0 text-amber-400"
+                        />
+                        <span className="text-xs font-extrabold text-amber-300">
+                          Pending admin approval
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        disabled={pricingWithdrawing}
+                        onClick={handleWithdrawPricingRequest}
+                        className="text-xs font-bold text-amber-400 underline transition hover:text-amber-300 disabled:opacity-50"
+                      >
+                        {pricingWithdrawing
+                          ? "Withdrawing..."
+                          : "Withdraw request"}
+                      </button>
+                    </div>
+
+                    <div className="mt-3 space-y-1.5 border-t border-amber-500/20 pt-2.5 text-xs">
+                      {pendingVideoFee !== undefined && (
+                        <div className="flex items-center justify-between text-slate-300">
+                          <span className="text-slate-400">
+                            Requested Video:
+                          </span>
+                          <span className="font-extrabold text-amber-300">
+                            {formatMoney(pendingVideoFee)} / min
+                          </span>
+                        </div>
+                      )}
+                      {pendingVoiceFee !== undefined && (
+                        <div className="flex items-center justify-between text-slate-300">
+                          <span className="text-slate-400">
+                            Requested Voice:
+                          </span>
+                          <span className="font-extrabold text-amber-300">
+                            {formatMoney(pendingVoiceFee)} / min
+                          </span>
+                        </div>
+                      )}
+                      {pendingOfficeFee !== undefined && (
+                        <div className="flex items-center justify-between text-slate-300">
+                          <span className="text-slate-400">
+                            Requested Office:
+                          </span>
+                          <span className="font-extrabold text-amber-300">
+                            {formatMoney(pendingOfficeFee)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* LIVE PRICES */}
                 <div className="mt-6 space-y-3">
                   <PricingItem
                     Icon={Video}
@@ -1391,6 +1662,11 @@ export default function AdvocateMyProfile() {
                     )}
                   />
                 </div>
+
+                {/* NOTE ON BOX */}
+                <p className="mt-4 text-[11px] leading-5 text-slate-400">
+                  New fees apply to bookings made after admin approval.
+                </p>
 
                 <button
                   type="button"
@@ -1491,6 +1767,298 @@ export default function AdvocateMyProfile() {
     </motion.div>
   </div>
 )}
+
+      {/* =================================================
+          CONSULTATION PRICING EDIT MODAL
+      ================================================= */}
+      {isPricingModalOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm"
+          onClick={handleClosePricingModal}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.22)] sm:p-7"
+          >
+            {/* HEADER */}
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+                  <IndianRupee size={22} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-extrabold text-slate-950">
+                    {isProfileChangeSubmitted
+                      ? "Consultation Pricing (Under Review)"
+                      : "Edit Consultation Pricing"}
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    {isProfileChangeSubmitted
+                      ? "Changes are submitted and pending admin review."
+                      : isApprovedAdvocate
+                        ? "Fee changes require administrator approval."
+                        : "Update your consultation charges."}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleClosePricingModal}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* ERROR ALERT */}
+            {pricingApiError && (
+              <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+                <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                <p>{pricingApiError}</p>
+              </div>
+            )}
+
+            {/* READ-ONLY STATE IF SUBMITTED */}
+            {isProfileChangeSubmitted ? (
+              <div className="mt-5 space-y-4">
+                <div className="rounded-2xl border border-blue-200 bg-blue-50/80 p-4 text-xs text-blue-900">
+                  <div className="flex items-center gap-2 font-bold text-blue-950">
+                    <Clock3 size={15} className="text-blue-600 shrink-0" />
+                    <span>Pending Admin Approval</span>
+                  </div>
+                  <p className="mt-1.5 leading-5 text-blue-800">
+                    Your profile changes are currently submitted and under review. Pricing fields are read-only until approved. You can withdraw the request to make further edits.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700">
+                      Video Call Fee
+                    </label>
+                    <div className="mt-1.5 flex items-center rounded-xl border border-slate-200 bg-slate-100 px-3.5 py-2.5 text-sm font-bold text-slate-600">
+                      <span className="text-slate-400 mr-1.5">₹</span>
+                      <span className="flex-1">{pricingForm.videoCallChargePerMinute}</span>
+                      <span className="text-xs text-slate-500 font-semibold">/ min</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700">
+                      Voice Call Fee
+                    </label>
+                    <div className="mt-1.5 flex items-center rounded-xl border border-slate-200 bg-slate-100 px-3.5 py-2.5 text-sm font-bold text-slate-600">
+                      <span className="text-slate-400 mr-1.5">₹</span>
+                      <span className="flex-1">{pricingForm.voiceCallChargePerMinute}</span>
+                      <span className="text-xs text-slate-500 font-semibold">/ min</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700">
+                      Office Visit Fee
+                    </label>
+                    <div className="mt-1.5 flex items-center rounded-xl border border-slate-200 bg-slate-100 px-3.5 py-2.5 text-sm font-bold text-slate-600">
+                      <span className="text-slate-400 mr-1.5">₹</span>
+                      <span className="flex-1">{pricingForm.offlineVisitingFee}</span>
+                      <span className="text-xs text-slate-500 font-semibold">flat</span>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-slate-500 leading-4">
+                  New fees apply to bookings made after admin approval.
+                </p>
+
+                <div className="mt-6 flex flex-col sm:flex-row gap-2.5">
+                  <button
+                    type="button"
+                    disabled={pricingWithdrawing}
+                    onClick={handleWithdrawPricingRequest}
+                    className="min-h-[44px] flex-1 rounded-xl bg-amber-500 px-4 text-xs font-bold text-slate-950 transition hover:bg-amber-400 disabled:opacity-50"
+                  >
+                    {pricingWithdrawing ? "Withdrawing..." : "Withdraw request"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleClosePricingModal}
+                    className="min-h-[44px] rounded-xl border border-slate-200 px-4 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* EDIT FORM */
+              <form onSubmit={handleSavePricing} className="mt-5 space-y-4">
+                 {/* VOICE CALL */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700">
+                    Voice Call <span className="font-normal text-slate-500">— ₹ per minute</span>
+                  </label>
+                  <div
+                    className={`mt-1.5 flex items-center rounded-xl border bg-white px-3.5 py-2 transition focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20 ${
+                      pricingErrors.voiceCallChargePerMinute
+                        ? "border-red-300 ring-2 ring-red-100"
+                        : "border-slate-200"
+                    }`}
+                  >
+                    <span className="text-sm font-bold text-slate-400 mr-1.5">₹</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={pricingForm.voiceCallChargePerMinute}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setPricingForm((prev) => ({
+                          ...prev,
+                          voiceCallChargePerMinute: val,
+                        }));
+                        if (pricingErrors.voiceCallChargePerMinute) {
+                          setPricingErrors((prev) => ({
+                            ...prev,
+                            voiceCallChargePerMinute: "",
+                          }));
+                        }
+                      }}
+                      className="w-full border-0 border-none bg-transparent text-sm font-bold text-slate-900 shadow-none outline-none focus:border-none focus:outline-none focus:ring-0"
+                      placeholder="0"
+                    />
+                    <span className="text-xs font-semibold text-slate-400 shrink-0">/ min</span>
+                  </div>
+                  {pricingErrors.voiceCallChargePerMinute && (
+                    <p className="mt-1 text-[11px] font-semibold text-red-600">
+                      {pricingErrors.voiceCallChargePerMinute}
+                    </p>
+                  )}
+                </div>
+
+                {/* VIDEO CALL */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700">
+                    Video Call <span className="font-normal text-slate-500">— ₹ per minute</span>
+                  </label>
+                  <div
+                    className={`mt-1.5 flex items-center rounded-xl border bg-white px-3.5 py-2 transition focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20 ${
+                      pricingErrors.videoCallChargePerMinute
+                        ? "border-red-300 ring-2 ring-red-100"
+                        : "border-slate-200"
+                    }`}
+                  >
+                    <span className="text-sm font-bold text-slate-400 mr-1.5">₹</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={pricingForm.videoCallChargePerMinute}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setPricingForm((prev) => ({
+                          ...prev,
+                          videoCallChargePerMinute: val,
+                        }));
+                        if (pricingErrors.videoCallChargePerMinute) {
+                          setPricingErrors((prev) => ({
+                            ...prev,
+                            videoCallChargePerMinute: "",
+                          }));
+                        }
+                      }}
+                      className="w-full border-0 border-none bg-transparent text-sm font-bold text-slate-900 shadow-none outline-none focus:border-none focus:outline-none focus:ring-0"
+                      placeholder="0"
+                    />
+                    <span className="text-xs font-semibold text-slate-400 shrink-0">/ min</span>
+                  </div>
+                  {pricingErrors.videoCallChargePerMinute && (
+                    <p className="mt-1 text-[11px] font-semibold text-red-600">
+                      {pricingErrors.videoCallChargePerMinute}
+                    </p>
+                  )}
+                </div>
+
+               
+                {/* OFFICE VISIT */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700">
+                    Office Visit <span className="font-normal text-slate-500">— ₹ flat fee</span>
+                  </label>
+                  <div
+                    className={`mt-1.5 flex items-center rounded-xl border bg-white px-3.5 py-2 transition focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20 ${
+                      pricingErrors.offlineVisitingFee
+                        ? "border-red-300 ring-2 ring-red-100"
+                        : "border-slate-200"
+                    }`}
+                  >
+                    <span className="text-sm font-bold text-slate-400 mr-1.5">₹</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={pricingForm.offlineVisitingFee}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setPricingForm((prev) => ({
+                          ...prev,
+                          offlineVisitingFee: val,
+                        }));
+                        if (pricingErrors.offlineVisitingFee) {
+                          setPricingErrors((prev) => ({
+                            ...prev,
+                            offlineVisitingFee: "",
+                          }));
+                        }
+                      }}
+                      className="w-full border-0 border-none bg-transparent text-sm font-bold text-slate-900 shadow-none outline-none focus:border-none focus:outline-none focus:ring-0"
+                      placeholder="0"
+                    />
+                    <span className="text-xs font-semibold text-slate-400 shrink-0">flat</span>
+                  </div>
+                  {pricingErrors.offlineVisitingFee && (
+                    <p className="mt-1 text-[11px] font-semibold text-red-600">
+                      {pricingErrors.offlineVisitingFee}
+                    </p>
+                  )}
+                </div>
+
+                {isApprovedAdvocate && (
+                  <p className="text-[11px] text-slate-500 leading-4">
+                    New fees apply to bookings made after admin approval.
+                  </p>
+                )}
+
+                {/* ACTIONS */}
+                <div className="mt-6 flex flex-col sm:flex-row gap-2.5">
+                  <button
+                    type="submit"
+                    disabled={pricingSaving}
+                    className="min-h-[44px] flex-1 rounded-xl bg-amber-500 px-4 text-xs font-bold text-slate-950 transition hover:bg-amber-400 disabled:opacity-50"
+                  >
+                    {pricingSaving
+                      ? "Submitting..."
+                      : isApprovedAdvocate
+                        ? "Request for approval"
+                        : "Save Pricing"}
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={pricingSaving}
+                    onClick={handleClosePricingModal}
+                    className="min-h-[44px] rounded-xl border border-slate-200 px-4 text-xs font-bold text-slate-700 hover:bg-slate-50 transition disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
+          </motion.div>
+        </div>
+      )}
 
 
     </>

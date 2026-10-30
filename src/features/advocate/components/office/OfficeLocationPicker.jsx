@@ -363,7 +363,7 @@ export default function OfficeLocationPicker({
       {/* HEADER & CURRENT LOCATION BUTTON */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
             <FiMapPin className="text-amber-500 text-sm" />
             Current Location *
           </span>
@@ -386,7 +386,7 @@ export default function OfficeLocationPicker({
           ) : (
             <>
               <FiNavigation className="text-amber-600 text-sm" />
-              Use my current location
+              Locate My Current Location
             </>
           )}
         </button>

@@ -583,18 +583,24 @@ const AdvocateCard = ({ advocate, onViewAdvocate }) => {
               <IoLanguageOutline className="shrink-0 text-[15px] text-amber-600" />
 
               <span
-                className="min-w-0 truncate"
+                translate="no"
+                className="notranslate min-w-0 truncate"
                 title={
                   safeLanguages.length
-                    ? safeLanguages.join(", ")
+                    ? safeLanguages
+                        .filter((l) => Boolean(l) && l.toLowerCase() !== "no")
+                        .map((l) => l.charAt(0).toUpperCase() + l.slice(1))
+                        .join(", ")
                     : "Languages not specified"
                 }
               >
                 {safeLanguages.length
                   ? `${safeLanguages
+                      .filter((l) => Boolean(l) && l.toLowerCase() !== "no")
+                      .map((l) => l.charAt(0).toUpperCase() + l.slice(1))
                       .slice(0, 2)
                       .join(", ")}${
-                      safeLanguages.length > 2
+                      safeLanguages.filter((l) => Boolean(l) && l.toLowerCase() !== "no").length > 2
                         ? " .."
                         : ""
                     }`

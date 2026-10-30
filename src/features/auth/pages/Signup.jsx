@@ -388,6 +388,9 @@ const advocateApi = {
     return advocateRequest("/auth/advocate/profile", { body: payload });
   },
 
+  completeRegistration: (payload) =>
+    advocateRequest("/auth/advocate/register/complete", { body: payload }),
+
   getSession: (registrationId) =>
     advocateRequest(
       `/auth/advocate/register/session/${encodeURIComponent(
@@ -1231,10 +1234,11 @@ function ChipSelect({
             <button
               key={option}
               type="button"
+              translate="no"
               onClick={() => toggle(option)}
               aria-pressed={selected}
               className={[
-                "inline-flex items-center gap-1.5 rounded-xl border px-3 py-2",
+                "notranslate inline-flex items-center gap-1.5 rounded-xl border px-3 py-2",
                 "text-[12px] font-semibold transition-all duration-200",
                 "focus-visible:outline-none focus-visible:ring-2",
                 "focus-visible:ring-amber-500/40 focus-visible:ring-offset-2",
@@ -3615,24 +3619,20 @@ restoreUserSession(
     setFlowBanner(null);
 
     try {
-      const formData = new FormData();
-      formData.append("registrationId", registrationId);
-      formData.append("barCouncilId", barCouncilId.trim());
-      formData.append("aadhaarNumber", aadhaarNumber.trim());
-      formData.append("password", password);
-      formData.append("languagesSpoken", JSON.stringify(languagesSpoken));
-      formData.append("state", state.trim());
-      formData.append("city", district.trim());
-      formData.append("pincode", pincode.trim());
-      formData.append("officeAddress", officeAddress.trim());
-      formData.append("officeLatitude", String(Number(officeLatitude.toFixed(6))));
-      formData.append("officeLongitude", String(Number(officeLongitude.toFixed(6))));
+      const payload = {
+        registrationId,
+        barCouncilId: barCouncilId.trim(),
+        aadhaarNumber: String(aadhaarNumber || "").replace(/\D/g, "").slice(0, 12),
+        password,
+        languagesSpoken: Array.isArray(languagesSpoken)
+          ? languagesSpoken.filter((l) => l && l.toLowerCase() !== "no")
+          : [],
+        state: state.trim(),
+        city: district.trim(),
+        pincode: pincode.trim(),
+      };
 
-      if (officePhotoBlob) {
-        formData.append("officePhoto", officePhotoBlob, "office_photo.jpg");
-      }
-
-      await advocateApi.completeProfile(formData);
+      await advocateApi.completeRegistration(payload);
 
       if (typeof window !== "undefined") {
         sessionStorage.removeItem(SIGNUP_ROLE_STORAGE_KEY);
@@ -3649,8 +3649,18 @@ restoreUserSession(
         },
       });
     } catch (error) {
-      const missingFields = error?.data?.missingFields;
-      if (Array.isArray(missingFields) && missingFields.length > 0) {
+      const data = error?.data;
+      const missingFields = Array.isArray(data?.missingFields)
+        ? data.missingFields
+        : Array.isArray(data?.errors)
+          ? data.errors.map((e) => e?.field || e?.param).filter(Boolean)
+          : [];
+
+      if (
+        missingFields.includes("officeAddress") ||
+        missingFields.includes("officePhoto") ||
+        missingFields.includes("officeLocation")
+      ) {
         if (missingFields.includes("officeAddress")) {
           setOfficeAddressError("Office address is required.");
         }
@@ -3664,7 +3674,68 @@ restoreUserSession(
         setFlowBanner({
           variant: "error",
           title: "Missing office details",
-          message: error?.data?.message || "Please complete all required office details.",
+          message:
+            data?.message ||
+            "Please complete all required office details before finishing registration.",
+        });
+        return;
+      }
+
+      if (
+        missingFields.includes("barCouncilId") ||
+        missingFields.includes("aadhaarNumber") ||
+        missingFields.includes("languagesSpoken")
+      ) {
+        if (missingFields.includes("barCouncilId")) {
+          setBarCouncilIdError("Bar Council ID is required.");
+        }
+        if (missingFields.includes("aadhaarNumber")) {
+          setAadhaarError("Valid 12-digit Aadhaar number is required.");
+        }
+        if (missingFields.includes("languagesSpoken")) {
+          setLanguagesError("Please select at least one language.");
+        }
+        setStep(4);
+        setFlowBanner({
+          variant: "error",
+          title: "Missing professional details",
+          message:
+            data?.message ||
+            "Please check your professional details and try again.",
+        });
+        return;
+      }
+
+      if (missingFields.includes("password")) {
+        setPasswordError("Valid password is required.");
+        setStep(5);
+        setFlowBanner({
+          variant: "error",
+          title: "Password required",
+          message: data?.message || "Please provide a valid password.",
+        });
+        return;
+      }
+
+      if (
+        missingFields.includes("pincode") ||
+        missingFields.includes("city") ||
+        missingFields.includes("state")
+      ) {
+        if (missingFields.includes("pincode")) {
+          setPincodeError("Pincode must be exactly 6 digits.");
+        }
+        if (missingFields.includes("city")) {
+          setDistrictError("City is required.");
+        }
+        if (missingFields.includes("state")) {
+          setStateError("State is required.");
+        }
+        setStep(6);
+        setFlowBanner({
+          variant: "error",
+          title: "Location details required",
+          message: data?.message || "Please check your location details.",
         });
         return;
       }
@@ -5232,11 +5303,16 @@ function AdvocatePhotoStep({
 
   useEffect(() => {
     if (photoShakeTrigger > 0) {
-      setAnimatingShake(true);
-      const timer = setTimeout(() => {
+      const startTimer = setTimeout(() => {
+        setAnimatingShake(true);
+      }, 0);
+      const endTimer = setTimeout(() => {
         setAnimatingShake(false);
       }, 500);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(startTimer);
+        clearTimeout(endTimer);
+      };
     }
   }, [photoShakeTrigger]);
 
@@ -6225,8 +6301,6 @@ function AdvocateReviewStep({
   pincode,
   officeAddress,
   officePhotoPreview,
-  officeLatitude,
-  officeLongitude,
   registering,
   onEdit,
   onBack,
@@ -6314,7 +6388,14 @@ function AdvocateReviewStep({
           />
           <ReviewRow
             label="Languages"
-            value={languagesSpoken.join(", ")}
+            value={
+              <span className="notranslate" translate="no">
+                {languagesSpoken
+                  .filter((l) => l && l.toLowerCase() !== "no")
+                  .map((l) => l.charAt(0).toUpperCase() + l.slice(1))
+                  .join(", ") || "—"}
+              </span>
+            }
             onEdit={() => onEdit(4)}
           />
           <ReviewRow
@@ -6350,7 +6431,7 @@ function AdvocateReviewStep({
             }
             onEdit={() => onEdit(6)}
           />
-          <ReviewRow
+          {/* <ReviewRow
             label="Office Coordinates"
             value={
               officeLatitude !== null &&
@@ -6361,7 +6442,7 @@ function AdvocateReviewStep({
                 : "—"
             }
             onEdit={() => onEdit(6)}
-          />
+          /> */}
         </div>
       </div>
 
