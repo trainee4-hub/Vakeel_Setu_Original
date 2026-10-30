@@ -167,9 +167,7 @@ const ConsultationCard = forwardRef(function ConsultationCard(
                   <p className="font-semibold text-slate-900 text-sm leading-tight">
                     {modeItem.label}
                   </p>
-                  {/* <p className="text-xs text-slate-500 mt-0.5">
-                    {formatDurationLabel(modeItem.durationMinutes)} session
-                  </p> */}
+                  
                 </div>
 
                 <div className="text-right">

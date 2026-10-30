@@ -138,12 +138,17 @@ const patch = async (
   endpoint,
   body,
 ) => {
+  const isFormData =
+    typeof FormData !== "undefined" &&
+    body instanceof FormData;
+
   console.log(
     "[advocateProfileApi] PATCH request:",
     {
       endpoint:
         `${API_BASE_URL}${endpoint}`,
-      body,
+      isFormData,
+      body: isFormData ? "FormData" : body,
     },
   );
 
@@ -156,13 +161,13 @@ const patch = async (
         credentials:
           "include",
 
-        headers:
-          getJsonHeaders(),
+        headers: isFormData
+          ? getUploadHeaders()
+          : getJsonHeaders(),
 
-        body:
-          JSON.stringify(
-            body,
-          ),
+        body: isFormData
+          ? body
+          : JSON.stringify(body),
       },
     );
 
@@ -173,6 +178,75 @@ const patch = async (
       endpoint,
       requestBody:
         body,
+    },
+  );
+};
+
+/* =========================================================================
+   POST & DELETE
+============================================================================ */
+
+const post = async (
+  endpoint,
+  body = null,
+) => {
+  const isFormData =
+    typeof FormData !== "undefined" &&
+    body instanceof FormData;
+
+  const response =
+    await fetch(
+      `${API_BASE_URL}${endpoint}`,
+      {
+        method: "POST",
+
+        credentials:
+          "include",
+
+        headers: isFormData
+          ? getUploadHeaders()
+          : getJsonHeaders(),
+
+        body: isFormData
+          ? body
+          : body
+            ? JSON.stringify(body)
+            : undefined,
+      },
+    );
+
+  return parseResponse(
+    response,
+    {
+      method: "POST",
+      endpoint,
+      requestBody: body,
+    },
+  );
+};
+
+const del = async (
+  endpoint,
+) => {
+  const response =
+    await fetch(
+      `${API_BASE_URL}${endpoint}`,
+      {
+        method: "DELETE",
+
+        credentials:
+          "include",
+
+        headers:
+          getUploadHeaders(),
+      },
+    );
+
+  return parseResponse(
+    response,
+    {
+      method: "DELETE",
+      endpoint,
     },
   );
 };
@@ -247,6 +321,24 @@ export const advocateProfileApi = {
     return upload(
       "/advocate/profile/photo",
       formData,
+    );
+  },
+
+  async submitForApproval() {
+    return post(
+      "/advocate/profile/submit-for-approval",
+    );
+  },
+
+  async withdrawProfileChange() {
+    return post(
+      "/advocate/profile/changes/withdraw",
+    );
+  },
+
+  async discardProfileChange() {
+    return del(
+      "/advocate/profile/changes",
     );
   },
 };

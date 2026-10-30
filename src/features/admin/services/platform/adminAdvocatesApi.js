@@ -202,3 +202,89 @@ export async function getCourts() {
   }
 }
 
+/**
+ * GET /api/admin/advocates/profile-changes
+ * Query params: status (SUBMITTED | APPROVED | REJECTED | ALL), page, limit, search
+ */
+export async function getProfileChangeRequests({
+  status = "SUBMITTED",
+  page = 1,
+  limit = 20,
+  search = "",
+} = {}) {
+  const params = new URLSearchParams();
+  if (status) params.set("status", String(status).toUpperCase());
+  if (page) params.set("page", String(page));
+  if (limit) params.set("limit", String(limit));
+  if (search) params.set("search", String(search));
+
+  const query = params.toString();
+  const response = await adminRequest(
+    `/admin/advocates/profile-changes${query ? `?${query}` : ""}`
+  );
+
+  const items = extractList(response, [
+    "requests",
+    "profileChanges",
+    "changes",
+    "data",
+  ]);
+
+  return {
+    items,
+    counts: response?.counts || response?.data?.counts || {},
+    pagination: normalizePagination(
+      response?.pagination,
+      page,
+      limit,
+      items.length
+    ),
+    raw: response,
+  };
+}
+
+/**
+ * GET /api/admin/advocates/:advocateId/profile-change
+ */
+export async function getProfileChangeDetail(advocateId) {
+  const response = await adminRequest(
+    `/admin/advocates/${idPath(advocateId)}/profile-change`
+  );
+  return (
+    extractRecord(response, ["profileChange", "change", "data"]) || response
+  );
+}
+
+/**
+ * POST /api/admin/advocates/:advocateId/profile-change/approve
+ */
+export async function approveProfileChange(advocateId) {
+  return adminRequest(
+    `/admin/advocates/${idPath(advocateId)}/profile-change/approve`,
+    {
+      method: "POST",
+    }
+  );
+}
+
+/**
+ * POST /api/admin/advocates/:advocateId/profile-change/reject
+ * Body: { reason: string } (required, 5–500 chars)
+ */
+export async function rejectProfileChange(advocateId, { reason }) {
+  const cleanReason = String(reason || "").trim();
+  if (cleanReason.length < 5) {
+    throw new Error("Rejection reason must be at least 5 characters.");
+  }
+  return adminRequest(
+    `/admin/advocates/${idPath(advocateId)}/profile-change/reject`,
+    {
+      method: "POST",
+      body: { reason: cleanReason },
+    }
+  );
+}
+
+
+
+

@@ -38,6 +38,10 @@ export const ADMIN_PATHS = {
     list: `${BASE}/advocates`,
     detail: (id) => `${BASE}/advocates/${enc(id)}`,
   },
+  profileChanges: {
+    list: `${BASE}/advocates/profile-changes`,
+    detail: (id) => `${BASE}/advocates/${enc(id)}/profile-change`,
+  },
   users: {
     list: `${BASE}/users`,
     detail: (id) => `${BASE}/users/${enc(id)}`,

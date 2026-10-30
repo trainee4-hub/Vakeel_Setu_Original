@@ -23,6 +23,7 @@ import {
 export default function OfficeInformation({
   advocateName,
   officeLocation,
+  officePhotoUrl,
   officeMapEmbedUrl,
   officeMapsUrl,
   officePhone,
@@ -32,7 +33,9 @@ export default function OfficeInformation({
   officeAccessibility,
 }) {
   const hasAnything =
+    officePhotoUrl ||
     officeLocation ||
+    officeMapEmbedUrl ||
     officeEmail ||
     officePhone ||
     officeTimings ||
@@ -51,8 +54,25 @@ export default function OfficeInformation({
         </h3>
       </div>
 
+      {/* OFFICE PHOTO */}
+      {officePhotoUrl && (
+        <div className="px-4 sm:px-5 mb-4">
+          <div className="relative w-full h-44 rounded-2xl overflow-hidden border border-slate-200 bg-slate-900 group">
+            <img
+              src={officePhotoUrl}
+              alt={`Office of ${advocateName}`}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+            <div className="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 rounded-full bg-slate-950/70 backdrop-blur-md px-2.5 py-1 text-[11px] font-semibold text-emerald-300 border border-emerald-500/30">
+              <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Verified Office Photo
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* GOOGLE MAP */}
-      {officeLocation && officeMapEmbedUrl && (
+      {officeMapEmbedUrl && (
         <div className="px-4 sm:px-5">
           <div className="relative w-full h-56 sm:h-64 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100">
             <iframe

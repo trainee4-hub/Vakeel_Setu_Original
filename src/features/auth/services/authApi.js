@@ -1029,18 +1029,32 @@ export async function verifyAdvocateDigilocker({
    COMPLETE ADVOCATE REGISTRATION
 ============================================================================ */
 
-export async function completeAdvocateRegistration({
-  registrationId,
-  barCouncilId,
-  aadhaarNumber,
-  password,
-  languagesSpoken,
-  state,
-  city,
-  pincode,
-  latitude,
-  longitude,
-}) {
+export async function completeAdvocateRegistration(payload) {
+  if (payload instanceof FormData) {
+    return authRequest(
+      "/auth/advocate/profile",
+      {
+        method: "POST",
+        formData: payload,
+      },
+    );
+  }
+
+  const {
+    registrationId,
+    barCouncilId,
+    aadhaarNumber,
+    password,
+    languagesSpoken,
+    state,
+    city,
+    pincode,
+    officeAddress,
+    officeLatitude,
+    officeLongitude,
+    officePhoto,
+  } = payload || {};
+
   if (!registrationId) {
     throw new AuthApiError(
       "Registration session is missing.",
@@ -1062,72 +1076,51 @@ export async function completeAdvocateRegistration({
     );
   }
 
-  const body = {
-    registrationId,
+  const formData = new FormData();
+  formData.append("registrationId", registrationId);
+  formData.append("pincode", cleanPincode);
+  formData.append("city", String(city || "").trim());
+  formData.append("state", String(state || "").trim());
 
-    barCouncilId:
-      String(
-        barCouncilId || "",
-      ).trim(),
-
-    aadhaarNumber:
-      String(
-        aadhaarNumber || "",
-      )
-        .replace(/\D/g, "")
-        .slice(0, 12),
-
-    password:
-      String(
-        password || "",
-      ),
-
-    languagesSpoken:
-      Array.isArray(
-        languagesSpoken,
-      )
-        ? languagesSpoken
-        : [],
-
-    state:
-      String(
-        state || "",
-      ).trim(),
-
-    city:
-      String(
-        city || "",
-      ).trim(),
-
-    pincode:
-      cleanPincode,
-  };
-
-  /*
-   * README says latitude / longitude are optional.
-   */
-  if (
-    typeof latitude ===
-      "number" &&
-    typeof longitude ===
-      "number"
-  ) {
-    body.latitude =
-      latitude;
-
-    body.longitude =
-      longitude;
+  if (officeAddress) {
+    formData.append("officeAddress", String(officeAddress).trim());
   }
 
-  /*
-   * IMPORTANT:
-   * Do NOT send country.
-   */
+  if (
+    typeof officeLatitude === "number" &&
+    typeof officeLongitude === "number" &&
+    !Number.isNaN(officeLatitude) &&
+    !Number.isNaN(officeLongitude)
+  ) {
+    formData.append("officeLatitude", String(Number(officeLatitude.toFixed(6))));
+    formData.append("officeLongitude", String(Number(officeLongitude.toFixed(6))));
+  }
+
+  if (officePhoto) {
+    formData.append("officePhoto", officePhoto);
+  }
+
+  if (barCouncilId) {
+    formData.append("barCouncilId", String(barCouncilId).trim());
+  }
+
+  if (aadhaarNumber) {
+    formData.append("aadhaarNumber", String(aadhaarNumber).replace(/\D/g, "").slice(0, 12));
+  }
+
+  if (password) {
+    formData.append("password", String(password));
+  }
+
+  if (Array.isArray(languagesSpoken)) {
+    formData.append("languagesSpoken", JSON.stringify(languagesSpoken));
+  }
+
   return authRequest(
     "/auth/advocate/profile",
     {
       method: "POST",
-      body,
+      formData,
     },
   );
 }

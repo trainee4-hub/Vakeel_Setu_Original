@@ -20,6 +20,7 @@ import {
 } from "../../../services/platform/adminAdvocatesApi";
 import { ADMIN_PATHS, daysUntil, formatDate, formatDateTime } from "../../../utils/adminUtils";
 import AdvocateProfileEditDrawer from "./AdvocateProfileEditDrawer";
+import OfficeLocationPicker from "@/features/advocate/components/office/OfficeLocationPicker";
 
 export default function AdvocateDetail() {
   const { id } = useParams();
@@ -49,6 +50,7 @@ export default function AdvocateDetail() {
 
   const [showPermanentDeleteModal, setShowPermanentDeleteModal] = useState(false);
   const [confirmNameInput, setConfirmNameInput] = useState("");
+  const [enlargedPhotoUrl, setEnlargedPhotoUrl] = useState(null);
 
   const loadProfile = useCallback(async () => {
     setLoading(true);
@@ -186,8 +188,68 @@ export default function AdvocateDetail() {
 
   const advocateName = advocate.fullName || advocate.name || "Advocate";
 
+  const officePhoto =
+    advocate.officePhotoUrl ||
+    advocate.office?.officePhotoUrl ||
+    advocate.office?.photoUrl ||
+    null;
+  const officeLat =
+    advocate.officeLatitude ??
+    advocate.office?.latitude ??
+    advocate.office?.officeLatitude ??
+    null;
+  const officeLng =
+    advocate.officeLongitude ??
+    advocate.office?.longitude ??
+    advocate.office?.officeLongitude ??
+    null;
+  const officeAddress =
+    advocate.officeAddress ||
+    advocate.office?.officeAddress ||
+    null;
+  const hasOfficeLocation =
+    officeLat !== null &&
+    officeLng !== null &&
+    officeLat !== undefined &&
+    officeLng !== undefined &&
+    !Number.isNaN(Number(officeLat)) &&
+    !Number.isNaN(Number(officeLng));
+  const officeMapUrl =
+    advocate.officeMapUrl ||
+    advocate.office?.officeMapUrl ||
+    (hasOfficeLocation
+      ? `https://www.google.com/maps?q=${Number(officeLat).toFixed(6)},${Number(officeLng).toFixed(6)}`
+      : null);
+
   return (
     <div className="space-y-6">
+
+      {/* Pending Profile Changes Banner */}
+      {advocate?.profileChange?.status === "SUBMITTED" ? (
+        <div role="alert" className="rounded-2xl border border-amber-200 bg-amber-50/90 p-4 text-amber-950 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-start gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-700 shrink-0 mt-0.5">
+              <Icon name="pending_actions" className="text-[20px]" />
+            </div>
+            <div>
+              <p className="font-semibold text-sm text-amber-950">
+                Profile Changes Pending Review
+              </p>
+              <p className="mt-0.5 text-xs text-amber-800">
+                This advocate submitted profile updates ({Object.keys(advocate.profileChange.requestedChanges || {}).length} sensitive field{Object.keys(advocate.profileChange.requestedChanges || {}).length === 1 ? "" : "s"}) awaiting admin approval.
+              </p>
+            </div>
+          </div>
+          <Link
+            to={ADMIN_PATHS.profileChanges.detail(id)}
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-sm transition-colors shrink-0"
+          >
+            <Icon name="rate_review" className="text-[16px]" />
+            Review Changes
+          </Link>
+        </div>
+      ) : null}
+
       {/* Rejected Banner (Styled like ErrorState palette) */}
       {approvalStatus === "REJECTED" ? (
         <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-red-900 shadow-sm">
@@ -396,6 +458,16 @@ export default function AdvocateDetail() {
                 >
                   Status: {accountStatus}
                 </span>
+
+                {advocate?.profileChange?.status === "SUBMITTED" ? (
+                  <Link
+                    to={ADMIN_PATHS.profileChanges.detail(id)}
+                    className="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-semibold bg-amber-100 text-amber-900 ring-1 ring-amber-500/30 hover:bg-amber-200 transition-colors"
+                  >
+                    <Icon name="pending_actions" className="text-[14px]" />
+                    Profile changes pending
+                  </Link>
+                ) : null}
               </div>
 
               {advocate.rejectionReason ? (
@@ -536,8 +608,89 @@ export default function AdvocateDetail() {
                 <dd className="mt-1 font-medium text-slate-900 break-words">{advocate.pincode || "—"}</dd>
               </div>
               <div className="sm:col-span-2 min-w-0">
-                <dt className="text-xs text-slate-500">Complete Address</dt>
-                <dd className="mt-1 font-medium text-slate-900 break-words">{advocate.completeAddress || "—"}</dd>
+                <dt className="text-xs text-slate-500">Office Address</dt>
+                <dd className="mt-1 font-medium text-slate-900 break-words">
+                  {officeAddress || (
+                    <span className="text-sm font-medium text-slate-400 italic">Not provided</span>
+                  )}
+                </dd>
+              </div>
+
+              {/* Office Live Photo */}
+              <div className="sm:col-span-2 min-w-0 border-t border-slate-100 pt-4">
+                <dt className="text-xs text-slate-500 flex items-center gap-1.5 font-bold">
+                  <Icon name="photo_camera" className="text-[16px] text-amber-600" />
+                  Live Office Photo
+                </dt>
+                <dd className="mt-2">
+                  {officePhoto ? (
+                    <div className="flex items-center gap-3.5">
+                      <button
+                        type="button"
+                        onClick={() => setEnlargedPhotoUrl(officePhoto)}
+                        className="group relative size-20 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-sm hover:ring-2 hover:ring-amber-500/50 transition cursor-pointer"
+                        title="Click to enlarge"
+                      >
+                        <img
+                          src={officePhoto}
+                          alt="Advocate office"
+                          className="w-full h-full object-cover group-hover:scale-105 transition duration-200"
+                        />
+                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold">
+                          <Icon name="zoom_in" className="text-[20px]" />
+                        </div>
+                      </button>
+                      <div className="text-xs text-slate-500">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 ring-1 ring-emerald-600/20">
+                          <Icon name="check_circle" className="text-[13px]" /> Photo Attached
+                        </span>
+                        <p className="mt-1 text-[11px] text-slate-400">Click photo to enlarge</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <span className="text-sm font-medium text-slate-400 italic">Not provided</span>
+                  )}
+                </dd>
+              </div>
+
+              {/* Office Location Coordinates & Map Link */}
+              <div className="sm:col-span-2 min-w-0 border-t border-slate-100 pt-3">
+                <dt className="text-xs text-slate-500 flex items-center gap-1.5 font-bold">
+                  <Icon name="pin_drop" className="text-[16px] text-amber-600" />
+                  Office Location (GPS Pin)
+                </dt>
+                <dd className="mt-1.5">
+                  {hasOfficeLocation ? (
+                    <div className="space-y-2.5">
+                      <div className="flex flex-wrap items-center gap-3 text-sm">
+                        <span className="font-mono font-semibold text-slate-900 bg-slate-100 px-2.5 py-1 rounded-lg text-xs">
+                          {Number(officeLat).toFixed(6)}, {Number(officeLng).toFixed(6)}
+                        </span>
+                        {officeMapUrl && (
+                          <a
+                            href={officeMapUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline"
+                          >
+                            <Icon name="map" className="text-[15px]" />
+                            Open in Google Maps
+                            <Icon name="open_in_new" className="text-[13px]" />
+                          </a>
+                        )}
+                      </div>
+                      <div className="h-44 w-full rounded-xl overflow-hidden border border-slate-200 shadow-xs">
+                        <OfficeLocationPicker
+                          initialLatitude={Number(officeLat)}
+                          initialLongitude={Number(officeLng)}
+                          showSaveButton={false}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <span className="text-sm font-medium text-slate-400 italic">Not provided</span>
+                  )}
+                </dd>
               </div>
             </dl>
           </Card>
@@ -719,6 +872,42 @@ export default function AdvocateDetail() {
           </div>
         </div>
       ) : null}
+
+      {/* ENLARGED PHOTO MODAL */}
+      {enlargedPhotoUrl && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in"
+          onClick={() => setEnlargedPhotoUrl(null)}
+        >
+          <div
+            className="relative max-w-3xl max-h-[90vh] bg-white rounded-3xl overflow-hidden shadow-2xl p-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-3 border-b border-slate-100">
+              <span className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                <Icon name="photo_camera" className="text-amber-600" />
+                Office Photo — {advocateName}
+              </span>
+              <button
+                type="button"
+                onClick={() => setEnlargedPhotoUrl(null)}
+                className="size-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition"
+              >
+                <Icon name="close" className="text-[18px]" />
+              </button>
+            </div>
+            <div className="p-3 flex items-center justify-center max-h-[75vh] overflow-hidden">
+              <img
+                src={enlargedPhotoUrl}
+                alt="Enlarged office view"
+                className="max-h-[75vh] w-auto object-contain rounded-xl shadow"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

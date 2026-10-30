@@ -244,7 +244,7 @@ export function mapDetailAdvocate(a) {
       officeVisit: {
         status: officeFee != null ? "active" : null,
         fee: officeFee,
-        officeLocation: a.completeAddress || "",
+        officeLocation: a.officeAddress || a.office?.officeAddress || "",
       },
     },
     rating: avgRating,
@@ -262,6 +262,7 @@ export function mapDetailAdvocate(a) {
     topCourtPractised: a.topCourtPractised ?? null,
     bestPracticeArea: a.bestPracticeArea ?? null,
     isOnboardingCompleted: isVerified,
+    team: Array.isArray(a.team) ? a.team : [],
     // NOTE: the real /advocates/:id response does not include a `reviews`
     // array — reviews come from GET /advocates/:id/reviews instead.
   };

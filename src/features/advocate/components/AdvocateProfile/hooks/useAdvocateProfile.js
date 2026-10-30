@@ -169,6 +169,10 @@
                   mappedAdvocate?.totalReviews ??
                   0,
               ) || 0,
+
+            team: Array.isArray(rawAdvocate?.team)
+              ? rawAdvocate.team
+              : (Array.isArray(mappedAdvocate?.team) ? mappedAdvocate.team : []),
           };
 
           if (!controller.signal.aborted) {

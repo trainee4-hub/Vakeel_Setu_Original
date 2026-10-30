@@ -219,6 +219,7 @@ const PricingCard = ({
     },
   };
 
+  void Icon;
   const theme = tones[tone] || tones.amber;
 
   return (
@@ -876,7 +877,7 @@ const AdvocatePricing = () => {
                 onChange={setField("offlineVisitingFee")}
               />
 
-              {advocate?.completeAddress && (
+              {(advocate?.officeAddress || advocate?.office?.officeAddress) && (
                 <div className="mt-5 flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
                   <MapPin
                     size={17}
@@ -889,7 +890,7 @@ const AdvocatePricing = () => {
                     </p>
 
                     <p className="mt-1 text-xs leading-5 text-slate-500">
-                      {advocate.completeAddress}
+                      {advocate.officeAddress || advocate.office?.officeAddress}
                     </p>
                   </div>
                 </div>

@@ -99,54 +99,16 @@ const Navbar = () => {
   };
 
   /* =========================================================================
-     NAV ITEM RENDERER (HOVER UNDERLINE + ACTIVE PERSISTENCE)
+     NAV ITEM CLASS
   ========================================================================= */
 
-  const renderNavTab = ({ to, onClick, paths, label, iconRight }) => {
-    const active = isActive(paths);
-    const tabClasses = `group relative inline-flex items-center gap-1.5 px-1 py-1.5 text-[15px] xl:text-base transition-colors duration-200 whitespace-nowrap cursor-pointer select-none ${
-      active
-        ? "font-bold text-amber-500"
-        : "font-semibold text-slate-300 hover:text-amber-400"
-    }`;
-
-    const underline = (
-      <span
-        aria-hidden="true"
-        className={`pointer-events-none absolute -bottom-1 left-0 right-0 h-[2.5px] rounded-full bg-amber-500 transition-transform duration-300 ease-out origin-left ${
-          active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-        }`}
-      />
-    );
-
-    if (to) {
-      return (
-        <Link to={to} className={tabClasses}>
-          <span>{label}</span>
-          {iconRight}
-          {underline}
-        </Link>
-      );
-    }
-
-    return (
-      <button type="button" onClick={onClick} className={tabClasses}>
-        <span>{label}</span>
-        {iconRight}
-        {underline}
-      </button>
-    );
-  };
-
-  /* Mobile item active styling */
-  const mobileNavItemClass = (paths) => {
+  const navItemClass = (paths) => {
     const active = isActive(paths);
 
-    return `flex items-center justify-between w-full rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
-      active
-        ? "bg-amber-500/15 text-amber-400 border-l-4 border-amber-400 pl-3.5"
-        : "text-slate-300 hover:bg-slate-800/60 hover:text-white"
-    }`;
+    return `px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 whitespace-nowrap ${active
+        ? "bg-white text-amber-600 shadow-sm"
+        : "text-slate-600 hover:text-slate-900 hover:bg-white/70"
+      }`;
   };
 
   /* =========================================================================
@@ -211,7 +173,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="fixed inset-x-0 top-0 z-[100] w-full border-b border-slate-800/80 bg-[#070b14]/90 shadow-md shadow-black/20 backdrop-blur-xl">
+    <header className="fixed inset-x-0 top-0 z-[100] w-full border-b border-slate-200/60 bg-white/95 shadow-sm backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         {/* ===============================================================
             MAIN NAVBAR
@@ -228,15 +190,15 @@ const Navbar = () => {
             className="notranslate group flex shrink-0 items-center gap-3"
             translate="no"
           >
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-700/80 bg-slate-800/70 text-amber-400 shadow-sm transition-all duration-200 group-hover:border-amber-500/50 group-hover:text-amber-300">
-              <FaScaleBalanced className="text-xl" />
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-amber-500">
+              <FaScaleBalanced className="text-2xl" />
             </div>
 
             <span
-              className="notranslate text-lg font-bold text-white transition-colors sm:text-xl"
+              className="notranslate text-lg font-bold text-slate-900 sm:text-xl"
               translate="no"
             >
-              Vakeel<span className="text-amber-400">Setu</span>
+              Vakeel<span className="text-amber-600">Setu</span>
             </span>
           </Link>
 
@@ -244,63 +206,75 @@ const Navbar = () => {
               DESKTOP NAVIGATION
           ============================================================= */}
 
-          <nav className="hidden items-center gap-6 lg:gap-6 xl:gap-8 lg:flex">
-            {renderNavTab({
-              to: isAdvocate ? "/advocate/dashboard" : "/",
-              paths: isAdvocate ? "/advocate/dashboard" : "/",
-              label: isAdvocate ? "Dashboard" : "Home",
-            })}
+          <nav className="hidden items-center gap-1 rounded-full border border-slate-200/50 bg-slate-100/60 p-1.5 lg:flex">
+            <Link
+              to={isAdvocate ? "/advocate/dashboard" : "/"}
+              className={navItemClass(isAdvocate ? "/advocate/dashboard" : "/")}
+            >
+              {isAdvocate ? "Dashboard" : "Home"}
+            </Link>
 
-            {!isAdvocate &&
-              renderNavTab({
-                to: "/find-lawyer",
-                paths: "/find-lawyer",
-                label: "Find Lawyer",
-              })}
+            {!isAdvocate && (
+              <Link to="/find-lawyer" className={navItemClass("/find-lawyer")}>
+                Find Lawyer
+              </Link>
+            )}
 
             {/* LEGAL ASSISTANT */}
 
-            {loggedIn
-              ? renderNavTab({
-                  to: "/legal-assistant",
-                  paths: "/legal-assistant",
-                  label: "Legal Assistant",
-                })
-              : renderNavTab({
-                  onClick: () => handleProtectedNavigation("/legal-assistant"),
-                  paths: "/legal-assistant",
-                  label: "Legal Assistant",
-                })}
+            {loggedIn ? (
+              <Link to="/legal-assistant" className={navItemClass("/legal-assistant")}>
+                Legal Assistant
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => handleProtectedNavigation("/legal-assistant")}
+                className={navItemClass("/legal-assistant")}
+              >
+                Legal Assistant
+              </button>
+            )}
 
             {/* BOOKINGS */}
 
-            {!isAdvocate &&
-              !isAdmin &&
-              (loggedIn
-                ? renderNavTab({
-                    to: "/bookings",
-                    paths: "/bookings",
-                    label: "My Bookings",
-                  })
-                : renderNavTab({
-                    onClick: () => handleProtectedNavigation("/bookings"),
-                    paths: "/bookings",
-                    label: "My Bookings",
-                  }))}
+            {!isAdvocate && !isAdmin && (
+              loggedIn ? (
+                <Link
+                  to="/bookings"
+                  className={navItemClass("/bookings")}
+                >
+                  My Bookings
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => handleProtectedNavigation("/bookings")}
+                  className={navItemClass("/bookings")}
+                >
+                  My Bookings
+                </button>
+              )
+            )}
 
             {/* MESSAGES */}
 
-            {loggedIn
-              ? renderNavTab({
-                  to: isAdvocate ? "/advocate/messages" : "/messages",
-                  paths: isAdvocate ? "/advocate/messages" : "/messages",
-                  label: "Messages",
-                })
-              : renderNavTab({
-                  onClick: () => handleProtectedNavigation("/messages"),
-                  paths: "/messages",
-                  label: "Messages",
-                })}
+            {loggedIn ? (
+              <Link
+                to={isAdvocate ? "/advocate/messages" : "/messages"}
+                className={navItemClass(isAdvocate ? "/advocate/messages" : "/messages")}
+              >
+                Messages
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => handleProtectedNavigation("/messages")}
+                className={navItemClass("/messages")}
+              >
+                Messages
+              </button>
+            )}
 
             {/* ===========================================================
                 LEGAL HUB
@@ -309,50 +283,28 @@ const Navbar = () => {
             <div className="group relative">
               <button
                 type="button"
-                className={`group/btn relative inline-flex items-center gap-1.5 px-1 py-1.5 text-[15px] xl:text-base transition-colors duration-200 whitespace-nowrap cursor-pointer select-none ${
-                  isActive("/legal-hub")
-                    ? "font-bold text-amber-500"
-                    : "font-semibold text-slate-300 hover:text-amber-400"
-                }`}
+                className={`${navItemClass(
+                  "/legal-hub",
+                )} flex items-center gap-1`}
               >
-                <span>Legal Hub</span>
-                <IoChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
-                <span
-                  aria-hidden="true"
-                  className={`pointer-events-none absolute -bottom-1 left-0 right-0 h-[2.5px] rounded-full bg-amber-500 transition-transform duration-300 ease-out origin-left ${
-                    isActive("/legal-hub")
-                      ? "scale-x-100"
-                      : "scale-x-0 group-hover:scale-x-100 group-hover/btn:scale-x-100"
-                  }`}
-                />
+                Legal Hub
+                <IoChevronDown className="text-base transition-transform duration-200 group-hover:rotate-180" />
               </button>
 
               <div className="invisible absolute left-1/2 top-full z-[200] -translate-x-1/2 translate-y-2 pt-3 opacity-0 transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
-                <div className="w-64 rounded-2xl border border-slate-800 bg-[#0d1424]/95 p-2 shadow-2xl shadow-black/70 backdrop-blur-xl">
+                <div className="w-60 rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl">
                   {/* RIGHTS */}
 
                   <Link
                     to="/legal-hub/rights"
-                    className={`group/item flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-colors ${
-                      isActive("/legal-hub/rights")
-                        ? "bg-amber-500/15 text-amber-400"
-                        : "text-slate-200 hover:bg-slate-800/80 hover:text-white"
-                    }`}
+                    className="group/item flex items-center gap-3 rounded-xl px-4 py-3 hover:bg-amber-50"
                   >
-                    <FaGavel className="shrink-0 text-[18px] text-amber-400 transition-transform duration-200 group-hover/item:scale-110" />
+                    <FaGavel className="shrink-0 text-[20px] text-amber-600" />
 
                     <div>
-                      <p
-                        className={`text-sm font-semibold transition-colors ${
-                          isActive("/legal-hub/rights")
-                            ? "text-amber-400"
-                            : "text-slate-200 group-hover/item:text-amber-300"
-                        }`}
-                      >
-                        Rights
-                      </p>
+                      <p className="text-sm font-bold text-slate-800">Rights</p>
 
-                      <p className="text-xs text-slate-400 group-hover/item:text-slate-300">
+                      <p className="text-xs text-slate-400">
                         Know your legal rights
                       </p>
                     </div>
@@ -362,26 +314,16 @@ const Navbar = () => {
 
                   <Link
                     to="/legal-hub/articles"
-                    className={`group/item flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-colors ${
-                      isActive("/legal-hub/articles")
-                        ? "bg-amber-500/15 text-amber-400"
-                        : "text-slate-200 hover:bg-slate-800/80 hover:text-white"
-                    }`}
+                    className="flex items-center gap-3 rounded-xl px-4 py-3 hover:bg-amber-50"
                   >
-                    <FaFileLines className="shrink-0 text-[18px] text-amber-400 transition-transform duration-200 group-hover/item:scale-110" />
+                    <FaFileLines className="shrink-0 text-[20px] text-amber-600" />
 
                     <div>
-                      <p
-                        className={`text-sm font-semibold transition-colors ${
-                          isActive("/legal-hub/articles")
-                            ? "text-amber-400"
-                            : "text-slate-200 group-hover/item:text-amber-300"
-                        }`}
-                      >
+                      <p className="text-sm font-bold text-slate-800">
                         Articles
                       </p>
 
-                      <p className="text-xs text-slate-400 group-hover/item:text-slate-300">
+                      <p className="text-xs text-slate-400">
                         Latest legal articles
                       </p>
                     </div>
@@ -391,26 +333,14 @@ const Navbar = () => {
 
                   <Link
                     to="/legal-hub/guides"
-                    className={`group/item flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-colors ${
-                      isActive("/legal-hub/guides")
-                        ? "bg-amber-500/15 text-amber-400"
-                        : "text-slate-200 hover:bg-slate-800/80 hover:text-white"
-                    }`}
+                    className="flex items-center gap-3 rounded-xl px-4 py-3 hover:bg-amber-50"
                   >
-                    <FaBookOpen className="shrink-0 text-[18px] text-amber-400 transition-transform duration-200 group-hover/item:scale-110" />
+                    <FaBookOpen className="shrink-0 text-[20px] text-amber-600" />
 
                     <div>
-                      <p
-                        className={`text-sm font-semibold transition-colors ${
-                          isActive("/legal-hub/guides")
-                            ? "text-amber-400"
-                            : "text-slate-200 group-hover/item:text-amber-300"
-                        }`}
-                      >
-                        Guides
-                      </p>
+                      <p className="text-sm font-bold text-slate-800">Guides</p>
 
-                      <p className="text-xs text-slate-400 group-hover/item:text-slate-300">
+                      <p className="text-xs text-slate-400">
                         Step-by-step legal help
                       </p>
                     </div>
@@ -420,26 +350,14 @@ const Navbar = () => {
 
                   <Link
                     to="/legal-hub/ipc"
-                    className={`group/item flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-colors ${
-                      isActive("/legal-hub/ipc")
-                        ? "bg-amber-500/15 text-amber-400"
-                        : "text-slate-200 hover:bg-slate-800/80 hover:text-white"
-                    }`}
+                    className="flex items-center gap-3 rounded-xl px-4 py-3 hover:bg-amber-50"
                   >
-                    <FaBalanceScale className="shrink-0 text-[18px] text-amber-400 transition-transform duration-200 group-hover/item:scale-110" />
+                    <FaBalanceScale className="shrink-0 text-[20px] text-amber-600" />
 
                     <div>
-                      <p
-                        className={`text-sm font-semibold transition-colors ${
-                          isActive("/legal-hub/ipc")
-                            ? "text-amber-400"
-                            : "text-slate-200 group-hover/item:text-amber-300"
-                        }`}
-                      >
-                        IPC
-                      </p>
+                      <p className="text-sm font-bold text-slate-800">IPC</p>
 
-                      <p className="text-xs text-slate-400 group-hover/item:text-slate-300">
+                      <p className="text-xs text-slate-400">
                         Indian Penal Code
                       </p>
                     </div>
@@ -449,26 +367,14 @@ const Navbar = () => {
 
                   <Link
                     to="/legal-hub/bns"
-                    className={`group/item flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-colors ${
-                      isActive("/legal-hub/bns")
-                        ? "bg-amber-500/15 text-amber-400"
-                        : "text-slate-200 hover:bg-slate-800/80 hover:text-white"
-                    }`}
+                    className="flex items-center gap-3 rounded-xl px-4 py-3 hover:bg-amber-50"
                   >
-                    <FaShieldHalved className="shrink-0 text-[18px] text-amber-400 transition-transform duration-200 group-hover/item:scale-110" />
+                    <FaShieldHalved className="shrink-0 text-[20px] text-amber-600" />
 
                     <div>
-                      <p
-                        className={`text-sm font-semibold transition-colors ${
-                          isActive("/legal-hub/bns")
-                            ? "text-amber-400"
-                            : "text-slate-200 group-hover/item:text-amber-300"
-                        }`}
-                      >
-                        BNS
-                      </p>
+                      <p className="text-sm font-bold text-slate-800">BNS</p>
 
-                      <p className="text-xs text-slate-400 group-hover/item:text-slate-300">
+                      <p className="text-xs text-slate-400">
                         Bharatiya Nyaya Sanhita
                       </p>
                     </div>
@@ -478,26 +384,16 @@ const Navbar = () => {
 
                   <Link
                     to="/legal-hub/law-library"
-                    className={`group/item flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-colors ${
-                      isActive("/legal-hub/law-library")
-                        ? "bg-amber-500/15 text-amber-400"
-                        : "text-slate-200 hover:bg-slate-800/80 hover:text-white"
-                    }`}
+                    className="flex items-center gap-3 rounded-xl px-4 py-3 hover:bg-amber-50"
                   >
-                    <FaBookOpen className="shrink-0 text-[18px] text-amber-400 transition-transform duration-200 group-hover/item:scale-110" />
+                    <FaBookOpen className="shrink-0 text-[20px] text-amber-600" />
 
                     <div>
-                      <p
-                        className={`text-sm font-semibold transition-colors ${
-                          isActive("/legal-hub/law-library")
-                            ? "text-amber-400"
-                            : "text-slate-200 group-hover/item:text-amber-300"
-                        }`}
-                      >
+                      <p className="text-sm font-bold text-slate-800">
                         Law Library
                       </p>
 
-                      <p className="text-xs text-slate-400 group-hover/item:text-slate-300">
+                      <p className="text-xs text-slate-400">
                         Acts, Sections & Legal References
                       </p>
                     </div>
@@ -507,26 +403,16 @@ const Navbar = () => {
 
                   <Link
                     to="/legal-hub/updates"
-                    className={`group/item flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-colors ${
-                      isActive("/legal-hub/updates")
-                        ? "bg-amber-500/15 text-amber-400"
-                        : "text-slate-200 hover:bg-slate-800/80 hover:text-white"
-                    }`}
+                    className="flex items-center gap-3 rounded-xl px-4 py-3 hover:bg-amber-50"
                   >
-                    <IoRefreshOutline className="shrink-0 text-[20px] text-amber-400 transition-transform duration-200 group-hover/item:rotate-180" />
+                    <IoRefreshOutline className="shrink-0 text-[21px] text-amber-600" />
 
                     <div>
-                      <p
-                        className={`text-sm font-semibold transition-colors ${
-                          isActive("/legal-hub/updates")
-                            ? "text-amber-400"
-                            : "text-slate-200 group-hover/item:text-amber-300"
-                        }`}
-                      >
+                      <p className="text-sm font-bold text-slate-800">
                         Updates
                       </p>
 
-                      <p className="text-xs text-slate-400 group-hover/item:text-slate-300">
+                      <p className="text-xs text-slate-400">
                         Important legal updates
                       </p>
                     </div>
@@ -549,11 +435,11 @@ const Navbar = () => {
 
             {authLoading ? (
               <div className="hidden items-center gap-2 lg:flex">
-                <div className="h-10 w-10 animate-pulse rounded-full bg-slate-800" />
+                <div className="h-10 w-10 animate-pulse rounded-full bg-slate-200" />
 
                 <div className="hidden space-y-1.5 sm:block">
-                  <div className="h-3 w-20 animate-pulse rounded bg-slate-800" />
-                  <div className="h-2.5 w-12 animate-pulse rounded bg-slate-800/60" />
+                  <div className="h-3 w-20 animate-pulse rounded bg-slate-200" />
+                  <div className="h-2.5 w-12 animate-pulse rounded bg-slate-100" />
                 </div>
               </div>
             ) : loggedIn ? (
@@ -567,14 +453,14 @@ const Navbar = () => {
                   onClick={() => {
                     setShowProfileMenu((prev) => !prev);
                   }}
-                  className="flex items-center gap-2 rounded-full border border-transparent p-1 pr-2.5 transition-all duration-200 hover:border-slate-700/60 hover:bg-slate-800/60"
+                  className="flex items-center gap-2 rounded-full p-1 pr-2 transition-all hover:bg-slate-50"
                 >
                   {/* PROFILE IMAGE */}
 
-                  <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 border-slate-700 bg-slate-800 shadow-md">
+                  <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-slate-200 shadow-md">
                     {user?.profileUrl ||
-                    user?.profilePhotoUrl ||
-                    user?.avatar?.url ? (
+                      user?.profilePhotoUrl ||
+                      user?.avatar?.url ? (
                       <img
                         src={
                           user?.profileUrl ||
@@ -585,27 +471,23 @@ const Navbar = () => {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <FaRegUser className="text-[18px] text-slate-300" />
+                      <FaRegUser className="text-[19px] text-slate-500" />
                     )}
                   </div>
 
                   {/* USER NAME */}
 
                   <div className="hidden text-left sm:block">
-                    <p className="max-w-[120px] truncate text-sm font-bold text-slate-200">
+                    <p className="max-w-[120px] truncate text-sm font-bold text-slate-800">
                       {user?.name || user?.fullName || user?.email || "User"}
                     </p>
 
-                    <p className="text-[10px] font-medium text-amber-400/90">
-                      {isAdvocate ? "Advocate" : "Client"}
+                    <p className="text-[10px] font-medium text-slate-400">
+                      {isAdvocate ? "Advocate" : "Profile"}
                     </p>
                   </div>
 
-                  <IoChevronDown
-                    className={`hidden text-sm text-slate-400 transition-transform duration-200 sm:block ${
-                      showProfileMenu ? "rotate-180" : ""
-                    }`}
-                  />
+                  <IoChevronDown className="hidden text-sm text-slate-400 sm:block" />
                 </button>
 
                 {/* =======================================================
@@ -613,13 +495,13 @@ const Navbar = () => {
                 ======================================================= */}
 
                 {showProfileMenu && (
-                  <div className="absolute right-0 top-full z-[100] mt-2 w-52 rounded-2xl border border-slate-800 bg-[#0d1424]/95 p-1.5 shadow-2xl shadow-black/70 backdrop-blur-xl">
+                  <div className="absolute right-0 top-full z-[100] mt-2 w-48 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl">
                     <Link
                       to={getProfileRoute()}
                       onClick={() => setShowProfileMenu(false)}
-                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-slate-200 transition-colors hover:bg-slate-800/80 hover:text-amber-300"
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                     >
-                      <FaRegUser className="shrink-0 text-base text-slate-400" />
+                      <FaRegUser className="shrink-0 text-lg" />
                       Profile
                     </Link>
 
@@ -628,18 +510,18 @@ const Navbar = () => {
                         <Link
                           to="/advocate/dashboard"
                           onClick={() => setShowProfileMenu(false)}
-                          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-slate-200 transition-colors hover:bg-slate-800/80 hover:text-amber-300"
+                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                         >
-                          <FaScaleBalanced className="shrink-0 text-base text-amber-400" />
+                          <FaScaleBalanced className="shrink-0 text-lg text-amber-600" />
                           Dashboard
                         </Link>
 
                         <Link
                           to="/advocate/bookings"
                           onClick={() => setShowProfileMenu(false)}
-                          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-slate-200 transition-colors hover:bg-slate-800/80 hover:text-amber-300"
+                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                         >
-                          <FaRegCalendarAlt className="shrink-0 text-base text-slate-400" />
+                          <FaRegCalendarAlt className="shrink-0 text-lg" />
                           My Bookings
                         </Link>
                       </>
@@ -648,40 +530,40 @@ const Navbar = () => {
                         <Link
                           to="/bookings"
                           onClick={() => setShowProfileMenu(false)}
-                          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-slate-200 transition-colors hover:bg-slate-800/80 hover:text-amber-300"
+                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                         >
-                          <FaRegCalendarAlt className="shrink-0 text-base text-slate-400" />
+                          <FaRegCalendarAlt className="shrink-0 text-lg" />
                           My Bookings
                         </Link>
 
                         <Link
                           to="/payments"
                           onClick={() => setShowProfileMenu(false)}
-                          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-slate-200 transition-colors hover:bg-slate-800/80 hover:text-amber-300"
+                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                         >
-                          <FaReceipt className="shrink-0 text-base text-slate-400" />
+                          <FaReceipt className="shrink-0 text-lg" />
                           My Payments
                         </Link>
 
                         <Link
                           to="/saved-lawyers"
                           onClick={() => setShowProfileMenu(false)}
-                          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-slate-200 transition-colors hover:bg-slate-800/80 hover:text-amber-300"
+                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                         >
-                          <FaRegBookmark className="shrink-0 text-base text-slate-400" />
+                          <FaRegBookmark className="shrink-0 text-lg" />
                           Saved Lawyers
                         </Link>
                       </>
                     )}
 
-                    <div className="my-1.5 h-px bg-slate-800" />
+                    <div className="my-1 h-px bg-slate-100" />
 
                     <button
                       type="button"
                       onClick={handleLogout}
-                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-300"
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm hover:bg-red-100 font-bold text-red-500 hover:text-red-600"
                     >
-                      <IoLogOutOutline className="shrink-0 text-xl font-bold" />
+                      <IoLogOutOutline className="shrink-0 text-3xl font-bold " />
                       Logout
                     </button>
                   </div>
@@ -692,14 +574,10 @@ const Navbar = () => {
                   GUEST
               ========================================================= */
 
-              <div className="flex items-center gap-2 sm:gap-2.5">
+              <div className="flex items-center gap-2">
                 <Link
                   to="/login"
-                  className={`notranslate rounded-xl px-4 py-2 text-sm transition-all duration-200 ${
-                    location.pathname === "/login"
-                      ? "bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/25 ring-2 ring-amber-400 ring-offset-2 ring-offset-[#070b14]"
-                      : "border border-slate-700/80 bg-slate-800/40 text-slate-200 font-semibold hover:border-slate-500 hover:bg-slate-800/80 hover:text-white"
-                  }`}
+                  className="notranslate rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700"
                   translate="no"
                 >
                   Login
@@ -707,17 +585,13 @@ const Navbar = () => {
 
                 <Link
                   to="/signup"
-                  className={`notranslate rounded-xl px-5 py-2 text-sm transition-all duration-200 ${
-                    location.pathname === "/signup"
-                      ? "bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/25 ring-2 ring-amber-400 ring-offset-2 ring-offset-[#070b14]"
-                      : location.pathname === "/login"
-                      ? "border border-slate-700/80 bg-slate-800/40 text-slate-300 font-semibold hover:border-slate-500 hover:text-white"
-                      : "bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold shadow-sm shadow-amber-500/20 hover:brightness-110 hover:shadow-amber-500/30"
-                  }`}
+                  className="notranslate rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-2.5 text-sm font-bold text-white"
                   translate="no"
                 >
                   Sign Up
                 </Link>
+
+
               </div>
             )}
 
@@ -731,13 +605,13 @@ const Navbar = () => {
                 setMobileMenu((prev) => !prev);
                 setShowProfileMenu(false);
               }}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-700/80 bg-slate-800/40 text-slate-300 transition-colors hover:border-slate-600 hover:bg-slate-800 hover:text-white lg:hidden"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition-colors hover:bg-slate-50 lg:hidden"
               aria-label="Toggle menu"
             >
               {mobileMenu ? (
-                <IoClose className="text-[22px]" />
+                <IoClose className="text-[24px]" />
               ) : (
-                <IoMenu className="text-[22px]" />
+                <IoMenu className="text-[24px]" />
               )}
             </button>
           </div>
@@ -749,137 +623,96 @@ const Navbar = () => {
 
         {mobileMenu && (
           <div className="pb-4 lg:hidden">
-            <div className="space-y-1 rounded-2xl border border-slate-800 bg-[#0d1424] p-2.5 shadow-2xl">
+            <div className="space-y-1 rounded-2xl border border-slate-200 bg-slate-50 p-2">
               {/* Home */}
               <Link
-                to={isAdvocate ? "/advocate/dashboard" : "/"}
+                to="/"
                 onClick={handleMobileNavigation}
-                className={mobileNavItemClass(
-                  isAdvocate ? "/advocate/dashboard" : "/",
-                )}
+                className={`block w-full rounded-xl px-4 py-3 text-sm font-semibold ${isActive("/")
+                    ? "bg-white text-amber-600"
+                    : "text-slate-700 hover:bg-white"
+                  }`}
               >
-                <span>{isAdvocate ? "Dashboard" : "Home"}</span>
+                Home
               </Link>
 
               {/* Find Lawyer */}
-              {!isAdvocate && (
-                <Link
-                  to="/find-lawyer"
-                  onClick={handleMobileNavigation}
-                  className={mobileNavItemClass("/find-lawyer")}
-                >
-                  <span>Find Lawyer</span>
-                </Link>
-              )}
+              <Link
+                to="/find-lawyer"
+                onClick={handleMobileNavigation}
+                className={`block w-full rounded-xl px-4 py-3 text-sm font-semibold ${isActive("/find-lawyer")
+                    ? "bg-white text-amber-600"
+                    : "text-slate-700 hover:bg-white"
+                  }`}
+              >
+                Find Lawyer
+              </Link>
 
               {/* Legal Hub - Public */}
               <Link
                 to="/legal-hub"
                 onClick={handleMobileNavigation}
-                className={mobileNavItemClass("/legal-hub")}
+                className={`block w-full rounded-xl px-4 py-3 text-sm font-semibold ${isActive("/legal-hub")
+                    ? "bg-white text-amber-600"
+                    : "text-slate-700 hover:bg-white"
+                  }`}
               >
-                <span>Legal Hub</span>
+                Legal Hub
               </Link>
 
               {/* Legal Assistant - Protected */}
-              {loggedIn ? (
-                <Link
-                  to="/legal-assistant"
-                  onClick={handleMobileNavigation}
-                  className={mobileNavItemClass("/legal-assistant")}
-                >
-                  <span>Legal Assistant</span>
-                </Link>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => handleProtectedNavigation("/legal-assistant")}
-                  className={mobileNavItemClass("/legal-assistant")}
-                >
-                  <span>Legal Assistant</span>
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => handleProtectedNavigation("/legal-assistant")}
+                className="block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-white"
+              >
+                Legal Assistant
+              </button>
 
               {/* My Bookings - Protected */}
-              {!isAdvocate &&
-                !isAdmin &&
-                (loggedIn ? (
-                  <Link
-                    to="/bookings"
-                    onClick={handleMobileNavigation}
-                    className={mobileNavItemClass("/bookings")}
-                  >
-                    <span>My Bookings</span>
-                  </Link>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => handleProtectedNavigation("/bookings")}
-                    className={mobileNavItemClass("/bookings")}
-                  >
-                    <span>My Bookings</span>
-                  </button>
-                ))}
+              <button
+                type="button"
+                onClick={() => handleProtectedNavigation("/bookings")}
+                className="block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-white"
+              >
+                My Bookings
+              </button>
 
               {/* My Payments - Protected */}
-              {!isAdvocate &&
-                !isAdmin &&
-                (loggedIn ? (
-                  <Link
-                    to="/payments"
-                    onClick={handleMobileNavigation}
-                    className={mobileNavItemClass("/payments")}
-                  >
-                    <span>My Payments</span>
-                  </Link>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => handleProtectedNavigation("/payments")}
-                    className={mobileNavItemClass("/payments")}
-                  >
-                    <span>My Payments</span>
-                  </button>
-                ))}
+              <button
+                type="button"
+                onClick={() => handleProtectedNavigation("/payments")}
+                className="block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-white"
+              >
+                My Payments
+              </button>
 
               {/* Messages - Protected */}
-              {loggedIn ? (
-                <Link
-                  to={isAdvocate ? "/advocate/messages" : "/messages"}
-                  onClick={handleMobileNavigation}
-                  className={mobileNavItemClass(
-                    isAdvocate ? "/advocate/messages" : "/messages",
-                  )}
-                >
-                  <span>Messages</span>
-                </Link>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => handleProtectedNavigation("/messages")}
-                  className={mobileNavItemClass("/messages")}
-                >
-                  <span>Messages</span>
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => handleProtectedNavigation("/messages")}
+                className="block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-white"
+              >
+                Messages
+              </button>
 
-              <div className="my-2.5 h-px bg-slate-800" />
+              <div className="my-2 h-px bg-slate-200" />
 
               <LanguageTranslator mobile />
 
               {/* =========================================================
-                  MOBILE AUTH
-              ========================================================= */}
+          MOBILE AUTH
+      ========================================================= */}
 
               {!authLoading && loggedIn && (
                 <>
-                  <div className="my-2.5 h-px bg-slate-800" />
+                  <div className="my-2 h-px bg-slate-200" />
 
-                  <div className="flex items-center gap-3 rounded-xl border border-slate-700/60 bg-slate-800/50 p-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-700 bg-slate-800">
+                  <div className="flex items-center gap-3 rounded-xl bg-white p-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-200">
                       {user?.profileUrl ||
-                      user?.profilePhotoUrl ||
-                      user?.avatar?.url ? (
+                        user?.profilePhotoUrl ||
+                        user?.avatar?.url ? (
                         <img
                           src={
                             user?.profileUrl ||
@@ -890,17 +723,17 @@ const Navbar = () => {
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <FaRegUser className="text-[18px] text-slate-300" />
+                        <FaRegUser className="text-[19px] text-slate-500" />
                       )}
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-bold text-slate-200">
+                      <p className="truncate text-sm font-bold text-slate-800">
                         {user?.name || user?.fullName || user?.email || "User"}
                       </p>
 
-                      <p className="text-xs text-amber-400/90 font-medium">
-                        {isAdvocate ? "Advocate" : "Client"}
+                      <p className="text-xs text-slate-400">
+                        {isAdvocate ? "Advocate" : "User"}
                       </p>
                     </div>
                   </div>
@@ -908,74 +741,62 @@ const Navbar = () => {
                   <Link
                     to={getProfileRoute()}
                     onClick={handleMobileNavigation}
-                    className="flex w-full items-center gap-2.5 rounded-xl px-4 py-3 text-sm font-semibold text-slate-300 transition-colors hover:bg-slate-800/60 hover:text-white"
+                    className="flex w-full items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-white"
                   >
-                    <FaRegUser className="shrink-0 text-base text-slate-400" />
-                    <span>Profile</span>
+                    <FaRegUser className="shrink-0 text-lg" />
+                    Profile
                   </Link>
 
                   {isAdvocate ? (
                     <Link
                       to="/advocate/dashboard"
                       onClick={handleMobileNavigation}
-                      className="flex w-full items-center gap-2.5 rounded-xl px-4 py-3 text-sm font-semibold text-slate-300 transition-colors hover:bg-slate-800/60 hover:text-white"
+                      className="flex w-full items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-white"
                     >
-                      <FaScaleBalanced className="shrink-0 text-base text-amber-400" />
-                      <span>Dashboard</span>
+                      <FaScaleBalanced className="shrink-0 text-lg text-amber-600" />
+                      Dashboard
                     </Link>
                   ) : (
                     <Link
                       to="/saved-lawyers"
                       onClick={handleMobileNavigation}
-                      className="flex w-full items-center gap-2.5 rounded-xl px-4 py-3 text-sm font-semibold text-slate-300 transition-colors hover:bg-slate-800/60 hover:text-white"
+                      className="flex w-full items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-white"
                     >
-                      <FaRegBookmark className="shrink-0 text-base text-slate-400" />
-                      <span>Saved Lawyers</span>
+                      <FaRegBookmark className="shrink-0 text-lg" />
+                      Saved Lawyers
                     </Link>
                   )}
 
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="flex w-full items-center gap-2.5 rounded-xl px-4 py-3 text-left text-sm font-semibold text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-300"
+                    className="flex w-full items-center gap-2 rounded-xl px-4 py-3 text-left text-sm font-semibold text-red-600 hover:bg-red-50"
                   >
-                    <IoLogOutOutline className="shrink-0 text-lg font-bold" />
-                    <span>Logout</span>
+                    <IoLogOutOutline className="shrink-0 text-lg" />
+                    Logout
                   </button>
                 </>
               )}
 
               {!authLoading && !loggedIn && (
                 <>
-                  <div className="my-2.5 h-px bg-slate-800" />
+                  <div className="my-2 h-px bg-slate-200" />
 
-                  <div className="grid grid-cols-2 gap-2 pt-1">
-                    <Link
-                      to="/login"
-                      onClick={handleMobileNavigation}
-                      className={`block w-full rounded-xl px-4 py-2.5 text-center text-sm transition-all ${
-                        location.pathname === "/login"
-                          ? "bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/20 ring-2 ring-amber-400 ring-offset-1 ring-offset-[#0d1424]"
-                          : "border border-slate-700/80 bg-slate-800/60 font-semibold text-slate-200 hover:bg-slate-800 hover:text-white"
-                      }`}
-                    >
-                      Login
-                    </Link>
+                  <Link
+                    to="/login"
+                    onClick={handleMobileNavigation}
+                    className="block w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-bold text-slate-700"
+                  >
+                    Login
+                  </Link>
 
-                    <Link
-                      to="/signup"
-                      onClick={handleMobileNavigation}
-                      className={`block w-full rounded-xl px-4 py-2.5 text-center text-sm transition-all ${
-                        location.pathname === "/signup"
-                          ? "bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/20 ring-2 ring-amber-400 ring-offset-1 ring-offset-[#0d1424]"
-                          : location.pathname === "/login"
-                          ? "border border-slate-700/80 bg-slate-800/60 font-semibold text-slate-300 hover:bg-slate-800 hover:text-white"
-                          : "bg-gradient-to-r from-amber-500 to-amber-600 font-bold text-slate-950 hover:brightness-110 shadow-sm shadow-amber-500/20"
-                      }`}
-                    >
-                      Sign Up
-                    </Link>
-                  </div>
+                  <Link
+                    to="/signup"
+                    onClick={handleMobileNavigation}
+                    className="block w-full rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-3 text-center text-sm font-bold text-white cursor-poi"
+                  >
+                    Sign Up
+                  </Link>
                 </>
               )}
             </div>

@@ -22,6 +22,12 @@ export const ADMIN_NAV_GROUPS = [
         permissions: [ADMIN_PERMISSIONS.ADVOCATES_VIEW],
       },
       {
+        to: ADMIN_PATHS.profileChanges.list,
+        label: "Profile Changes Request",
+        icon: "assignment_turned_in",
+        permissions: [ADMIN_PERMISSIONS.ADVOCATES_VIEW],
+      },
+      {
         to: ADMIN_PATHS.users.list,
         label: "Client",
         icon: "people",

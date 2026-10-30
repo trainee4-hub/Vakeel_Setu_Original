@@ -964,6 +964,58 @@ export default function AdvocateMyProfile() {
     </motion.div>
   )}
 
+          {isAdminApproved && advocate?.profileChange?.status && (
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border p-4 ${
+                advocate.profileChange.status === "SUBMITTED"
+                  ? "border-blue-200 bg-blue-50 text-blue-950"
+                  : advocate.profileChange.status === "REJECTED"
+                    ? "border-rose-200 bg-rose-50 text-rose-950"
+                    : "border-amber-200 bg-amber-50 text-amber-950"
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <div
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                    advocate.profileChange.status === "SUBMITTED"
+                      ? "bg-blue-100 text-blue-700"
+                      : advocate.profileChange.status === "REJECTED"
+                        ? "bg-rose-100 text-rose-700"
+                        : "bg-amber-100 text-amber-700"
+                  }`}
+                >
+                  <Clock3 size={18} />
+                </div>
+                <div>
+                  <p className="text-sm font-extrabold">
+                    {advocate.profileChange.status === "SUBMITTED"
+                      ? "Profile changes pending admin approval"
+                      : advocate.profileChange.status === "REJECTED"
+                        ? `Profile changes rejected: ${advocate.profileChange.rejectionReason || "Action required"}`
+                        : "You have unsubmitted profile changes in draft"}
+                  </p>
+                  <p className="mt-0.5 text-xs opacity-85">
+                    {advocate.profileChange.status === "SUBMITTED"
+                      ? "Your current live profile remains active on public listings until approved."
+                      : advocate.profileChange.status === "REJECTED"
+                        ? "Please review the rejection reason, make corrections, and resubmit."
+                        : "Review and submit your staged changes for administrator approval."}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate("/advocate/profile/edit")}
+                className="inline-flex min-h-[36px] items-center gap-1.5 rounded-xl bg-slate-900 px-3.5 text-xs font-bold text-white hover:bg-slate-800 transition shrink-0 self-start sm:self-auto"
+              >
+                <Edit3 size={14} />
+                Review Changes
+              </button>
+            </motion.div>
+          )}
+
           {/* =====================================================
             STATS
         ===================================================== */}
@@ -1172,9 +1224,10 @@ export default function AdvocateMyProfile() {
                   <div className="sm:col-span-2">
                     <InfoItem
                       Icon={MapPin}
-                      label="Complete Address"
+                      label="Office address"
                       value={
-                        advocate?.completeAddress
+                        advocate?.officeAddress ||
+                        advocate?.office?.officeAddress
                       }
                     />
                   </div>

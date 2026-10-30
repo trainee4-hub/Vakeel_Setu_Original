@@ -57,24 +57,25 @@ const HeroSection = ({
         className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none"
         aria-hidden="true"
       >
-        {/* Law Chamber & Library Photo (Clearly visible: bookshelves, desk lamp on right, scales on left) */}
+        {/* Law Chamber & Library Photo with balanced transparency and rich depth */}
         <img
           src={heroBg}
           alt=""
           role="presentation"
           fetchPriority="high"
-          className="absolute inset-0 h-full w-full object-cover object-center opacity-80 sm:opacity-85 filter brightness-[0.82] contrast-[1.08] saturate-[0.92]"
+          className="absolute inset-0 h-full w-full object-cover object-center opacity-50 sm:opacity-55 filter brightness-[0.78] contrast-[1.05] saturate-[0.88] transition-opacity duration-500"
         />
 
-        {/* Deep Slate/Navy Directional Overlay (Preserves visible chamber detail while providing contrast) */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#070b14]/75 via-[#070b14]/40 to-[#070b14]/85" />
+        {/* Deep Slate/Navy Directional Overlay (Rich depth, seamless top and bottom blend) */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#070b14]/80 via-[#070b14]/35 to-[#070b14]" />
 
-        {/* Soft Radial Focus behind text */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_35%,rgba(7,11,20,0.25)_0%,rgba(7,11,20,0.55)_65%,rgba(7,11,20,0.85)_100%)]" />
+        {/* Soft Radial Focus behind text for maximum readability and cinematic vignette */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_35%,rgba(7,11,20,0.15)_0%,rgba(7,11,20,0.5)_60%,rgba(7,11,20,0.92)_100%)]" />
 
         {/* Warm Amber Glow on the Right (Echoes the cozy desk lamp warmth) */}
-        <div className="absolute right-[5%] top-[15%] h-[65%] w-[45%] rounded-full bg-amber-500/[0.14] blur-[90px]" />
-        <div className="absolute -left-[5%] top-[25%] h-[50%] w-[35%] rounded-full bg-slate-800/[0.20] blur-[100px]" />
+        <div className="absolute right-[5%] top-[12%] h-[68%] w-[45%] rounded-full bg-amber-500/[0.12] blur-[100px]" />
+        {/* Subtle Slate Depth on the Left */}
+        <div className="absolute -left-[5%] top-[22%] h-[55%] w-[38%] rounded-full bg-slate-800/[0.25] blur-[110px]" />
       </div>
 
       <div

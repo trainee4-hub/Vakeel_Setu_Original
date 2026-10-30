@@ -137,6 +137,28 @@ export default function AdvocateRoutes() {
               element={<AdvocateEditProfile />}
             />
 
+            {/* OFFICE REDIRECT */}
+
+            <Route
+              path="office"
+              element={
+                <Navigate
+                  to="/advocate/profile/edit"
+                  replace
+                />
+              }
+            />
+
+            <Route
+              path="my-office"
+              element={
+                <Navigate
+                  to="/advocate/profile/edit"
+                  replace
+                />
+              }
+            />
+
             {/* ACCOUNT SETTINGS */}
 
             <Route

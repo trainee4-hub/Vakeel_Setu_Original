@@ -18,7 +18,6 @@ export const EDITABLE_NUMBER_FIELDS = [
 export const EDITABLE_TEXT_FIELDS = [
   "bestPracticeArea",
   "about",
-  "completeAddress",
   "topCourtPractised",
 ];
 
@@ -135,7 +134,7 @@ const requireNumber = (value, label) => {
   return "";
 };
 
-const requireText = (value, label, minLength = 1) => {
+const _requireText = (value, label, minLength = 1) => {
   const text = (value ?? "").trim();
   if (!text) return `${label} is required.`;
   if (text.length < minLength)
@@ -221,11 +220,6 @@ if (casesError) {
       "word",
     )} over the limit.`;
   }
-
-  /* ---- office ---- */
-
-  const addressError = requireText(form.completeAddress, "Office address", 10);
-  if (addressError) errors.completeAddress = addressError;
 
   /* ---- fees ---- */
 

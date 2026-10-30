@@ -232,9 +232,8 @@ const normalizeCurrentUser = (
         account?.pincode,
       ),
 
-    completeAddress:
+    address:
       cleanText(
-        account?.completeAddress ||
         account?.address,
       ),
 
@@ -1562,8 +1561,8 @@ const handleLanguageChange = (
 
                   <InfoItem
                     icon={FiHome}
-                    label="Complete Address"
-                    value={profile.completeAddress}
+                    label="Address"
+                    value={profile.address}
                   />
 
                  

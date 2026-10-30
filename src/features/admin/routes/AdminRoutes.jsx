@@ -15,6 +15,8 @@ const AdminDashboard = lazy(() => import("../pages/AdminDashboard"));
 // Platform Pages
 const AdvocatesList = lazy(() => import("../pages/platform/advocates/AdvocatesList"));
 const AdvocateDetail = lazy(() => import("../pages/platform/advocates/AdvocateDetail"));
+const ProfileChangeRequestsList = lazy(() => import("../pages/platform/advocates/ProfileChangeRequestsList"));
+const ProfileChangeDetail = lazy(() => import("../pages/platform/advocates/ProfileChangeDetail"));
 const UsersList = lazy(() => import("../pages/platform/users/UsersList"));
 const UserDetail = lazy(() => import("../pages/platform/users/UserDetail"));
 const RolesList = lazy(() => import("../pages/platform/roles/RolesList"));
@@ -170,7 +172,9 @@ export default function AdminRoutes() {
           {/* ==================== PLATFORM ROUTES ==================== */}
           <Route element={<PermissionRouteGuard required={[ADMIN_PERMISSIONS.ADVOCATES_VIEW]} />}>
             <Route path="advocates" element={<AdvocatesList />} />
+            <Route path="advocates/profile-changes" element={<ProfileChangeRequestsList />} />
             <Route path="advocates/:id" element={<AdvocateDetail />} />
+            <Route path="advocates/:id/profile-change" element={<ProfileChangeDetail />} />
           </Route>
 
           <Route element={<PermissionRouteGuard required={[ADMIN_PERMISSIONS.USERS_VIEW]} />}>

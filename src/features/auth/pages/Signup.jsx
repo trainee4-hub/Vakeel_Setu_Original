@@ -31,6 +31,15 @@ import MessageBanner, {
 
 import OtpInput from "../components/signup/OtpInput";
 import { API_BASE_URL } from "@shared/services/apiClient";
+import {
+  FiCamera,
+  FiCheck,
+  FiRefreshCw,
+  FiAlertCircle,
+  FiMapPin,
+} from "react-icons/fi";
+import LiveCameraModal from "@features/advocate/components/office/LiveCameraModal";
+import OfficeLocationPicker from "@features/advocate/components/office/OfficeLocationPicker";
 
 /* =========================================================================
    PAGE CONFIGURATION
@@ -104,6 +113,14 @@ function validateState(state) {
   const value = state.trim();
   if (!value) return "Please enter your state.";
   if (value.length > 100) return "State must be under 100 characters.";
+  return "";
+}
+
+function validateOfficeAddress(value) {
+  const trimmed = String(value || "").trim();
+  if (!trimmed) return "Please enter your office address.";
+  if (trimmed.length < 10) return "Office address must be at least 10 characters.";
+  if (trimmed.length > 500) return "Office address cannot exceed 500 characters.";
   return "";
 }
 
@@ -364,8 +381,12 @@ const advocateApi = {
       body: { registrationId, clientId },
     }),
 
-  completeProfile: (payload) =>
-    advocateRequest("/auth/advocate/profile", { body: payload }),
+  completeProfile: (payload) => {
+    if (payload instanceof FormData) {
+      return advocateRequest("/auth/advocate/profile", { formData: payload });
+    }
+    return advocateRequest("/auth/advocate/profile", { body: payload });
+  },
 
   getSession: (registrationId) =>
     advocateRequest(
@@ -490,7 +511,7 @@ function errorMessage(error, fallback, context = "") {
   return fallback;
 }
 
-function describeGeolocationError(error) {
+function _describeGeolocationError(error) {
   switch (error?.code) {
     case 1:
       return "Location access was blocked. Please allow location access in your browser and try again.";
@@ -1979,9 +2000,19 @@ export default function Signup() {
   const [districtAutoFilled, setDistrictAutoFilled] = useState(false);
   const [stateAutoFilled, setStateAutoFilled] = useState(false);
 
-  const [coords, setCoords] = useState(null);
-  const [locatingUser, setLocatingUser] = useState(false);
-  const [locationNotice, setLocationNotice] = useState("");
+
+  /* Advocate Office Details (Step 6) */
+  const [officeAddress, setOfficeAddress] = useState("");
+  const [officeAddressError, setOfficeAddressError] = useState("");
+  const [officePhotoBlob, setOfficePhotoBlob] = useState(null);
+  const [officePhotoUrl, setOfficePhotoUrl] = useState("");
+  const [officePhotoPreview, setOfficePhotoPreview] = useState("");
+  const [officePhotoError, setOfficePhotoError] = useState("");
+  const [officeLatitude, setOfficeLatitude] = useState(null);
+  const [officeLongitude, setOfficeLongitude] = useState(null);
+  const [officeLocationError, setOfficeLocationError] = useState("");
+  const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
+  const [savingOfficeLocation, setSavingOfficeLocation] = useState(false);
 
   /* =======================================================================
      SHARED SUBMIT STATE + BANNER FOR EVERY STEP AFTER STEP 1
@@ -1998,6 +2029,8 @@ export default function Signup() {
   const [profilePhotoPublicId, setProfilePhotoPublicId] = useState("");
   const [gender, setGender] = useState("");
   const [photoError, setPhotoError] = useState("");
+  const [photoMissing, setPhotoMissing] = useState(false);
+  const [photoShakeTrigger, setPhotoShakeTrigger] = useState(0);
   const [genderError, setGenderError] = useState("");
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [savingBasicDetails, setSavingBasicDetails] = useState(false);
@@ -2102,6 +2135,26 @@ export default function Signup() {
       setProfilePhotoUrl(session.profilePhotoUrl || "");
       setProfilePhotoPublicId(session.profilePhotoPublicId || "");
       setGender(session.gender || "");
+
+      if (session.pincode) setPincode(session.pincode);
+      if (session.city || session.district) setDistrict(session.city || session.district);
+      if (session.state) setState(session.state);
+      if (session.officeAddress) setOfficeAddress(session.officeAddress);
+      if (session.officePhotoUrl) {
+        setOfficePhotoUrl(session.officePhotoUrl);
+        setOfficePhotoPreview(session.officePhotoUrl);
+      }
+      if (
+        session.officeLatitude !== null &&
+        session.officeLatitude !== undefined &&
+        session.officeLongitude !== null &&
+        session.officeLongitude !== undefined &&
+        !Number.isNaN(Number(session.officeLatitude)) &&
+        !Number.isNaN(Number(session.officeLongitude))
+      ) {
+        setOfficeLatitude(Number(Number(session.officeLatitude).toFixed(6)));
+        setOfficeLongitude(Number(Number(session.officeLongitude).toFixed(6)));
+      }
 
       setEmailOtpStage(false);
       setEmailOtp("");
@@ -2915,6 +2968,7 @@ restoreUserSession(
 
     setUploadingPhoto(true);
     setFlowBanner(null);
+    setPhotoMissing(false);
 
     try {
       const result = await advocateApi.uploadProfilePhoto(file);
@@ -2927,6 +2981,7 @@ restoreUserSession(
 
       setProfilePhotoUrl(result.profilePhotoUrl);
       setProfilePhotoPublicId(result.profilePhotoPublicId || "");
+      setPhotoMissing(false);
     } catch (error) {
       setPhotoError(
         errorMessage(error, "We couldn't upload your photo. Please try again.")
@@ -2939,13 +2994,20 @@ restoreUserSession(
   const handleSaveAdvocateBasics = async () => {
     if (savingBasicDetails || uploadingPhoto) return;
 
-    const photoErr = profilePhotoUrl ? "" : "Please upload a profile photo.";
+    const hasPhoto = Boolean(profilePhotoUrl);
     const genderErr = gender ? "" : "Please select your gender.";
 
-    setPhotoError(photoErr);
+    setPhotoError("");
     setGenderError(genderErr);
 
-    if (photoErr || genderErr) return;
+    if (!hasPhoto) {
+      setPhotoMissing(true);
+      setPhotoShakeTrigger((prev) => prev + 1);
+    } else {
+      setPhotoMissing(false);
+    }
+
+    if (!hasPhoto || genderErr) return;
 
     if (!registrationId) {
       setFlowBanner(sessionExpiredBanner);
@@ -3382,70 +3444,93 @@ restoreUserSession(
     setStep(6);
   };
 
-  /* =========================================================================
-     LOCATION
-  ========================================================================= */
-
-  const handleDetectLocation = async () => {
-    if (locatingUser) return;
-
-    setLocatingUser(true);
-    setLocationNotice("");
-
-    try {
-      const position = await requestGeolocation();
-
-      setCoords({
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-      });
-
-      setLocationNotice("Location captured.");
-    } catch (error) {
-      setCoords(null);
-      setLocationNotice(
-        error?.code === "UNSUPPORTED"
-          ? "Your browser doesn't support location services. You can continue without it."
-          : describeGeolocationError(error)
-      );
-    } finally {
-      setLocatingUser(false);
-    }
-  };
 
   const handleSubmitAdvocateLocation = async () => {
-    if (pincodeLookupLoading) return;
+    if (savingOfficeLocation || pincodeLookupLoading) return;
 
     const pinErr = validatePincode(pincode);
     const districtErr = validateDistrict(district);
     const stateErr = validateState(state);
+    const addrErr = validateOfficeAddress(officeAddress);
 
     setPincodeError(pinErr);
     setDistrictError(districtErr);
     setStateError(stateErr);
+    setOfficeAddressError(addrErr);
 
-    if (pinErr || districtErr || stateErr) return;
-
-    /* Coordinates are optional for the backend, so a silent best-effort
-       attempt must never block the advocate from continuing. */
-    if (!coords && navigator.geolocation) {
-      setLocatingUser(true);
-
-      try {
-        const position = await requestGeolocation();
-        setCoords({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
-      } catch {
-        setCoords(null);
-      } finally {
-        setLocatingUser(false);
-      }
+    let photoErr = "";
+    if (!officePhotoBlob && !officePhotoUrl && !officePhotoPreview) {
+      photoErr = "Live office photo is required. Please capture a live photo of your office.";
+      setOfficePhotoError(photoErr);
+    } else {
+      setOfficePhotoError("");
     }
 
+    let locErr = "";
+    if (
+      typeof officeLatitude !== "number" ||
+      typeof officeLongitude !== "number" ||
+      Number.isNaN(officeLatitude) ||
+      Number.isNaN(officeLongitude)
+    ) {
+      locErr = "Office location coordinates are required. Drop a pin on the map or use your location.";
+      setOfficeLocationError(locErr);
+    } else {
+      setOfficeLocationError("");
+    }
+
+    if (pinErr || districtErr || stateErr || addrErr || photoErr || locErr) return;
+
+    setSavingOfficeLocation(true);
     setFlowBanner(null);
-    setStep(7);
+
+    try {
+      const formData = new FormData();
+      formData.append("registrationId", registrationId);
+      formData.append("pincode", pincode.trim());
+      formData.append("city", district.trim());
+      formData.append("state", state.trim());
+      formData.append("officeAddress", officeAddress.trim());
+      formData.append("officeLatitude", String(Number(officeLatitude.toFixed(6))));
+      formData.append("officeLongitude", String(Number(officeLongitude.toFixed(6))));
+
+      if (officePhotoBlob) {
+        formData.append("officePhoto", officePhotoBlob, "office_photo.jpg");
+      }
+
+      const res = await advocateApi.completeProfile(formData);
+
+      if (res?.officePhotoUrl || res?.session?.officePhotoUrl) {
+        setOfficePhotoUrl(res.officePhotoUrl || res.session.officePhotoUrl);
+      }
+
+      setFlowBanner(null);
+      setStep(7);
+    } catch (error) {
+      const missingFields = error?.data?.missingFields;
+      if (Array.isArray(missingFields) && missingFields.length > 0) {
+        if (missingFields.includes("officeAddress")) {
+          setOfficeAddressError("Office address is required.");
+        }
+        if (missingFields.includes("officePhoto")) {
+          setOfficePhotoError("Live office photo is required.");
+        }
+        if (missingFields.includes("officeLocation")) {
+          setOfficeLocationError("Office location pin is required.");
+        }
+      }
+
+      setFlowBanner({
+        variant: "error",
+        title: "Could not save office details",
+        message: errorMessage(
+          error,
+          "Failed to save office details. Please check your address, photo, and map location."
+        ),
+      });
+    } finally {
+      setSavingOfficeLocation(false);
+    }
   };
 
   /* =========================================================================
@@ -3498,11 +3583,30 @@ restoreUserSession(
     const pinErr = validatePincode(pincode);
     const districtErr = validateDistrict(district);
     const stateErr = validateState(state);
+    const addrErr = validateOfficeAddress(officeAddress);
 
-    if (pinErr || districtErr || stateErr) {
+    if (pinErr || districtErr || stateErr || addrErr) {
       setPincodeError(pinErr);
       setDistrictError(districtErr);
       setStateError(stateErr);
+      setOfficeAddressError(addrErr);
+      setStep(6);
+      return;
+    }
+
+    if (!officePhotoBlob && !officePhotoUrl && !officePhotoPreview) {
+      setOfficePhotoError("Live office photo is required.");
+      setStep(6);
+      return;
+    }
+
+    if (
+      typeof officeLatitude !== "number" ||
+      typeof officeLongitude !== "number" ||
+      Number.isNaN(officeLatitude) ||
+      Number.isNaN(officeLongitude)
+    ) {
+      setOfficeLocationError("Office location pin is required.");
       setStep(6);
       return;
     }
@@ -3511,24 +3615,24 @@ restoreUserSession(
     setFlowBanner(null);
 
     try {
-      /* The UI collects "District", but the backend still expects `city`. */
-      const payload = {
-        registrationId,
-        barCouncilId: barCouncilId.trim(),
-        aadhaarNumber: aadhaarNumber.trim(),
-        password,
-        languagesSpoken,
-        state: state.trim(),
-        city: district.trim(),
-        pincode: pincode.trim(),
-      };
+      const formData = new FormData();
+      formData.append("registrationId", registrationId);
+      formData.append("barCouncilId", barCouncilId.trim());
+      formData.append("aadhaarNumber", aadhaarNumber.trim());
+      formData.append("password", password);
+      formData.append("languagesSpoken", JSON.stringify(languagesSpoken));
+      formData.append("state", state.trim());
+      formData.append("city", district.trim());
+      formData.append("pincode", pincode.trim());
+      formData.append("officeAddress", officeAddress.trim());
+      formData.append("officeLatitude", String(Number(officeLatitude.toFixed(6))));
+      formData.append("officeLongitude", String(Number(officeLongitude.toFixed(6))));
 
-      if (coords) {
-        payload.latitude = coords.latitude;
-        payload.longitude = coords.longitude;
+      if (officePhotoBlob) {
+        formData.append("officePhoto", officePhotoBlob, "office_photo.jpg");
       }
 
-      await advocateApi.completeProfile(payload);
+      await advocateApi.completeProfile(formData);
 
       if (typeof window !== "undefined") {
         sessionStorage.removeItem(SIGNUP_ROLE_STORAGE_KEY);
@@ -3545,6 +3649,26 @@ restoreUserSession(
         },
       });
     } catch (error) {
+      const missingFields = error?.data?.missingFields;
+      if (Array.isArray(missingFields) && missingFields.length > 0) {
+        if (missingFields.includes("officeAddress")) {
+          setOfficeAddressError("Office address is required.");
+        }
+        if (missingFields.includes("officePhoto")) {
+          setOfficePhotoError("Live office photo is required.");
+        }
+        if (missingFields.includes("officeLocation")) {
+          setOfficeLocationError("Office location pin is required.");
+        }
+        setStep(6);
+        setFlowBanner({
+          variant: "error",
+          title: "Missing office details",
+          message: error?.data?.message || "Please complete all required office details.",
+        });
+        return;
+      }
+
       setFlowBanner({
         variant: "error",
         title: "Registration failed",
@@ -3738,6 +3862,22 @@ restoreUserSession(
 
       .signup-logo-mark {
         animation: gentleFloat 5s ease-in-out infinite;
+      }
+
+      @keyframes uploadBoxShake {
+        0%, 100% {
+          transform: translateX(0);
+        }
+        20%, 60% {
+          transform: translateX(-6px);
+        }
+        40%, 80% {
+          transform: translateX(6px);
+        }
+      }
+
+      .upload-box-shake {
+        animation: uploadBoxShake 0.45s ease-in-out;
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -4364,6 +4504,9 @@ restoreUserSession(
                         banner={flowBanner}
                         profilePhotoUrl={profilePhotoUrl}
                         photoError={photoError}
+                        photoMissing={photoMissing}
+                        photoShakeTrigger={photoShakeTrigger}
+                        onClearPhotoMissing={() => setPhotoMissing(false)}
                         uploadingPhoto={uploadingPhoto}
                         onSelectPhoto={handleProfilePhotoSelect}
                         gender={gender}
@@ -4486,10 +4629,36 @@ restoreUserSession(
                         banner={flowBanner}
                         location={locationFieldProps}
                         lookupLoading={pincodeLookupLoading}
-                        coords={coords}
-                        locating={locatingUser}
-                        locationNotice={locationNotice}
-                        onDetectLocation={handleDetectLocation}
+                        officeAddress={officeAddress}
+                        onOfficeAddressChange={(value) => {
+                          setOfficeAddress(value);
+                          if (officeAddressError) setOfficeAddressError("");
+                        }}
+                        officeAddressError={officeAddressError}
+                        officePhotoBlob={officePhotoBlob}
+                        officePhotoUrl={officePhotoUrl}
+                        officePhotoPreview={officePhotoPreview}
+                        officePhotoError={officePhotoError}
+                        isCameraModalOpen={isCameraModalOpen}
+                        onOpenLiveCamera={() => setIsCameraModalOpen(true)}
+                        onCloseLiveCamera={() => setIsCameraModalOpen(false)}
+                        onPhotoCaptured={(blob, dataUrl) => {
+                          setOfficePhotoBlob(blob);
+                          setOfficePhotoPreview(dataUrl);
+                          setOfficePhotoError("");
+                        }}
+                        officeLatitude={officeLatitude}
+                        officeLongitude={officeLongitude}
+                        officeLocationError={officeLocationError}
+                        onChangeOfficeLocation={({
+                          officeLatitude: lat,
+                          officeLongitude: lng,
+                        }) => {
+                          setOfficeLatitude(lat);
+                          setOfficeLongitude(lng);
+                          if (officeLocationError) setOfficeLocationError("");
+                        }}
+                        saving={savingOfficeLocation}
                         onBack={() => goToStep(5)}
                         onContinue={handleSubmitAdvocateLocation}
                       />
@@ -4515,6 +4684,10 @@ restoreUserSession(
                         state={state}
                         district={district}
                         pincode={pincode}
+                        officeAddress={officeAddress}
+                        officePhotoPreview={officePhotoPreview || officePhotoUrl}
+                        officeLatitude={officeLatitude}
+                        officeLongitude={officeLongitude}
                         registering={registering}
                         onEdit={goToStep}
                         onBack={() => goToStep(6)}
@@ -5042,6 +5215,9 @@ function AdvocatePhotoStep({
   banner,
   profilePhotoUrl,
   photoError,
+  photoMissing,
+  photoShakeTrigger,
+  onClearPhotoMissing,
   uploadingPhoto,
   onSelectPhoto,
   gender,
@@ -5052,6 +5228,17 @@ function AdvocatePhotoStep({
   onContinue,
 }) {
   const fileInputRef = useRef(null);
+  const [animatingShake, setAnimatingShake] = useState(false);
+
+  useEffect(() => {
+    if (photoShakeTrigger > 0) {
+      setAnimatingShake(true);
+      const timer = setTimeout(() => {
+        setAnimatingShake(false);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [photoShakeTrigger]);
 
   return (
     <div className="signup-fade space-y-5">
@@ -5067,14 +5254,19 @@ function AdvocatePhotoStep({
         <div className="mb-4">
           <StepHeading
             eyebrow="Advocate profile"
-            title="Add your profile photo"
+            title={
+              <span className="inline-flex items-center gap-1">
+                <span>Add your profile photo</span>
+                <span className="text-red-500">*</span>
+              </span>
+            }
             description="Clients see this photo on your profile and in search results."
           />
         </div>
 
         <div className="flex items-center gap-4">
           <div
-            className="
+            className={`
               flex
               h-20
               w-20
@@ -5084,9 +5276,15 @@ function AdvocatePhotoStep({
               overflow-hidden
               rounded-2xl
               border
-              border-slate-200
-              bg-white
-            "
+              transition-all
+              duration-200
+              ${
+                photoMissing && !profilePhotoUrl
+                  ? "border-red-400 bg-red-50/40"
+                  : "border-slate-200 bg-white"
+              }
+              ${animatingShake ? "upload-box-shake" : ""}
+            `}
           >
             {profilePhotoUrl ? (
               <img
@@ -5095,7 +5293,11 @@ function AdvocatePhotoStep({
                 className="h-full w-full object-cover"
               />
             ) : (
-              <span className="material-symbols-outlined text-[30px] text-slate-300">
+              <span
+                className={`material-symbols-outlined text-[30px] ${
+                  photoMissing ? "text-red-300" : "text-slate-300"
+                }`}
+              >
                 account_circle
               </span>
             )}
@@ -5104,32 +5306,35 @@ function AdvocatePhotoStep({
           <div className="min-w-0 flex-1">
             <button
               type="button"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => {
+                if (onClearPhotoMissing) onClearPhotoMissing();
+                fileInputRef.current?.click();
+              }}
               disabled={uploadingPhoto}
-              className="
+              className={`
                 inline-flex
                 items-center
                 gap-1.5
                 rounded-xl
                 border
-                border-slate-200
-                bg-white
                 px-3.5
                 py-2.5
                 text-[12px]
                 font-bold
-                text-slate-700
                 transition-all
                 duration-200
-                hover:border-slate-300
-                hover:bg-slate-50
                 focus-visible:outline-none
                 focus-visible:ring-2
-                focus-visible:ring-amber-500/40
                 focus-visible:ring-offset-2
                 disabled:cursor-not-allowed
                 disabled:opacity-50
-              "
+                ${
+                  photoMissing && !profilePhotoUrl
+                    ? "border-red-500 bg-red-50 text-red-600 shadow-sm shadow-red-500/10 ring-2 ring-red-400/40 hover:bg-red-100/70"
+                    : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 focus-visible:ring-amber-500/40"
+                }
+                ${animatingShake ? "upload-box-shake" : ""}
+              `}
             >
               {uploadingPhoto ? (
                 <>
@@ -5138,7 +5343,11 @@ function AdvocatePhotoStep({
                 </>
               ) : (
                 <>
-                  <span className="material-symbols-outlined text-[16px]">
+                  <span
+                    className={`material-symbols-outlined text-[16px] ${
+                      photoMissing && !profilePhotoUrl ? "text-red-500" : ""
+                    }`}
+                  >
                     upload
                   </span>
                   {profilePhotoUrl ? "Change photo" : "Upload photo"}
@@ -5160,7 +5369,9 @@ function AdvocatePhotoStep({
           onChange={onSelectPhoto}
         />
 
-        <FieldError text={photoError} />
+        {photoError && photoError !== "Please upload a profile photo." && (
+          <FieldError text={photoError} />
+        )}
 
         {profilePhotoUrl && !photoError && (
           <div className="mt-3">
@@ -5757,13 +5968,45 @@ function AdvocateLocationStep({
   banner,
   location,
   lookupLoading,
-  coords,
-  locating,
-  locationNotice,
-  onDetectLocation,
+  officeAddress,
+  onOfficeAddressChange,
+  officeAddressError,
+  officePhotoBlob,
+  officePhotoUrl,
+  officePhotoPreview,
+  officePhotoError,
+  isCameraModalOpen,
+  onOpenLiveCamera,
+  onCloseLiveCamera,
+  onPhotoCaptured,
+  officeLatitude,
+  officeLongitude,
+  officeLocationError,
+  onChangeOfficeLocation,
+  saving,
   onBack,
   onContinue,
 }) {
+  const hasPhoto = Boolean(officePhotoBlob || officePhotoUrl || officePhotoPreview);
+  const hasPin =
+    typeof officeLatitude === "number" &&
+    typeof officeLongitude === "number" &&
+    !Number.isNaN(officeLatitude) &&
+    !Number.isNaN(officeLongitude);
+  const isAddressValid = validateOfficeAddress(officeAddress) === "";
+  const isLocationFieldsValid =
+    validatePincode(location.pincode) === "" &&
+    validateDistrict(location.district) === "" &&
+    validateState(location.state) === "";
+
+  const canContinue =
+    isLocationFieldsValid &&
+    isAddressValid &&
+    hasPhoto &&
+    hasPin &&
+    !lookupLoading &&
+    !saving;
+
   return (
     <div className="signup-fade space-y-5">
       {banner && (
@@ -5774,86 +6017,163 @@ function AdvocateLocationStep({
         />
       )}
 
-      <div className="rounded-2xl border border-slate-100 bg-white p-4">
-        <div className="mb-4">
+      <div className="rounded-2xl border border-slate-100 bg-white p-4 sm:p-5 space-y-5">
+        <div>
           <StepHeading
-            eyebrow="Practice location"
-            title="Where do you practise?"
-            description="Enter your pincode and we'll fill in your district and state."
+            eyebrow="Address & Office Details"
+            title="Where is your office located?"
+            description="Provide your pincode, office address, live office photo, and office map location."
           />
         </div>
 
-        <PincodeLocationFields {...location} />
+        {/* 1. Pincode & 2. City / State (auto-filled) */}
+        <div>
+          <PincodeLocationFields {...location} />
+        </div>
 
-        {/* Optional coordinates */}
-
-        <div className="mt-4 rounded-xl border border-dashed border-slate-200 bg-slate-50/70 p-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="min-w-0">
-              <p className="text-[12px] font-semibold text-slate-700">
-                Precise location (optional)
-              </p>
-              <p className="mt-0.5 text-[11px] text-slate-400">
-                Helps clients near you find your profile first.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={onDetectLocation}
-              disabled={locating}
-              className="
-                inline-flex
-                shrink-0
-                items-center
-                gap-1.5
-                rounded-lg
-                bg-white
-                px-3
-                py-2
-                text-[11px]
-                font-bold
-                text-slate-700
-                ring-1
-                ring-slate-200
-                transition-colors
-                hover:bg-slate-50
-                disabled:cursor-not-allowed
-                disabled:opacity-50
-              "
+        {/* 3. Office address — a multi-line text box the advocate types (min 10, max 500) */}
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <label
+              htmlFor="advocate-office-address"
+              className="text-xs font-bold text-slate-800 flex items-center gap-1"
             >
-              <span className="material-symbols-outlined text-[15px]">
-                my_location
-              </span>
-              {locating ? "Locating..." : "Use my location"}
-            </button>
+              <span>Office Address</span>
+              <span className="text-red-500">*</span>
+            </label>
+            <span className="text-[11px] font-mono text-slate-400">
+              {officeAddress.length} / 500 characters (min 10)
+            </span>
           </div>
-
-          {coords && (
-            <div className="mt-2">
-              <InlineSuccess
-                text={`Location captured (${coords.latitude.toFixed(
-                  4
-                )}, ${coords.longitude.toFixed(4)})`}
-              />
-            </div>
-          )}
-
-          {!coords && locationNotice && (
-            <p className="mt-2 text-[11px] leading-4 text-slate-500">
-              {locationNotice}
+          <textarea
+            id="advocate-office-address"
+            rows={3}
+            value={officeAddress}
+            onChange={(e) => onOfficeAddressChange(e.target.value.slice(0, 500))}
+            placeholder="Chamber or Office number, building name, court complex / street, landmark"
+            className={`w-full rounded-xl border px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none transition focus:ring-2 ${
+              officeAddressError
+                ? "border-red-300 focus:border-red-500 focus:ring-red-500/10"
+                : "border-slate-200 focus:border-amber-500 focus:ring-amber-500/10"
+            }`}
+          />
+          {officeAddressError && (
+            <p className="mt-1 text-[11px] font-medium text-red-500 flex items-center gap-1">
+              <FiAlertCircle className="text-xs shrink-0" />
+              {officeAddressError}
             </p>
           )}
+        </div>
+
+        {/* 4. "ADD YOUR LIVE OFFICE PHOTO" */}
+        <div className="rounded-xl border border-slate-200/80 bg-slate-50/60 p-4">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                <FiCamera className="text-amber-500 text-sm" />
+                ADD YOUR LIVE OFFICE PHOTO
+                <span className="text-red-500">*</span>
+              </p>
+              <p className="mt-0.5 text-[11px] text-slate-500">
+                Live camera capture only — ensure you are at your office premises or chamber.
+              </p>
+            </div>
+          </div>
+
+          {hasPhoto ? (
+            <div className="mt-3 flex flex-col sm:flex-row items-start sm:items-center gap-4 rounded-xl border border-emerald-200 bg-emerald-50/60 p-3">
+              <div className="relative size-20 sm:size-24 rounded-lg overflow-hidden border border-emerald-300 bg-slate-900 shrink-0">
+                <img
+                  src={officePhotoPreview || officePhotoUrl}
+                  alt="Live Office Preview"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700">
+                  <FiCheck className="text-sm" />
+                  Live photo captured
+                </div>
+                <p className="mt-0.5 text-[11px] text-emerald-600">
+                  Your live office photo is attached and ready for verification.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={onOpenLiveCamera}
+                  className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-white px-3 py-1.5 text-xs font-bold text-emerald-700 shadow-sm hover:bg-emerald-100/50 transition cursor-pointer"
+                >
+                  <FiRefreshCw className="text-xs" />
+                  Retake photo
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-3">
+              <button
+                type="button"
+                onClick={onOpenLiveCamera}
+                className="w-full group flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-amber-300 bg-amber-50/40 hover:bg-amber-50/80 px-4 py-6 transition cursor-pointer"
+              >
+                <div className="size-11 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <FiCamera className="text-xl" />
+                </div>
+                <span className="text-xs font-bold text-slate-800">
+                  Open Live Camera to Capture Photo
+                </span>
+                <span className="text-[11px] text-slate-500 text-center max-w-sm">
+                  Click to open your device camera, preview, and capture a live photo of your office.
+                </span>
+              </button>
+            </div>
+          )}
+
+          {officePhotoError && (
+            <p className="mt-2 text-[11px] font-semibold text-red-500 flex items-center gap-1">
+              <FiAlertCircle className="text-xs shrink-0" />
+              {officePhotoError}
+            </p>
+          )}
+
+          <LiveCameraModal
+            isOpen={isCameraModalOpen}
+            onClose={onCloseLiveCamera}
+            allowFallback={false}
+            onPhotoCaptured={onPhotoCaptured}
+          />
+        </div>
+
+        {/* 5. Office Location Map */}
+        <div className="pt-1">
+          {/* <div className="mb-2">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+              <FiMapPin className="text-amber-500 text-sm" />
+              OFFICE LOCATION MAP
+              <span className="text-red-500">*</span>
+            </h4>
+            <p className="mt-0.5 text-[11px] text-slate-500">
+              Use "Use my current location" while at your office or drag the pin to set your exact office coordinates (to 6 decimals).
+            </p>
+          </div> */}
+
+          <OfficeLocationPicker
+            initialLatitude={officeLatitude}
+            initialLongitude={officeLongitude}
+            showSaveButton={false}
+            onChange={onChangeOfficeLocation}
+            error={officeLocationError}
+          />
         </div>
       </div>
 
       <StepNav
         onBack={onBack}
         onContinue={onContinue}
-        loading={locating}
-        loadingText="Checking location..."
+        loading={saving}
+        loadingText="Saving office details..."
         continueLabel="Review details"
-        disabled={lookupLoading}
+        disabled={!canContinue}
       />
     </div>
   );
@@ -5870,9 +6190,9 @@ function ReviewRow({ label, value, onEdit }) {
         <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
           {label}
         </p>
-        <p className="mt-0.5 break-words text-[13px] font-semibold text-slate-800">
+        <div className="mt-0.5 break-words text-[13px] font-semibold text-slate-800">
           {value || "—"}
-        </p>
+        </div>
       </div>
 
       {onEdit && (
@@ -5903,6 +6223,10 @@ function AdvocateReviewStep({
   state,
   district,
   pincode,
+  officeAddress,
+  officePhotoPreview,
+  officeLatitude,
+  officeLongitude,
   registering,
   onEdit,
   onBack,
@@ -6001,6 +6325,41 @@ function AdvocateReviewStep({
           <ReviewRow
             label="Location"
             value={[district, state, pincode].filter(Boolean).join(", ")}
+            onEdit={() => onEdit(6)}
+          />
+          <ReviewRow
+            label="Office Address"
+            value={officeAddress}
+            onEdit={() => onEdit(6)}
+          />
+          <ReviewRow
+            label="Live Office Photo"
+            value={
+              officePhotoPreview ? (
+                <span className="inline-flex items-center gap-2">
+                  <img
+                    src={officePhotoPreview}
+                    alt="Office thumbnail"
+                    className="size-7 rounded object-cover border border-slate-200"
+                  />
+                  <span>Live Photo Attached</span>
+                </span>
+              ) : (
+                "—"
+              )
+            }
+            onEdit={() => onEdit(6)}
+          />
+          <ReviewRow
+            label="Office Coordinates"
+            value={
+              officeLatitude !== null &&
+              officeLongitude !== null &&
+              !Number.isNaN(officeLatitude) &&
+              !Number.isNaN(officeLongitude)
+                ? `${Number(officeLatitude).toFixed(6)}, ${Number(officeLongitude).toFixed(6)}`
+                : "—"
+            }
             onEdit={() => onEdit(6)}
           />
         </div>

@@ -113,10 +113,22 @@ export default function AdvocateProfileEditDrawer({
       languagesSpoken: Array.isArray(advocate.languagesSpoken)
         ? advocate.languagesSpoken
         : ["English"],
-      completeAddress: advocate.completeAddress || "",
+      officeAddress: advocate.officeAddress || advocate.office?.officeAddress || "",
       state: advocate.state || "",
       city: advocate.city || "",
       pincode: advocate.pincode || "",
+      officeLatitude:
+        advocate.officeLatitude !== null && advocate.officeLatitude !== undefined
+          ? String(advocate.officeLatitude)
+          : advocate.office?.officeLatitude !== null && advocate.office?.officeLatitude !== undefined
+            ? String(advocate.office.officeLatitude)
+            : "",
+      officeLongitude:
+        advocate.officeLongitude !== null && advocate.officeLongitude !== undefined
+          ? String(advocate.officeLongitude)
+          : advocate.office?.officeLongitude !== null && advocate.office?.officeLongitude !== undefined
+            ? String(advocate.office.officeLongitude)
+            : "",
       videoCallChargePerMinute:
         advocate.videoCallChargePerMinute !== null && advocate.videoCallChargePerMinute !== undefined
           ? String(advocate.videoCallChargePerMinute)
@@ -148,13 +160,13 @@ export default function AdvocateProfileEditDrawer({
       "barCouncilId",
       "bestPracticeArea",
       "topCourtPractised",
-      "completeAddress",
+      "officeAddress",
       "state",
       "city",
       "pincode",
     ];
     textFields.forEach((key) => {
-      const origVal = (advocate[key] ?? "").trim();
+      const origVal = (advocate[key] ?? advocate.office?.[key] ?? "").trim();
       const currVal = (formState[key] ?? "").trim();
       if (currVal !== origVal) {
         patch[key] = currVal;
@@ -225,6 +237,32 @@ export default function AdvocateProfileEditDrawer({
       }
     });
 
+    // Office Coordinates (latitude & longitude)
+    const origLat =
+      advocate.officeLatitude ?? advocate.office?.officeLatitude ?? null;
+    const origLng =
+      advocate.officeLongitude ?? advocate.office?.officeLongitude ?? null;
+    const currLatStr = (formState.officeLatitude ?? "").trim();
+    const currLngStr = (formState.officeLongitude ?? "").trim();
+    const currLat = currLatStr !== "" ? parseFloat(currLatStr) : null;
+    const currLng = currLngStr !== "" ? parseFloat(currLngStr) : null;
+
+    const origLatNum =
+      origLat !== null && origLat !== undefined && String(origLat).trim() !== ""
+        ? parseFloat(origLat)
+        : null;
+    const origLngNum =
+      origLng !== null && origLng !== undefined && String(origLng).trim() !== ""
+        ? parseFloat(origLng)
+        : null;
+
+    if (currLat !== origLatNum) {
+      patch.officeLatitude = currLat;
+    }
+    if (currLng !== origLngNum) {
+      patch.officeLongitude = currLng;
+    }
+
     return patch;
   }, [advocate, formState]);
 
@@ -244,11 +282,28 @@ export default function AdvocateProfileEditDrawer({
   const isPincodeInvalid = pincodeTrimmed ? !/^\d{6}$/.test(pincodeTrimmed) : false;
   const pincodeError = isPincodeInvalid ? "Pincode must be exactly 6 digits." : "";
 
+  // Office coordinates validation: both filled together or both empty, lat -90..90, lng -180..180
+  const latTrimmed = (formState.officeLatitude ?? "").trim();
+  const lngTrimmed = (formState.officeLongitude ?? "").trim();
+  let officeLocationError = "";
+  if ((latTrimmed !== "" && lngTrimmed === "") || (latTrimmed === "" && lngTrimmed !== "")) {
+    officeLocationError = "Both latitude and longitude must be provided together, or both left empty.";
+  } else if (latTrimmed !== "" && lngTrimmed !== "") {
+    const latNum = parseFloat(latTrimmed);
+    const lngNum = parseFloat(lngTrimmed);
+    if (Number.isNaN(latNum) || latNum < -90 || latNum > 90) {
+      officeLocationError = "Office latitude must be a valid number between -90 and 90.";
+    } else if (Number.isNaN(lngNum) || lngNum < -180 || lngNum > 180) {
+      officeLocationError = "Office longitude must be a valid number between -180 and 180.";
+    }
+  }
+
   // Can save check
   const isSaveDisabled =
     !hasChanges ||
     isBioInvalid ||
     isPincodeInvalid ||
+    Boolean(officeLocationError) ||
     saving;
 
   const handleChange = (field, value) => {
@@ -322,7 +377,7 @@ export default function AdvocateProfileEditDrawer({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isSaveDisabled) return;
+    if (isSaveDisabled || officeLocationError) return;
 
     setSaving(true);
     setFieldErrors({});
@@ -751,17 +806,17 @@ export default function AdvocateProfileEditDrawer({
               </h3>
 
               <FormField
-                id="edit-completeAddress"
-                label="Complete Office Address"
-                error={fieldErrors.completeAddress}
+                id="edit-officeAddress"
+                label="Office address"
+                error={fieldErrors.officeAddress}
               >
                 <input
-                  id="edit-completeAddress"
+                  id="edit-officeAddress"
                   type="text"
                   maxLength={500}
-                  value={formState.completeAddress || ""}
-                  onChange={(e) => handleChange("completeAddress", e.target.value)}
-                  className={fieldClass(Boolean(fieldErrors.completeAddress))}
+                  value={formState.officeAddress || ""}
+                  onChange={(e) => handleChange("officeAddress", e.target.value)}
+                  className={fieldClass(Boolean(fieldErrors.officeAddress))}
                   placeholder="Chamber No, Court Complex / Office Address"
                 />
               </FormField>
@@ -817,6 +872,47 @@ export default function AdvocateProfileEditDrawer({
                   />
                 </FormField>
               </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+                <FormField
+                  id="edit-officeLatitude"
+                  label="Office Latitude (GPS)"
+                  hint="Range: -90 to 90 (e.g. 28.613939)"
+                  error={fieldErrors.officeLatitude || (latTrimmed && !lngTrimmed ? officeLocationError : "")}
+                >
+                  <input
+                    id="edit-officeLatitude"
+                    type="number"
+                    step="any"
+                    value={formState.officeLatitude ?? ""}
+                    onChange={(e) => handleChange("officeLatitude", e.target.value)}
+                    className={fieldClass(Boolean(fieldErrors.officeLatitude || (latTrimmed && !lngTrimmed && officeLocationError)))}
+                    placeholder="28.613939"
+                  />
+                </FormField>
+
+                <FormField
+                  id="edit-officeLongitude"
+                  label="Office Longitude (GPS)"
+                  hint="Range: -180 to 180 (e.g. 77.209021)"
+                  error={fieldErrors.officeLongitude || (lngTrimmed && !latTrimmed ? officeLocationError : "")}
+                >
+                  <input
+                    id="edit-officeLongitude"
+                    type="number"
+                    step="any"
+                    value={formState.officeLongitude ?? ""}
+                    onChange={(e) => handleChange("officeLongitude", e.target.value)}
+                    className={fieldClass(Boolean(fieldErrors.officeLongitude || (lngTrimmed && !latTrimmed && officeLocationError)))}
+                    placeholder="77.209021"
+                  />
+                </FormField>
+              </div>
+              {officeLocationError && (
+                <p className="text-xs text-red-600 font-medium">
+                  {officeLocationError}
+                </p>
+              )}
             </div>
 
             {/* Consultation Fees */}

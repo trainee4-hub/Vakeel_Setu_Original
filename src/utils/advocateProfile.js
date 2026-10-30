@@ -21,7 +21,6 @@ export const REQUIRED_ADVOCATE_PROFILE_FIELDS = [
   "about",
   "courtPractice",
   "topCourtPractised",
-  "completeAddress",
   "videoCallChargePerMinute",
   "voiceCallChargePerMinute",
   "offlineVisitingFee",
@@ -40,7 +39,6 @@ export const ADVOCATE_FIELD_LABELS = {
   about: "Professional bio",
   courtPractice: "Courts practised in",
   topCourtPractised: "Best Courts practised",
-  completeAddress: "Office address",
   videoCallChargePerMinute: "Video call fee",
   voiceCallChargePerMinute: "Voice call fee",
   offlineVisitingFee: "Office visit fee",
@@ -122,8 +120,6 @@ const FIELD_VALIDATORS = {
   courtPractice: hasArrayValues,
   topCourtPractised: hasText,
 
-  completeAddress: hasText,
-
   videoCallChargePerMinute: hasNonNegativeNumber,
   voiceCallChargePerMinute: hasNonNegativeNumber,
   offlineVisitingFee: hasNonNegativeNumber,
@@ -132,6 +128,24 @@ const FIELD_VALIDATORS = {
 /* -------------------------------------------------------------------------
    PUBLIC API
 ------------------------------------------------------------------------- */
+
+export const isAdvocateOfficeDetailsComplete = (advocate) => {
+  if (!advocate) return false;
+  if (advocate.officeDetailsComplete === true) return true;
+  const office = advocate.office || {};
+  const photo = advocate.officePhotoUrl || office.photoUrl || office.officePhotoUrl;
+  const lat = advocate.officeLatitude ?? office.latitude ?? office.officeLatitude;
+  const lng = advocate.officeLongitude ?? office.longitude ?? office.officeLongitude;
+  const hasCoords =
+    lat !== null &&
+    lat !== undefined &&
+    lng !== null &&
+    lng !== undefined &&
+    !Number.isNaN(Number(lat)) &&
+    !Number.isNaN(Number(lng));
+
+  return Boolean(photo && hasCoords);
+};
 
 export const getMissingAdvocateProfileFields = (advocate) => {
   if (!advocate) {

@@ -337,13 +337,13 @@ export default function AdvocateCompleteProfile() {
     setPhotoUploading,
   ] = useState(false);
 
-  const [
-    photoError,
-    setPhotoError,
-  ] = useState("");
+  const [photoError, setPhotoError] = useState("");
 
-  const fileInputRef =
-    useRef(null);
+  const fileInputRef = useRef(null);
+
+  /* -----------------------------------------------------------------------
+     OFFICE PHOTO & OFFICE LOCATION (COMPULSORY)
+  ----------------------------------------------------------------------- */
 
   /* -----------------------------------------------------------------------
      FORM DERIVED VALUES
@@ -639,9 +639,10 @@ export default function AdvocateCompleteProfile() {
       if (
         Object.keys(fieldErrors).length > 0
       ) {
-        setErrors(
-          fieldErrors,
-        );
+        setErrors((prev) => ({
+          ...prev,
+          ...fieldErrors,
+        }));
       }
 
       setSubmitError(
@@ -1020,7 +1021,7 @@ export default function AdvocateCompleteProfile() {
             {/* COURTS */}
 
             <Field
-              label="Courts practised in"
+              label="Courts practised"
               required
               error={
                 errors.courtPractice
@@ -1201,41 +1202,7 @@ export default function AdvocateCompleteProfile() {
             </Field>
           </Card>
 
-          {/* =============================================================
-              OFFICE
-          ============================================================= */}
 
-          <Card
-            title="Office"
-            description="Where clients can meet you in person."
-          >
-            <Field
-              label="Complete office address"
-              required
-              error={
-                errors.completeAddress
-              }
-            >
-              <textarea
-                rows={3}
-                value={
-                  form.completeAddress
-                }
-                onChange={(event) =>
-                  setField(
-                    "completeAddress",
-                    event.target.value,
-                  )
-                }
-                placeholder="Office No. 204, District Court Complex, ..."
-                className={`${inputClass(
-                  Boolean(
-                    errors.completeAddress,
-                  ),
-                )} resize-none`}
-              />
-            </Field>
-          </Card>
 
           {/* =============================================================
               PRICING
@@ -1341,25 +1308,21 @@ export default function AdvocateCompleteProfile() {
 
           <div className="sticky bottom-4 rounded-3xl border border-slate-200 bg-white/95 p-5 shadow-lg backdrop-blur">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-slate-500">
-                {completion.percentage ===
-                  100
-                  ? "Everything looks good."
-                  : `${completion.total -
-                  completion.completed
-                  } required detail${completion.total -
-                    completion.completed ===
-                    1
-                    ? ""
-                    : "s"
-                  } remaining.`}
-              </p>
+              <div className="space-y-0.5">
+                <p className="text-sm text-slate-500">
+                  {completion.percentage === 100
+                    ? "Everything looks good."
+                    : `${
+                        completion.total - completion.completed
+                      } required detail${
+                        completion.total - completion.completed === 1 ? "" : "s"
+                      } remaining.`}
+                </p>
+              </div>
 
               <button
                 type="submit"
-                disabled={
-                  isSubmitting
-                }
+                disabled={isSubmitting}
                 className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-7 py-3 text-sm font-bold text-white outline-none shadow-sm transition-all hover:bg-amber-600 focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/20 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSubmitting ? (

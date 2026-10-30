@@ -487,6 +487,7 @@ const FloatingConsultant = () => {
 
       <div
         className="
+        
           notranslate
           pointer-events-none
           fixed
@@ -500,8 +501,8 @@ const FloatingConsultant = () => {
           sm:bottom-10
           sm:right-10
 
-          lg:bottom-20
-          lg:right-20
+          lg:bottom-6
+          lg:right-8
         "
         translate="no"
       >

@@ -76,7 +76,26 @@ export async function getAdvocateProfile() {
     throw new ApiError("Advocate profile was not returned.");
   }
 
-  return data.advocate;
+  const office = data.office || data.advocate?.office || null;
+  const profileChange = data.profileChange ?? data.advocate?.profileChange ?? null;
+  const officeAddress = data.officeAddress || data.advocate?.officeAddress || "";
+  const pincode = data.pincode || data.advocate?.pincode || "";
+  const city = data.city || data.advocate?.city || "";
+  const state = data.state || data.advocate?.state || "";
+
+  return {
+    ...data.advocate,
+    office,
+    profileChange,
+    officeAddress,
+    pincode,
+    city,
+    state,
+    officePhotoUrl: office?.photoUrl || office?.officePhotoUrl || data.advocate?.officePhotoUrl || null,
+    officeLatitude: office?.latitude ?? office?.officeLatitude ?? data.advocate?.officeLatitude ?? null,
+    officeLongitude: office?.longitude ?? office?.officeLongitude ?? data.advocate?.officeLongitude ?? null,
+    officeMapUrl: office?.officeMapUrl || data.advocate?.officeMapUrl || null,
+  };
 }
 
 /**
@@ -94,7 +113,60 @@ export async function patchAdvocateProfile(partialPayload) {
     throw new ApiError("Updated advocate profile was not returned.");
   }
 
-  return data.advocate;
+  const office = data.office || data.advocate?.office || null;
+  const profileChange = data.profileChange ?? data.advocate?.profileChange ?? null;
+  const officeAddress = data.officeAddress || data.advocate?.officeAddress || "";
+  const pincode = data.pincode || data.advocate?.pincode || "";
+  const city = data.city || data.advocate?.city || "";
+  const state = data.state || data.advocate?.state || "";
+
+  return {
+    ...data.advocate,
+    office,
+    profileChange,
+    officeAddress,
+    pincode,
+    city,
+    state,
+    officePhotoUrl: office?.photoUrl || office?.officePhotoUrl || data.advocate?.officePhotoUrl || null,
+    officeLatitude: office?.latitude ?? office?.officeLatitude ?? data.advocate?.officeLatitude ?? null,
+    officeLongitude: office?.longitude ?? office?.officeLongitude ?? data.advocate?.officeLongitude ?? null,
+    officeMapUrl: office?.officeMapUrl || data.advocate?.officeMapUrl || null,
+    message: data?.message || "Profile updated.",
+  };
+}
+
+/**
+ * POST /api/advocate/profile/submit-for-approval
+ * Submits registration or profile change draft for admin approval.
+ */
+export async function submitAdvocateProfileChange() {
+  return apiRequest("/advocate/profile/submit-for-approval", {
+    method: "POST",
+    token: getAuthToken(),
+  });
+}
+
+/**
+ * POST /api/advocate/profile/changes/withdraw
+ * Withdraws a SUBMITTED profile change request back to DRAFT for editing.
+ */
+export async function withdrawAdvocateProfileChange() {
+  return apiRequest("/advocate/profile/changes/withdraw", {
+    method: "POST",
+    token: getAuthToken(),
+  });
+}
+
+/**
+ * DELETE /api/advocate/profile/changes
+ * Discards all pending profile change drafts.
+ */
+export async function discardAdvocateProfileChange() {
+  return apiRequest("/advocate/profile/changes", {
+    method: "DELETE",
+    token: getAuthToken(),
+  });
 }
 
 
@@ -393,6 +465,35 @@ export async function uploadAdvocateProfilePhoto(file) {
   return {
     profilePhotoUrl: data?.profilePhotoUrl || null,
     advocate: data?.advocate || null,
+  };
+}
+
+/**
+ * Live Office Photo upload.
+ * POST /api/advocate/profile/office-photo
+ * Multipart field: officePhoto
+ */
+export async function uploadAdvocateOfficePhoto(fileOrBlob) {
+  const formData = new FormData();
+  formData.append("officePhoto", fileOrBlob);
+
+  const data = await apiRequest("/advocate/profile/office-photo", {
+    method: "POST",
+    formData,
+    token: getAuthToken(),
+  });
+
+  const office = data?.office || data?.advocate?.office || null;
+  const officePhotoUrl = data?.officePhotoUrl || office?.officePhotoUrl || data?.advocate?.officePhotoUrl || null;
+
+  return {
+    success: data?.success ?? true,
+    message: data?.message || "Office photo uploaded successfully.",
+    officePhotoUrl,
+    office,
+    officeDetailsComplete: data?.officeDetailsComplete ?? data?.advocate?.officeDetailsComplete,
+    advocate: data?.advocate || null,
+    raw: data,
   };
 }
 

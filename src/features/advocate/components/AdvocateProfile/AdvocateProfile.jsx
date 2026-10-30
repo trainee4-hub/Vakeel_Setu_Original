@@ -23,6 +23,7 @@ import AdvocateProfileHeader from "./header/AdvocateProfileHeader";
 import ProfileSectionNav from "./header/ProfileSectionNav";
 
 import AboutSection from "./sections/AboutSection";
+import TeamSection from "./sections/TeamSection";
 import CertificatesSection from "./sections/CertificatesSection";
 import ConsultationProcessSection from "./sections/ConsultationProcessSection";
 import EducationSection from "./sections/EducationSection";
@@ -534,7 +535,10 @@ useEffect(() => {
   const officeFee = officeVisit?.fee ?? null;
 
   const officeLocation =
-    officeVisit?.officeLocation || "";
+    advocate?.officeAddress ||
+    advocate?.office?.officeAddress ||
+    officeVisit?.officeLocation ||
+    "";
 
   const officeTimings =
     officeVisit?.timings || "";
@@ -554,28 +558,46 @@ useEffect(() => {
 
   const officeEmail =
     advocate?.personalDetails?.email ||
+    advocate?.email ||
     null;
 
   const officePhone =
     advocate?.personalDetails?.phone
-      ?.number || null;
+      ?.number ||
+    advocate?.phone ||
+    null;
 
-  const mapsSearchLocation =
-    officeLocation || locationStr;
+  const officePhotoUrl =
+    advocate?.office?.photoUrl ||
+    advocate?.office?.officePhotoUrl ||
+    advocate?.officePhotoUrl ||
+    null;
 
-  const officeMapsUrl =
-    mapsSearchLocation
-      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-          mapsSearchLocation,
-        )}`
-      : null;
+  const officeLat =
+    advocate?.office?.latitude ??
+    advocate?.office?.officeLatitude ??
+    advocate?.officeLatitude ??
+    null;
+  const officeLng =
+    advocate?.office?.longitude ??
+    advocate?.office?.officeLongitude ??
+    advocate?.officeLongitude ??
+    null;
+  const hasOfficeCoords =
+    officeLat !== null &&
+    officeLng !== null &&
+    !Number.isNaN(Number(officeLat)) &&
+    !Number.isNaN(Number(officeLng));
 
-  const officeMapEmbedUrl =
-    mapsSearchLocation
-      ? `https://www.google.com/maps?q=${encodeURIComponent(
-          mapsSearchLocation,
-        )}&output=embed`
-      : null;
+  // Google Maps external directions link: uses coordinates when present
+  const officeMapsUrl = hasOfficeCoords
+    ? `https://www.google.com/maps/dir/?api=1&destination=${Number(officeLat)},${Number(officeLng)}`
+    : null;
+
+  // Google Map embed: pinned to coordinates; null for legacy advocates without office pin
+  const officeMapEmbedUrl = hasOfficeCoords
+    ? `https://www.google.com/maps?q=${Number(officeLat)},${Number(officeLng)}&output=embed`
+    : null;
 
   /* =========================================================
      RATINGS
@@ -736,6 +758,15 @@ useEffect(() => {
         <AdvocateProfileHeader
           advocateName={advocateName}
           profileImageUrl={profileImageUrl}
+          bestPracticeArea={
+            advocate?.bestPracticeArea ||
+            advocate?.professionalCredentials?.bestPracticeArea
+          }
+          topCourtPractised={
+            advocate?.topCourtPractised ||
+            advocate?.professionalCredentials?.topCourtPractised
+          }
+          courts={courts}
           practiceAreas={practiceAreas}
           filledStars={filledStars}
           hasReviews={hasReviews}
@@ -816,6 +847,13 @@ useEffect(() => {
             courts={courts}
           />
 
+          <TeamSection
+            team={advocate?.team}
+            onViewMember={(memberId) =>
+              navigate(`/find-lawyer/${memberId}`)
+            }
+          />
+
           <WhyChooseSection
             advocateName={advocateName}
             whyChooseList={
@@ -831,7 +869,12 @@ useEffect(() => {
 
           <PracticeAreasSection
             bestPracticeArea={
-              advocate?.bestPracticeArea
+              advocate?.bestPracticeArea ||
+              advocate?.professionalCredentials?.bestPracticeArea
+            }
+            topCourtPractised={
+              advocate?.topCourtPractised ||
+              advocate?.professionalCredentials?.topCourtPractised
             }
             practiceAreas={
               practiceAreas
@@ -963,6 +1006,9 @@ useEffect(() => {
               }
               officeLocation={
                 officeLocation
+              }
+              officePhotoUrl={
+                officePhotoUrl
               }
               officeMapEmbedUrl={
                 officeMapEmbedUrl

@@ -7,6 +7,8 @@ import {
   FaMapMarkerAlt,
   FaLanguage,
   FaClock,
+  FaBalanceScale,
+  FaLandmark,
 } from "react-icons/fa";
 
 import AdvocateProfileActions from "./AdvocateProfileActions";
@@ -26,6 +28,9 @@ import {
 export default function AdvocateProfileHeader({
   advocateName,
   profileImageUrl,
+  bestPracticeArea,
+  topCourtPractised,
+  courts,
   practiceAreas,
   filledStars,
   hasReviews,
@@ -196,9 +201,21 @@ return (
                 </span>
               </div>
 
-              <p className="text-sm sm:text-base text-slate-500 font-medium mt-0.5">
-                {formatPracticeArea(practiceAreas?.[0])}
-              </p>
+              {/* ================= BEST PRACTICED AREA BADGE ================= */}
+              <div className="flex items-center justify-center sm:justify-start mt-2 mb-1">
+                <div className="inline-flex items-center gap-2 px-2 py-[3px] rounded-full bg-gradient-to-r from-amber-500/10 via-amber-50/90 to-orange-500/10 border border-amber-300 shadow-[0_2px_8px_-2px_rgba(245,158,11,0.18)] transition-all duration-200 hover:border-amber-400 hover:shadow-md">
+                  <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-xs">
+                    <FaBalanceScale className="text-[10px]" />
+                  </span>
+                  <span className="text-xs sm:text-[12px] font-semibold text-amber-950 flex items-center gap-1.5">
+                    <span className="font-bold text-amber-800 ">Best Practiced Area</span>
+                    <span className="text-amber-400 font-bold">-</span>
+                    <span className="font-extrabold text-slate-900 tracking-tight">
+                      {formatPracticeArea(bestPracticeArea || practiceAreas?.[0] || "General Law")}
+                    </span>
+                  </span>
+                </div>
+              </div>
 
               <div className="flex items-center justify-center sm:justify-start gap-1.5 mt-2">
                 <StarRating rating={filledStars} sizeClass="text-base" />
@@ -289,17 +306,27 @@ return (
             )}
           </div>
 
-          {/* ================= PRACTICE AREA TAGS ================= */}
-          {practiceAreas?.length > 0 && (
-            <div className="flex flex-wrap justify-center sm:justify-start gap-1.5 mt-3">
-              {practiceAreas.slice(0, 4).map((area, idx) => (
-                <span
-                  key={`${String(area)}-${idx}`}
-                  className="px-2.5 py-1 rounded bg-amber-50 border border-amber-200 text-amber-700 text-[11px] font-bold"
-                >
-                  {formatTagLabel(area)}
+          {/* ================= BEST PRACTICED COURT ================= */}
+          {(topCourtPractised || (Array.isArray(courts) && courts[0])) && (
+            <div className="flex items-center justify-center sm:justify-start mt-3">
+              <div className="inline-flex items-center gap-2 px-2 py-[3px] rounded-full bg-gradient-to-r from-amber-500/10 via-amber-50/90 to-orange-500/10 border border-amber-300 shadow-[0_2px_8px_-2px_rgba(245,158,11,0.18)] transition-all duration-200 hover:border-amber-400 hover:shadow-md">
+                <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-xs">
+                  <FaLandmark className="text-[9px]" />
                 </span>
-              ))}
+                <span className="text-xs sm:text-[11px] font-semibold text-amber-950 flex items-center gap-1.5">
+                  <span className="font-extrabold  text-amber-800">
+                    Best Practiced Court
+                  </span>
+                  <span className="text-amber-400 font-bold">-</span>
+                  <span className="font-extrabold text-slate-900 ">
+                    {formatPracticeArea(
+                      topCourtPractised ||
+                        (Array.isArray(courts) && courts[0]) ||
+                        ""
+                    )}
+                  </span>
+                </span>
+              </div>
             </div>
           )}
         </div>
