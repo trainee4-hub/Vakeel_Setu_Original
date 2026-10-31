@@ -365,7 +365,7 @@ export default function OfficeLocationPicker({
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
             <FiMapPin className="text-amber-500 text-sm" />
-            Current Location *
+            Current Location 
           </span>
           {/* <p className="text-xs text-slate-500 mt-0.5">
             Drop or drag the pin to your office location. Coordinates are saved to 6 decimal places.

@@ -18,6 +18,7 @@ import {
   Camera,
   Check,
   CheckCircle2,
+  ChevronDown,
   Clock,
   ExternalLink,
   Gavel,
@@ -209,7 +210,8 @@ function Field({
   hint,
   error,
   required,
-  needsApproval,
+  isPending,
+  isApproved,
   pendingHint,
   children,
 }) {
@@ -220,15 +222,22 @@ function Field({
           {label}
           {required && <span className="ml-1 text-red-500">*</span>}
         </label>
-        {needsApproval && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-800 border border-amber-200/90 shadow-2xs">
-            <ShieldCheck className="w-3 h-3 text-amber-600" />
-            Needs admin approval
-          </span>
-        )}
       </div>
 
-      {children}
+      <div className="relative">
+        {isPending ? (
+          <div className="absolute top-0 -translate-y-1/2 right-3 z-10 flex items-center gap-1 bg-white px-1.5 py-0.5 text-[10px] font-bold text-amber-700 border border-amber-300 rounded leading-none shadow-xs pointer-events-none">
+            <Clock className="w-2.5 h-2.5 text-amber-600 shrink-0" />
+            <span>Pending approval</span>
+          </div>
+        ) : isApproved ? (
+          <div className="absolute top-0 -translate-y-1/2 right-3 z-10 flex items-center gap-1 bg-white px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-300 rounded leading-none shadow-xs pointer-events-none animate-in fade-in duration-200">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+            <span>Approved</span>
+          </div>
+        ) : null}
+        {children}
+      </div>
 
       {pendingHint ? (
         <div className="mt-2 flex items-start gap-1.5 rounded-lg border border-amber-200 bg-amber-50/80 px-2.5 py-1.5 text-xs text-amber-900">
@@ -247,8 +256,238 @@ function Field({
 }
 
 /* =========================================================================
-   STATUS BANNER COMPONENT
+   STATUS BANNER COMPONENT & SUBMITTED ITEMS DROPDOWN
 ============================================================================ */
+
+function SubmittedItemsDropdown({ items, statusTag = "Pending" }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
+
+  if (!items || items.length === 0) return null;
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-blue-300 bg-white px-3.5 text-xs font-bold text-blue-950 shadow-xs hover:bg-blue-50/80 transition"
+      >
+        <span>
+          {items.length} {items.length === 1 ? "item" : "items"} sent for approval ▾
+        </span>
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 top-full mt-2 w-64 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl z-50">
+          <div className="px-2.5 py-1.5 text-[11px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100">
+            Submitted Fields ({items.length})
+          </div>
+          <div className="mt-1 divide-y divide-slate-100 max-h-60 overflow-y-auto">
+            {items.map((item) => (
+              <div
+                key={item.key}
+                className="flex items-center justify-between gap-2 px-2.5 py-2 text-xs hover:bg-slate-50 rounded-xl transition"
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-sm shrink-0">{item.icon}</span>
+                  <span className="font-semibold text-slate-800 truncate">
+                    {item.label}
+                  </span>
+                </div>
+                <span className="inline-flex items-center rounded border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-800 shrink-0">
+                  [{statusTag}]
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function extractChangedFieldKeys(profileChange) {
+  if (!profileChange || typeof profileChange !== "object") return [];
+
+  const source =
+    profileChange.changes ||
+    profileChange.requestedChanges ||
+    profileChange.requested ||
+    profileChange.changedFields ||
+    profileChange.requestedFields ||
+    profileChange.fields;
+
+  if (!source) return [];
+
+  const rawKeys = [];
+
+  if (Array.isArray(source)) {
+    source.forEach((item) => {
+      if (typeof item === "string" && isNaN(item)) {
+        rawKeys.push(item);
+      } else if (item && typeof item === "object") {
+        const fieldName =
+          item.field ||
+          item.key ||
+          item.name ||
+          item.fieldName ||
+          item.fieldKey ||
+          item.property;
+        if (fieldName && isNaN(fieldName)) {
+          rawKeys.push(String(fieldName));
+        }
+      }
+    });
+  } else if (typeof source === "object") {
+    Object.keys(source).forEach((key) => {
+      if (isNaN(key)) {
+        rawKeys.push(key);
+      } else {
+        const val = source[key];
+        if (typeof val === "string" && isNaN(val)) {
+          rawKeys.push(val);
+        } else if (val && typeof val === "object") {
+          const fieldName =
+            val.field || val.key || val.name || val.fieldName;
+          if (fieldName && isNaN(fieldName)) rawKeys.push(String(fieldName));
+        }
+      }
+    });
+  }
+
+  return Array.from(new Set(rawKeys));
+}
+
+const FIELD_META = {
+  experienceYears: { label: "Experience", icon: "💼" },
+  experience: { label: "Experience", icon: "💼" },
+  yearsOfExperience: { label: "Experience", icon: "💼" },
+
+  about: { label: "About", icon: "⚖️" },
+  bio: { label: "About", icon: "⚖️" },
+  biography: { label: "About", icon: "⚖️" },
+  aboutYou: { label: "About", icon: "⚖️" },
+
+  videoCallChargePerMinute: { label: "Video call price", icon: "💰" },
+  videoCallFee: { label: "Video call price", icon: "💰" },
+  videoCallPrice: { label: "Video call price", icon: "💰" },
+
+  voiceCallChargePerMinute: { label: "Voice call price", icon: "💰" },
+  voiceCallFee: { label: "Voice call price", icon: "💰" },
+  voiceCallPrice: { label: "Voice call price", icon: "💰" },
+
+  offlineVisitingFee: { label: "Office visit price", icon: "💰" },
+  officeVisitFee: { label: "Office visit price", icon: "💰" },
+  officeVisitingFee: { label: "Office visit price", icon: "💰" },
+  officeVisitPrice: { label: "Office visit price", icon: "💰" },
+
+  officeAddress: { label: "Office address", icon: "📍" },
+  address: { label: "Office address", icon: "📍" },
+
+  pincode: { label: "Office pincode", icon: "📍" },
+  postalCode: { label: "Office pincode", icon: "📍" },
+  zipCode: { label: "Office pincode", icon: "📍" },
+
+  city: { label: "Office city", icon: "🏛️" },
+  district: { label: "Office city", icon: "🏛️" },
+
+  state: { label: "Office state", icon: "🏛️" },
+
+  officeLocation: { label: "Office location", icon: "📍" },
+  officeLatitude: { label: "Office location", icon: "📍" },
+  officeLongitude: { label: "Office location", icon: "📍" },
+  officeLat: { label: "Office location", icon: "📍" },
+  officeLng: { label: "Office location", icon: "📍" },
+  latitude: { label: "Office location", icon: "📍" },
+  longitude: { label: "Office location", icon: "📍" },
+  gps: { label: "Office location", icon: "📍" },
+  location: { label: "Office location", icon: "📍" },
+
+  officePhoto: { label: "Office photo", icon: "📷" },
+  officePhotoUrl: { label: "Office photo", icon: "📷" },
+  chamberPhoto: { label: "Office photo", icon: "📷" },
+
+  profilePhoto: { label: "Profile photo", icon: "👤" },
+  profilePhotoUrl: { label: "Profile photo", icon: "👤" },
+  photo: { label: "Profile photo", icon: "👤" },
+  avatar: { label: "Profile photo", icon: "👤" },
+
+  casesHandled: { label: "Cases handled", icon: "📁" },
+  languagesSpoken: { label: "Languages", icon: "🌐" },
+  languages: { label: "Languages", icon: "🌐" },
+  practiceAreas: { label: "Practice areas", icon: "📚" },
+  courtPractice: { label: "Court practice", icon: "🏛️" },
+};
+
+const getSubmittedItems = (profileChange) => {
+  const keys = extractChangedFieldKeys(profileChange);
+  const items = [];
+  let hasLocation = false;
+
+  keys.forEach((key) => {
+    // Deduplicate GPS location fields
+    if (
+      key === "officeLocation" ||
+      key === "officeLatitude" ||
+      key === "officeLongitude" ||
+      key === "officeLat" ||
+      key === "officeLng" ||
+      key === "latitude" ||
+      key === "longitude" ||
+      key === "gps" ||
+      key === "location"
+    ) {
+      if (!hasLocation) {
+        items.push({
+          key: "officeLocation",
+          label: "Office location",
+          icon: "📍",
+        });
+        hasLocation = true;
+      }
+      return;
+    }
+
+    const meta = FIELD_META[key];
+    if (meta) {
+      if (!items.some((it) => it.label === meta.label)) {
+        items.push({
+          key,
+          label: meta.label,
+          icon: meta.icon,
+        });
+      }
+    } else if (isNaN(key)) {
+      const formatted = key
+        .replace(/([A-Z])/g, " $1")
+        .replace(/^./, (str) => str.toUpperCase())
+        .trim();
+      if (!items.some((it) => it.label === formatted)) {
+        items.push({
+          key,
+          label: formatted,
+          icon: "📋",
+        });
+      }
+    }
+  });
+
+  return items;
+};
 
 function StatusBanner({
   profileChange,
@@ -264,8 +503,9 @@ function StatusBanner({
     return null;
   }
 
-  const { status, rejectionReason, requestedChanges = {} } = profileChange;
-  const count = Object.keys(requestedChanges || {}).length;
+  const { status, rejectionReason } = profileChange;
+  const submittedItems = getSubmittedItems(profileChange);
+  const count = submittedItems.length;
 
   if (status === "DRAFT") {
     return (
@@ -315,6 +555,7 @@ function StatusBanner({
               )}
               Request for approval
             </button>
+            <SubmittedItemsDropdown items={submittedItems} />
           </div>
         </div>
       </div>
@@ -346,7 +587,7 @@ function StatusBanner({
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+          <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
             <button
               type="button"
               disabled={actionLoading}
@@ -360,6 +601,7 @@ function StatusBanner({
               )}
               Withdraw request
             </button>
+            <SubmittedItemsDropdown items={submittedItems} />
           </div>
         </div>
       </div>
@@ -502,13 +744,27 @@ export default function AdvocateEditProfile() {
 
   // Source of truth: DO NOT hardcode the list. Take from profileChange.approvalFields or profile.approvalFields.
   const approvalFields = useMemo(() => {
-    if (Array.isArray(profileChange?.approvalFields)) {
+    if (Array.isArray(profileChange?.approvalFields) && profileChange.approvalFields.length > 0) {
       return profileChange.approvalFields;
     }
-    if (Array.isArray(profile?.approvalFields)) {
+    if (Array.isArray(profile?.approvalFields) && profile.approvalFields.length > 0) {
       return profile.approvalFields;
     }
-    return [];
+    return [
+      "experienceYears",
+      "about",
+      "videoCallChargePerMinute",
+      "voiceCallChargePerMinute",
+      "offlineVisitingFee",
+      "officeAddress",
+      "pincode",
+      "city",
+      "state",
+      "officeLatitude",
+      "officeLongitude",
+      "officePhoto",
+      "profilePhoto",
+    ];
   }, [profileChange, profile]);
 
   const isApprovalField = useCallback(
@@ -518,6 +774,296 @@ export default function AdvocateEditProfile() {
     },
     [isApproved, approvalFields],
   );
+
+  const pendingKeys = useMemo(
+    () => extractChangedFieldKeys(profileChange),
+    [profileChange],
+  );
+
+  const checkFieldMatch = useCallback((fieldKey, keysList) => {
+    if (!Array.isArray(keysList) || keysList.length === 0) return false;
+    if (fieldKey === "officeLocation") {
+      return (
+        keysList.includes("officeLocation") ||
+        keysList.includes("officeLatitude") ||
+        keysList.includes("officeLongitude") ||
+        keysList.includes("officeLat") ||
+        keysList.includes("officeLng") ||
+        keysList.includes("latitude") ||
+        keysList.includes("longitude") ||
+        keysList.includes("gps") ||
+        keysList.includes("location")
+      );
+    }
+    if (fieldKey === "officePhoto") {
+      return (
+        keysList.includes("officePhoto") ||
+        keysList.includes("officePhotoUrl") ||
+        keysList.includes("chamberPhoto")
+      );
+    }
+    if (fieldKey === "profilePhoto") {
+      return (
+        keysList.includes("profilePhoto") ||
+        keysList.includes("profilePhotoUrl") ||
+        keysList.includes("photo") ||
+        keysList.includes("avatar")
+      );
+    }
+    if (fieldKey === "experienceYears") {
+      return (
+        keysList.includes("experienceYears") ||
+        keysList.includes("experience") ||
+        keysList.includes("yearsOfExperience")
+      );
+    }
+    if (fieldKey === "about") {
+      return (
+        keysList.includes("about") ||
+        keysList.includes("bio") ||
+        keysList.includes("biography") ||
+        keysList.includes("aboutYou")
+      );
+    }
+    if (fieldKey === "videoCallChargePerMinute") {
+      return (
+        keysList.includes("videoCallChargePerMinute") ||
+        keysList.includes("videoCallFee") ||
+        keysList.includes("videoCallPrice")
+      );
+    }
+    if (fieldKey === "voiceCallChargePerMinute") {
+      return (
+        keysList.includes("voiceCallChargePerMinute") ||
+        keysList.includes("voiceCallFee") ||
+        keysList.includes("voiceCallPrice")
+      );
+    }
+    if (fieldKey === "offlineVisitingFee") {
+      return (
+        keysList.includes("offlineVisitingFee") ||
+        keysList.includes("officeVisitFee") ||
+        keysList.includes("officeVisitingFee") ||
+        keysList.includes("officeVisitPrice")
+      );
+    }
+    if (fieldKey === "officeAddress") {
+      return (
+        keysList.includes("officeAddress") ||
+        keysList.includes("address")
+      );
+    }
+    if (fieldKey === "pincode") {
+      return (
+        keysList.includes("pincode") ||
+        keysList.includes("postalCode") ||
+        keysList.includes("zipCode")
+      );
+    }
+    if (fieldKey === "city") {
+      return (
+        keysList.includes("city") ||
+        keysList.includes("district")
+      );
+    }
+    if (fieldKey === "state") {
+      return keysList.includes("state");
+    }
+    return keysList.includes(fieldKey);
+  }, []);
+
+  const isFieldPending = useCallback(
+    (fieldKey) => {
+      if (!profileChange) return false;
+      const status = String(profileChange.status || "").toUpperCase();
+      if (status !== "SUBMITTED" && status !== "DRAFT" && status !== "PENDING") return false;
+      return checkFieldMatch(fieldKey, pendingKeys);
+    },
+    [profileChange, pendingKeys, checkFieldMatch],
+  );
+
+  const changeId =
+    profileChange?._id ||
+    profileChange?.id ||
+    profileChange?.updatedAt ||
+    profileChange?.createdAt ||
+    "approved";
+  const isChangeApproved =
+    String(profileChange?.status || "").toUpperCase() === "APPROVED";
+  const [showApprovedBadges, setShowApprovedBadges] = useState(false);
+
+  useEffect(() => {
+    if (!isChangeApproved || !profileChange) {
+      setShowApprovedBadges(false);
+      return;
+    }
+    const profileId = profile?._id || profile?.id || "adv";
+    const ackKey = `profile_change_ack_${profileId}_${changeId}`;
+    try {
+      if (localStorage.getItem(ackKey) === "true") {
+        setShowApprovedBadges(false);
+        return;
+      }
+    } catch {
+      // ignore storage access error
+    }
+
+    setShowApprovedBadges(true);
+    try {
+      localStorage.setItem(ackKey, "true");
+    } catch {
+      // ignore storage access error
+    }
+
+    const timer = setTimeout(() => {
+      setShowApprovedBadges(false);
+    }, 30000);
+
+    return () => clearTimeout(timer);
+  }, [isChangeApproved, profileChange, profile?._id, profile?.id, changeId]);
+
+  const isFieldApproved = useCallback(
+    (fieldKey) => {
+      if (
+        !showApprovedBadges ||
+        !profileChange ||
+        String(profileChange.status || "").toUpperCase() !== "APPROVED"
+      ) {
+        return false;
+      }
+      return checkFieldMatch(fieldKey, pendingKeys);
+    },
+    [showApprovedBadges, profileChange, pendingKeys, checkFieldMatch],
+  );
+
+  const isFieldPendingOrChanged = useCallback(
+    (fieldKey) => {
+      if (!isApprovalField(fieldKey)) return false;
+
+      // Check if already in profileChange requestedChanges
+      if (isFieldPending(fieldKey)) return true;
+
+      // Check if modified in this session
+      switch (fieldKey) {
+        case "experienceYears":
+          return cleanText(form.experienceYears) !== cleanText(initialForm.experienceYears);
+        case "about":
+          return cleanText(form.about) !== cleanText(initialForm.about);
+        case "videoCallChargePerMinute":
+          return cleanText(form.videoCallChargePerMinute) !== cleanText(initialForm.videoCallChargePerMinute);
+        case "voiceCallChargePerMinute":
+          return cleanText(form.voiceCallChargePerMinute) !== cleanText(initialForm.voiceCallChargePerMinute);
+        case "offlineVisitingFee":
+          return cleanText(form.offlineVisitingFee) !== cleanText(initialForm.offlineVisitingFee);
+        case "officeAddress":
+          return cleanText(form.officeAddress) !== cleanText(initialForm.officeAddress);
+        case "pincode":
+          return cleanText(form.pincode) !== cleanText(initialForm.pincode);
+        case "city":
+          return cleanText(form.city) !== cleanText(initialForm.city);
+        case "state":
+          return cleanText(form.state) !== cleanText(initialForm.state);
+        case "officeLocation":
+        case "officeLatitude":
+        case "officeLongitude":
+          return (
+            form.officeLatitude !== initialForm.officeLatitude ||
+            form.officeLongitude !== initialForm.officeLongitude
+          );
+        case "officePhoto":
+          return Boolean(officePhotoBlob);
+        case "profilePhoto":
+          return Boolean(profilePhotoFile);
+        default:
+          return false;
+      }
+    },
+    [
+      isApprovalField,
+      isFieldPending,
+      form,
+      initialForm,
+      officePhotoBlob,
+      profilePhotoFile,
+    ],
+  );
+
+  const hasApprovalChanges = useMemo(() => {
+    if (!isApproved) return false;
+    if (
+      profileChange?.status === "DRAFT" &&
+      pendingKeys.length > 0
+    ) {
+      return true;
+    }
+    const approvalKeys = [
+      "experienceYears",
+      "about",
+      "videoCallChargePerMinute",
+      "voiceCallChargePerMinute",
+      "offlineVisitingFee",
+      "officeAddress",
+      "pincode",
+      "city",
+      "state",
+      "officeLocation",
+      "officePhoto",
+      "profilePhoto",
+    ];
+    return approvalKeys.some((key) => {
+      if (!isApprovalField(key)) return false;
+      switch (key) {
+        case "experienceYears":
+          return cleanText(form.experienceYears) !== cleanText(initialForm.experienceYears);
+        case "about":
+          return cleanText(form.about) !== cleanText(initialForm.about);
+        case "videoCallChargePerMinute":
+          return cleanText(form.videoCallChargePerMinute) !== cleanText(initialForm.videoCallChargePerMinute);
+        case "voiceCallChargePerMinute":
+          return cleanText(form.voiceCallChargePerMinute) !== cleanText(initialForm.voiceCallChargePerMinute);
+        case "offlineVisitingFee":
+          return cleanText(form.offlineVisitingFee) !== cleanText(initialForm.offlineVisitingFee);
+        case "officeAddress":
+          return cleanText(form.officeAddress) !== cleanText(initialForm.officeAddress);
+        case "pincode":
+          return cleanText(form.pincode) !== cleanText(initialForm.pincode);
+        case "city":
+          return cleanText(form.city) !== cleanText(initialForm.city);
+        case "state":
+          return cleanText(form.state) !== cleanText(initialForm.state);
+        case "officeLocation":
+          return (
+            form.officeLatitude !== initialForm.officeLatitude ||
+            form.officeLongitude !== initialForm.officeLongitude
+          );
+        case "officePhoto":
+          return Boolean(officePhotoBlob);
+        case "profilePhoto":
+          return Boolean(profilePhotoFile);
+        default:
+          return false;
+      }
+    });
+  }, [
+    isApproved,
+    profileChange,
+    isApprovalField,
+    form,
+    initialForm,
+    officePhotoBlob,
+    profilePhotoFile,
+    pendingKeys.length,
+  ]);
+
+  const handleCancel = useCallback(() => {
+    setForm(initialForm);
+    setErrors({});
+    setPageError("");
+    setProfilePhotoFile(null);
+    setOfficePhotoBlob(null);
+    setOfficePhotoPreview(profile?.officePhotoUrl || "");
+    setPreviewPhoto(profile?.profilePhotoUrl || "");
+  }, [initialForm, profile]);
 
   const isSubmitted = isApproved && profileChange?.status === "SUBMITTED";
   const requestedChanges = useMemo(
@@ -540,9 +1086,47 @@ export default function AdvocateEditProfile() {
         throw new Error("Unable to load Advocate profile.");
       }
 
-      const data = response.advocate;
-      const liveOffice = data?.office || {};
-      const changes = data?.profileChange?.requestedChanges || data?.profileChange?.changes || {};
+      const raw = response.advocate;
+      const liveOffice = response.office || raw?.office || {};
+      const profileChange =
+        response.profileChange ?? raw?.profileChange ?? null;
+      const data = {
+        ...raw,
+        office: liveOffice,
+        profileChange,
+      };
+      const normalizedChanges = {};
+      if (Array.isArray(profileChange?.changes)) {
+        profileChange.changes.forEach((item) => {
+          if (item && typeof item === "object" && item.field) {
+            normalizedChanges[item.field] =
+              item.requested !== undefined ? item.requested : item.value;
+          }
+        });
+      } else if (profileChange?.changes && typeof profileChange.changes === "object") {
+        Object.assign(normalizedChanges, profileChange.changes);
+      }
+      if (profileChange?.requestedChanges && typeof profileChange.requestedChanges === "object" && !Array.isArray(profileChange.requestedChanges)) {
+        Object.assign(normalizedChanges, profileChange.requestedChanges);
+      }
+      if (profileChange?.requested && typeof profileChange.requested === "object" && !Array.isArray(profileChange.requested)) {
+        Object.assign(normalizedChanges, profileChange.requested);
+      }
+
+      const changes = normalizedChanges;
+
+      console.log("=== [STEP 0 REAL DATA] advocate profileChange ===", {
+        status: profileChange?.status,
+        changeId: profileChange?._id || profileChange?.id,
+        rawProfileChange: profileChange,
+        changes: profileChange?.changes,
+        requestedChanges: profileChange?.requestedChanges,
+        requested: profileChange?.requested,
+        changedFields: profileChange?.changedFields,
+        requestedFields: profileChange?.requestedFields,
+        extractedKeys: extractChangedFieldKeys(profileChange),
+        submittedDropdownItems: getSubmittedItems(profileChange),
+      });
 
       setProfile(data);
 
@@ -866,11 +1450,6 @@ export default function AdvocateEditProfile() {
 
     if (saving) return;
 
-    if (isSubmitted) {
-      setPageError("Your profile changes are currently submitted and under review. Please withdraw the request before making further edits.");
-      return;
-    }
-
     setPageError("");
     setSuccess("");
 
@@ -921,8 +1500,21 @@ export default function AdvocateEditProfile() {
       setProfilePhotoFile(null);
       setOfficePhotoBlob(null);
 
-      // Show backend message
-      setSuccess(response?.message || "Profile updated successfully.");
+      // If any approval-gated field was changed and advocate is approved, request approval via existing flow
+      if (hasApprovalChanges && isApproved) {
+        try {
+          const submitRes = await advocateProfileApi.submitForApproval();
+          setSuccess(
+            submitRes?.message ||
+              "Profile changes saved and submitted for admin approval.",
+          );
+        } catch (approvalErr) {
+          console.error("Auto submit for approval error:", approvalErr);
+          setSuccess("Profile changes saved as draft. You can request approval from the banner.");
+        }
+      } else {
+        setSuccess(response?.message || "Profile changes saved successfully.");
+      }
 
       // Refresh profile to update draft banner and pending hints
       await fetchProfile();
@@ -931,7 +1523,7 @@ export default function AdvocateEditProfile() {
       if (requestError?.status === 409) {
         setPageError(
           requestError?.data?.message ||
-            "Your profile changes are currently submitted and under review. Please withdraw the request before making further edits.",
+            "Your profile changes are currently submitted and under review. Please withdraw the request before making further edits to approval-gated fields.",
         );
       } else if (requestError?.status === 400) {
         setPageError(
@@ -1109,7 +1701,7 @@ export default function AdvocateEditProfile() {
   ========================================================================== */
 
   return (
-    <main className="w-full max-w-none px-4 pb-16 pt-5 sm:px-5 sm:pt-6 lg:px-6 xl:px-8">
+    <main className="w-full max-w-none px-4 pb-28 pt-5 sm:px-5 sm:pb-32 sm:pt-6 lg:px-6 xl:px-8">
       <div className="w-full space-y-5 sm:space-y-6">
         {/* =====================================================
             HEADER BAR
@@ -1186,13 +1778,100 @@ export default function AdvocateEditProfile() {
             MAIN FORM
         ===================================================== */}
         <form
+          id="edit-profile-form"
           onSubmit={handleSubmit}
-          className="grid grid-cols-1 items-start gap-5 xl:grid-cols-12 xl:gap-6"
+          className="space-y-5 sm:space-y-6"
         >
-          {/* ==================== LEFT COLUMN ==================== */}
-          <div className="space-y-5 xl:col-span-8">
-            {/* VERIFIED IDENTITY (READ-ONLY) */}
-            <section className="rounded-[26px] border border-slate-200/80 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.035)] sm:p-6">
+          {/* =====================================================
+              PROFILE PHOTO CARD (TOP)
+          ===================================================== */}
+          <section className="rounded-[26px] border border-slate-200/80 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.035)] sm:p-6">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <SectionHeader
+                Icon={Camera}
+                title="Profile Photo"
+                description="Official portrait photo displayed on public listings and client consultation screens."
+              />
+              {isFieldPendingOrChanged("profilePhoto") ? (
+                <span className="inline-flex items-center gap-1 shrink-0 rounded border border-amber-300 bg-white px-1.5 py-0.5 text-[10px] font-bold text-amber-700 shadow-xs">
+                  <Clock className="w-2.5 h-2.5 text-amber-600" />
+                  Pending approval
+                </span>
+              ) : isFieldApproved("profilePhoto") ? (
+                <span className="inline-flex items-center gap-1 shrink-0 rounded border border-emerald-300 bg-white px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 shadow-xs animate-in fade-in duration-200">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                  Approved
+                </span>
+              ) : null}
+            </div>
+
+            {requestedChanges.profilePhotoUrl && (
+              <div className="mt-4 flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50/80 px-3 py-2 text-xs text-amber-900">
+                <Clock className="w-3.5 h-3.5 shrink-0 text-amber-600" />
+                <span>A new profile photo has been submitted and is awaiting admin approval.</span>
+              </div>
+            )}
+
+            <div className="mt-6 flex flex-col sm:flex-row items-center gap-6">
+              <div className="relative shrink-0">
+                {previewPhoto ? (
+                  <img
+                    src={previewPhoto}
+                    alt={name}
+                    className="h-28 w-28 rounded-2xl object-cover ring-4 ring-slate-100 shadow-sm"
+                  />
+                ) : (
+                  <div className="flex h-28 w-28 items-center justify-center rounded-2xl border border-amber-200 bg-amber-50 text-2xl font-extrabold text-amber-700">
+                    {getInitials(name)}
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  disabled={isSubmitted && isApprovalField("profilePhoto") && isFieldPending("profilePhoto")}
+                  onClick={() => fileInputRef.current?.click()}
+                  title="Change profile photo"
+                  className="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-white shadow-lg transition hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Camera size={17} />
+                </button>
+              </div>
+
+              <div className="flex-1 text-center sm:text-left space-y-2">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
+                  <button
+                    type="button"
+                    disabled={isSubmitted && isApprovalField("profilePhoto") && isFieldPending("profilePhoto")}
+                    onClick={() => fileInputRef.current?.click()}
+                    className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Upload size={14} className="text-amber-400" />
+                    {previewPhoto ? "Upload New Photo" : "Upload Photo"}
+                  </button>
+                  {profilePhotoFile && (
+                    <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                      <Check size={13} />
+                      New photo selected (unsaved)
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-slate-500">
+                  JPG, JPEG, PNG or WEBP (Max 5 MB). A clear front-facing portrait is recommended.
+                </p>
+              </div>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handlePhotoChange}
+                className="hidden"
+              />
+            </div>
+          </section>
+
+          {/* VERIFIED IDENTITY (READ-ONLY) */}
+          <section className="rounded-[26px] border border-slate-200/80 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.035)] sm:p-6">
               <SectionHeader
                 Icon={ShieldCheck}
                 title="Verified Identity"
@@ -1216,10 +1895,12 @@ export default function AdvocateEditProfile() {
               />
 
               <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
+                {/* 1. Experience & Cases Handled (amne-samne) */}
                 <Field
                   label="Experience (Years)"
                   required
-                  needsApproval={isApprovalField("experienceYears")}
+                  isPending={isFieldPendingOrChanged("experienceYears")}
+                  isApproved={isFieldApproved("experienceYears")}
                   pendingHint={
                     requestedChanges.experienceYears !== undefined
                       ? `Pending: ${requestedChanges.experienceYears} yrs (Current: ${profile?.experienceYears || 0} yrs)`
@@ -1232,7 +1913,7 @@ export default function AdvocateEditProfile() {
                     type="number"
                     min="0"
                     max="80"
-                    disabled={isSubmitted && isApprovalField("experienceYears")}
+                    disabled={isSubmitted && isApprovalField("experienceYears") && isFieldPending("experienceYears")}
                     value={form.experienceYears}
                     onChange={(e) => handleChange("experienceYears", e.target.value)}
                     className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50/70 px-4 text-sm font-semibold text-slate-900 outline-none transition focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-500/10 disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
@@ -1255,37 +1936,7 @@ export default function AdvocateEditProfile() {
                   />
                 </Field>
 
-                <Field
-                  label="Best Practice Area"
-                  required
-                  error={errors.bestPracticeArea}
-                  hint="Primary specialization (e.g. Criminal Law)."
-                >
-                  <input
-                    type="text"
-                    maxLength={100}
-                    value={form.bestPracticeArea}
-                    onChange={(e) => handleChange("bestPracticeArea", e.target.value)}
-                    placeholder="Criminal Law"
-                    className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50/70 px-4 text-sm font-semibold text-slate-900 outline-none transition focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-500/10"
-                  />
-                </Field>
-
-                <Field
-                  label="Top Court Practised"
-                  error={errors.topCourtPractised}
-                  hint="Highest or most frequent court."
-                >
-                  <input
-                    type="text"
-                    maxLength={100}
-                    value={form.topCourtPractised}
-                    onChange={(e) => handleChange("topCourtPractised", e.target.value)}
-                    placeholder="Delhi High Court"
-                    className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50/70 px-4 text-sm font-semibold text-slate-900 outline-none transition focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-500/10"
-                  />
-                </Field>
-
+                {/* 2. Practice Areas */}
                 <div className="sm:col-span-2">
                   <Field
                     label="Practice Areas"
@@ -1315,6 +1966,26 @@ export default function AdvocateEditProfile() {
                   </Field>
                 </div>
 
+                {/* 3. Best Practice Area */}
+                <div className="sm:col-span-2">
+                  <Field
+                    label="Best Practice Area"
+                    required
+                    error={errors.bestPracticeArea}
+                    hint="Primary specialization (e.g. Criminal Law)."
+                  >
+                    <input
+                      type="text"
+                      maxLength={100}
+                      value={form.bestPracticeArea}
+                      onChange={(e) => handleChange("bestPracticeArea", e.target.value)}
+                      placeholder="Criminal Law"
+                      className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50/70 px-4 text-sm font-semibold text-slate-900 outline-none transition focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-500/10"
+                    />
+                  </Field>
+                </div>
+
+                {/* 4. Courts of Practice */}
                 <div className="sm:col-span-2">
                   <Field
                     label="Courts of Practice"
@@ -1342,6 +2013,24 @@ export default function AdvocateEditProfile() {
                     )}
                   </Field>
                 </div>
+
+                {/* 5. Top Court Practised */}
+                <div className="sm:col-span-2">
+                  <Field
+                    label="Top Court Practised"
+                    error={errors.topCourtPractised}
+                    hint="Highest or most frequent court."
+                  >
+                    <input
+                      type="text"
+                      maxLength={100}
+                      value={form.topCourtPractised}
+                      onChange={(e) => handleChange("topCourtPractised", e.target.value)}
+                      placeholder="Delhi High Court"
+                      className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50/70 px-4 text-sm font-semibold text-slate-900 outline-none transition focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-500/10"
+                    />
+                  </Field>
+                </div>
               </div>
             </section>
 
@@ -1357,7 +2046,8 @@ export default function AdvocateEditProfile() {
                 <Field
                   label="About You / Bio"
                   required
-                  needsApproval={isApprovalField("about")}
+                  isPending={isFieldPendingOrChanged("about")}
+                  isApproved={isFieldApproved("about")}
                   pendingHint={
                     requestedChanges.about !== undefined
                       ? `Pending updated bio: "${requestedChanges.about.slice(0, 80)}..." (Current: ${countWords(profile?.about)} words)`
@@ -1368,7 +2058,7 @@ export default function AdvocateEditProfile() {
                 >
                   <textarea
                     rows={6}
-                    disabled={isSubmitted && isApprovalField("about")}
+                    disabled={isSubmitted && isApprovalField("about") && isFieldPending("about")}
                     value={form.about}
                     onChange={(e) => handleChange("about", e.target.value)}
                     placeholder="Write a comprehensive overview of your legal background, major cases, and legal consultation philosophy..."
@@ -1396,7 +2086,8 @@ export default function AdvocateEditProfile() {
               <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-3">
                 <Field
                   label="Video Call (₹ / min)"
-                  needsApproval={isApprovalField("videoCallChargePerMinute")}
+                  isPending={isFieldPendingOrChanged("videoCallChargePerMinute")}
+                  isApproved={isFieldApproved("videoCallChargePerMinute")}
                   pendingHint={
                     requestedChanges.videoCallChargePerMinute !== undefined
                       ? `Pending: ₹${requestedChanges.videoCallChargePerMinute}/min (Current: ₹${profile?.videoCallChargePerMinute || 0}/min)`
@@ -1405,7 +2096,7 @@ export default function AdvocateEditProfile() {
                   error={errors.videoCallChargePerMinute}
                 >
                   <MoneyInput
-                    disabled={isSubmitted && isApprovalField("videoCallChargePerMinute")}
+                    disabled={isSubmitted && isApprovalField("videoCallChargePerMinute") && isFieldPending("videoCallChargePerMinute")}
                     value={form.videoCallChargePerMinute}
                     onChange={(val) => handleChange("videoCallChargePerMinute", val)}
                   />
@@ -1413,7 +2104,8 @@ export default function AdvocateEditProfile() {
 
                 <Field
                   label="Voice Call (₹ / min)"
-                  needsApproval={isApprovalField("voiceCallChargePerMinute")}
+                  isPending={isFieldPendingOrChanged("voiceCallChargePerMinute")}
+                  isApproved={isFieldApproved("voiceCallChargePerMinute")}
                   pendingHint={
                     requestedChanges.voiceCallChargePerMinute !== undefined
                       ? `Pending: ₹${requestedChanges.voiceCallChargePerMinute}/min (Current: ₹${profile?.voiceCallChargePerMinute || 0}/min)`
@@ -1422,7 +2114,7 @@ export default function AdvocateEditProfile() {
                   error={errors.voiceCallChargePerMinute}
                 >
                   <MoneyInput
-                    disabled={isSubmitted && isApprovalField("voiceCallChargePerMinute")}
+                    disabled={isSubmitted && isApprovalField("voiceCallChargePerMinute") && isFieldPending("voiceCallChargePerMinute")}
                     value={form.voiceCallChargePerMinute}
                     onChange={(val) => handleChange("voiceCallChargePerMinute", val)}
                   />
@@ -1430,7 +2122,8 @@ export default function AdvocateEditProfile() {
 
                 <Field
                   label="Office Visit (₹ flat)"
-                  needsApproval={isApprovalField("offlineVisitingFee")}
+                  isPending={isFieldPendingOrChanged("offlineVisitingFee")}
+                  isApproved={isFieldApproved("offlineVisitingFee")}
                   pendingHint={
                     requestedChanges.offlineVisitingFee !== undefined
                       ? `Pending: ₹${requestedChanges.offlineVisitingFee} (Current: ₹${profile?.offlineVisitingFee || 0})`
@@ -1439,7 +2132,7 @@ export default function AdvocateEditProfile() {
                   error={errors.offlineVisitingFee}
                 >
                   <MoneyInput
-                    disabled={isSubmitted && isApprovalField("offlineVisitingFee")}
+                    disabled={isSubmitted && isApprovalField("offlineVisitingFee") && isFieldPending("offlineVisitingFee")}
                     value={form.offlineVisitingFee}
                     onChange={(val) => handleChange("offlineVisitingFee", val)}
                   />
@@ -1459,7 +2152,8 @@ export default function AdvocateEditProfile() {
                 {/* Office Address Textarea */}
                 <Field
                   label="Office address"
-                  needsApproval={isApprovalField("officeAddress")}
+                  isPending={isFieldPendingOrChanged("officeAddress")}
+                  isApproved={isFieldApproved("officeAddress")}
                   pendingHint={
                     requestedChanges.officeAddress !== undefined
                       ? `Pending: "${requestedChanges.officeAddress}" (Current: "${profile?.officeAddress || "Not set"}")`
@@ -1471,7 +2165,7 @@ export default function AdvocateEditProfile() {
                   <textarea
                     rows={3}
                     maxLength={500}
-                    disabled={isSubmitted && isApprovalField("officeAddress")}
+                    disabled={isSubmitted && isApprovalField("officeAddress") && isFieldPending("officeAddress")}
                     value={form.officeAddress}
                     onChange={(e) => handleChange("officeAddress", e.target.value)}
                     placeholder="Chamber 204, Second Floor, High Court Complex, Sector 1"
@@ -1483,7 +2177,8 @@ export default function AdvocateEditProfile() {
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
                   <Field
                     label="Pincode"
-                    needsApproval={isApprovalField("pincode")}
+                    isPending={isFieldPendingOrChanged("pincode")}
+                    isApproved={isFieldApproved("pincode")}
                     pendingHint={
                       requestedChanges.pincode !== undefined
                         ? `Pending: ${requestedChanges.pincode} (Current: ${profile?.pincode || "None"})`
@@ -1500,7 +2195,7 @@ export default function AdvocateEditProfile() {
                       <input
                         type="text"
                         maxLength={6}
-                        disabled={isSubmitted && isApprovalField("pincode")}
+                        disabled={isSubmitted && isApprovalField("pincode") && isFieldPending("pincode")}
                         value={form.pincode}
                         onChange={(e) => handlePincodeChange(e.target.value)}
                         placeholder="110001"
@@ -1517,7 +2212,8 @@ export default function AdvocateEditProfile() {
 
                   <Field
                     label="City / District"
-                    needsApproval={isApprovalField("city")}
+                    isPending={isFieldPendingOrChanged("city")}
+                    isApproved={isFieldApproved("city")}
                     pendingHint={
                       requestedChanges.city !== undefined
                         ? `Pending: ${requestedChanges.city} (Current: ${profile?.city || "None"})`
@@ -1526,7 +2222,7 @@ export default function AdvocateEditProfile() {
                   >
                     <input
                       type="text"
-                      disabled={isSubmitted && isApprovalField("city")}
+                      disabled={isSubmitted && isApprovalField("city") && isFieldPending("city")}
                       value={form.city}
                       onChange={(e) => handleChange("city", e.target.value)}
                       placeholder="New Delhi"
@@ -1536,7 +2232,8 @@ export default function AdvocateEditProfile() {
 
                   <Field
                     label="State"
-                    needsApproval={isApprovalField("state")}
+                    isPending={isFieldPendingOrChanged("state")}
+                    isApproved={isFieldApproved("state")}
                     pendingHint={
                       requestedChanges.state !== undefined
                         ? `Pending: ${requestedChanges.state} (Current: ${profile?.state || "None"})`
@@ -1545,7 +2242,7 @@ export default function AdvocateEditProfile() {
                   >
                     <input
                       type="text"
-                      disabled={isSubmitted && isApprovalField("state")}
+                      disabled={isSubmitted && isApprovalField("state") && isFieldPending("state")}
                       value={form.state}
                       onChange={(e) => handleChange("state", e.target.value)}
                       placeholder="Delhi"
@@ -1555,17 +2252,22 @@ export default function AdvocateEditProfile() {
                 </div>
 
                 {/* Office Location Picker (GPS Pin) */}
-                <div>
+                <div className="pt-2 border-t border-slate-100">
                   <div className="mb-2 flex items-center justify-between gap-2 flex-wrap">
                     <label className="block text-xs font-extrabold text-slate-700">
                       Draggable GPS Map Pin
                     </label>
-                    {isApprovalField("officeLatitude") && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-800 border border-amber-200/90 shadow-2xs">
-                        <ShieldCheck className="w-3 h-3 text-amber-600" />
-                        Needs admin approval
+                    {isFieldPendingOrChanged("officeLocation") ? (
+                      <span className="inline-flex items-center gap-1 rounded border border-amber-300 bg-white px-1.5 py-0.5 text-[10px] font-bold text-amber-700 shadow-xs">
+                        <Clock className="w-2.5 h-2.5 text-amber-600" />
+                        Pending approval
                       </span>
-                    )}
+                    ) : isFieldApproved("officeLocation") ? (
+                      <span className="inline-flex items-center gap-1 rounded border border-emerald-300 bg-white px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 shadow-xs animate-in fade-in duration-200">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                        Approved
+                      </span>
+                    ) : null}
                   </div>
 
                   {requestedChanges.officeLatitude !== undefined && (
@@ -1578,7 +2280,7 @@ export default function AdvocateEditProfile() {
                     </div>
                   )}
 
-                  <div className={isSubmitted && isApprovalField("officeLatitude") ? "pointer-events-none opacity-60" : ""}>
+                  <div className={isSubmitted && isApprovalField("officeLatitude") && isFieldPending("officeLocation") ? "pointer-events-none opacity-60" : ""}>
                     <OfficeLocationPicker
                       initialLatitude={form.officeLatitude}
                       initialLongitude={form.officeLongitude}
@@ -1592,7 +2294,7 @@ export default function AdvocateEditProfile() {
                 </div>
 
                 {/* Live Office Chamber Photo */}
-                <div className="pt-2 border-t border-slate-100">
+                <div className="pt-4 border-t border-slate-100">
                   <div className="mb-3 flex items-center justify-between gap-2 flex-wrap">
                     <div>
                       <label className="block text-xs font-extrabold text-slate-700">
@@ -1602,12 +2304,17 @@ export default function AdvocateEditProfile() {
                         Camera-captured photograph of your office entrance and nameplate.
                       </p>
                     </div>
-                    {isApprovalField("officePhoto") && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-800 border border-amber-200/90 shadow-2xs">
-                        <ShieldCheck className="w-3 h-3 text-amber-600" />
-                        Needs admin approval
+                    {isFieldPendingOrChanged("officePhoto") ? (
+                      <span className="inline-flex items-center gap-1 rounded border border-amber-300 bg-white px-1.5 py-0.5 text-[10px] font-bold text-amber-700 shadow-xs">
+                        <Clock className="w-2.5 h-2.5 text-amber-600" />
+                        Pending approval
                       </span>
-                    )}
+                    ) : isFieldApproved("officePhoto") ? (
+                      <span className="inline-flex items-center gap-1 rounded border border-emerald-300 bg-white px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 shadow-xs animate-in fade-in duration-200">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                        Approved
+                      </span>
+                    ) : null}
                   </div>
 
                   {requestedChanges.officePhotoUrl && (
@@ -1641,7 +2348,7 @@ export default function AdvocateEditProfile() {
                     <div className="space-y-2">
                       <button
                         type="button"
-                        disabled={isSubmitted && isApprovalField("officePhoto")}
+                        disabled={isSubmitted && isApprovalField("officePhoto") && isFieldPending("officePhoto")}
                         onClick={() => setIsCameraOpen(true)}
                         className="inline-flex items-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 text-xs font-bold transition shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
                       >
@@ -1698,179 +2405,10 @@ export default function AdvocateEditProfile() {
                 </Field>
               </div>
             </section>
-          </div>
 
-          {/* ==================== RIGHT SIDEBAR ==================== */}
-          <aside className="space-y-5 xl:sticky xl:top-6 xl:col-span-4">
-            {/* PROFILE PHOTO CARD */}
-            <section className="rounded-[26px] border border-slate-200/80 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.035)]">
-              <div className="flex items-center justify-between gap-2">
-                <h2 className="text-[16px] font-extrabold text-slate-950">
-                  Profile Photo
-                </h2>
-                {isApprovalField("profilePhoto") && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-800 border border-amber-200/90 shadow-2xs">
-                    Needs approval
-                  </span>
-                )}
-              </div>
-
-              <p className="mt-1 text-xs text-slate-500">
-                JPG, JPEG, PNG or WEBP (Max 5 MB).
-              </p>
-
-              {requestedChanges.profilePhotoUrl && (
-                <div className="mt-3 flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50/80 px-2.5 py-1.5 text-xs text-amber-900">
-                  <Clock className="w-3.5 h-3.5 shrink-0 text-amber-600" />
-                  <span>New profile photo pending admin approval.</span>
-                </div>
-              )}
-
-              <div className="mt-6 flex flex-col items-center text-center">
-                <div className="relative">
-                  {previewPhoto ? (
-                    <img
-                      src={previewPhoto}
-                      alt={name}
-                      className="h-28 w-28 rounded-[26px] object-cover ring-4 ring-slate-100 shadow-sm"
-                    />
-                  ) : (
-                    <div className="flex h-28 w-28 items-center justify-center rounded-[26px] border border-amber-200 bg-amber-50 text-xl font-extrabold text-amber-700">
-                      {getInitials(name)}
-                    </div>
-                  )}
-
-                  <button
-                    type="button"
-                    disabled={isSubmitted && isApprovalField("profilePhoto")}
-                    onClick={() => fileInputRef.current?.click()}
-                    title="Change profile photo"
-                    className="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-white shadow-lg transition hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <Camera size={17} />
-                  </button>
-                </div>
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={handlePhotoChange}
-                  className="hidden"
-                />
-
-                {profilePhotoFile && (
-                  <span className="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600">
-                    <Check size={13} />
-                    New photo selected
-                  </span>
-                )}
-              </div>
-            </section>
-
-            {/* SAVE ACTIONS CARD */}
-            <section className="rounded-[26px] bg-slate-950 p-5 text-white shadow-[0_16px_45px_rgba(15,23,42,0.16)]">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/15 text-amber-400">
-                <Save size={18} />
-              </div>
-
-              <h2 className="mt-4 text-base font-extrabold">Save Profile</h2>
-
-              <p className="mt-2 text-xs leading-5 text-slate-400">
-                Direct fields update live immediately. Sensitive fields diff against your approved profile and are saved to draft for admin review.
-              </p>
-
-              {dirty ? (
-                <div className="mt-4 rounded-xl border border-amber-400/20 bg-amber-500/10 px-3 py-2.5 text-xs font-bold text-amber-300">
-                  You have unsaved changes in this form.
-                </div>
-              ) : isSubmitted ? (
-                <div className="mt-4 rounded-xl border border-blue-400/20 bg-blue-500/10 px-3 py-2.5 text-xs font-bold text-blue-300">
-                  Changes submitted for admin approval.
-                </div>
-              ) : (
-                <div className="mt-4 rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-3 py-2.5 text-xs font-bold text-emerald-300">
-                  Profile form is up to date.
-                </div>
-              )}
-
-              {/* MAIN SAVE BUTTON */}
-              <button
-                type="submit"
-                disabled={saving || !dirty || isAboutInvalid || isSubmitted}
-                className="mt-5 inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 text-sm font-extrabold text-slate-950 transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {saving ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin" />
-                    Saving...
-                  </>
-                ) : isSubmitted ? (
-                  <>
-                    <ShieldCheck size={16} />
-                    Under Review (Locked)
-                  </>
-                ) : (
-                  <>
-                    <Save size={16} />
-                    Save Changes
-                  </>
-                )}
-              </button>
-
-              {/* REQUEST FOR APPROVAL (IF DRAFT OR REJECTED) */}
-              {isApproved && (profileChange?.status === "DRAFT" || profileChange?.status === "REJECTED") && (
-                <button
-                  type="button"
-                  disabled={actionLoading || saving}
-                  onClick={handleRequestApproval}
-                  className="mt-2.5 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-amber-400/30 bg-amber-500/15 text-xs font-bold text-amber-300 hover:bg-amber-500/25 transition disabled:opacity-50"
-                >
-                  {actionLoading ? (
-                    <Loader2 size={15} className="animate-spin" />
-                  ) : (
-                    <Send size={15} />
-                  )}
-                  {profileChange.status === "REJECTED" ? "Submit Again for Approval" : "Request Admin Approval"}
-                </button>
-              )}
-
-              {/* WITHDRAW BUTTON (IF SUBMITTED) */}
-              {isSubmitted && (
-                <button
-                  type="button"
-                  disabled={actionLoading}
-                  onClick={handleWithdraw}
-                  className="mt-2.5 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 text-xs font-bold text-white hover:bg-white/20 transition disabled:opacity-50"
-                >
-                  {actionLoading ? (
-                    <Loader2 size={15} className="animate-spin" />
-                  ) : (
-                    <RotateCcw size={15} />
-                  )}
-                  Withdraw Request to Edit
-                </button>
-              )}
-
-              {/* RESET FORM */}
-              <button
-                type="button"
-                disabled={!dirty || saving}
-                onClick={() => {
-                  setForm(initialForm);
-                  setErrors({});
-                  setPageError("");
-                  setProfilePhotoFile(null);
-                  setOfficePhotoBlob(null);
-                }}
-                className="mt-2 inline-flex min-h-[40px] w-full items-center justify-center gap-2 rounded-xl border border-white/10 text-xs font-bold text-slate-300 transition hover:bg-white/[0.05] disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <X size={14} />
-                Reset Changes
-              </button>
-            </section>
-
-            {/* SECURITY NOTICE */}
+            {/* =====================================================
+                SECURITY NOTICE
+            ===================================================== */}
             <section className="flex items-start gap-3 rounded-[22px] border border-blue-100 bg-blue-50/60 p-4">
               <ShieldCheck size={18} className="mt-0.5 shrink-0 text-blue-600" />
               <div>
@@ -1882,9 +2420,51 @@ export default function AdvocateEditProfile() {
                 </p>
               </div>
             </section>
-          </aside>
-        </form>
-      </div>
+          </form>
+        </div>
+
+        {/* =====================================================
+            BOTTOM STICKY ACTION BAR (CANCEL | SAVE CHANGES)
+        ===================================================== */}
+        <div className="fixed bottom-0 left-0 right-0 lg:left-[280px] z-40 border-t border-slate-200/90 bg-white/95 px-4 py-3 shadow-[0_-10px_25px_rgba(15,23,42,0.08)] backdrop-blur-md sm:px-5 lg:px-6 xl:px-8">
+          <div className="flex w-full items-center justify-between gap-3">
+            {/* CANCEL (SECONDARY, LEFT) */}
+            <button
+              type="button"
+              disabled={!dirty || saving}
+              onClick={handleCancel}
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 hover:text-slate-900 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <RotateCcw size={15} className="text-slate-500" />
+              Cancel
+            </button>
+
+            {/* SAVE CHANGES (PRIMARY AMBER, RIGHT) */}
+            <button
+              type="submit"
+              form="edit-profile-form"
+              disabled={saving || !dirty || isAboutInvalid}
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-amber-500 px-6 text-sm font-extrabold text-slate-950 shadow-sm transition hover:bg-amber-400 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {saving ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Saving...
+                </>
+              ) : hasApprovalChanges ? (
+                <>
+                  <Send size={16} />
+                  Save & request approval
+                </>
+              ) : (
+                <>
+                  <Save size={16} />
+                  Save changes
+                </>
+              )}
+            </button>
+          </div>
+        </div>
 
       {/* =====================================================
           DISCARD MODAL
@@ -1945,25 +2525,33 @@ export default function AdvocateEditProfile() {
    SMALL PRESENTATIONAL COMPONENTS
 ============================================================================ */
 
-function SectionHeader({ Icon, title, description }) {
+function SectionHeader({ Icon, title, description, rightElement }) {
   void Icon;
   return (
-    <div className="flex items-start gap-3">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
-        <Icon size={18} />
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex items-start gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+          <Icon size={18} />
+        </div>
+
+        <div>
+          <h2 className="text-[17px] font-extrabold tracking-tight text-slate-950">
+            {title}
+          </h2>
+
+          {description && (
+            <p className="mt-1 text-xs leading-5 text-slate-500">
+              {description}
+            </p>
+          )}
+        </div>
       </div>
 
-      <div>
-        <h2 className="text-[17px] font-extrabold tracking-tight text-slate-950">
-          {title}
-        </h2>
-
-        {description && (
-          <p className="mt-1 text-xs leading-5 text-slate-500">
-            {description}
-          </p>
-        )}
-      </div>
+      {rightElement && (
+        <div className="shrink-0 self-start sm:self-center">
+          {rightElement}
+        </div>
+      )}
     </div>
   );
 }

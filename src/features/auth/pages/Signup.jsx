@@ -674,12 +674,13 @@ function AdvocateStepIndicator({ step }) {
    FORM INPUT
    ========================================================================= */
 
-function FormInput({ icon, label, error, success, action, ...props }) {
+function FormInput({ icon, label, error, success, action, required, ...props }) {
   return (
     <div className="w-full">
       <div className="mb-2 flex items-center justify-between">
-        <label className="text-[13px] font-semibold text-slate-700">
-          {label}
+        <label className="text-[13px] font-semibold text-slate-700 flex items-center gap-1">
+          <span>{label}</span>
+          {required && <span className="text-red-500">*</span>}
         </label>
 
         {success && (
@@ -772,6 +773,7 @@ function SearchableSelect({
   onChange,
   error,
   disabled = false,
+  required,
 }) {
   const wrapperRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -944,8 +946,9 @@ function SearchableSelect({
         ref={wrapperRef}
         className="w-full"
       >
-        <label className="mb-2 block text-[13px] font-semibold text-slate-700">
-          {label}
+        <label className="mb-2 flex items-center gap-1 text-[13px] font-semibold text-slate-700">
+          <span>{label}</span>
+          {required && <span className="text-red-500">*</span>}
         </label>
 
         <button
@@ -1198,6 +1201,7 @@ function ChipSelect({
   onChange,
   error,
   multiple = false,
+  required,
 }) {
   const selectedValues = multiple ? value : value ? [value] : [];
 
@@ -1217,8 +1221,9 @@ function ChipSelect({
   return (
     <div className="w-full">
       <div className="mb-2 flex items-baseline justify-between gap-3">
-        <label className="text-[13px] font-semibold text-slate-700">
-          {label}
+        <label className="text-[13px] font-semibold text-slate-700 flex items-center gap-1">
+          <span>{label}</span>
+          {required && <span className="text-red-500">*</span>}
         </label>
 
         {hint && (
@@ -1626,6 +1631,7 @@ function PhoneVerificationCard({
       <FormInput
         icon="phone"
         label="Phone Number"
+        required
         type="tel"
         placeholder="10-digit mobile number"
         value={phone}
@@ -1764,6 +1770,7 @@ function PincodeLocationFields({
       <FormInput
         icon="pin_drop"
         label="Pincode"
+        required
         placeholder="Enter 6-digit pincode"
         inputMode="numeric"
         value={pincode}
@@ -1799,6 +1806,7 @@ function PincodeLocationFields({
         <FormInput
           icon="location_city"
           label="District"
+          required
           placeholder={
             pincodeComplete ? "Enter your district" : "Enter pincode first"
           }
@@ -1821,6 +1829,7 @@ function PincodeLocationFields({
           <FormInput
             icon="map"
             label="State"
+            required
             value={state}
             onChange={(event) => onStateChange(event.target.value)}
             error={stateError}
@@ -1837,6 +1846,7 @@ function PincodeLocationFields({
           <SearchableSelect
             icon="map"
             label="State"
+            required
             placeholder={
               pincodeComplete ? "Select state" : "Enter pincode first"
             }
@@ -4994,6 +5004,7 @@ function Step1({
         <FormInput
           icon="person"
           label="Full Name"
+          required
           placeholder="Enter your full name"
           value={fullName}
           onChange={(event) => setFullName(event.target.value)}
@@ -5006,6 +5017,7 @@ function Step1({
         <FormInput
           icon="mail"
           label="Email Address"
+          required
           type="email"
           placeholder="you@example.com"
           value={email}
@@ -5458,6 +5470,7 @@ function AdvocatePhotoStep({
 
       <ChipSelect
         label="Gender"
+        required
         options={GENDER_OPTIONS}
         value={gender}
         onChange={onGenderChange}
@@ -5614,6 +5627,7 @@ function AadhaarVerificationCard({
       <FormInput
         icon="fingerprint"
         label="Aadhaar Number"
+        required
         placeholder="12-digit Aadhaar number"
         inputMode="numeric"
         value={aadhaarNumber}
@@ -5910,6 +5924,7 @@ function AdvocateProfessionalStep({
         <FormInput
           icon="badge"
           label="Bar Council ID"
+          required
           placeholder="e.g. MAH/1234/2024"
           value={barCouncilId}
           onChange={(event) => setBarCouncilId(event.target.value)}
@@ -5922,6 +5937,7 @@ function AdvocateProfessionalStep({
 
       <ChipSelect
         label="Languages spoken"
+        required
         hint="Select all that apply"
         options={LANGUAGE_OPTIONS}
         value={languagesSpoken}
@@ -6009,6 +6025,7 @@ function AdvocatePasswordStep({
           <FormInput
             icon="lock"
             label="Password"
+            required
             type={showPassword ? "text" : "password"}
             placeholder="Create a password"
             value={password}
@@ -6021,6 +6038,7 @@ function AdvocatePasswordStep({
           <FormInput
             icon="lock_reset"
             label="Confirm Password"
+            required
             type={showPassword ? "text" : "password"}
             placeholder="Re-enter your password"
             value={confirmPassword}
