@@ -13,8 +13,9 @@ import { ADMIN_PATHS, formatDateTime } from "../../../utils/adminUtils";
 const FIELD_LABELS = {
   experienceYears: "Experience",
   about: "Bio / About",
-  videoCallChargePerMinute: "Video Call Fee",
-  voiceCallChargePerMinute: "Voice Call Fee",
+  voiceCallPricePer15Min: "Voice Call Price (15 min)",
+  videoCallPricePer15Min: "Video Call Price (15 min)",
+  officeVisitDurationMinutes: "Office Visit Duration",
   offlineVisitingFee: "Office Visit Fee",
   profilePhoto: "Profile Photo",
   officeAddress: "Office Address",

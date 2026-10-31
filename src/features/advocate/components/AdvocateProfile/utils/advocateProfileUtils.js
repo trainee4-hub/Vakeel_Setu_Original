@@ -181,16 +181,19 @@ export const isSlotPastForDate = (slot, selectedDate) => {
 // (personalDetails / professionalCredentials / eliteMembership) the profile UI
 // reads everywhere. Every value is taken as-is; null stays null.
 export function mapDetailAdvocate(a) {
-  const videoFee =
-    a.videoCallChargePerMinute != null
-      ? Number(a.videoCallChargePerMinute)
-      : null;
   const voiceFee =
-    a.voiceCallChargePerMinute != null
-      ? Number(a.voiceCallChargePerMinute)
-      : null;
+    a.pricing?.voiceCall?.price ??
+    (a.voiceCallPricePer15Min != null
+      ? Number(a.voiceCallPricePer15Min)
+      : null);
+  const videoFee =
+    a.pricing?.videoCall?.price ??
+    (a.videoCallPricePer15Min != null
+      ? Number(a.videoCallPricePer15Min)
+      : null);
   const officeFee =
-    a.offlineVisitingFee != null ? Number(a.offlineVisitingFee) : null;
+    a.pricing?.officeVisit?.price ??
+    (a.offlineVisitingFee != null ? Number(a.offlineVisitingFee) : null);
   const avgRating = a.averageRating != null ? Number(a.averageRating) : null;
 
   // The documented /advocates/:id sample doesn't include a verification
@@ -211,6 +214,11 @@ export function mapDetailAdvocate(a) {
   return {
     _id: a.id,
     id: a.id,
+    voiceCallPricePer15Min: a.voiceCallPricePer15Min ?? null,
+    videoCallPricePer15Min: a.videoCallPricePer15Min ?? null,
+    officeVisitDurationMinutes: a.officeVisitDurationMinutes ?? null,
+    offlineVisitingFee: officeFee,
+    pricing: a.pricing || null,
     personalDetails: {
       fullName: a.fullName,
       profileUrl: a.profilePhotoUrl || null,
@@ -229,21 +237,31 @@ export function mapDetailAdvocate(a) {
       professionalSummary: a.about || "",
     },
     eliteMembership: {
-      // No `status`/duration fields exist on the API — a service counts as
-      // active only when the advocate actually configured a charge for it
-      // (null charge = not offered), and duration is left unset rather than
-      // invented.
       voiceCall: {
         status: voiceFee != null ? "active" : null,
         fee: voiceFee,
+        durationMinutes: 15,
+        label:
+          a.pricing?.voiceCall?.label ||
+          (voiceFee != null ? `₹${voiceFee} / 15 min` : null),
       },
       videoCall: {
         status: videoFee != null ? "active" : null,
         fee: videoFee,
+        durationMinutes: 15,
+        label:
+          a.pricing?.videoCall?.label ||
+          (videoFee != null ? `₹${videoFee} / 15 min` : null),
       },
       officeVisit: {
         status: officeFee != null ? "active" : null,
         fee: officeFee,
+        durationMinutes: a.officeVisitDurationMinutes ?? 60,
+        label:
+          a.pricing?.officeVisit?.label ||
+          (officeFee != null
+            ? `₹${officeFee} / ${a.officeVisitDurationMinutes ?? 60} min`
+            : null),
         officeLocation: a.officeAddress || a.office?.officeAddress || "",
       },
     },

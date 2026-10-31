@@ -129,13 +129,17 @@ export default function AdvocateProfileEditDrawer({
           : advocate.office?.officeLongitude !== null && advocate.office?.officeLongitude !== undefined
             ? String(advocate.office.officeLongitude)
             : "",
-      videoCallChargePerMinute:
-        advocate.videoCallChargePerMinute !== null && advocate.videoCallChargePerMinute !== undefined
-          ? String(advocate.videoCallChargePerMinute)
+      voiceCallPricePer15Min:
+        advocate.voiceCallPricePer15Min !== null && advocate.voiceCallPricePer15Min !== undefined
+          ? String(advocate.voiceCallPricePer15Min)
           : "",
-      voiceCallChargePerMinute:
-        advocate.voiceCallChargePerMinute !== null && advocate.voiceCallChargePerMinute !== undefined
-          ? String(advocate.voiceCallChargePerMinute)
+      videoCallPricePer15Min:
+        advocate.videoCallPricePer15Min !== null && advocate.videoCallPricePer15Min !== undefined
+          ? String(advocate.videoCallPricePer15Min)
+          : "",
+      officeVisitDurationMinutes:
+        advocate.officeVisitDurationMinutes !== null && advocate.officeVisitDurationMinutes !== undefined
+          ? String(advocate.officeVisitDurationMinutes)
           : "",
       offlineVisitingFee:
         advocate.offlineVisitingFee !== null && advocate.offlineVisitingFee !== undefined
@@ -200,8 +204,9 @@ export default function AdvocateProfileEditDrawer({
 
     // Number fields: fees
     const feeFields = [
-      "videoCallChargePerMinute",
-      "voiceCallChargePerMinute",
+      "voiceCallPricePer15Min",
+      "videoCallPricePer15Min",
+      "officeVisitDurationMinutes",
       "offlineVisitingFee",
     ];
     feeFields.forEach((key) => {
@@ -215,7 +220,7 @@ export default function AdvocateProfileEditDrawer({
         currRaw !== null && currRaw !== undefined && String(currRaw).trim() !== ""
           ? parseFloat(currRaw)
           : null;
-      if (currVal !== origVal && currVal !== null) {
+      if (currVal !== origVal) {
         patch[key] = currVal;
       }
     });
@@ -298,12 +303,26 @@ export default function AdvocateProfileEditDrawer({
     }
   }
 
+  // Office pricing validation: duration & fee both filled or both empty
+  const officeDurStr = (formState.officeVisitDurationMinutes ?? "").trim();
+  const officeFeeStr = (formState.offlineVisitingFee ?? "").trim();
+  let officePricingError = "";
+  if ((officeDurStr !== "" && officeFeeStr === "") || (officeDurStr === "" && officeFeeStr !== "")) {
+    officePricingError = "Office visit duration and fee must both be provided together, or both left empty.";
+  } else if (officeDurStr !== "") {
+    const durNum = Number(officeDurStr);
+    if (!Number.isInteger(durNum) || durNum < 1 || durNum > 1440) {
+      officePricingError = "Office visit duration must be an integer between 1 and 1440 minutes.";
+    }
+  }
+
   // Can save check
   const isSaveDisabled =
     !hasChanges ||
     isBioInvalid ||
     isPincodeInvalid ||
     Boolean(officeLocationError) ||
+    Boolean(officePricingError) ||
     saving;
 
   const handleChange = (field, value) => {
@@ -924,44 +943,61 @@ export default function AdvocateProfileEditDrawer({
                 Consultation Charges (₹)
               </h3>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <FormField
-                  id="edit-videoCallCharge"
-                  label="Video Call (₹/min)"
-                  error={fieldErrors.videoCallChargePerMinute}
+                  id="edit-voiceCallPrice"
+                  label="Voice Call (₹ / 15 min)"
+                  error={fieldErrors.voiceCallPricePer15Min}
                 >
                   <input
-                    id="edit-videoCallCharge"
+                    id="edit-voiceCallPrice"
                     type="number"
                     min={0}
                     step="any"
-                    value={formState.videoCallChargePerMinute ?? ""}
-                    onChange={(e) => handleChange("videoCallChargePerMinute", e.target.value)}
-                    className={fieldClass(Boolean(fieldErrors.videoCallChargePerMinute))}
+                    value={formState.voiceCallPricePer15Min ?? ""}
+                    onChange={(e) => handleChange("voiceCallPricePer15Min", e.target.value)}
+                    className={fieldClass(Boolean(fieldErrors.voiceCallPricePer15Min))}
                     placeholder="0"
                   />
                 </FormField>
 
                 <FormField
-                  id="edit-voiceCallCharge"
-                  label="Voice Call (₹/min)"
-                  error={fieldErrors.voiceCallChargePerMinute}
+                  id="edit-videoCallPrice"
+                  label="Video Call (₹ / 15 min)"
+                  error={fieldErrors.videoCallPricePer15Min}
                 >
                   <input
-                    id="edit-voiceCallCharge"
+                    id="edit-videoCallPrice"
                     type="number"
                     min={0}
                     step="any"
-                    value={formState.voiceCallChargePerMinute ?? ""}
-                    onChange={(e) => handleChange("voiceCallChargePerMinute", e.target.value)}
-                    className={fieldClass(Boolean(fieldErrors.voiceCallChargePerMinute))}
+                    value={formState.videoCallPricePer15Min ?? ""}
+                    onChange={(e) => handleChange("videoCallPricePer15Min", e.target.value)}
+                    className={fieldClass(Boolean(fieldErrors.videoCallPricePer15Min))}
                     placeholder="0"
+                  />
+                </FormField>
+
+                <FormField
+                  id="edit-officeVisitDuration"
+                  label="Office Duration (min)"
+                  error={fieldErrors.officeVisitDurationMinutes || officePricingError}
+                >
+                  <input
+                    id="edit-officeVisitDuration"
+                    type="number"
+                    min={1}
+                    max={1440}
+                    value={formState.officeVisitDurationMinutes ?? ""}
+                    onChange={(e) => handleChange("officeVisitDurationMinutes", e.target.value)}
+                    className={fieldClass(Boolean(fieldErrors.officeVisitDurationMinutes || officePricingError))}
+                    placeholder="60"
                   />
                 </FormField>
 
                 <FormField
                   id="edit-offlineVisitingFee"
-                  label="In-Person Fee (₹)"
+                  label="Office Visit Fee (₹)"
                   error={fieldErrors.offlineVisitingFee}
                 >
                   <input

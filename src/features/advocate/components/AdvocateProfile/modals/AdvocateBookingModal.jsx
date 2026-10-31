@@ -274,28 +274,28 @@ export default function AdvocateBookingModal({
   // Generate slots in IST
   const rawSlots = useMemo(() => {
     if (!selectedDate) return [];
-    const durationMinutes = activeModeObj?.durationMinutes || 15;
+    const isOffice = selectedMode === "IN_PERSON";
+    const durationMinutes = isOffice
+      ? (bookingOptions?.inPersonMinutes ?? activeModeObj?.durationMinutes ?? 60)
+      : (activeModeObj?.durationMinutes ?? 15);
     return generateAdvocateSlots({
       dateString: selectedDate,
       durationMinutes,
+      stepMinutes: 15,
       busySlots,
       minLeadMinutes,
       currentEpochMs: Date.now(),
     });
-  }, [selectedDate, activeModeObj, busySlots, minLeadMinutes]);
+  }, [selectedDate, selectedMode, bookingOptions, activeModeObj, busySlots, minLeadMinutes]);
 
   // Visible slots: Past slots and slots inside minLeadMinutes are HIDDEN
-  // Busy slots ARE shown, but visibly disabled with distinct blocked styling
+  // Busy slots and slots that run past the working window ARE shown, but visibly disabled with distinct blocked styling
   const visibleSlots = useMemo(() => {
     return rawSlots.filter((slot) => !slot.isPastOrLead);
   }, [rawSlots]);
 
-  // Sample slot start times to display before a date is chosen
+  // Sample slot start times to display before a date is chosen (every 15 min)
   const sampleSlotStartTimes = useMemo(() => {
-    const duration = activeModeObj?.durationMinutes || 15;
-    if (duration === 60) {
-      return ["10:00 AM", "11:00 AM", "12:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM"];
-    }
     return [
       "10:00 AM",
       "10:15 AM",
@@ -309,7 +309,7 @@ export default function AdvocateBookingModal({
       "12:15 PM",
       "12:30 PM",
     ];
-  }, [activeModeObj]);
+  }, []);
 
   // Recalculate scroller buttons whenever visible slots change
   useEffect(() => {
@@ -868,7 +868,9 @@ export default function AdvocateBookingModal({
                   {selectedDate ? (
                     <div className="flex items-center gap-2">
                       <span className="text-[11px] text-slate-400">
-                        {activeModeObj?.durationMinutes || 15}m session • IST
+                        {selectedMode === "IN_PERSON"
+                          ? (bookingOptions?.inPersonMinutes ?? activeModeObj?.durationMinutes ?? 60)
+                          : (activeModeObj?.durationMinutes ?? 15)}m session • IST
                       </span>
                       <button
                         type="button"
@@ -954,8 +956,8 @@ export default function AdvocateBookingModal({
                             const isSelected = selectedSlot?.startAt === slot.startAt;
                             const startTimeOnly = formatSlotStartTime(slot.startAt);
 
-                            /* 3. Booked Slots: Visibly marked with blocked marker & strike */
-                            if (slot.isBusy) {
+                            /* Disabled slots: booked or runs past working window */
+                            if (slot.disabled) {
                               return (
                                 <button
                                   key={slot.startAt}
@@ -963,7 +965,7 @@ export default function AdvocateBookingModal({
                                   disabled
                                   aria-disabled="true"
                                   tabIndex={-1}
-                                  title="Already booked"
+                                  title={slot.reason || (slot.isBusy ? "Already booked" : "Unavailable")}
                                   className="shrink-0 px-3.5 py-2 rounded-xl border border-slate-300/80 bg-slate-100 text-slate-400 text-xs font-medium cursor-not-allowed select-none flex items-center gap-1.5 transition-colors"
                                 >
                                   <FiSlash className="w-3 h-3 text-red-400 shrink-0 stroke-[2.5]" aria-hidden="true" />
@@ -1061,7 +1063,9 @@ export default function AdvocateBookingModal({
                       })}
                       <span>{activeModeObj?.label || selectedMode}</span>
                       <span className="text-[11px] font-semibold text-slate-500">
-                        ({activeModeObj?.durationMinutes || 15}m)
+                        ({selectedMode === "IN_PERSON"
+                          ? (bookingOptions?.inPersonMinutes ?? activeModeObj?.durationMinutes ?? 60)
+                          : (activeModeObj?.durationMinutes ?? 15)}m)
                       </span>
                     </div>
                   </div>

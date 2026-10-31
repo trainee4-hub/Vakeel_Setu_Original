@@ -44,7 +44,7 @@ function StatusBadge({ status }) {
   );
 }
 
-function FeeComparison({ current, requested, unit = "/ min" }) {
+function FeeComparison({ current, requested, unit = "" }) {
   const curNum = current !== undefined && current !== null && current !== "" ? Number(current) : null;
   const reqNum = requested !== undefined && requested !== null && requested !== "" ? Number(requested) : null;
 
@@ -248,25 +248,36 @@ export default function ProfileChangeDetail() {
   }
 
   // 3. Fees
-  if (requested.videoCallChargePerMinute !== undefined && Number(requested.videoCallChargePerMinute) !== Number(current.videoCallChargePerMinute)) {
+  if (requested.voiceCallPricePer15Min !== undefined && Number(requested.voiceCallPricePer15Min) !== Number(current.voiceCallPricePer15Min)) {
     differences.push({
-      key: "videoCallChargePerMinute",
-      label: "Video Call Rate",
-      current: current.videoCallChargePerMinute,
-      requested: requested.videoCallChargePerMinute,
+      key: "voiceCallPricePer15Min",
+      label: "Voice Call Rate",
+      current: current.voiceCallPricePer15Min,
+      requested: requested.voiceCallPricePer15Min,
       isFee: true,
-      unit: "/ min",
+      unit: " / 15 min",
     });
   }
 
-  if (requested.voiceCallChargePerMinute !== undefined && Number(requested.voiceCallChargePerMinute) !== Number(current.voiceCallChargePerMinute)) {
+  if (requested.videoCallPricePer15Min !== undefined && Number(requested.videoCallPricePer15Min) !== Number(current.videoCallPricePer15Min)) {
     differences.push({
-      key: "voiceCallChargePerMinute",
-      label: "Voice Call Rate",
-      current: current.voiceCallChargePerMinute,
-      requested: requested.voiceCallChargePerMinute,
+      key: "videoCallPricePer15Min",
+      label: "Video Call Rate",
+      current: current.videoCallPricePer15Min,
+      requested: requested.videoCallPricePer15Min,
       isFee: true,
-      unit: "/ min",
+      unit: " / 15 min",
+    });
+  }
+
+  if (requested.officeVisitDurationMinutes !== undefined && Number(requested.officeVisitDurationMinutes) !== Number(current.officeVisitDurationMinutes)) {
+    differences.push({
+      key: "officeVisitDurationMinutes",
+      label: "Office Visit Duration",
+      current: current.officeVisitDurationMinutes,
+      requested: requested.officeVisitDurationMinutes,
+      isFee: false,
+      unit: " min",
     });
   }
 
@@ -277,7 +288,9 @@ export default function ProfileChangeDetail() {
       current: current.offlineVisitingFee,
       requested: requested.offlineVisitingFee,
       isFee: true,
-      unit: " flat",
+      unit: requested.officeVisitDurationMinutes || current.officeVisitDurationMinutes
+        ? ` / ${requested.officeVisitDurationMinutes || current.officeVisitDurationMinutes} min`
+        : "",
     });
   }
 
@@ -317,8 +330,13 @@ export default function ProfileChangeDetail() {
         c.field === "profilePhotoUrl" ||
         c.field === "officePhotoUrl";
       if (!alreadyHandled) {
-        const isFee = ["videoCallChargePerMinute", "voiceCallChargePerMinute", "offlineVisitingFee"].includes(c.field);
-        const unit = c.field === "offlineVisitingFee" ? " flat" : isFee ? "/ min" : "";
+        const isFee = ["videoCallPricePer15Min", "voiceCallPricePer15Min", "offlineVisitingFee"].includes(c.field);
+        const unit =
+          c.field === "voiceCallPricePer15Min" || c.field === "videoCallPricePer15Min"
+            ? " / 15 min"
+            : c.field === "officeVisitDurationMinutes"
+              ? " min"
+              : "";
         differences.push({
           key: c.field,
           label: c.label || c.field.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()),

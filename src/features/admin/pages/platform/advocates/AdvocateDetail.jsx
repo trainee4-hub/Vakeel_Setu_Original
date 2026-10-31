@@ -507,27 +507,33 @@ export default function AdvocateDetail() {
                 </dd>
               </div>
               <div className="flex justify-between items-center gap-2">
-                <dt className="text-slate-500 shrink-0">Video Call Rate</dt>
-                <dd className="font-semibold text-slate-900">
-                  {advocate.videoCallChargePerMinute !== null && advocate.videoCallChargePerMinute !== undefined
-                    ? `₹${advocate.videoCallChargePerMinute}/min`
-                    : "—"}
-                </dd>
-              </div>
-              <div className="flex justify-between items-center gap-2">
                 <dt className="text-slate-500 shrink-0">Voice Call Rate</dt>
                 <dd className="font-semibold text-slate-900">
-                  {advocate.voiceCallChargePerMinute !== null && advocate.voiceCallChargePerMinute !== undefined
-                    ? `₹${advocate.voiceCallChargePerMinute}/min`
-                    : "—"}
+                  {advocate.pricing?.voiceCall?.label ||
+                    (advocate.voiceCallPricePer15Min !== null &&
+                    advocate.voiceCallPricePer15Min !== undefined
+                      ? `₹${advocate.voiceCallPricePer15Min} / 15 min`
+                      : "—")}
                 </dd>
               </div>
               <div className="flex justify-between items-center gap-2">
-                <dt className="text-slate-500 shrink-0">In-Person Visiting Fee</dt>
+                <dt className="text-slate-500 shrink-0">Video Call Rate</dt>
                 <dd className="font-semibold text-slate-900">
-                  {advocate.offlineVisitingFee !== null && advocate.offlineVisitingFee !== undefined
-                    ? `₹${advocate.offlineVisitingFee}`
-                    : "—"}
+                  {advocate.pricing?.videoCall?.label ||
+                    (advocate.videoCallPricePer15Min !== null &&
+                    advocate.videoCallPricePer15Min !== undefined
+                      ? `₹${advocate.videoCallPricePer15Min} / 15 min`
+                      : "—")}
+                </dd>
+              </div>
+              <div className="flex justify-between items-center gap-2">
+                <dt className="text-slate-500 shrink-0">Office Visit Fee</dt>
+                <dd className="font-semibold text-slate-900">
+                  {advocate.pricing?.officeVisit?.label ||
+                    (advocate.offlineVisitingFee !== null &&
+                    advocate.offlineVisitingFee !== undefined
+                      ? `₹${advocate.offlineVisitingFee} / ${advocate.officeVisitDurationMinutes || 60} min`
+                      : "—")}
                 </dd>
               </div>
               <div className="flex justify-between items-center gap-2">

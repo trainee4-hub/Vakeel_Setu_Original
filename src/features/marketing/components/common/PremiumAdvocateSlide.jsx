@@ -33,22 +33,26 @@ const PremiumAdvocateSlide = memo(function PremiumAdvocateSlide({
   const filledStars = hasRating ? Math.round(averageRating) : 0;
   const reviewCount = advocate?.totalReviews ?? 0;
 
-  const videoFee =
-    advocate?.videoCallChargePerMinute != null
-      ? Number(advocate.videoCallChargePerMinute)
-      : null;
+  const primaryPricing = (() => {
+    const p = advocate?.pricing;
+    if (p) {
+      if (p.voiceCall?.label) return p.voiceCall.label;
+      if (p.videoCall?.label) return p.videoCall.label;
+      if (p.officeVisit?.label) return p.officeVisit.label;
+    }
+    if (advocate?.voiceCallPricePer15Min != null) {
+      return `₹${advocate.voiceCallPricePer15Min} / 15 min`;
+    }
+    if (advocate?.videoCallPricePer15Min != null) {
+      return `₹${advocate.videoCallPricePer15Min} / 15 min`;
+    }
+    if (advocate?.offlineVisitingFee != null) {
+      const dur = advocate.officeVisitDurationMinutes || 60;
+      return `₹${advocate.offlineVisitingFee} / ${dur} min`;
+    }
+    return null;
+  })();
 
-  const voiceFee =
-    advocate?.voiceCallChargePerMinute != null
-      ? Number(advocate.voiceCallChargePerMinute)
-      : null;
-
-  const officeFee =
-    advocate?.offlineVisitingFee != null
-      ? Number(advocate.offlineVisitingFee)
-      : null;
-
-  const consultationFee = videoFee ?? voiceFee ?? officeFee ?? null;
   const profileImageUrl = advocate?.profilePhotoUrl || null;
 
   return (
@@ -216,7 +220,7 @@ const PremiumAdvocateSlide = memo(function PremiumAdvocateSlide({
                 </p>
 
                 <p className="mt-0.5 text-sm font-bold text-slate-900">
-                  {consultationFee != null ? `₹${consultationFee}` : "Contact"}
+                  {primaryPricing || "Contact"}
                 </p>
               </div>
             </div>

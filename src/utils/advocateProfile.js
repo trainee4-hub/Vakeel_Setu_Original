@@ -21,13 +21,14 @@ export const REQUIRED_ADVOCATE_PROFILE_FIELDS = [
   "about",
   "courtPractice",
   "topCourtPractised",
-  "videoCallChargePerMinute",
-  "voiceCallChargePerMinute",
-  "offlineVisitingFee",
 ];
 
 /** Optional enhancements — never block dashboard access. */
 export const OPTIONAL_ADVOCATE_PROFILE_FIELDS = [
+  "voiceCallPricePer15Min",
+  "videoCallPricePer15Min",
+  "officeVisitDurationMinutes",
+  "offlineVisitingFee",
   "country",
 ];
 
@@ -39,9 +40,10 @@ export const ADVOCATE_FIELD_LABELS = {
   about: "Professional bio",
   courtPractice: "Courts practised in",
   topCourtPractised: "Best Courts practised",
-  videoCallChargePerMinute: "Video call fee",
-  voiceCallChargePerMinute: "Voice call fee",
-  offlineVisitingFee: "Office visit fee",
+  voiceCallPricePer15Min: "Voice call price (15 min)",
+  videoCallPricePer15Min: "Video call price (15 min)",
+  officeVisitDurationMinutes: "Office visit duration (min)",
+  offlineVisitingFee: "Office visit price",
   country: "Country",
 };
 
@@ -120,9 +122,17 @@ const FIELD_VALIDATORS = {
   courtPractice: hasArrayValues,
   topCourtPractised: hasText,
 
-  videoCallChargePerMinute: hasNonNegativeNumber,
-  voiceCallChargePerMinute: hasNonNegativeNumber,
-  offlineVisitingFee: hasNonNegativeNumber,
+  voiceCallPricePer15Min: (val) =>
+    val === null || val === undefined || hasNonNegativeNumber(val),
+  videoCallPricePer15Min: (val) =>
+    val === null || val === undefined || hasNonNegativeNumber(val),
+  officeVisitDurationMinutes: (val) => {
+    if (val === null || val === undefined || val === "") return true;
+    const num = Number(val);
+    return Number.isInteger(num) && num >= 1 && num <= 1440;
+  },
+  offlineVisitingFee: (val) =>
+    val === null || val === undefined || hasNonNegativeNumber(val),
 };
 
 /* -------------------------------------------------------------------------

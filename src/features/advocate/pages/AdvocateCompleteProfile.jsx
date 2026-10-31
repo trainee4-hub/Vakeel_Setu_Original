@@ -1214,81 +1214,87 @@ export default function AdvocateCompleteProfile() {
 
           <Card
             title="Consultation pricing"
-            description="Set a fee for each consultation mode you offer."
+            description="Set a fee for each consultation mode you offer (leave empty if not offered)."
           >
-            <div className="grid gap-5 sm:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               <Field
-                label="Video (₹/min)"
-                required
-                error={
-                  errors.videoCallChargePerMinute
-                }
+                label="Voice call (₹ / 15 min)"
+                error={errors.voiceCallPricePer15Min}
               >
                 <input
                   type="number"
                   min="0"
                   inputMode="numeric"
-                  value={
-                    form.videoCallChargePerMinute
-                  }
+                  value={form.voiceCallPricePer15Min ?? ""}
                   onChange={(event) =>
                     setField(
-                      "videoCallChargePerMinute",
+                      "voiceCallPricePer15Min",
                       event.target.value,
                     )
                   }
-                  placeholder="50"
+                  placeholder="500"
                   className={inputClass(
-                    Boolean(
-                      errors.videoCallChargePerMinute,
-                    ),
+                    Boolean(errors.voiceCallPricePer15Min),
                   )}
                 />
               </Field>
 
               <Field
-                label="Voice (₹/min)"
-                required
-                error={
-                  errors.voiceCallChargePerMinute
-                }
+                label="Video call (₹ / 15 min)"
+                error={errors.videoCallPricePer15Min}
               >
                 <input
                   type="number"
                   min="0"
                   inputMode="numeric"
-                  value={
-                    form.voiceCallChargePerMinute
-                  }
+                  value={form.videoCallPricePer15Min ?? ""}
                   onChange={(event) =>
                     setField(
-                      "voiceCallChargePerMinute",
+                      "videoCallPricePer15Min",
                       event.target.value,
                     )
                   }
-                  placeholder="30"
+                  placeholder="800"
                   className={inputClass(
-                    Boolean(
-                      errors.voiceCallChargePerMinute,
-                    ),
+                    Boolean(errors.videoCallPricePer15Min),
+                  )}
+                />
+              </Field>
+
+              <Field
+                label="Office duration (min)"
+                error={errors.officeVisitDurationMinutes}
+                hint="1–1440 min"
+              >
+                <input
+                  type="number"
+                  min="1"
+                  max="1440"
+                  inputMode="numeric"
+                  value={form.officeVisitDurationMinutes ?? ""}
+                  onChange={(event) =>
+                    setField(
+                      "officeVisitDurationMinutes",
+                      event.target.value,
+                    )
+                  }
+                  placeholder="60"
+                  className={inputClass(
+                    Boolean(errors.officeVisitDurationMinutes),
                   )}
                 />
               </Field>
 
               <Field
                 label="Office visit (₹)"
-                required
-                error={
-                  errors.offlineVisitingFee
-                }
+                error={errors.offlineVisitingFee}
+                hint="Fee for duration"
               >
                 <input
                   type="number"
                   min="0"
                   inputMode="numeric"
-                  value={
-                    form.offlineVisitingFee
-                  }
+                  value={form.offlineVisitingFee ?? ""}
                   onChange={(event) =>
                     setField(
                       "offlineVisitingFee",
@@ -1297,9 +1303,7 @@ export default function AdvocateCompleteProfile() {
                   }
                   placeholder="1000"
                   className={inputClass(
-                    Boolean(
-                      errors.offlineVisitingFee,
-                    ),
+                    Boolean(errors.offlineVisitingFee),
                   )}
                 />
               </Field>

@@ -78,24 +78,29 @@ const getProfileFromResponse = (response) =>
   null;
 
 const createPricingValues = (advocate) => ({
-  videoCallChargePerMinute: toInputValue(
-    advocate?.videoCallChargePerMinute,
+  videoCallPricePer15Min: toInputValue(
+    advocate?.videoCallPricePer15Min,
   ),
-  voiceCallChargePerMinute: toInputValue(
-    advocate?.voiceCallChargePerMinute,
+  voiceCallPricePer15Min: toInputValue(
+    advocate?.voiceCallPricePer15Min,
   ),
   offlineVisitingFee: toInputValue(
     advocate?.offlineVisitingFee,
   ),
+  officeVisitDurationMinutes: toInputValue(
+    advocate?.officeVisitDurationMinutes,
+  ),
 });
 
 const arePricingValuesEqual = (a, b) =>
-  String(a?.videoCallChargePerMinute ?? "") ===
-    String(b?.videoCallChargePerMinute ?? "") &&
-  String(a?.voiceCallChargePerMinute ?? "") ===
-    String(b?.voiceCallChargePerMinute ?? "") &&
+  String(a?.videoCallPricePer15Min ?? "") ===
+    String(b?.videoCallPricePer15Min ?? "") &&
+  String(a?.voiceCallPricePer15Min ?? "") ===
+    String(b?.voiceCallPricePer15Min ?? "") &&
   String(a?.offlineVisitingFee ?? "") ===
-    String(b?.offlineVisitingFee ?? "");
+    String(b?.offlineVisitingFee ?? "") &&
+  String(a?.officeVisitDurationMinutes ?? "") ===
+    String(b?.officeVisitDurationMinutes ?? "");
 
 /* =========================================================================
    SMALL UI COMPONENTS
@@ -268,15 +273,17 @@ const AdvocatePricing = () => {
   const [advocate, setAdvocate] = useState(null);
 
   const [pricing, setPricing] = useState({
-    videoCallChargePerMinute: "",
-    voiceCallChargePerMinute: "",
+    videoCallPricePer15Min: "",
+    voiceCallPricePer15Min: "",
     offlineVisitingFee: "",
+    officeVisitDurationMinutes: "",
   });
 
   const [savedPricing, setSavedPricing] = useState({
-    videoCallChargePerMinute: "",
-    voiceCallChargePerMinute: "",
+    videoCallPricePer15Min: "",
+    voiceCallPricePer15Min: "",
     offlineVisitingFee: "",
+    officeVisitDurationMinutes: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -381,39 +388,61 @@ const AdvocatePricing = () => {
   const validate = () => {
     const next = {};
 
-    const video = toAmount(
-      pricing.videoCallChargePerMinute,
-    );
+    const rawVideo = String(pricing.videoCallPricePer15Min ?? "").trim();
+    const rawVoice = String(pricing.voiceCallPricePer15Min ?? "").trim();
+    const rawOffice = String(pricing.offlineVisitingFee ?? "").trim();
+    const rawDuration = String(pricing.officeVisitDurationMinutes ?? "").trim();
 
-    const voice = toAmount(
-      pricing.voiceCallChargePerMinute,
-    );
+    let videoVal = null;
+    let voiceVal = null;
+    let officeVal = null;
+    let durationVal = null;
 
-    const offline = toAmount(
-      pricing.offlineVisitingFee,
-    );
-
-    if (video === null) {
-      next.videoCallChargePerMinute =
-        "Enter a valid non-negative video consultation fee.";
+    if (rawVideo !== "") {
+      const num = Number(rawVideo);
+      if (!Number.isFinite(num) || num < 0) {
+        next.videoCallPricePer15Min = "Enter a valid non-negative video consultation fee.";
+      } else {
+        videoVal = num;
+      }
     }
 
-    if (voice === null) {
-      next.voiceCallChargePerMinute =
-        "Enter a valid non-negative voice consultation fee.";
+    if (rawVoice !== "") {
+      const num = Number(rawVoice);
+      if (!Number.isFinite(num) || num < 0) {
+        next.voiceCallPricePer15Min = "Enter a valid non-negative voice consultation fee.";
+      } else {
+        voiceVal = num;
+      }
     }
 
-    if (offline === null) {
-      next.offlineVisitingFee =
-        "Enter a valid non-negative office consultation fee.";
+    // Office visit duration and price go TOGETHER (both filled or both empty)
+    if (rawOffice !== "" && rawDuration === "") {
+      next.officeVisitDurationMinutes = "Office visit duration is required when price is set.";
+    } else if (rawDuration !== "" && rawOffice === "") {
+      next.offlineVisitingFee = "Office visit price is required when duration is set.";
+    } else if (rawOffice !== "" && rawDuration !== "") {
+      const feeNum = Number(rawOffice);
+      const durNum = Number(rawDuration);
+      if (!Number.isFinite(feeNum) || feeNum < 0) {
+        next.offlineVisitingFee = "Enter a valid non-negative office consultation fee.";
+      } else {
+        officeVal = feeNum;
+      }
+      if (!Number.isInteger(durNum) || durNum < 1 || durNum > 1440) {
+        next.officeVisitDurationMinutes = "Duration must be a whole number between 1 and 1440 minutes.";
+      } else {
+        durationVal = durNum;
+      }
     }
 
     return {
       errors: next,
       values: {
-        videoCallChargePerMinute: video,
-        voiceCallChargePerMinute: voice,
-        offlineVisitingFee: offline,
+        videoCallPricePer15Min: videoVal,
+        voiceCallPricePer15Min: voiceVal,
+        offlineVisitingFee: officeVal,
+        officeVisitDurationMinutes: durationVal,
       },
     };
   };
@@ -428,23 +457,16 @@ const AdvocatePricing = () => {
   ========================================================================== */
 
   const preview = useMemo(() => {
-    const video =
-      toAmount(pricing.videoCallChargePerMinute) ?? 0;
-
-    const voice =
-      toAmount(pricing.voiceCallChargePerMinute) ?? 0;
-
-    const offline =
-      toAmount(pricing.offlineVisitingFee) ?? 0;
+    const video = toAmount(pricing.videoCallPricePer15Min) ?? 0;
+    const voice = toAmount(pricing.voiceCallPricePer15Min) ?? 0;
+    const offline = toAmount(pricing.offlineVisitingFee) ?? 0;
+    const officeDuration = toAmount(pricing.officeVisitDurationMinutes) ?? 60;
 
     return {
       video,
       voice,
       offline,
-      video15: video * 15,
-      voice15: voice * 15,
-      video30: video * 30,
-      voice30: voice * 30,
+      officeDuration,
     };
   }, [pricing]);
 
@@ -504,14 +526,17 @@ const AdvocatePricing = () => {
         method: "PATCH",
         token: getAuthToken(),
         body: {
-          videoCallChargePerMinute:
-            validation.values.videoCallChargePerMinute,
+          videoCallPricePer15Min:
+            validation.values.videoCallPricePer15Min,
 
-          voiceCallChargePerMinute:
-            validation.values.voiceCallChargePerMinute,
+          voiceCallPricePer15Min:
+            validation.values.voiceCallPricePer15Min,
 
           offlineVisitingFee:
             validation.values.offlineVisitingFee,
+
+          officeVisitDurationMinutes:
+            validation.values.officeVisitDurationMinutes,
         },
       });
 
@@ -522,26 +547,31 @@ const AdvocatePricing = () => {
       const savedValues = updatedAdvocate
         ? createPricingValues(updatedAdvocate)
         : {
-            videoCallChargePerMinute: String(
-              validation.values.videoCallChargePerMinute,
+            videoCallPricePer15Min: toInputValue(
+              validation.values.videoCallPricePer15Min,
             ),
-            voiceCallChargePerMinute: String(
-              validation.values.voiceCallChargePerMinute,
+            voiceCallPricePer15Min: toInputValue(
+              validation.values.voiceCallPricePer15Min,
             ),
-            offlineVisitingFee: String(
+            offlineVisitingFee: toInputValue(
               validation.values.offlineVisitingFee,
+            ),
+            officeVisitDurationMinutes: toInputValue(
+              validation.values.officeVisitDurationMinutes,
             ),
           };
 
       setAdvocate((previous) => ({
         ...(previous || {}),
         ...(updatedAdvocate || {}),
-        videoCallChargePerMinute:
-          validation.values.videoCallChargePerMinute,
-        voiceCallChargePerMinute:
-          validation.values.voiceCallChargePerMinute,
+        videoCallPricePer15Min:
+          validation.values.videoCallPricePer15Min,
+        voiceCallPricePer15Min:
+          validation.values.voiceCallPricePer15Min,
         offlineVisitingFee:
           validation.values.offlineVisitingFee,
+        officeVisitDurationMinutes:
+          validation.values.officeVisitDurationMinutes,
       }));
 
       setPricing(savedValues);
@@ -549,9 +579,18 @@ const AdvocatePricing = () => {
 
       setErrors({});
 
+      const isApprovedAdvocate =
+        advocate?.isApproved || advocate?.status === "APPROVED";
+      if (isApprovedAdvocate) {
+        await apiRequest("/advocate/profile/submit-for-approval", {
+          method: "POST",
+          token: getAuthToken(),
+        });
+      }
+
       setSaveSuccess(
         response?.message ||
-          "Your consultation pricing has been updated successfully.",
+          "Your consultation pricing has been updated and submitted for approval.",
       );
     } catch (error) {
       if (error?.status === 401) {
@@ -573,8 +612,20 @@ const AdvocatePricing = () => {
         return;
       }
 
+      if (error?.status === 400) {
+        const backendErrors = error?.data?.errors || error?.errors;
+        if (Array.isArray(backendErrors) && backendErrors.length > 0) {
+          const fieldMap = {};
+          backendErrors.forEach((e) => {
+            if (e.field) fieldMap[e.field] = e.message;
+          });
+          setErrors(fieldMap);
+        }
+      }
+
       setSaveError(
-        error?.message ||
+        error?.data?.message ||
+          error?.message ||
           "We couldn't update your pricing. Please try again.",
       );
     } finally {
@@ -711,7 +762,7 @@ const AdvocatePricing = () => {
                 </div>
 
                 <span className="text-[10px] font-bold uppercase tracking-wider text-blue-500">
-                  Per minute
+                  15 min
                 </span>
               </div>
 
@@ -722,7 +773,7 @@ const AdvocatePricing = () => {
               <p className="mt-1 text-xl font-extrabold tracking-tight text-slate-950">
                 {formatCurrency(preview.video)}
                 <span className="ml-1 text-xs font-semibold text-slate-400">
-                  / min
+                  / 15 min
                 </span>
               </p>
             </div>
@@ -734,7 +785,7 @@ const AdvocatePricing = () => {
                 </div>
 
                 <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600">
-                  Per minute
+                  15 min
                 </span>
               </div>
 
@@ -745,7 +796,7 @@ const AdvocatePricing = () => {
               <p className="mt-1 text-xl font-extrabold tracking-tight text-slate-950">
                 {formatCurrency(preview.voice)}
                 <span className="ml-1 text-xs font-semibold text-slate-400">
-                  / min
+                  / 15 min
                 </span>
               </p>
             </div>
@@ -757,7 +808,7 @@ const AdvocatePricing = () => {
                 </div>
 
                 <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">
-                  Fixed visit
+                  {preview.officeDuration} min
                 </span>
               </div>
 
@@ -767,6 +818,9 @@ const AdvocatePricing = () => {
 
               <p className="mt-1 text-xl font-extrabold tracking-tight text-slate-950">
                 {formatCurrency(preview.offline)}
+                <span className="ml-1 text-xs font-semibold text-slate-400">
+                  / {preview.officeDuration} min
+                </span>
               </p>
             </div>
           </div>
@@ -830,34 +884,34 @@ const AdvocatePricing = () => {
             <PricingCard
               Icon={Video}
               title="Video Consultation"
-              badge="Per Minute"
+              badge="15 Minutes"
               tone="blue"
-              description="Set the amount clients are charged for each minute of a video consultation."
+              description="Set your professional fee for a 15-minute video consultation session (leave empty if not offered)."
             >
               <PricingInput
                 id="video-call-charge"
-                label="Video call fee"
-                description="Stored as videoCallChargePerMinute on your advocate profile."
-                value={pricing.videoCallChargePerMinute}
-                error={errors.videoCallChargePerMinute}
-                onChange={setField("videoCallChargePerMinute")}
+                label="Video call fee (15 min)"
+                description="Stored as videoCallPricePer15Min on your advocate profile."
+                value={pricing.videoCallPricePer15Min}
+                error={errors.videoCallPricePer15Min}
+                onChange={setField("videoCallPricePer15Min")}
               />
             </PricingCard>
 
             <PricingCard
               Icon={Phone}
               title="Voice Consultation"
-              badge="Per Minute"
+              badge="15 Minutes"
               tone="amber"
-              description="Set your per-minute professional fee for voice consultations."
+              description="Set your professional fee for a 15-minute voice consultation session (leave empty if not offered)."
             >
               <PricingInput
                 id="voice-call-charge"
-                label="Voice call fee"
-                description="Stored as voiceCallChargePerMinute on your advocate profile."
-                value={pricing.voiceCallChargePerMinute}
-                error={errors.voiceCallChargePerMinute}
-                onChange={setField("voiceCallChargePerMinute")}
+                label="Voice call fee (15 min)"
+                description="Stored as voiceCallPricePer15Min on your advocate profile."
+                value={pricing.voiceCallPricePer15Min}
+                error={errors.voiceCallPricePer15Min}
+                onChange={setField("voiceCallPricePer15Min")}
               />
             </PricingCard>
 
@@ -866,16 +920,55 @@ const AdvocatePricing = () => {
               title="Office Consultation"
               badge="Per Visit"
               tone="emerald"
-              description="Set the fixed professional fee clients pay for an in-person office visit."
+              description="Set the professional fee and session duration for an in-person office visit."
             >
-              <PricingInput
-                id="offline-visiting-fee"
-                label="Office visiting fee"
-                description="Stored as offlineVisitingFee on your advocate profile."
-                value={pricing.offlineVisitingFee}
-                error={errors.offlineVisitingFee}
-                onChange={setField("offlineVisitingFee")}
-              />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <PricingInput
+                  id="offline-visiting-fee"
+                  label="Office visiting fee (₹)"
+                  description="Stored as offlineVisitingFee on your advocate profile."
+                  value={pricing.offlineVisitingFee}
+                  error={errors.offlineVisitingFee}
+                  onChange={setField("offlineVisitingFee")}
+                />
+
+                <div>
+                  <label
+                    htmlFor="office-visit-duration"
+                    className="mb-2 block text-xs font-extrabold uppercase tracking-[0.1em] text-slate-500"
+                  >
+                    Office visit duration (min)
+                  </label>
+
+                  <div className="relative">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex w-12 items-center justify-center border-r border-slate-200 text-slate-500">
+                      <Clock3 size={16} />
+                    </div>
+
+                    <input
+                      id="office-visit-duration"
+                      type="number"
+                      min="1"
+                      max="1440"
+                      step="1"
+                      value={pricing.officeVisitDurationMinutes}
+                      onChange={setField("officeVisitDurationMinutes")}
+                      placeholder="60"
+                      className={`h-12 w-full rounded-xl border bg-slate-50/70 pl-14 pr-4 text-sm font-bold text-slate-950 outline-none transition-all placeholder:font-medium placeholder:text-slate-400 focus:bg-white focus:ring-4 ${
+                        errors.officeVisitDurationMinutes
+                          ? "border-red-300 focus:border-red-400 focus:ring-red-500/10"
+                          : "border-slate-200 focus:border-amber-400 focus:ring-amber-500/10"
+                      }`}
+                    />
+                  </div>
+
+                  <p className="mt-2 text-xs leading-5 text-slate-400">
+                    Stored as officeVisitDurationMinutes (1 to 1440 min).
+                  </p>
+
+                  <FieldError>{errors.officeVisitDurationMinutes}</FieldError>
+                </div>
+              </div>
 
               {(advocate?.officeAddress || advocate?.office?.officeAddress) && (
                 <div className="mt-5 flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
@@ -978,26 +1071,14 @@ const AdvocatePricing = () => {
                       </p>
                     </div>
 
-                    <div className="mt-3 flex items-end justify-between gap-3">
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wider text-slate-500">
-                          15 minutes
-                        </p>
+                    <div className="mt-3 flex items-center justify-between">
+                      <span className="text-[10px] uppercase tracking-wider text-slate-500">
+                        15 minutes
+                      </span>
 
-                        <p className="mt-1 text-lg font-extrabold text-white">
-                          {formatCurrency(preview.video15)}
-                        </p>
-                      </div>
-
-                      <div className="text-right">
-                        <p className="text-[10px] uppercase tracking-wider text-slate-500">
-                          30 minutes
-                        </p>
-
-                        <p className="mt-1 text-sm font-bold text-slate-200">
-                          {formatCurrency(preview.video30)}
-                        </p>
-                      </div>
+                      <span className="text-lg font-extrabold text-white">
+                        {formatCurrency(preview.video)}
+                      </span>
                     </div>
                   </div>
 
@@ -1013,26 +1094,14 @@ const AdvocatePricing = () => {
                       </p>
                     </div>
 
-                    <div className="mt-3 flex items-end justify-between gap-3">
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wider text-slate-500">
-                          15 minutes
-                        </p>
+                    <div className="mt-3 flex items-center justify-between">
+                      <span className="text-[10px] uppercase tracking-wider text-slate-500">
+                        15 minutes
+                      </span>
 
-                        <p className="mt-1 text-lg font-extrabold text-white">
-                          {formatCurrency(preview.voice15)}
-                        </p>
-                      </div>
-
-                      <div className="text-right">
-                        <p className="text-[10px] uppercase tracking-wider text-slate-500">
-                          30 minutes
-                        </p>
-
-                        <p className="mt-1 text-sm font-bold text-slate-200">
-                          {formatCurrency(preview.voice30)}
-                        </p>
-                      </div>
+                      <span className="text-lg font-extrabold text-white">
+                        {formatCurrency(preview.voice)}
+                      </span>
                     </div>
                   </div>
 
@@ -1050,7 +1119,7 @@ const AdvocatePricing = () => {
 
                     <div className="mt-3 flex items-center justify-between">
                       <span className="text-[10px] uppercase tracking-wider text-slate-500">
-                        Fixed visit fee
+                        {preview.officeDuration} minutes visit
                       </span>
 
                       <span className="text-lg font-extrabold text-white">
@@ -1083,9 +1152,9 @@ const AdvocatePricing = () => {
 
               <div className="mt-5 space-y-3 border-t border-slate-100 pt-4">
                 {[
-                  "Video fee is charged per minute",
-                  "Voice fee is charged per minute",
-                  "Office fee is stored as a fixed visit fee",
+                  "Video fee is charged per 15 minutes",
+                  "Voice fee is charged per 15 minutes",
+                  "Office fee and duration are saved together",
                 ].map((item) => (
                   <div
                     key={item}

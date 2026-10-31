@@ -166,38 +166,53 @@ export const summariseConsultations = (consultations = []) => {
 ------------------------------------------------------------------------- */
 
 export const getConsultationModes = (advocate) => {
+  const p = advocate?.pricing || {};
+  const officeDur =
+    p.officeVisit?.durationMinutes ||
+    advocate?.officeVisitDurationMinutes ||
+    60;
+
   const modes = [
-    {
-      key: "video",
-      label: "Video call",
-      icon: "video_call",
-      fee: advocate?.videoCallChargePerMinute,
-      unit: "/min",
-    },
     {
       key: "voice",
       label: "Voice call",
       icon: "call",
-      fee: advocate?.voiceCallChargePerMinute,
-      unit: "/min",
+      fee: p.voiceCall?.price ?? advocate?.voiceCallPricePer15Min ?? null,
+      unit: "/ 15 min",
+      durationMinutes: 15,
+      labelFormatted: p.voiceCall?.label || null,
+    },
+    {
+      key: "video",
+      label: "Video call",
+      icon: "video_call",
+      fee: p.videoCall?.price ?? advocate?.videoCallPricePer15Min ?? null,
+      unit: "/ 15 min",
+      durationMinutes: 15,
+      labelFormatted: p.videoCall?.label || null,
     },
     {
       key: "office",
       label: "Office visit",
       icon: "storefront",
-      fee: advocate?.offlineVisitingFee,
-      unit: "/visit",
+      fee: p.officeVisit?.price ?? advocate?.offlineVisitingFee ?? null,
+      unit: `/ ${officeDur} min`,
+      durationMinutes: officeDur,
+      labelFormatted: p.officeVisit?.label || null,
     },
   ];
 
   return modes.map((mode) => {
     const numeric = Number(mode.fee);
-    const configured = mode.fee !== null && mode.fee !== undefined && Number.isFinite(numeric);
+    const configured =
+      mode.fee !== null && mode.fee !== undefined && Number.isFinite(numeric);
 
     return {
       ...mode,
       configured,
-      display: configured ? `₹${numeric}` : "Not set",
+      display: configured
+        ? mode.labelFormatted || `₹${numeric} ${mode.unit}`
+        : "Not set",
     };
   });
 };

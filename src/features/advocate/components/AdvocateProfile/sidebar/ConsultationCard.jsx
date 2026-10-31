@@ -9,8 +9,6 @@ import {
 
 function formatDurationLabel(minutes) {
   if (!minutes) return "";
-  if (minutes === 60) return "1 hour";
-  if (minutes > 60 && minutes % 60 === 0) return `${minutes / 60} hours`;
   return `${minutes} min`;
 }
 
@@ -167,12 +165,16 @@ const ConsultationCard = forwardRef(function ConsultationCard(
                   <p className="font-semibold text-slate-900 text-sm leading-tight">
                     {modeItem.label}
                   </p>
-                  
+                  {modeItem.durationMinutes && (
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      {modeItem.durationMinutes} min
+                    </p>
+                  )}
                 </div>
 
                 <div className="text-right">
                   <p className="text-sm font-bold text-slate-900">
-                    ₹{Number(modeItem.fee).toLocaleString("en-IN")}
+                    {modeItem.priceLabel || `₹${Number(modeItem.fee).toLocaleString("en-IN")}`}
                   </p>
                 </div>
               </label>

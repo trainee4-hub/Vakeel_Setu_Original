@@ -60,6 +60,7 @@ export function getPeriodForHour(hour) {
 export function generateAdvocateSlots({
   dateString,
   durationMinutes = 15,
+  stepMinutes = 15,
   busySlots = [],
   minLeadMinutes = 15,
   currentEpochMs = Date.now(),
@@ -69,6 +70,7 @@ export function generateAdvocateSlots({
   }
 
   const duration = Number(durationMinutes) > 0 ? Number(durationMinutes) : 15;
+  const step = Number(stepMinutes) > 0 ? Number(stepMinutes) : 15;
   const leadLimitEpochMs = currentEpochMs + minLeadMinutes * 60 * 1000;
 
   // Convert busy intervals to absolute epoch milliseconds
@@ -90,7 +92,7 @@ export function generateAdvocateSlots({
   for (const session of sessions) {
     let currentSlotStartM = session.startM;
 
-    while (currentSlotStartM + duration <= session.endM) {
+    while (currentSlotStartM < session.endM) {
       const startHour = Math.floor(currentSlotStartM / 60);
       const startMin = currentSlotStartM % 60;
 
@@ -117,10 +119,14 @@ export function generateAdvocateSlots({
       // Lead time / past rule
       const isPastOrLead = startEpochMs < leadLimitEpochMs;
 
-      const disabled = isBusy || isPastOrLead;
+      // Runs past the session working window rule
+      const runsPastWindow = currentSlotEndM > session.endM;
+
+      const disabled = isBusy || isPastOrLead || runsPastWindow;
       let reason = null;
       if (isBusy) reason = "Already booked";
       else if (isPastOrLead) reason = "Past slot or inside lead time";
+      else if (runsPastWindow) reason = "Runs past working hours";
 
       slots.push({
         startAt,
@@ -131,11 +137,12 @@ export function generateAdvocateSlots({
         period,
         isBusy,
         isPastOrLead,
+        runsPastWindow,
         disabled,
         reason,
       });
 
-      currentSlotStartM += duration;
+      currentSlotStartM += step;
     }
   }
 

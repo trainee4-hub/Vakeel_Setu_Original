@@ -9,8 +9,9 @@ import { REQUIRED_ADVOCATE_PROFILE_FIELDS } from "./advocateProfile";
 /** Fields the form owns. Optional ones never block completion. */
 export const EDITABLE_NUMBER_FIELDS = [
   "experienceYears",
-  "videoCallChargePerMinute",
-  "voiceCallChargePerMinute",
+  "voiceCallPricePer15Min",
+  "videoCallPricePer15Min",
+  "officeVisitDurationMinutes",
   "offlineVisitingFee",
   "casesHandled",
 ];
@@ -96,7 +97,7 @@ export const buildAdvocateProfilePatch = (form, original) => {
     const next = toNumberOrNull(form[field]);
     const current = toNumberOrNull(source[field]);
 
-    if (next !== null && next !== current) {
+    if (next !== current) {
       payload[field] = next;
     }
   });
@@ -221,22 +222,54 @@ if (casesError) {
     )} over the limit.`;
   }
 
-  /* ---- fees ---- */
+  /* ---- consultation pricing ---- */
 
-  const videoError = requireNumber(
-    form.videoCallChargePerMinute,
-    "Video call fee",
-  );
-  if (videoError) errors.videoCallChargePerMinute = videoError;
+  if (
+    form.voiceCallPricePer15Min !== "" &&
+    form.voiceCallPricePer15Min !== null &&
+    form.voiceCallPricePer15Min !== undefined
+  ) {
+    const voiceVal = toNumberOrNull(form.voiceCallPricePer15Min);
+    if (voiceVal === null || voiceVal < 0) {
+      errors.voiceCallPricePer15Min = "Voice call price must be a valid non-negative number.";
+    }
+  }
 
-  const voiceError = requireNumber(
-    form.voiceCallChargePerMinute,
-    "Voice call fee",
-  );
-  if (voiceError) errors.voiceCallChargePerMinute = voiceError;
+  if (
+    form.videoCallPricePer15Min !== "" &&
+    form.videoCallPricePer15Min !== null &&
+    form.videoCallPricePer15Min !== undefined
+  ) {
+    const videoVal = toNumberOrNull(form.videoCallPricePer15Min);
+    if (videoVal === null || videoVal < 0) {
+      errors.videoCallPricePer15Min = "Video call price must be a valid non-negative number.";
+    }
+  }
 
-  const officeError = requireNumber(form.offlineVisitingFee, "Office visit fee");
-  if (officeError) errors.offlineVisitingFee = officeError;
+  const officeDurationVal = toNumberOrNull(form.officeVisitDurationMinutes);
+  const officeFeeVal = toNumberOrNull(form.offlineVisitingFee);
+  const hasOfficeDuration = officeDurationVal !== null;
+  const hasOfficeFee = officeFeeVal !== null;
+
+  if (hasOfficeDuration !== hasOfficeFee) {
+    if (!hasOfficeDuration) {
+      errors.officeVisitDurationMinutes = "Office visit duration and price must both be provided or both be empty.";
+    }
+    if (!hasOfficeFee) {
+      errors.offlineVisitingFee = "Office visit duration and price must both be provided or both be empty.";
+    }
+  } else {
+    if (hasOfficeDuration) {
+      if (!Number.isInteger(officeDurationVal) || officeDurationVal < 1 || officeDurationVal > 1440) {
+        errors.officeVisitDurationMinutes = "Office visit duration must be a whole number between 1 and 1440 minutes.";
+      }
+    }
+    if (hasOfficeFee) {
+      if (officeFeeVal < 0) {
+        errors.offlineVisitingFee = "Office visit price cannot be negative.";
+      }
+    }
+  }
 
   return errors;
 };
@@ -244,7 +277,7 @@ if (casesError) {
 /** Maps a backend validation payload onto form field names. */
 export const mapServerFieldErrors = (data) => {
   const source = data?.errors || data?.fieldErrors || null;
-  if (!source || typeof source !== "object") return {};
+  if (!source) return {};
 
   const known = new Set([
     ...REQUIRED_ADVOCATE_PROFILE_FIELDS,
@@ -255,13 +288,24 @@ export const mapServerFieldErrors = (data) => {
 
   const mapped = {};
 
-  Object.entries(source).forEach(([field, message]) => {
-    if (!known.has(field)) return;
+  if (Array.isArray(source)) {
+    source.forEach((err) => {
+      if (err.field && err.message) {
+        mapped[err.field] = String(err.message);
+      }
+    });
+    return mapped;
+  }
 
-    mapped[field] = Array.isArray(message)
-      ? String(message[0])
-      : String(message);
-  });
+  if (typeof source === "object") {
+    Object.entries(source).forEach(([field, message]) => {
+      if (!known.has(field)) return;
+
+      mapped[field] = Array.isArray(message)
+        ? String(message[0])
+        : String(message);
+    });
+  }
 
   return mapped;
 };

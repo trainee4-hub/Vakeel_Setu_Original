@@ -2,7 +2,6 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { useNavigate } from "react-router-dom";
@@ -94,7 +93,7 @@ const getList = (value) =>
       .map((item) => item.charAt(0).toUpperCase() + item.slice(1))
     : [];
 
-const formatMoney = (
+const _formatMoney = (
   value,
 ) => {
   const number =
@@ -193,18 +192,10 @@ const FIELD_META = {
   biography: { label: "About", icon: "⚖️" },
   aboutYou: { label: "About", icon: "⚖️" },
 
-  videoCallChargePerMinute: { label: "Video call price", icon: "💰" },
-  videoCallFee: { label: "Video call price", icon: "💰" },
-  videoCallPrice: { label: "Video call price", icon: "💰" },
-
-  voiceCallChargePerMinute: { label: "Voice call price", icon: "💰" },
-  voiceCallFee: { label: "Voice call price", icon: "💰" },
-  voiceCallPrice: { label: "Voice call price", icon: "💰" },
-
+  videoCallPricePer15Min: { label: "Video call price (15 min)", icon: "💰" },
+  voiceCallPricePer15Min: { label: "Voice call price (15 min)", icon: "💰" },
   offlineVisitingFee: { label: "Office visit price", icon: "💰" },
-  officeVisitFee: { label: "Office visit price", icon: "💰" },
-  officeVisitingFee: { label: "Office visit price", icon: "💰" },
-  officeVisitPrice: { label: "Office visit price", icon: "💰" },
+  officeVisitDurationMinutes: { label: "Office visit duration", icon: "⏱️" },
 
   officeAddress: { label: "Office address", icon: "📍" },
   address: { label: "Office address", icon: "📍" },
@@ -300,66 +291,6 @@ const getSubmittedItems = (profileChange) => {
   return items;
 };
 
-function SubmittedItemsDropdown({ items, statusTag = "Pending" }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
-
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    }
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen]);
-
-  if (!items || items.length === 0) return null;
-
-  return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        type="button"
-        onClick={() => setIsOpen((prev) => !prev)}
-        className="inline-flex min-h-[36px] items-center gap-1.5 rounded-xl border border-blue-300 bg-white px-3 text-xs font-bold text-blue-950 shadow-xs hover:bg-blue-50/80 transition"
-      >
-        <span>
-          {items.length} {items.length === 1 ? "item" : "items"} sent for approval ▾
-        </span>
-      </button>
-
-      {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-64 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl z-50">
-          <div className="px-2.5 py-1.5 text-[11px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100">
-            Submitted Fields ({items.length})
-          </div>
-          <div className="mt-1 divide-y divide-slate-100 max-h-60 overflow-y-auto">
-            {items.map((item) => (
-              <div
-                key={item.key}
-                className="flex items-center justify-between gap-2 px-2.5 py-2 text-xs hover:bg-slate-50 rounded-xl transition"
-              >
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-sm shrink-0">{item.icon}</span>
-                  <span className="font-semibold text-slate-800 truncate">
-                    {item.label}
-                  </span>
-                </div>
-                <span className="inline-flex items-center rounded border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-800 shrink-0">
-                  [{statusTag}]
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
 
 /* =========================================================================
    SKELETON
@@ -510,9 +441,10 @@ export default function AdvocateMyProfile() {
   const [isPricingInlineEditing, setIsPricingInlineEditing] = useState(false);
   const [enlargedOfficePhoto, setEnlargedOfficePhoto] = useState(null);
   const [pricingForm, setPricingForm] = useState({
-    videoCallChargePerMinute: "",
-    voiceCallChargePerMinute: "",
+    voiceCallPricePer15Min: "",
+    videoCallPricePer15Min: "",
     offlineVisitingFee: "",
+    officeVisitDurationMinutes: "",
   });
   const [pricingErrors, setPricingErrors] = useState({});
   const [pricingSaving, setPricingSaving] = useState(false);
@@ -764,22 +696,17 @@ export default function AdvocateMyProfile() {
     return rawChanges && typeof rawChanges === "object" ? rawChanges : {};
   }, [profileChange]);
 
-  const pendingVoiceFee = requestedChanges.voiceCallChargePerMinute;
-  const pendingVideoFee = requestedChanges.videoCallChargePerMinute;
+  const pendingVoiceFee = requestedChanges.voiceCallPricePer15Min;
+  const pendingVideoFee = requestedChanges.videoCallPricePer15Min;
   const pendingOfficeFee = requestedChanges.offlineVisitingFee;
+  const pendingOfficeDuration = requestedChanges.officeVisitDurationMinutes;
 
   const hasPendingFeeChanges = useMemo(() => {
     return (
-      pendingKeys.includes("videoCallChargePerMinute") ||
-      pendingKeys.includes("videoCallFee") ||
-      pendingKeys.includes("videoCallPrice") ||
-      pendingKeys.includes("voiceCallChargePerMinute") ||
-      pendingKeys.includes("voiceCallFee") ||
-      pendingKeys.includes("voiceCallPrice") ||
+      pendingKeys.includes("videoCallPricePer15Min") ||
+      pendingKeys.includes("voiceCallPricePer15Min") ||
       pendingKeys.includes("offlineVisitingFee") ||
-      pendingKeys.includes("officeVisitFee") ||
-      pendingKeys.includes("officeVisitingFee") ||
-      pendingKeys.includes("officeVisitPrice")
+      pendingKeys.includes("officeVisitDurationMinutes")
     );
   }, [pendingKeys]);
 
@@ -1053,6 +980,15 @@ export default function AdvocateMyProfile() {
   const isProfileChangeSubmitted =
     isApprovedAdvocate && profileChange?.status === "SUBMITTED";
 
+  const isVoicePending =
+    isProfileChangeSubmitted && pendingKeys.includes("voiceCallPricePer15Min");
+  const isVideoPending =
+    isProfileChangeSubmitted && pendingKeys.includes("videoCallPricePer15Min");
+  const isOfficePending =
+    isProfileChangeSubmitted &&
+    (pendingKeys.includes("offlineVisitingFee") ||
+      pendingKeys.includes("officeVisitDurationMinutes"));
+
   const handleStartInlinePricingEdit = () => {
     setPricingApiError("");
     setPricingErrors({});
@@ -1060,21 +996,21 @@ export default function AdvocateMyProfile() {
     const sourceChanges = requestedChanges;
 
     setPricingForm({
-      voiceCallChargePerMinute:
-        sourceChanges.voiceCallChargePerMinute !== undefined &&
-        sourceChanges.voiceCallChargePerMinute !== null
-          ? String(sourceChanges.voiceCallChargePerMinute)
-          : advocate?.voiceCallChargePerMinute !== undefined &&
-            advocate?.voiceCallChargePerMinute !== null
-            ? String(advocate.voiceCallChargePerMinute)
+      voiceCallPricePer15Min:
+        sourceChanges.voiceCallPricePer15Min !== undefined &&
+        sourceChanges.voiceCallPricePer15Min !== null
+          ? String(sourceChanges.voiceCallPricePer15Min)
+          : advocate?.voiceCallPricePer15Min !== undefined &&
+            advocate?.voiceCallPricePer15Min !== null
+            ? String(advocate.voiceCallPricePer15Min)
             : "",
-      videoCallChargePerMinute:
-        sourceChanges.videoCallChargePerMinute !== undefined &&
-        sourceChanges.videoCallChargePerMinute !== null
-          ? String(sourceChanges.videoCallChargePerMinute)
-          : advocate?.videoCallChargePerMinute !== undefined &&
-            advocate?.videoCallChargePerMinute !== null
-            ? String(advocate.videoCallChargePerMinute)
+      videoCallPricePer15Min:
+        sourceChanges.videoCallPricePer15Min !== undefined &&
+        sourceChanges.videoCallPricePer15Min !== null
+          ? String(sourceChanges.videoCallPricePer15Min)
+          : advocate?.videoCallPricePer15Min !== undefined &&
+            advocate?.videoCallPricePer15Min !== null
+            ? String(advocate.videoCallPricePer15Min)
             : "",
       offlineVisitingFee:
         sourceChanges.offlineVisitingFee !== undefined &&
@@ -1084,28 +1020,41 @@ export default function AdvocateMyProfile() {
             advocate?.offlineVisitingFee !== null
             ? String(advocate.offlineVisitingFee)
             : "",
+      officeVisitDurationMinutes:
+        sourceChanges.officeVisitDurationMinutes !== undefined &&
+        sourceChanges.officeVisitDurationMinutes !== null
+          ? String(sourceChanges.officeVisitDurationMinutes)
+          : advocate?.officeVisitDurationMinutes !== undefined &&
+            advocate?.officeVisitDurationMinutes !== null
+            ? String(advocate.officeVisitDurationMinutes)
+            : "",
     });
 
     setIsPricingInlineEditing(true);
   };
 
-  const handleWithdrawPricingRequest = async () => {
+  const handleCancelPricingRequest = async () => {
     if (pricingWithdrawing) return;
+    const confirmed = window.confirm(
+      "Cancel this request? Your submitted changes will be withdrawn.",
+    );
+    if (!confirmed) return;
+
     setPricingWithdrawing(true);
     setPricingApiError("");
 
     try {
       const res = await advocateProfileApi.withdrawProfileChange();
       if (!res?.success) {
-        throw new Error(res?.message || "Failed to withdraw change request.");
+        throw new Error(res?.message || "Failed to cancel change request.");
       }
 
       await fetchProfile({ silent: true });
       setIsPricingInlineEditing(false);
     } catch (err) {
-      console.error("Withdraw pricing error:", err);
+      console.error("Cancel pricing request error:", err);
       setPricingApiError(
-        err?.data?.message || err?.message || "Failed to withdraw request.",
+        err?.data?.message || err?.message || "Failed to cancel request.",
       );
     } finally {
       setPricingWithdrawing(false);
@@ -1124,33 +1073,39 @@ export default function AdvocateMyProfile() {
     }
 
     const nextErrors = {};
-    const vCall = Number(pricingForm.videoCallChargePerMinute);
-    const vVoice = Number(pricingForm.voiceCallChargePerMinute);
-    const vOffice = Number(pricingForm.offlineVisitingFee);
+    const rawVoice = pricingForm.voiceCallPricePer15Min.trim();
+    const rawVideo = pricingForm.videoCallPricePer15Min.trim();
+    const rawOffice = pricingForm.offlineVisitingFee.trim();
+    const rawDuration = pricingForm.officeVisitDurationMinutes.trim();
 
-    if (
-      pricingForm.voiceCallChargePerMinute === "" ||
-      !Number.isFinite(vVoice) ||
-      vVoice < 0
-    ) {
-      nextErrors.voiceCallChargePerMinute =
-        "Voice call charge must be 0 or greater.";
+    if (rawVoice !== "") {
+      const vVoice = Number(rawVoice);
+      if (!Number.isFinite(vVoice) || vVoice < 0) {
+        nextErrors.voiceCallPricePer15Min = "Voice call price must be 0 or greater.";
+      }
     }
-    if (
-      pricingForm.videoCallChargePerMinute === "" ||
-      !Number.isFinite(vCall) ||
-      vCall < 0
-    ) {
-      nextErrors.videoCallChargePerMinute =
-        "Video call charge must be 0 or greater.";
+
+    if (rawVideo !== "") {
+      const vVideo = Number(rawVideo);
+      if (!Number.isFinite(vVideo) || vVideo < 0) {
+        nextErrors.videoCallPricePer15Min = "Video call price must be 0 or greater.";
+      }
     }
-    if (
-      pricingForm.offlineVisitingFee === "" ||
-      !Number.isFinite(vOffice) ||
-      vOffice < 0
-    ) {
-      nextErrors.offlineVisitingFee =
-        "Office visiting fee must be 0 or greater.";
+
+    // Office visit duration and price go TOGETHER (both filled or both empty)
+    if (rawOffice !== "" && rawDuration === "") {
+      nextErrors.officeVisitDurationMinutes = "Office visit duration is required when price is set.";
+    } else if (rawDuration !== "" && rawOffice === "") {
+      nextErrors.offlineVisitingFee = "Office visit price is required when duration is set.";
+    } else if (rawOffice !== "" && rawDuration !== "") {
+      const vOffice = Number(rawOffice);
+      const vDuration = Number(rawDuration);
+      if (!Number.isFinite(vOffice) || vOffice < 0) {
+        nextErrors.offlineVisitingFee = "Office visit fee must be 0 or greater.";
+      }
+      if (!Number.isInteger(vDuration) || vDuration < 1 || vDuration > 1440) {
+        nextErrors.officeVisitDurationMinutes = "Duration must be a whole number between 1 and 1440 minutes.";
+      }
     }
 
     if (Object.keys(nextErrors).length > 0) {
@@ -1163,9 +1118,10 @@ export default function AdvocateMyProfile() {
 
     try {
       const payload = {
-        voiceCallChargePerMinute: vVoice,
-        videoCallChargePerMinute: vCall,
-        offlineVisitingFee: vOffice,
+        voiceCallPricePer15Min: rawVoice === "" ? null : Number(rawVoice),
+        videoCallPricePer15Min: rawVideo === "" ? null : Number(rawVideo),
+        offlineVisitingFee: rawOffice === "" ? null : Number(rawOffice),
+        officeVisitDurationMinutes: rawDuration === "" ? null : Number(rawDuration),
       };
 
       // 1. Save via PATCH /api/advocate/profile
@@ -1469,69 +1425,61 @@ export default function AdvocateMyProfile() {
     </motion.div>
   )}
 
-          {isAdminApproved && advocate?.profileChange?.status && (
-            <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border p-4 ${
-                advocate.profileChange.status === "SUBMITTED"
-                  ? "border-blue-200 bg-blue-50 text-blue-950"
-                  : advocate.profileChange.status === "REJECTED"
-                    ? "border-rose-200 bg-rose-50 text-rose-950"
-                    : "border-amber-200 bg-amber-50 text-amber-950"
-              }`}
-            >
-              <div className="flex items-start gap-3">
-                <div
-                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
-                    advocate.profileChange.status === "SUBMITTED"
-                      ? "bg-blue-100 text-blue-700"
-                      : advocate.profileChange.status === "REJECTED"
-                        ? "bg-rose-100 text-rose-700"
-                        : "bg-amber-100 text-amber-700"
-                  }`}
-                >
-                  <Clock3 size={18} />
+          {isAdminApproved &&
+            advocate?.profileChange?.status &&
+            advocate.profileChange.status !== "APPROVED" && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border p-4 ${
+                  advocate.profileChange.status === "SUBMITTED"
+                    ? "border-blue-200 bg-blue-50 text-blue-950"
+                    : advocate.profileChange.status === "REJECTED"
+                      ? "border-rose-200 bg-rose-50 text-rose-950"
+                      : "border-amber-200 bg-amber-50 text-amber-950"
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                      advocate.profileChange.status === "SUBMITTED"
+                        ? "bg-blue-100 text-blue-700"
+                        : advocate.profileChange.status === "REJECTED"
+                          ? "bg-rose-100 text-rose-700"
+                          : "bg-amber-100 text-amber-700"
+                    }`}
+                  >
+                    <Clock3 size={18} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-extrabold">
+                      {advocate.profileChange.status === "SUBMITTED"
+                        ? "Profile changes pending admin approval"
+                        : advocate.profileChange.status === "REJECTED"
+                          ? `Profile changes rejected: ${advocate.profileChange.rejectionReason || "Action required"}`
+                          : "You have unsubmitted profile changes in draft"}
+                    </p>
+                    <p className="mt-0.5 text-xs opacity-85">
+                      {advocate.profileChange.status === "SUBMITTED"
+                        ? "Your current live profile remains active on public listings until approved."
+                        : advocate.profileChange.status === "REJECTED"
+                          ? "Please review the rejection reason, make corrections, and resubmit."
+                          : "Review and submit your staged changes for administrator approval."}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-extrabold">
-                    {advocate.profileChange.status === "SUBMITTED"
-                      ? "Profile changes pending admin approval"
-                      : advocate.profileChange.status === "REJECTED"
-                        ? `Profile changes rejected: ${advocate.profileChange.rejectionReason || "Action required"}`
-                        : "You have unsubmitted profile changes in draft"}
-                  </p>
-                  <p className="mt-0.5 text-xs opacity-85">
-                    {advocate.profileChange.status === "SUBMITTED"
-                      ? "Your current live profile remains active on public listings until approved."
-                      : advocate.profileChange.status === "REJECTED"
-                        ? "Please review the rejection reason, make corrections, and resubmit."
-                        : "Review and submit your staged changes for administrator approval."}
-                  </p>
+                <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => navigate("/advocate/profile/edit")}
+                    className="inline-flex min-h-[36px] items-center gap-1.5 rounded-xl bg-slate-900 px-3.5 text-xs font-bold text-white hover:bg-slate-800 transition shrink-0"
+                  >
+                    <Edit3 size={14} />
+                    Review Changes
+                  </button>
                 </div>
-              </div>
-              <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
-                <SubmittedItemsDropdown
-                  items={getSubmittedItems(advocate?.profileChange)}
-                  statusTag={
-                    advocate?.profileChange?.status === "SUBMITTED"
-                      ? "Pending"
-                      : advocate?.profileChange?.status === "REJECTED"
-                        ? "Rejected"
-                        : "Draft"
-                  }
-                />
-                <button
-                  type="button"
-                  onClick={() => navigate("/advocate/profile/edit")}
-                  className="inline-flex min-h-[36px] items-center gap-1.5 rounded-xl bg-slate-900 px-3.5 text-xs font-bold text-white hover:bg-slate-800 transition shrink-0"
-                >
-                  <Edit3 size={14} />
-                  Review Changes
-                </button>
-              </div>
-            </motion.div>
-          )}
+              </motion.div>
+            )}
 
           {/* =====================================================
             STATS
@@ -1960,22 +1908,6 @@ export default function AdvocateMyProfile() {
                       size={20}
                     />
                   </div>
-
-                  {isProfileChangeSubmitted && hasPendingFeeChanges ? (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/30 bg-amber-500/15 px-2.5 py-1 text-[11px] font-bold text-amber-300">
-                      <Clock3 size={12} />
-                      Pending Approval
-                    </span>
-                  ) : !isPricingInlineEditing ? (
-                    <button
-                      type="button"
-                      onClick={handleStartInlinePricingEdit}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-white/20 active:scale-95"
-                    >
-                      <Edit3 size={13} />
-                      Edit
-                    </button>
-                  ) : null}
                 </div>
 
                 <h2 className="mt-5 text-lg font-extrabold text-white">
@@ -2003,7 +1935,12 @@ export default function AdvocateMyProfile() {
                   <>
                     <div className="mt-6 space-y-3">
                       {/* Voice Call */}
-                      <div className="rounded-2xl border border-white/[0.07] bg-white/[0.05] p-3.5">
+                      <div className="relative rounded-2xl border border-white/[0.07] bg-white/[0.05] p-3.5">
+                        {isVoicePending && (
+                          <span className="absolute -top-2.5 right-3 inline-flex items-center rounded-full border border-amber-400/60 bg-slate-900 px-2 py-0.5 text-[10px] font-bold tracking-wide text-amber-300 shadow-xs">
+                            Pending
+                          </span>
+                        )}
                         <div className="flex items-center justify-between gap-3">
                           <div className="flex items-center gap-2.5">
                             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.06] text-amber-400">
@@ -2016,16 +1953,21 @@ export default function AdvocateMyProfile() {
                             <input
                               type="text"
                               disabled
-                              value={pendingVoiceFee ?? advocate?.voiceCallChargePerMinute ?? ""}
+                              value={pendingVoiceFee ?? advocate?.voiceCallPricePer15Min ?? ""}
                               className="w-16 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-center font-bold text-amber-300 opacity-90 cursor-not-allowed"
                             />
-                            <span className="text-xs font-normal text-slate-400">/ per minute</span>
+                            <span className="text-xs font-normal text-slate-400">/ 15 min</span>
                           </div>
                         </div>
                       </div>
 
                       {/* Video Call */}
-                      <div className="rounded-2xl border border-white/[0.07] bg-white/[0.05] p-3.5">
+                      <div className="relative rounded-2xl border border-white/[0.07] bg-white/[0.05] p-3.5">
+                        {isVideoPending && (
+                          <span className="absolute -top-2.5 right-3 inline-flex items-center rounded-full border border-amber-400/60 bg-slate-900 px-2 py-0.5 text-[10px] font-bold tracking-wide text-amber-300 shadow-xs">
+                            Pending
+                          </span>
+                        )}
                         <div className="flex items-center justify-between gap-3">
                           <div className="flex items-center gap-2.5">
                             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.06] text-amber-400">
@@ -2038,16 +1980,21 @@ export default function AdvocateMyProfile() {
                             <input
                               type="text"
                               disabled
-                              value={pendingVideoFee ?? advocate?.videoCallChargePerMinute ?? ""}
+                              value={pendingVideoFee ?? advocate?.videoCallPricePer15Min ?? ""}
                               className="w-16 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-center font-bold text-amber-300 opacity-90 cursor-not-allowed"
                             />
-                            <span className="text-xs font-normal text-slate-400">/ per minute</span>
+                            <span className="text-xs font-normal text-slate-400">/ 15 min</span>
                           </div>
                         </div>
                       </div>
 
                       {/* Office Visit */}
-                      <div className="rounded-2xl border border-white/[0.07] bg-white/[0.05] p-3.5">
+                      <div className="relative rounded-2xl border border-white/[0.07] bg-white/[0.05] p-3.5">
+                        {isOfficePending && (
+                          <span className="absolute -top-2.5 right-3 inline-flex items-center rounded-full border border-amber-400/60 bg-slate-900 px-2 py-0.5 text-[10px] font-bold tracking-wide text-amber-300 shadow-xs">
+                            Pending
+                          </span>
+                        )}
                         <div className="flex items-center justify-between gap-3">
                           <div className="flex items-center gap-2.5">
                             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.06] text-amber-400">
@@ -2063,7 +2010,9 @@ export default function AdvocateMyProfile() {
                               value={pendingOfficeFee ?? advocate?.offlineVisitingFee ?? ""}
                               className="w-16 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-center font-bold text-amber-300 opacity-90 cursor-not-allowed"
                             />
-                            <span className="text-xs font-normal text-slate-400">/ per session</span>
+                            <span className="text-xs font-normal text-slate-400">
+                              / {pendingOfficeDuration ?? advocate?.officeVisitDurationMinutes ?? 60} min
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -2076,14 +2025,14 @@ export default function AdvocateMyProfile() {
                     <button
                       type="button"
                       disabled={pricingWithdrawing}
-                      onClick={handleWithdrawPricingRequest}
-                      className="mt-6 min-h-[44px] w-full rounded-xl bg-amber-500 px-4 text-sm font-extrabold text-slate-950 transition hover:bg-amber-400 disabled:opacity-50"
+                      onClick={handleCancelPricingRequest}
+                      className="mt-6 min-h-[44px] w-full rounded-xl bg-rose-600 px-4 text-sm font-extrabold text-white transition hover:bg-rose-500 disabled:opacity-50"
                     >
-                      {pricingWithdrawing ? "Withdrawing..." : "Withdraw request"}
+                      {pricingWithdrawing ? "Cancelling..." : "Cancel request"}
                     </button>
                   </>
                 ) : isPricingInlineEditing ? (
-                  /* STATE 2: INLINE EDIT MODE (ONLY NUMBERS EDITABLE) */
+                  /* STATE 2: INLINE EDIT MODE (4 FIELDS) */
                   <>
                     <div className="mt-6 space-y-3">
                       {/* Voice Call */}
@@ -2101,21 +2050,21 @@ export default function AdvocateMyProfile() {
                               type="number"
                               min="0"
                               step="1"
-                              placeholder="21"
-                              value={pricingForm.voiceCallChargePerMinute}
+                              placeholder="Not offered"
+                              value={pricingForm.voiceCallPricePer15Min}
                               onChange={(e) => {
-                                setPricingForm((p) => ({ ...p, voiceCallChargePerMinute: e.target.value }));
-                                if (pricingErrors.voiceCallChargePerMinute) {
-                                  setPricingErrors((p) => ({ ...p, voiceCallChargePerMinute: "" }));
+                                setPricingForm((p) => ({ ...p, voiceCallPricePer15Min: e.target.value }));
+                                if (pricingErrors.voiceCallPricePer15Min) {
+                                  setPricingErrors((p) => ({ ...p, voiceCallPricePer15Min: "" }));
                                 }
                               }}
-                              className="w-20 rounded-lg border border-amber-400/40 bg-slate-900 px-2.5 py-1 text-center font-bold text-white outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
+                              className="w-24 rounded-lg border border-amber-400/40 bg-slate-900 px-2.5 py-1 text-center font-bold text-white outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
                             />
-                            <span className="text-xs font-normal text-slate-400">/ per minute</span>
+                            <span className="text-xs font-normal text-slate-400">/ 15 min</span>
                           </div>
                         </div>
-                        {pricingErrors.voiceCallChargePerMinute && (
-                          <p className="mt-1.5 text-right text-[11px] text-red-400">{pricingErrors.voiceCallChargePerMinute}</p>
+                        {pricingErrors.voiceCallPricePer15Min && (
+                          <p className="mt-1.5 text-right text-[11px] text-red-400">{pricingErrors.voiceCallPricePer15Min}</p>
                         )}
                       </div>
 
@@ -2134,32 +2083,32 @@ export default function AdvocateMyProfile() {
                               type="number"
                               min="0"
                               step="1"
-                              placeholder="0"
-                              value={pricingForm.videoCallChargePerMinute}
+                              placeholder="Not offered"
+                              value={pricingForm.videoCallPricePer15Min}
                               onChange={(e) => {
-                                setPricingForm((p) => ({ ...p, videoCallChargePerMinute: e.target.value }));
-                                if (pricingErrors.videoCallChargePerMinute) {
-                                  setPricingErrors((p) => ({ ...p, videoCallChargePerMinute: "" }));
+                                setPricingForm((p) => ({ ...p, videoCallPricePer15Min: e.target.value }));
+                                if (pricingErrors.videoCallPricePer15Min) {
+                                  setPricingErrors((p) => ({ ...p, videoCallPricePer15Min: "" }));
                                 }
                               }}
-                              className="w-20 rounded-lg border border-amber-400/40 bg-slate-900 px-2.5 py-1 text-center font-bold text-white outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
+                              className="w-24 rounded-lg border border-amber-400/40 bg-slate-900 px-2.5 py-1 text-center font-bold text-white outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
                             />
-                            <span className="text-xs font-normal text-slate-400">/ per minute</span>
+                            <span className="text-xs font-normal text-slate-400">/ 15 min</span>
                           </div>
                         </div>
-                        {pricingErrors.videoCallChargePerMinute && (
-                          <p className="mt-1.5 text-right text-[11px] text-red-400">{pricingErrors.videoCallChargePerMinute}</p>
+                        {pricingErrors.videoCallPricePer15Min && (
+                          <p className="mt-1.5 text-right text-[11px] text-red-400">{pricingErrors.videoCallPricePer15Min}</p>
                         )}
                       </div>
 
-                      {/* Office Visit */}
+                      {/* Office Visit Fee */}
                       <div className="rounded-2xl border border-white/15 bg-white/[0.07] p-3.5">
                         <div className="flex items-center justify-between gap-3">
                           <div className="flex items-center gap-2.5">
                             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400">
                               <CalendarDays size={15} />
                             </div>
-                            <label className="text-xs font-semibold text-slate-200">Office Visit:</label>
+                            <label className="text-xs font-semibold text-slate-200">Office Visit Fee:</label>
                           </div>
                           <div className="flex items-center gap-1.5 text-sm font-extrabold text-white">
                             <span className="text-amber-400 font-bold">₹</span>
@@ -2175,13 +2124,46 @@ export default function AdvocateMyProfile() {
                                   setPricingErrors((p) => ({ ...p, offlineVisitingFee: "" }));
                                 }
                               }}
-                              className="w-20 rounded-lg border border-amber-400/40 bg-slate-900 px-2.5 py-1 text-center font-bold text-white outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
+                              className="w-24 rounded-lg border border-amber-400/40 bg-slate-900 px-2.5 py-1 text-center font-bold text-white outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
                             />
-                            <span className="text-xs font-normal text-slate-400">/ per session</span>
+                            <span className="text-xs font-normal text-slate-400">total</span>
                           </div>
                         </div>
                         {pricingErrors.offlineVisitingFee && (
                           <p className="mt-1.5 text-right text-[11px] text-red-400">{pricingErrors.offlineVisitingFee}</p>
+                        )}
+                      </div>
+
+                      {/* Office Visit Duration */}
+                      <div className="rounded-2xl border border-white/15 bg-white/[0.07] p-3.5">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400">
+                              <Clock3 size={15} />
+                            </div>
+                            <label className="text-xs font-semibold text-slate-200">Office Duration:</label>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-sm font-extrabold text-white">
+                            <input
+                              type="number"
+                              min="1"
+                              max="1440"
+                              step="1"
+                              placeholder="60"
+                              value={pricingForm.officeVisitDurationMinutes}
+                              onChange={(e) => {
+                                setPricingForm((p) => ({ ...p, officeVisitDurationMinutes: e.target.value }));
+                                if (pricingErrors.officeVisitDurationMinutes) {
+                                  setPricingErrors((p) => ({ ...p, officeVisitDurationMinutes: "" }));
+                                }
+                              }}
+                              className="w-20 rounded-lg border border-amber-400/40 bg-slate-900 px-2.5 py-1 text-center font-bold text-white outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
+                            />
+                            <span className="text-xs font-normal text-slate-400">minutes</span>
+                          </div>
+                        </div>
+                        {pricingErrors.officeVisitDurationMinutes && (
+                          <p className="mt-1.5 text-right text-[11px] text-red-400">{pricingErrors.officeVisitDurationMinutes}</p>
                         )}
                       </div>
                     </div>
@@ -2214,32 +2196,52 @@ export default function AdvocateMyProfile() {
                     </div>
                   </>
                 ) : (
-                  /* STATE 3: NORMAL READ-ONLY VIEW */
+                  /* STATE 3: NORMAL READ-ONLY VIEW (RENDER FROM pricing OBJECT, HIDE NULL MODES) */
                   <>
                     <div className="mt-6 space-y-3">
-                      <PricingItem
-                        Icon={Phone}
-                        label="Voice Call"
-                        value={`${formatMoney(
-                          advocate?.voiceCallChargePerMinute,
-                        )} / min`}
-                      />
+                      {advocate?.pricing?.voiceCall?.price != null && (
+                        <PricingItem
+                          Icon={Phone}
+                          label="Voice Call"
+                          value={
+                            advocate.pricing.voiceCall.label ||
+                            `₹${Number(advocate.pricing.voiceCall.price).toLocaleString("en-IN")} / 15 min`
+                          }
+                        />
+                      )}
 
-                      <PricingItem
-                        Icon={Video}
-                        label="Video Call"
-                        value={`${formatMoney(
-                          advocate?.videoCallChargePerMinute,
-                        )} / min`}
-                      />
+                      {advocate?.pricing?.videoCall?.price != null && (
+                        <PricingItem
+                          Icon={Video}
+                          label="Video Call"
+                          value={
+                            advocate.pricing.videoCall.label ||
+                            `₹${Number(advocate.pricing.videoCall.price).toLocaleString("en-IN")} / 15 min`
+                          }
+                        />
+                      )}
 
-                      <PricingItem
-                        Icon={CalendarDays}
-                        label="Office Visit"
-                        value={`${formatMoney(
-                          advocate?.offlineVisitingFee,
-                        )} / session`}
-                      />
+                      {advocate?.pricing?.officeVisit?.price != null && (
+                        <PricingItem
+                          Icon={CalendarDays}
+                          label="Office Visit"
+                          value={
+                            advocate.pricing.officeVisit.label ||
+                            `₹${Number(advocate.pricing.officeVisit.price).toLocaleString("en-IN")} / ${
+                              advocate.pricing.officeVisit.durationMinutes || advocate.officeVisitDurationMinutes || 60
+                            } min`
+                          }
+                        />
+                      )}
+
+                      {/* If no pricing modes are configured */}
+                      {!advocate?.pricing?.voiceCall?.price &&
+                        !advocate?.pricing?.videoCall?.price &&
+                        !advocate?.pricing?.officeVisit?.price && (
+                          <p className="text-xs text-slate-400 py-2">
+                            No consultation pricing currently active. Click &quot;Edit charges&quot; to set your rates.
+                          </p>
+                        )}
                     </div>
 
                     <p className="mt-4 text-[11px] leading-5 text-slate-400">

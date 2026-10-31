@@ -47,15 +47,6 @@ const AdvocateCard = ({ advocate, onViewAdvocate }) => {
   const state = advocate?.state;
   const city = advocate?.city;
 
-  const videoCallChargePerMinute =
-    advocate?.videoCallChargePerMinute;
-
-  const voiceCallChargePerMinute =
-    advocate?.voiceCallChargePerMinute;
-
-  const offlineVisitingFee =
-    advocate?.offlineVisitingFee;
-
   const averageRating = advocate?.averageRating;
   const totalReviews = advocate?.totalReviews;
 
@@ -103,40 +94,41 @@ const AdvocateCard = ({ advocate, onViewAdvocate }) => {
 
   /*
    * ============================================================
-   * FEE
+   * PRICING
    * ============================================================
    */
 
-  const feeValue = useMemo(() => {
-    return (
-      videoCallChargePerMinute ??
-      voiceCallChargePerMinute ??
-      offlineVisitingFee ??
-      null
-    );
-  }, [
-    videoCallChargePerMinute,
-    voiceCallChargePerMinute,
-    offlineVisitingFee,
-  ]);
-
-  const formattedFee = useMemo(() => {
-    if (
-      feeValue === null ||
-      feeValue === undefined ||
-      feeValue === ""
-    ) {
-      return null;
+  const primaryPricing = useMemo(() => {
+    const p = advocate?.pricing;
+    if (p) {
+      if (p.voiceCall?.price != null) return p.voiceCall;
+      if (p.videoCall?.price != null) return p.videoCall;
+      if (p.officeVisit?.price != null) return p.officeVisit;
     }
-
-    const numericFee = Number(feeValue);
-
-    if (!Number.isFinite(numericFee)) {
-      return null;
+    if (advocate?.voiceCallPricePer15Min != null) {
+      return {
+        price: advocate.voiceCallPricePer15Min,
+        durationMinutes: 15,
+        label: `₹${advocate.voiceCallPricePer15Min} / 15 min`,
+      };
     }
-
-    return numericFee.toLocaleString("en-IN");
-  }, [feeValue]);
+    if (advocate?.videoCallPricePer15Min != null) {
+      return {
+        price: advocate.videoCallPricePer15Min,
+        durationMinutes: 15,
+        label: `₹${advocate.videoCallPricePer15Min} / 15 min`,
+      };
+    }
+    if (advocate?.offlineVisitingFee != null) {
+      const dur = advocate.officeVisitDurationMinutes || 60;
+      return {
+        price: advocate.offlineVisitingFee,
+        durationMinutes: dur,
+        label: `₹${advocate.offlineVisitingFee} / ${dur} min`,
+      };
+    }
+    return null;
+  }, [advocate]);
 
   /*
    * ============================================================
@@ -643,14 +635,14 @@ const AdvocateCard = ({ advocate, onViewAdvocate }) => {
                   text-slate-900
                 "
               >
-                {formattedFee
-                  ? `₹${formattedFee}`
+                {primaryPricing
+                  ? `₹${Number(primaryPricing.price).toLocaleString("en-IN")}`
                   : "Contact"}
               </span>
 
-              {formattedFee && (
+              {primaryPricing && (
                 <span className="ml-1.5 whitespace-nowrap text-[14px] text-slate-500">
-                  / Min
+                  / {primaryPricing.durationMinutes} min
                 </span>
               )}
             </div>

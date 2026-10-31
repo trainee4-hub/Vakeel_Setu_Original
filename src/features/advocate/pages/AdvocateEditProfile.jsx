@@ -74,9 +74,10 @@ const EMPTY_FORM = {
   officeLatitude: null,
   officeLongitude: null,
 
-  videoCallChargePerMinute: "",
-  voiceCallChargePerMinute: "",
+  videoCallPricePer15Min: "",
+  voiceCallPricePer15Min: "",
   offlineVisitingFee: "",
+  officeVisitDurationMinutes: "",
 };
 
 /* =========================================================================
@@ -196,9 +197,7 @@ const addNumberPatch = (payload, key, currentValue, initialValue) => {
     return;
   }
 
-  if (current !== null) {
-    payload[key] = current;
-  }
+  payload[key] = current;
 };
 
 /* =========================================================================
@@ -309,7 +308,7 @@ function SubmittedItemsDropdown({ items, statusTag = "Pending" }) {
                   </span>
                 </div>
                 <span className="inline-flex items-center rounded border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-800 shrink-0">
-                  [{statusTag}]
+                  {statusTag}
                 </span>
               </div>
             ))}
@@ -382,18 +381,10 @@ const FIELD_META = {
   biography: { label: "About", icon: "⚖️" },
   aboutYou: { label: "About", icon: "⚖️" },
 
-  videoCallChargePerMinute: { label: "Video call price", icon: "💰" },
-  videoCallFee: { label: "Video call price", icon: "💰" },
-  videoCallPrice: { label: "Video call price", icon: "💰" },
-
-  voiceCallChargePerMinute: { label: "Voice call price", icon: "💰" },
-  voiceCallFee: { label: "Voice call price", icon: "💰" },
-  voiceCallPrice: { label: "Voice call price", icon: "💰" },
-
+  videoCallPricePer15Min: { label: "Video call price (15 min)", icon: "💰" },
+  voiceCallPricePer15Min: { label: "Voice call price (15 min)", icon: "💰" },
   offlineVisitingFee: { label: "Office visit price", icon: "💰" },
-  officeVisitFee: { label: "Office visit price", icon: "💰" },
-  officeVisitingFee: { label: "Office visit price", icon: "💰" },
-  officeVisitPrice: { label: "Office visit price", icon: "💰" },
+  officeVisitDurationMinutes: { label: "Office visit duration", icon: "⏱️" },
 
   officeAddress: { label: "Office address", icon: "📍" },
   address: { label: "Office address", icon: "📍" },
@@ -492,121 +483,22 @@ const getSubmittedItems = (profileChange) => {
 function StatusBanner({
   profileChange,
   isApproved,
-  onRequestApproval,
-  onWithdraw,
-  onDiscard,
+  onCancelRequest,
   actionLoading,
-  onDismissApproved,
-  approvedDismissed,
 }) {
   if (!isApproved || !profileChange?.status) {
     return null;
   }
 
   const { status, rejectionReason } = profileChange;
+
+  // On approval, the entire top banner disappears
+  if (status === "APPROVED") {
+    return null;
+  }
+
   const submittedItems = getSubmittedItems(profileChange);
   const count = submittedItems.length;
-
-  if (status === "DRAFT") {
-    return (
-      <div
-        role="status"
-        className="rounded-2xl border border-amber-300 bg-gradient-to-r from-amber-50 via-amber-50/80 to-orange-50/70 p-4 sm:p-5 shadow-sm text-amber-950"
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-start gap-3.5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-800 mt-0.5">
-              <Clock className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-sm font-extrabold text-amber-950">
-                  You have changes awaiting approval ({count} {count === 1 ? "field" : "fields"}).
-                </span>
-                <span className="inline-flex items-center rounded-md bg-amber-200/90 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-950">
-                  DRAFT
-                </span>
-              </div>
-              <p className="mt-1 text-xs leading-5 text-amber-900">
-                Sensitive profile updates are staged as a draft. When ready, submit them for admin review, or discard to restore your live profile.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
-            <button
-              type="button"
-              disabled={actionLoading}
-              onClick={onDiscard}
-              className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-amber-300/80 bg-white/90 px-3.5 text-xs font-bold text-amber-900 shadow-xs hover:bg-white hover:text-amber-950 transition disabled:opacity-50"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              Discard changes
-            </button>
-            <button
-              type="button"
-              disabled={actionLoading}
-              onClick={onRequestApproval}
-              className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl bg-slate-950 px-4 text-xs font-extrabold text-white shadow-xs hover:bg-slate-800 transition disabled:opacity-50"
-            >
-              {actionLoading ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <Send className="w-3.5 h-3.5 text-amber-400" />
-              )}
-              Request for approval
-            </button>
-            <SubmittedItemsDropdown items={submittedItems} />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (status === "SUBMITTED") {
-    return (
-      <div
-        role="status"
-        className="rounded-2xl border border-blue-200 bg-gradient-to-r from-blue-50 via-sky-50/70 to-indigo-50/60 p-4 sm:p-5 shadow-sm text-blue-950"
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-start gap-3.5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/15 text-blue-700 mt-0.5">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-sm font-extrabold text-blue-950">
-                  Changes sent for admin approval.
-                </span>
-                <span className="inline-flex items-center rounded-md bg-blue-200/80 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-blue-900">
-                  UNDER REVIEW
-                </span>
-              </div>
-              <p className="mt-1 text-xs leading-5 text-blue-900">
-                Your current profile stays live until approved. Approval fields are read-only while under review. You can withdraw the request to make more changes.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
-            <button
-              type="button"
-              disabled={actionLoading}
-              onClick={onWithdraw}
-              className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-blue-300 bg-white px-4 text-xs font-bold text-blue-900 shadow-xs hover:bg-blue-50 hover:text-blue-950 transition disabled:opacity-50"
-            >
-              {actionLoading ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <RotateCcw className="w-3.5 h-3.5" />
-              )}
-              Withdraw request
-            </button>
-            <SubmittedItemsDropdown items={submittedItems} />
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (status === "REJECTED") {
     return (
@@ -629,32 +521,20 @@ function StatusBanner({
                 </span>
               </div>
               <p className="mt-1 text-xs leading-5 text-rose-900">
-                Your draft has been preserved. Correct the flagged fields below and submit again, or discard your draft.
+                Your draft has been preserved. Correct the flagged fields below and save to request approval again, or cancel this request.
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
+            <SubmittedItemsDropdown items={submittedItems} statusTag="Rejected" />
             <button
               type="button"
               disabled={actionLoading}
-              onClick={onDiscard}
+              onClick={onCancelRequest}
               className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-rose-300 bg-white px-3.5 text-xs font-bold text-rose-900 shadow-xs hover:bg-rose-50 transition disabled:opacity-50"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              Discard
-            </button>
-            <button
-              type="button"
-              disabled={actionLoading}
-              onClick={onRequestApproval}
-              className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl bg-slate-950 px-4 text-xs font-extrabold text-white shadow-xs hover:bg-slate-800 transition disabled:opacity-50"
-            >
-              {actionLoading ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <Send className="w-3.5 h-3.5 text-amber-400" />
-              )}
-              Submit again
+              Cancel request
             </button>
           </div>
         </div>
@@ -662,40 +542,50 @@ function StatusBanner({
     );
   }
 
-  if (status === "APPROVED" && !approvedDismissed) {
-    return (
-      <div
-        role="status"
-        className="rounded-2xl border border-emerald-300 bg-gradient-to-r from-emerald-50 via-emerald-50/80 to-teal-50/60 p-4 sm:p-5 shadow-sm text-emerald-950"
-      >
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-700">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-sm font-extrabold text-emerald-950">
-                Your changes are approved and live.
-              </p>
-              <p className="text-xs text-emerald-800">
-                All approved profile details and fees are now active on your public profile.
-              </p>
-            </div>
+  // Pending approval state (status === "SUBMITTED" or status === "DRAFT")
+  return (
+    <div
+      role="status"
+      className="rounded-2xl border border-blue-200 bg-gradient-to-r from-blue-50 via-sky-50/70 to-indigo-50/60 p-4 sm:p-5 shadow-sm text-blue-950"
+    >
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-start gap-3.5">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/15 text-blue-700 mt-0.5">
+            <ShieldCheck className="w-5 h-5" />
           </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm font-extrabold text-blue-950">
+                You have changes awaiting approval ({count} {count === 1 ? "field" : "fields"}).
+              </span>
+              <span className="inline-flex items-center rounded-md bg-blue-200/80 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-blue-900">
+                UNDER REVIEW
+              </span>
+            </div>
+            <p className="mt-1 text-xs leading-5 text-blue-900">
+              Your current profile stays live until approved. Approval fields are read-only while under review. You can cancel the request to make more changes.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
+          <SubmittedItemsDropdown items={submittedItems} statusTag="Pending" />
           <button
             type="button"
-            onClick={onDismissApproved}
-            className="text-emerald-700 hover:text-emerald-950 p-1.5 rounded-lg transition"
-            title="Dismiss message"
+            disabled={actionLoading}
+            onClick={onCancelRequest}
+            className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-red-300 bg-white px-4 text-xs font-bold text-red-700 shadow-xs hover:bg-red-50 hover:text-red-900 transition disabled:opacity-50"
           >
-            <X size={16} />
+            {actionLoading ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <RotateCcw className="w-3.5 h-3.5" />
+            )}
+            Cancel request
           </button>
         </div>
       </div>
-    );
-  }
-
-  return null;
+    </div>
+  );
 }
 
 /* =========================================================================
@@ -731,9 +621,6 @@ export default function AdvocateEditProfile() {
   const [pincodeLoading, setPincodeLoading] = useState(false);
   const [pincodeNotice, setPincodeNotice] = useState("");
 
-  // Discard confirm dialog
-  const [showDiscardModal, setShowDiscardModal] = useState(false);
-  const [approvedDismissed, setApprovedDismissed] = useState(false);
 
   /* =========================================================================
      APPROVAL RULES (SOURCE OF TRUTH FROM GET /api/advocate/profile)
@@ -753,9 +640,10 @@ export default function AdvocateEditProfile() {
     return [
       "experienceYears",
       "about",
-      "videoCallChargePerMinute",
-      "voiceCallChargePerMinute",
+      "voiceCallPricePer15Min",
+      "videoCallPricePer15Min",
       "offlineVisitingFee",
+      "officeVisitDurationMinutes",
       "officeAddress",
       "pincode",
       "city",
@@ -825,16 +713,16 @@ export default function AdvocateEditProfile() {
         keysList.includes("aboutYou")
       );
     }
-    if (fieldKey === "videoCallChargePerMinute") {
+    if (fieldKey === "videoCallPricePer15Min") {
       return (
-        keysList.includes("videoCallChargePerMinute") ||
+        keysList.includes("videoCallPricePer15Min") ||
         keysList.includes("videoCallFee") ||
         keysList.includes("videoCallPrice")
       );
     }
-    if (fieldKey === "voiceCallChargePerMinute") {
+    if (fieldKey === "voiceCallPricePer15Min") {
       return (
-        keysList.includes("voiceCallChargePerMinute") ||
+        keysList.includes("voiceCallPricePer15Min") ||
         keysList.includes("voiceCallFee") ||
         keysList.includes("voiceCallPrice")
       );
@@ -845,6 +733,13 @@ export default function AdvocateEditProfile() {
         keysList.includes("officeVisitFee") ||
         keysList.includes("officeVisitingFee") ||
         keysList.includes("officeVisitPrice")
+      );
+    }
+    if (fieldKey === "officeVisitDurationMinutes") {
+      return (
+        keysList.includes("officeVisitDurationMinutes") ||
+        keysList.includes("officeDuration") ||
+        keysList.includes("durationMinutes")
       );
     }
     if (fieldKey === "officeAddress") {
@@ -949,12 +844,14 @@ export default function AdvocateEditProfile() {
           return cleanText(form.experienceYears) !== cleanText(initialForm.experienceYears);
         case "about":
           return cleanText(form.about) !== cleanText(initialForm.about);
-        case "videoCallChargePerMinute":
-          return cleanText(form.videoCallChargePerMinute) !== cleanText(initialForm.videoCallChargePerMinute);
-        case "voiceCallChargePerMinute":
-          return cleanText(form.voiceCallChargePerMinute) !== cleanText(initialForm.voiceCallChargePerMinute);
+        case "videoCallPricePer15Min":
+          return cleanText(form.videoCallPricePer15Min) !== cleanText(initialForm.videoCallPricePer15Min);
+        case "voiceCallPricePer15Min":
+          return cleanText(form.voiceCallPricePer15Min) !== cleanText(initialForm.voiceCallPricePer15Min);
         case "offlineVisitingFee":
           return cleanText(form.offlineVisitingFee) !== cleanText(initialForm.offlineVisitingFee);
+        case "officeVisitDurationMinutes":
+          return cleanText(form.officeVisitDurationMinutes) !== cleanText(initialForm.officeVisitDurationMinutes);
         case "officeAddress":
           return cleanText(form.officeAddress) !== cleanText(initialForm.officeAddress);
         case "pincode":
@@ -999,9 +896,10 @@ export default function AdvocateEditProfile() {
     const approvalKeys = [
       "experienceYears",
       "about",
-      "videoCallChargePerMinute",
-      "voiceCallChargePerMinute",
+      "videoCallPricePer15Min",
+      "voiceCallPricePer15Min",
       "offlineVisitingFee",
+      "officeVisitDurationMinutes",
       "officeAddress",
       "pincode",
       "city",
@@ -1017,12 +915,14 @@ export default function AdvocateEditProfile() {
           return cleanText(form.experienceYears) !== cleanText(initialForm.experienceYears);
         case "about":
           return cleanText(form.about) !== cleanText(initialForm.about);
-        case "videoCallChargePerMinute":
-          return cleanText(form.videoCallChargePerMinute) !== cleanText(initialForm.videoCallChargePerMinute);
-        case "voiceCallChargePerMinute":
-          return cleanText(form.voiceCallChargePerMinute) !== cleanText(initialForm.voiceCallChargePerMinute);
+        case "videoCallPricePer15Min":
+          return cleanText(form.videoCallPricePer15Min) !== cleanText(initialForm.videoCallPricePer15Min);
+        case "voiceCallPricePer15Min":
+          return cleanText(form.voiceCallPricePer15Min) !== cleanText(initialForm.voiceCallPricePer15Min);
         case "offlineVisitingFee":
           return cleanText(form.offlineVisitingFee) !== cleanText(initialForm.offlineVisitingFee);
+        case "officeVisitDurationMinutes":
+          return cleanText(form.officeVisitDurationMinutes) !== cleanText(initialForm.officeVisitDurationMinutes);
         case "officeAddress":
           return cleanText(form.officeAddress) !== cleanText(initialForm.officeAddress);
         case "pincode":
@@ -1170,14 +1070,17 @@ export default function AdvocateEditProfile() {
                 ? Number(liveOffice.longitude)
                 : null,
 
-        videoCallChargePerMinute: safeNumberInput(
-          changes.videoCallChargePerMinute ?? data?.videoCallChargePerMinute,
+        videoCallPricePer15Min: safeNumberInput(
+          changes.videoCallPricePer15Min ?? data?.videoCallPricePer15Min,
         ),
-        voiceCallChargePerMinute: safeNumberInput(
-          changes.voiceCallChargePerMinute ?? data?.voiceCallChargePerMinute,
+        voiceCallPricePer15Min: safeNumberInput(
+          changes.voiceCallPricePer15Min ?? data?.voiceCallPricePer15Min,
         ),
         offlineVisitingFee: safeNumberInput(
           changes.offlineVisitingFee ?? data?.offlineVisitingFee,
+        ),
+        officeVisitDurationMinutes: safeNumberInput(
+          changes.officeVisitDurationMinutes ?? data?.officeVisitDurationMinutes,
         ),
       };
 
@@ -1354,19 +1257,38 @@ export default function AdvocateEditProfile() {
       nextErrors.pincode = "Pincode must be exactly 6 digits.";
     }
 
-    const chargeFields = [
-      ["videoCallChargePerMinute", "Video call charge"],
-      ["voiceCallChargePerMinute", "Voice call charge"],
-      ["offlineVisitingFee", "Office visiting fee"],
-    ];
-
-    chargeFields.forEach(([key, label]) => {
-      if (form[key] === "") return;
-      const value = Number(form[key]);
-      if (!Number.isFinite(value) || value < 0) {
-        nextErrors[key] = `${label} must be 0 or greater.`;
+    if (form.voiceCallPricePer15Min !== "") {
+      const v = Number(form.voiceCallPricePer15Min);
+      if (!Number.isFinite(v) || v < 0) {
+        nextErrors.voiceCallPricePer15Min = "Voice call price must be 0 or greater.";
       }
-    });
+    }
+
+    if (form.videoCallPricePer15Min !== "") {
+      const v = Number(form.videoCallPricePer15Min);
+      if (!Number.isFinite(v) || v < 0) {
+        nextErrors.videoCallPricePer15Min = "Video call price must be 0 or greater.";
+      }
+    }
+
+    // Office visit duration and price go TOGETHER (both filled or both empty)
+    const hasOfficeFee = form.offlineVisitingFee !== "" && form.offlineVisitingFee !== null;
+    const hasOfficeDuration = form.officeVisitDurationMinutes !== "" && form.officeVisitDurationMinutes !== null;
+
+    if (hasOfficeFee && !hasOfficeDuration) {
+      nextErrors.officeVisitDurationMinutes = "Office visit duration is required when price is set.";
+    } else if (hasOfficeDuration && !hasOfficeFee) {
+      nextErrors.offlineVisitingFee = "Office visit price is required when duration is set.";
+    } else if (hasOfficeFee && hasOfficeDuration) {
+      const fee = Number(form.offlineVisitingFee);
+      const dur = Number(form.officeVisitDurationMinutes);
+      if (!Number.isFinite(fee) || fee < 0) {
+        nextErrors.offlineVisitingFee = "Office visiting fee must be 0 or greater.";
+      }
+      if (!Number.isInteger(dur) || dur < 1 || dur > 1440) {
+        nextErrors.officeVisitDurationMinutes = "Duration must be a whole number between 1 and 1440 minutes.";
+      }
+    }
 
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -1382,9 +1304,10 @@ export default function AdvocateEditProfile() {
     /* --- NUMBERS --- */
     addNumberPatch(payload, "experienceYears", form.experienceYears, initialForm.experienceYears);
     addNumberPatch(payload, "casesHandled", form.casesHandled, initialForm.casesHandled);
-    addNumberPatch(payload, "videoCallChargePerMinute", form.videoCallChargePerMinute, initialForm.videoCallChargePerMinute);
-    addNumberPatch(payload, "voiceCallChargePerMinute", form.voiceCallChargePerMinute, initialForm.voiceCallChargePerMinute);
+    addNumberPatch(payload, "videoCallPricePer15Min", form.videoCallPricePer15Min, initialForm.videoCallPricePer15Min);
+    addNumberPatch(payload, "voiceCallPricePer15Min", form.voiceCallPricePer15Min, initialForm.voiceCallPricePer15Min);
     addNumberPatch(payload, "offlineVisitingFee", form.offlineVisitingFee, initialForm.offlineVisitingFee);
+    addNumberPatch(payload, "officeVisitDurationMinutes", form.officeVisitDurationMinutes, initialForm.officeVisitDurationMinutes);
 
     /* --- STRINGS --- */
     addStringPatch(payload, "bestPracticeArea", form.bestPracticeArea, initialForm.bestPracticeArea);
@@ -1500,18 +1423,24 @@ export default function AdvocateEditProfile() {
       setProfilePhotoFile(null);
       setOfficePhotoBlob(null);
 
-      // If any approval-gated field was changed and advocate is approved, request approval via existing flow
-      if (hasApprovalChanges && isApproved) {
-        try {
-          const submitRes = await advocateProfileApi.submitForApproval();
-          setSuccess(
+      // Save staged changes AND submit them for admin approval in ONE action -> status SUBMITTED
+      if (
+        isApproved &&
+        (hasApprovalChanges ||
+          response?.data?.profileChange?.status === "DRAFT" ||
+          response?.profileChange?.status === "DRAFT")
+      ) {
+        const submitRes = await advocateProfileApi.submitForApproval();
+        if (!submitRes?.success) {
+          throw new Error(
             submitRes?.message ||
-              "Profile changes saved and submitted for admin approval.",
+              "Failed to submit profile change request for admin approval.",
           );
-        } catch (approvalErr) {
-          console.error("Auto submit for approval error:", approvalErr);
-          setSuccess("Profile changes saved as draft. You can request approval from the banner.");
         }
+        setSuccess(
+          submitRes?.message ||
+            "Profile changes saved and submitted for admin approval.",
+        );
       } else {
         setSuccess(response?.message || "Profile changes saved successfully.");
       }
@@ -1526,6 +1455,14 @@ export default function AdvocateEditProfile() {
             "Your profile changes are currently submitted and under review. Please withdraw the request before making further edits to approval-gated fields.",
         );
       } else if (requestError?.status === 400) {
+        const backendErrors = requestError?.data?.errors || requestError?.errors;
+        if (Array.isArray(backendErrors) && backendErrors.length > 0) {
+          const fieldErrMap = {};
+          backendErrors.forEach((e) => {
+            if (e.field) fieldErrMap[e.field] = e.message;
+          });
+          setErrors((prev) => ({ ...prev, ...fieldErrMap }));
+        }
         setPageError(
           requestError?.data?.message ||
             requestError?.message ||
@@ -1543,95 +1480,34 @@ export default function AdvocateEditProfile() {
      APPROVAL WORKFLOW ACTIONS
   ========================================================================== */
 
-  const handleRequestApproval = async () => {
+  const handleCancelRequest = async () => {
     if (actionLoading) return;
+    const confirmed = window.confirm(
+      "Cancel this request? Your submitted changes will be withdrawn.",
+    );
+    if (!confirmed) return;
+
     setActionLoading(true);
     setPageError("");
     setSuccess("");
 
     try {
-      // If there are unsaved edits, save them first
-      if (dirty) {
-        if (!validate()) {
-          setActionLoading(false);
-          return;
+      if (profileChange?.status === "SUBMITTED") {
+        const res = await advocateProfileApi.withdrawProfileChange();
+        if (!res?.success) {
+          throw new Error(res?.message || "Failed to cancel change request.");
         }
-        const payload = buildDiffPayload();
-        const hasFiles = Boolean(profilePhotoFile) || Boolean(officePhotoBlob);
-        if (Object.keys(payload).length > 0 || hasFiles) {
-          if (hasFiles) {
-            const formData = new FormData();
-            Object.entries(payload).forEach(([k, v]) => {
-              if (Array.isArray(v)) formData.append(k, JSON.stringify(v));
-              else if (v !== null && v !== undefined) formData.append(k, String(v));
-            });
-            if (profilePhotoFile) formData.append("profilePhoto", profilePhotoFile);
-            if (officePhotoBlob) formData.append("officePhoto", officePhotoBlob, "office_photo.jpg");
-            await advocateProfileApi.updateProfile(formData);
-          } else {
-            await advocateProfileApi.updateProfile(payload);
-          }
-          setProfilePhotoFile(null);
-          setOfficePhotoBlob(null);
+      } else if (profileChange?.status === "DRAFT") {
+        const res = await advocateProfileApi.discardProfileChange();
+        if (!res?.success) {
+          throw new Error(res?.message || "Failed to cancel change request.");
         }
       }
-
-      const res = await advocateProfileApi.submitForApproval();
-      if (!res?.success) {
-        throw new Error(res?.message || "Failed to submit request for approval.");
-      }
-
-      setSuccess(res?.message || "Profile change request submitted for admin approval.");
+      setSuccess("Profile change request cancelled. You can now edit your profile.");
       await fetchProfile();
     } catch (err) {
-      console.error("Submit for approval error:", err);
-      setPageError(err?.data?.message || err?.message || "Failed to submit for approval.");
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleWithdraw = async () => {
-    if (actionLoading) return;
-    setActionLoading(true);
-    setPageError("");
-    setSuccess("");
-
-    try {
-      const res = await advocateProfileApi.withdrawProfileChange();
-      if (!res?.success) {
-        throw new Error(res?.message || "Failed to withdraw change request.");
-      }
-
-      setSuccess(res?.message || "Profile change request withdrawn. You can now edit your draft.");
-      await fetchProfile();
-    } catch (err) {
-      console.error("Withdraw change request error:", err);
-      setPageError(err?.data?.message || err?.message || "Failed to withdraw change request.");
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleConfirmDiscard = async () => {
-    setActionLoading(true);
-    setPageError("");
-    setSuccess("");
-
-    try {
-      const res = await advocateProfileApi.discardProfileChange();
-      if (!res?.success) {
-        throw new Error(res?.message || "Failed to discard draft changes.");
-      }
-
-      setSuccess(res?.message || "Profile change draft discarded successfully.");
-      setShowDiscardModal(false);
-      setProfilePhotoFile(null);
-      setOfficePhotoBlob(null);
-      await fetchProfile();
-    } catch (err) {
-      console.error("Discard change request error:", err);
-      setPageError(err?.data?.message || err?.message || "Failed to discard changes.");
+      console.error("Cancel change request error:", err);
+      setPageError(err?.data?.message || err?.message || "Failed to cancel change request.");
     } finally {
       setActionLoading(false);
     }
@@ -1751,12 +1627,8 @@ export default function AdvocateEditProfile() {
         <StatusBanner
           profileChange={profileChange}
           isApproved={isApproved}
-          onRequestApproval={handleRequestApproval}
-          onWithdraw={handleWithdraw}
-          onDiscard={() => setShowDiscardModal(true)}
+          onCancelRequest={handleCancelRequest}
           actionLoading={actionLoading}
-          onDismissApproved={() => setApprovedDismissed(true)}
-          approvedDismissed={approvedDismissed}
         />
 
         {/* FEEDBACK ALERTS */}
@@ -2083,45 +1955,50 @@ export default function AdvocateEditProfile() {
                 </span>
               </div>
 
-              <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-3">
+              <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 <Field
-                  label="Video Call (₹ / min)"
-                  isPending={isFieldPendingOrChanged("videoCallChargePerMinute")}
-                  isApproved={isFieldApproved("videoCallChargePerMinute")}
+                  label="Voice Call (₹ / 15 min)"
+                  hint="Empty = not offered"
+                  isPending={isFieldPendingOrChanged("voiceCallPricePer15Min")}
+                  isApproved={isFieldApproved("voiceCallPricePer15Min")}
                   pendingHint={
-                    requestedChanges.videoCallChargePerMinute !== undefined
-                      ? `Pending: ₹${requestedChanges.videoCallChargePerMinute}/min (Current: ₹${profile?.videoCallChargePerMinute || 0}/min)`
+                    requestedChanges.voiceCallPricePer15Min !== undefined
+                      ? `Pending: ₹${requestedChanges.voiceCallPricePer15Min} / 15 min (Current: ₹${profile?.voiceCallPricePer15Min || 0} / 15 min)`
                       : null
                   }
-                  error={errors.videoCallChargePerMinute}
+                  error={errors.voiceCallPricePer15Min}
                 >
                   <MoneyInput
-                    disabled={isSubmitted && isApprovalField("videoCallChargePerMinute") && isFieldPending("videoCallChargePerMinute")}
-                    value={form.videoCallChargePerMinute}
-                    onChange={(val) => handleChange("videoCallChargePerMinute", val)}
+                    disabled={isSubmitted && isApprovalField("voiceCallPricePer15Min") && isFieldPending("voiceCallPricePer15Min")}
+                    value={form.voiceCallPricePer15Min}
+                    onChange={(val) => handleChange("voiceCallPricePer15Min", val)}
+                    placeholder="Not offered"
                   />
                 </Field>
 
                 <Field
-                  label="Voice Call (₹ / min)"
-                  isPending={isFieldPendingOrChanged("voiceCallChargePerMinute")}
-                  isApproved={isFieldApproved("voiceCallChargePerMinute")}
+                  label="Video Call (₹ / 15 min)"
+                  hint="Empty = not offered"
+                  isPending={isFieldPendingOrChanged("videoCallPricePer15Min")}
+                  isApproved={isFieldApproved("videoCallPricePer15Min")}
                   pendingHint={
-                    requestedChanges.voiceCallChargePerMinute !== undefined
-                      ? `Pending: ₹${requestedChanges.voiceCallChargePerMinute}/min (Current: ₹${profile?.voiceCallChargePerMinute || 0}/min)`
+                    requestedChanges.videoCallPricePer15Min !== undefined
+                      ? `Pending: ₹${requestedChanges.videoCallPricePer15Min} / 15 min (Current: ₹${profile?.videoCallPricePer15Min || 0} / 15 min)`
                       : null
                   }
-                  error={errors.voiceCallChargePerMinute}
+                  error={errors.videoCallPricePer15Min}
                 >
                   <MoneyInput
-                    disabled={isSubmitted && isApprovalField("voiceCallChargePerMinute") && isFieldPending("voiceCallChargePerMinute")}
-                    value={form.voiceCallChargePerMinute}
-                    onChange={(val) => handleChange("voiceCallChargePerMinute", val)}
+                    disabled={isSubmitted && isApprovalField("videoCallPricePer15Min") && isFieldPending("videoCallPricePer15Min")}
+                    value={form.videoCallPricePer15Min}
+                    onChange={(val) => handleChange("videoCallPricePer15Min", val)}
+                    placeholder="Not offered"
                   />
                 </Field>
 
                 <Field
-                  label="Office Visit (₹ flat)"
+                  label="Office Visit Price (₹)"
+                  hint="Fixed fee for consultation"
                   isPending={isFieldPendingOrChanged("offlineVisitingFee")}
                   isApproved={isFieldApproved("offlineVisitingFee")}
                   pendingHint={
@@ -2135,6 +2012,32 @@ export default function AdvocateEditProfile() {
                     disabled={isSubmitted && isApprovalField("offlineVisitingFee") && isFieldPending("offlineVisitingFee")}
                     value={form.offlineVisitingFee}
                     onChange={(val) => handleChange("offlineVisitingFee", val)}
+                    placeholder="0"
+                  />
+                </Field>
+
+                <Field
+                  label="Office Visit Duration (min)"
+                  hint="1 to 1440 minutes"
+                  isPending={isFieldPendingOrChanged("officeVisitDurationMinutes")}
+                  isApproved={isFieldApproved("officeVisitDurationMinutes")}
+                  pendingHint={
+                    requestedChanges.officeVisitDurationMinutes !== undefined
+                      ? `Pending: ${requestedChanges.officeVisitDurationMinutes} min (Current: ${profile?.officeVisitDurationMinutes || 0} min)`
+                      : null
+                  }
+                  error={errors.officeVisitDurationMinutes}
+                >
+                  <input
+                    type="number"
+                    min="1"
+                    max="1440"
+                    step="1"
+                    disabled={isSubmitted && isApprovalField("officeVisitDurationMinutes") && isFieldPending("officeVisitDurationMinutes")}
+                    value={form.officeVisitDurationMinutes}
+                    onChange={(e) => handleChange("officeVisitDurationMinutes", e.target.value)}
+                    placeholder="60"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-800 transition focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                   />
                 </Field>
               </div>
@@ -2469,39 +2372,6 @@ export default function AdvocateEditProfile() {
       {/* =====================================================
           DISCARD MODAL
       ===================================================== */}
-      {showDiscardModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">
-              <AlertCircle size={24} />
-            </div>
-            <h3 className="mt-4 text-lg font-extrabold text-slate-950">
-              Discard all pending changes?
-            </h3>
-            <p className="mt-2 text-sm text-slate-600">
-              This will discard all unapproved edits made to your sensitive profile fields and revert to your currently live profile. Any temporary photos will be removed.
-            </p>
-            <div className="mt-6 flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setShowDiscardModal(false)}
-                className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
-              >
-                Keep Changes
-              </button>
-              <button
-                type="button"
-                disabled={actionLoading}
-                onClick={handleConfirmDiscard}
-                className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2 text-xs font-bold text-white hover:bg-rose-500 transition disabled:opacity-50"
-              >
-                {actionLoading ? <Loader2 size={14} className="animate-spin" /> : null}
-                Discard Changes
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* =====================================================
           LIVE CAMERA MODAL
