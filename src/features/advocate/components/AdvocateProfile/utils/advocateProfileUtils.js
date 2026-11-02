@@ -214,6 +214,11 @@ export function mapDetailAdvocate(a) {
   return {
     _id: a.id,
     id: a.id,
+    officeLatitude: a.officeLatitude ?? a.office?.latitude ?? null,
+    officeLongitude: a.officeLongitude ?? a.office?.longitude ?? null,
+    officeAddress: a.officeAddress ?? a.office?.address ?? null,
+    officePhotoUrl: a.officePhotoUrl ?? a.office?.photoUrl ?? null,
+    office: a.office ?? null,
     voiceCallPricePer15Min: a.voiceCallPricePer15Min ?? null,
     videoCallPricePer15Min: a.videoCallPricePer15Min ?? null,
     officeVisitDurationMinutes: a.officeVisitDurationMinutes ?? null,

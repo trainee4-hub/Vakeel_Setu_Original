@@ -1902,17 +1902,17 @@ export default function AdvocateMyProfile() {
 
             <aside className="space-y-5 xl:sticky xl:top-6 xl:col-span-4">
               <section className="rounded-[26px] bg-slate-950 p-5 text-white shadow-[0_16px_45px_rgba(15,23,42,0.16)] sm:p-6">
-                <div className="flex items-center justify-between">
+                <div className="flex items-cente gap-3">
                   <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-400">
                     <IndianRupee
                       size={20}
                     />
                   </div>
-                </div>
-
-                <h2 className="mt-5 text-lg font-extrabold text-white">
+                <h2 className=" flex items-center text-lg font-extrabold text-white">
                   Consultation Pricing
                 </h2>
+                </div>
+
 
                 <p className="mt-2 text-sm leading-6 text-slate-400">
                   {isProfileChangeSubmitted && hasPendingFeeChanges

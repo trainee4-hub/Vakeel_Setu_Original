@@ -1,10 +1,12 @@
 import {
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiRequest } from "@shared/services/apiClient";
 
 import { useAuth } from "../../auth";
 import {
@@ -120,125 +122,153 @@ const getTagOptions = (value) => {
 /* -------------------------------------------------------------------------
    TAG INPUT
 
-   Tags and input stay inside the same bordered container.
-   No separate Add button.
+   Dropdown with Add Custom tags.
 ------------------------------------------------------------------------- */
 
-function TagInput({
+const DEFAULT_PRACTICE_AREAS = [
+  "Criminal Law",
+  "Civil Law",
+  "Family Law",
+  "Constitutional Law",
+  "Corporate Law",
+  "Taxation Law",
+  "Property / Real Estate",
+  "Labor & Employment",
+  "Cyber Law",
+  "Intellectual Property (IPR)",
+  "Banking & Finance",
+  "Consumer Protection",
+  "Environmental Law",
+  "Immigration Law",
+  "Arbitration & Dispute Resolution",
+  "Education Law",
+];
+
+const DEFAULT_COURTS = [
+  "Supreme Court of India",
+  "Delhi High Court",
+  "Bombay High Court",
+  "Calcutta High Court",
+  "Madras High Court",
+  "Allahabad High Court",
+  "Punjab & Haryana High Court",
+  "Karnataka High Court",
+  "District & Sessions Court",
+  "Family Court",
+  "Consumer Disputes Redressal Commission",
+  "National Company Law Tribunal (NCLT)",
+  "Debt Recovery Tribunal (DRT)",
+  "Central Administrative Tribunal (CAT)",
+  "Labour Court / Industrial Tribunal",
+];
+
+function DropdownTagSelect({
   value = [],
   onChange,
-  placeholder,
+  options = [],
+  placeholder = "Select an option...",
+  customPlaceholder = "Add custom...",
   error,
 }) {
-  const [draft, setDraft] = useState("");
+  const [customDraft, setCustomDraft] = useState("");
 
-  const tags = Array.isArray(value)
-    ? value
-    : getTagOptions(value);
+  const tags = Array.isArray(value) ? value : getTagOptions(value);
 
-  const add = () => {
-    const entry = draft.trim();
-
-    if (!entry) {
-      return;
+  const add = (entry) => {
+    const trimmed = entry.trim();
+    if (!trimmed) return;
+    const exists = tags.some((item) => sameTag(item, trimmed));
+    if (!exists) {
+      onChange([...tags, trimmed]);
     }
-
-    const alreadyExists = tags.some(
-      (item) =>
-        sameTag(item, entry),
-    );
-
-    if (!alreadyExists) {
-      onChange([
-        ...tags,
-        entry,
-      ]);
-    }
-
-    setDraft("");
   };
 
   const remove = (entry) => {
-    onChange(
-      tags.filter(
-        (item) =>
-          !sameTag(
-            item,
-            entry,
-          ),
-      ),
-    );
+    onChange(tags.filter((item) => !sameTag(item, entry)));
   };
 
-  return (
-    <div
-      className={[
-        "flex min-h-[52px] w-full flex-wrap items-center gap-2",
-        "rounded-xl border bg-white px-3 py-2",
-        "transition-all duration-200",
-        "focus-within:outline-none focus-within:ring-2",
-        error
-          ? "border-red-300 focus-within:border-red-400 focus-within:ring-red-500/10"
-          : "border-slate-200 focus-within:border-amber-500 focus-within:ring-amber-500/10",
-      ].join(" ")}
-    >
-      {tags.map((entry) => (
-        <span
-          key={entry}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-700"
-        >
-          {entry}
+  const handleAddCustom = () => {
+    if (!customDraft.trim()) return;
+    add(customDraft);
+    setCustomDraft("");
+  };
 
+  const availableOptions = options.filter(
+    (opt) => !tags.some((tag) => sameTag(tag, opt)),
+  );
+
+  return (
+    <div className="space-y-2.5">
+      {/* Selected Chips */}
+      {tags.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-100 bg-slate-50/70 p-2.5">
+          {tags.map((entry) => (
+            <span
+              key={entry}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-800 shadow-2xs"
+            >
+              <span>{entry}</span>
+              <button
+                type="button"
+                aria-label={`Remove ${entry}`}
+                onClick={() => remove(entry)}
+                className="flex items-center justify-center text-amber-600 transition-colors hover:text-amber-900 cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[15px]">close</span>
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Dropdown + Add Custom Row */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+        <div className="relative flex-1">
+          <select
+            value=""
+            onChange={(e) => {
+              if (e.target.value) {
+                add(e.target.value);
+              }
+            }}
+            className={`${inputClass(Boolean(error))} appearance-none pr-10`}
+          >
+            <option value="">{placeholder}</option>
+            {availableOptions.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+          <span className="material-symbols-outlined pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[19px] text-slate-400">
+            expand_more
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2 sm:w-72">
+          <input
+            type="text"
+            value={customDraft}
+            placeholder={customPlaceholder}
+            onChange={(e) => setCustomDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleAddCustom();
+              }
+            }}
+            className={inputClass(Boolean(error))}
+          />
           <button
             type="button"
-            aria-label={`Remove ${entry}`}
-            onClick={() =>
-              remove(entry)
-            }
-            className="flex items-center justify-center text-amber-500 outline-none transition-colors hover:text-amber-700 focus:outline-none focus-visible:outline-none focus-visible:ring-0"
+            onClick={handleAddCustom}
+            disabled={!customDraft.trim()}
+            className="shrink-0 rounded-xl bg-slate-900 px-3.5 py-2.5 text-xs font-bold text-white transition hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[14px]">
-              close
-            </span>
+            Add custom
           </button>
-        </span>
-      ))}
-
-      <input
-        type="text"
-        value={draft}
-        placeholder={placeholder}
-        onChange={(event) =>
-          setDraft(
-            event.target.value,
-          )
-        }
-        onKeyDown={(event) => {
-          if (
-            event.key ===
-            "Enter"
-          ) {
-            event.preventDefault();
-            add();
-            return;
-          }
-
-          if (
-            event.key ===
-            "Backspace" &&
-            !draft &&
-            tags.length > 0
-          ) {
-            remove(
-              tags[
-              tags.length -
-              1
-              ],
-            );
-          }
-        }}
-        className="min-w-[190px] flex-1 border-0 bg-transparent px-1 py-1.5 text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400 focus:border-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
-      />
+        </div>
+      </div>
     </div>
   );
 }
@@ -341,9 +371,43 @@ export default function AdvocateCompleteProfile() {
 
   const fileInputRef = useRef(null);
 
-  /* -----------------------------------------------------------------------
-     OFFICE PHOTO & OFFICE LOCATION (COMPULSORY)
-  ----------------------------------------------------------------------- */
+  const [availablePracticeAreas, setAvailablePracticeAreas] = useState(DEFAULT_PRACTICE_AREAS);
+  const [availableCourts, setAvailableCourts] = useState(DEFAULT_COURTS);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await apiRequest("/practice-areas");
+        const list = Array.isArray(res?.practiceAreas) ? res.practiceAreas : [];
+        const names = list
+          .map((item) => (typeof item === "string" ? item : item?.name || item?.id))
+          .filter(Boolean);
+        if (active && names.length > 0) {
+          setAvailablePracticeAreas(names);
+        }
+      } catch {
+        // Fallback default list remains
+      }
+
+      try {
+        const res = await apiRequest("/courts");
+        const list = Array.isArray(res?.courts) ? res.courts : [];
+        const names = list
+          .map((item) => (typeof item === "string" ? item : item?.name || item?.id))
+          .filter(Boolean);
+        if (active && names.length > 0) {
+          setAvailableCourts(names);
+        }
+      } catch {
+        // Fallback default list remains
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   /* -----------------------------------------------------------------------
      FORM DERIVED VALUES
@@ -926,11 +990,17 @@ export default function AdvocateCompleteProfile() {
               error={
                 errors.practiceAreas
               }
-              hint="Press Enter to add"
+              hint="Select from dropdown or add custom practice area"
             >
-              <TagInput
+              <DropdownTagSelect
                 value={
                   form.practiceAreas
+                }
+                options={availablePracticeAreas}
+                placeholder="Select a practice area..."
+                customPlaceholder="Add custom practice area..."
+                error={
+                  errors.practiceAreas
                 }
                 onChange={(value) => {
                   setField(
@@ -958,10 +1028,6 @@ export default function AdvocateCompleteProfile() {
                     );
                   }
                 }}
-                placeholder="Add another practice area..."
-                error={
-                  errors.practiceAreas
-                }
               />
             </Field>
 
@@ -1030,11 +1096,17 @@ export default function AdvocateCompleteProfile() {
               error={
                 errors.courtPractice
               }
-              hint="Press Enter to add"
+              hint="Select from dropdown or add custom court"
             >
-              <TagInput
+              <DropdownTagSelect
                 value={
                   form.courtPractice
+                }
+                options={availableCourts}
+                placeholder="Select a court..."
+                customPlaceholder="Add custom court..."
+                error={
+                  errors.courtPractice
                 }
                 onChange={(value) => {
                   setField(
@@ -1062,10 +1134,6 @@ export default function AdvocateCompleteProfile() {
                     );
                   }
                 }}
-                placeholder="Add another court..."
-                error={
-                  errors.courtPractice
-                }
               />
             </Field>
 
@@ -1264,7 +1332,7 @@ export default function AdvocateCompleteProfile() {
               <Field
                 label="Office duration (min)"
                 error={errors.officeVisitDurationMinutes}
-                hint="1–1440 min"
+                
               >
                 <input
                   type="number"
@@ -1278,7 +1346,7 @@ export default function AdvocateCompleteProfile() {
                       event.target.value,
                     )
                   }
-                  placeholder="60"
+                  placeholder="60 minute"
                   className={inputClass(
                     Boolean(errors.officeVisitDurationMinutes),
                   )}
@@ -1288,7 +1356,7 @@ export default function AdvocateCompleteProfile() {
               <Field
                 label="Office visit (₹)"
                 error={errors.offlineVisitingFee}
-                hint="Fee for duration"
+               
               >
                 <input
                   type="number"
@@ -1301,7 +1369,7 @@ export default function AdvocateCompleteProfile() {
                       event.target.value,
                     )
                   }
-                  placeholder="1000"
+                  placeholder="1000 rupees"
                   className={inputClass(
                     Boolean(errors.offlineVisitingFee),
                   )}

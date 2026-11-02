@@ -67,6 +67,7 @@ export default function OfficeLocationPicker({
   onLocationSaved,
   error,
   showSaveButton = true,
+  readOnly = false,
 }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -93,26 +94,36 @@ export default function OfficeLocationPicker({
 
   // Sync initial coordinates if provided/updated from backend profile reload
   useEffect(() => {
-    if (
+    const validLat =
       initialLatitude !== null &&
       initialLatitude !== undefined &&
-      !Number.isNaN(Number(initialLatitude)) &&
-      (lat === null || Number(initialLatitude).toFixed(6) !== lat?.toFixed(6))
-    ) {
+      !Number.isNaN(Number(initialLatitude));
+    const validLng =
+      initialLongitude !== null &&
+      initialLongitude !== undefined &&
+      !Number.isNaN(Number(initialLongitude));
+
+    if (validLat && validLng) {
       const parsedLat = Number(Number(initialLatitude).toFixed(6));
       const parsedLng = Number(Number(initialLongitude).toFixed(6));
-      setLat(parsedLat);
-      setLng(parsedLng);
-
-      if (markerRef.current && mapInstanceRef.current) {
-        markerRef.current.setLatLng([parsedLat, parsedLng]);
-        mapInstanceRef.current.setView([parsedLat, parsedLng], 15);
+      if (lat === null || parsedLat !== lat || lng === null || parsedLng !== lng) {
+        setLat(parsedLat);
+        setLng(parsedLng);
       }
     }
-  }, [initialLatitude, initialLongitude, lat]);
+  }, [initialLatitude, initialLongitude, lat, lng]);
 
   const updateCoordinates = useCallback(
     (newLat, newLng) => {
+      if (
+        typeof newLat !== "number" ||
+        typeof newLng !== "number" ||
+        Number.isNaN(newLat) ||
+        Number.isNaN(newLng)
+      ) {
+        return;
+      }
+
       const formattedLat = Number(Number(newLat).toFixed(6));
       const formattedLng = Number(Number(newLng).toFixed(6));
 
@@ -133,16 +144,22 @@ export default function OfficeLocationPicker({
     [onChange],
   );
 
-  // Initialize or re-center Leaflet Map
+  // Initialize Leaflet Map once
   useEffect(() => {
     let isCancelled = false;
 
     loadLeaflet()
       .then((L) => {
         if (isCancelled || !mapContainerRef.current) return;
+        if (mapInstanceRef.current) return;
 
-        const centerLat = lat !== null ? lat : DEFAULT_LAT;
-        const centerLng = lng !== null ? lng : DEFAULT_LNG;
+        if (mapContainerRef.current._leaflet_id) {
+          delete mapContainerRef.current._leaflet_id;
+        }
+
+        const centerLat = typeof lat === "number" && !Number.isNaN(lat) ? lat : DEFAULT_LAT;
+        const centerLng = typeof lng === "number" && !Number.isNaN(lng) ? lng : DEFAULT_LNG;
+        const initialZoom = typeof lat === "number" && !Number.isNaN(lat) ? 15 : 12;
 
         // Custom amber marker icon
         const amberIcon = L.divIcon({
@@ -175,48 +192,54 @@ export default function OfficeLocationPicker({
           iconAnchor: [17, 34],
         });
 
-        if (!mapInstanceRef.current) {
-          const map = L.map(mapContainerRef.current, {
-            center: [centerLat, centerLng],
-            zoom: lat !== null ? 15 : 12,
-            scrollWheelZoom: false,
-          });
+        const map = L.map(mapContainerRef.current, {
+          center: [centerLat, centerLng],
+          zoom: initialZoom,
+          scrollWheelZoom: false,
+        });
 
-          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            maxZoom: 19,
-          }).addTo(map);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 19,
+        }).addTo(map);
 
-          const marker = L.marker([centerLat, centerLng], {
-            draggable: true,
-            icon: amberIcon,
-          }).addTo(map);
+        const marker = L.marker([centerLat, centerLng], {
+          draggable: !readOnly,
+          icon: amberIcon,
+        }).addTo(map);
 
+        if (!readOnly) {
           marker.on("dragend", () => {
             const pos = marker.getLatLng();
-            updateCoordinates(pos.lat, pos.lng);
+            if (pos && typeof pos.lat === "number" && typeof pos.lng === "number") {
+              updateCoordinates(pos.lat, pos.lng);
+            }
           });
 
           map.on("click", (e) => {
-            marker.setLatLng(e.latlng);
-            updateCoordinates(e.latlng.lat, e.latlng.lng);
+            if (e?.latlng && typeof e.latlng.lat === "number" && typeof e.latlng.lng === "number") {
+              marker.setLatLng(e.latlng);
+              updateCoordinates(e.latlng.lat, e.latlng.lng);
+            }
           });
-
-          mapInstanceRef.current = map;
-          markerRef.current = marker;
-          setMapLoaded(true);
-
-          // Workaround for container size calculation
-          setTimeout(() => {
-            map.invalidateSize();
-          }, 200);
         } else {
-          const marker = markerRef.current;
-          if (marker && lat !== null && lng !== null) {
-            marker.setLatLng([lat, lng]);
-            mapInstanceRef.current.setView([lat, lng]);
-          }
+          map.on("click", () => {
+            if (typeof lat === "number" && typeof lng === "number") {
+              window.open(`https://www.google.com/maps?q=${lat},${lng}`, "_blank", "noopener,noreferrer");
+            }
+          });
         }
+
+        mapInstanceRef.current = map;
+        markerRef.current = marker;
+        setMapLoaded(true);
+
+        // Workaround for container size calculation
+        setTimeout(() => {
+          if (mapInstanceRef.current) {
+            mapInstanceRef.current.invalidateSize();
+          }
+        }, 200);
       })
       .catch((err) => {
         console.warn("Could not load dynamic map from CDN:", err);
@@ -224,47 +247,95 @@ export default function OfficeLocationPicker({
 
     return () => {
       isCancelled = true;
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+      markerRef.current = null;
     };
-  }, [lat, lng, updateCoordinates]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [readOnly, updateCoordinates]);
+
+  // Re-center Leaflet Map marker when coordinates change
+  useEffect(() => {
+    if (
+      mapInstanceRef.current &&
+      markerRef.current &&
+      typeof lat === "number" &&
+      !Number.isNaN(lat) &&
+      typeof lng === "number" &&
+      !Number.isNaN(lng)
+    ) {
+      markerRef.current.setLatLng([lat, lng]);
+      mapInstanceRef.current.setView([lat, lng]);
+    }
+  }, [lat, lng]);
 
   // Use my current location handler
   const handleUseCurrentLocation = () => {
     setGeoNotice("");
     setSaveError("");
 
-    if (!navigator.geolocation) {
+    if (typeof window === "undefined" || !navigator?.geolocation) {
       setGeoNotice("Geolocation is not supported by your browser. Allow location or drop a pin on the map manually.");
       return;
     }
 
     setIsLocating(true);
 
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setIsLocating(false);
-        const newLat = Number(pos.coords.latitude.toFixed(6));
-        const newLng = Number(pos.coords.longitude.toFixed(6));
+    try {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setIsLocating(false);
+          const rawLat = pos?.coords?.latitude;
+          const rawLng = pos?.coords?.longitude;
 
-        updateCoordinates(newLat, newLng);
+          if (
+            typeof rawLat !== "number" ||
+            typeof rawLng !== "number" ||
+            Number.isNaN(rawLat) ||
+            Number.isNaN(rawLng)
+          ) {
+            setGeoNotice("Could not determine accurate coordinates. Please drop a pin on the map manually.");
+            return;
+          }
 
-        if (mapInstanceRef.current && markerRef.current) {
-          markerRef.current.setLatLng([newLat, newLng]);
-          mapInstanceRef.current.setView([newLat, newLng], 16);
-          mapInstanceRef.current.invalidateSize();
-        }
-        setGeoNotice("Current location captured. You can adjust the pin on the map if you are not at your office now.");
-      },
-      (err) => {
-        setIsLocating(false);
-        console.warn("Geolocation request failed:", err);
-        setGeoNotice("Allow location or drop a pin on the map manually.");
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 12000,
-        maximumAge: 0,
-      },
-    );
+          const newLat = Number(rawLat.toFixed(6));
+          const newLng = Number(rawLng.toFixed(6));
+
+          updateCoordinates(newLat, newLng);
+
+          if (mapInstanceRef.current && markerRef.current) {
+            markerRef.current.setLatLng([newLat, newLng]);
+            mapInstanceRef.current.setView([newLat, newLng], 16);
+            mapInstanceRef.current.invalidateSize();
+          }
+          setGeoNotice("Current location captured. You can adjust the pin on the map if you are not at your office now.");
+        },
+        (err) => {
+          setIsLocating(false);
+          console.warn("Geolocation request failed:", err);
+          let message = "Allow location or drop a pin on the map manually.";
+          if (err?.code === 1) {
+            message = "Location permission denied. Please allow location access or drop a pin on the map manually.";
+          } else if (err?.code === 2) {
+            message = "Location position unavailable. Drop a pin on the map manually.";
+          } else if (err?.code === 3) {
+            message = "Location request timed out. Please drop a pin on the map manually.";
+          }
+          setGeoNotice(message);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        },
+      );
+    } catch (err) {
+      setIsLocating(false);
+      console.warn("Geolocation call failed synchronously:", err);
+      setGeoNotice("Location service unavailable. Please drop a pin on the map manually.");
+    }
   };
 
   // Manual input coordinate change
@@ -355,50 +426,49 @@ export default function OfficeLocationPicker({
     }
   };
 
-  const hasCoords = lat !== null && lng !== null;
+  const hasCoords = typeof lat === "number" && !Number.isNaN(lat) && typeof lng === "number" && !Number.isNaN(lng);
   const isSavedPin = initialLatitude !== null && initialLongitude !== null;
 
   return (
-    <div className="space-y-4 pt-2">
+    <div className={`space-y-4 ${readOnly ? "" : "pt-2"}`}>
       {/* HEADER & CURRENT LOCATION BUTTON */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
-            <FiMapPin className="text-amber-500 text-sm" />
-            Current Location 
-          </span>
-          {/* <p className="text-xs text-slate-500 mt-0.5">
-            Drop or drag the pin to your office location. Coordinates are saved to 6 decimal places.
-          </p> */}
-        </div>
+      {!readOnly && (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
+              <FiMapPin className="text-amber-500 text-sm" />
+              Current Location
+            </span>
+          </div>
 
-        <button
-          type="button"
-          onClick={handleUseCurrentLocation}
-          disabled={isLocating}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-4 py-2 text-xs font-bold text-amber-900 hover:bg-amber-100 transition shadow-sm shrink-0 disabled:opacity-60"
-        >
-          {isLocating ? (
-            <>
-              <span className="size-3.5 animate-spin rounded-full border-2 border-amber-600/40 border-t-amber-600" />
-              Locating...
-            </>
-          ) : (
-            <>
-              <FiNavigation className="text-amber-600 text-sm" />
-              Locate My Current Location
-            </>
-          )}
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={handleUseCurrentLocation}
+            disabled={isLocating}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-4 py-2 text-xs font-bold text-amber-900 hover:bg-amber-100 transition shadow-sm shrink-0 disabled:opacity-60 cursor-pointer"
+          >
+            {isLocating ? (
+              <>
+                <span className="size-3.5 animate-spin rounded-full border-2 border-amber-600/40 border-t-amber-600" />
+                Locating...
+              </>
+            ) : (
+              <>
+                <FiNavigation className="text-amber-600 text-sm" />
+                Locate My Current Location
+              </>
+            )}
+          </button>
+        </div>
+      )}
 
       {/* GEOLOCATION NOTICE / HELPER */}
       {geoNotice && (
         <div
           role="status"
-          className="rounded-xl border border-amber-200 bg-amber-50/80 p-3 text-xs text-amber-900 flex items-start gap-2"
+          className="rounded-xl border border-green-300 bg-green-50/60 p-3 text-xs text-green-800 flex items-start gap-2"
         >
-          <FiAlertCircle className="text-sm text-amber-600 shrink-0 mt-0.5" />
+          <FiAlertCircle className="text-sm text-green-600 shrink-0 mt-0.5" />
           <span>{geoNotice}</span>
         </div>
       )}
@@ -424,7 +494,7 @@ export default function OfficeLocationPicker({
         {/* View on Google Maps External Link */}
         {hasCoords && (
           <a
-            href={`https://www.google.com/maps?q=${lat.toFixed(6)},${lng.toFixed(6)}`}
+            href={`https://www.google.com/maps?q=${Number(lat).toFixed(6)},${Number(lng).toFixed(6)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="absolute top-3 right-3 z-[400] inline-flex items-center gap-1.5 rounded-xl bg-white/95 backdrop-blur-md px-3 py-1.5 text-xs font-bold text-slate-700 shadow-md border border-slate-200/90 hover:bg-amber-50 hover:text-amber-700 transition"
@@ -444,13 +514,8 @@ export default function OfficeLocationPicker({
       </div>
 
       {/* MANUAL COORDINATES INPUTS & OPTIONAL SAVE BUTTON */}
-      <div
-        className={`grid grid-cols-1 ${
-          showSaveButton ? "sm:grid-cols-2 lg:grid-cols-3" : "sm:grid-cols-2"
-        } gap-3 items-end pt-1`}
-      >
-       
-        {showSaveButton && (
+      {!readOnly && showSaveButton && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end pt-1">
           <div>
             <button
               type="button"
@@ -480,8 +545,8 @@ export default function OfficeLocationPicker({
               )}
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Errors & Status */}
       {saveError && (

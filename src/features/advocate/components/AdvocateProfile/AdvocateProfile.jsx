@@ -1010,6 +1010,12 @@ useEffect(() => {
               officePhotoUrl={
                 officePhotoUrl
               }
+              officeLatitude={
+                hasOfficeCoords ? Number(officeLat) : null
+              }
+              officeLongitude={
+                hasOfficeCoords ? Number(officeLng) : null
+              }
               officeMapEmbedUrl={
                 officeMapEmbedUrl
               }

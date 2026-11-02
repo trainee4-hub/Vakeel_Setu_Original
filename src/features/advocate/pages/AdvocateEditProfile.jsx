@@ -485,22 +485,62 @@ function StatusBanner({
   isApproved,
   onCancelRequest,
   actionLoading,
+  isApprovedDismissed,
+  onDismissApproved,
 }) {
   if (!isApproved || !profileChange?.status) {
     return null;
   }
 
-  const { status, rejectionReason } = profileChange;
+  const rawStatus = String(profileChange.status || "").toUpperCase();
+  const rejectionReason = profileChange.rejectionReason;
 
-  // On approval, the entire top banner disappears
-  if (status === "APPROVED") {
+  // Withdrawn / cancelled requests have no pending banner
+  if (rawStatus === "WITHDRAWN" || rawStatus === "CANCELLED") {
     return null;
+  }
+
+  // On approval, show a top GREEN confirmation banner with Dismiss button
+  if (rawStatus === "APPROVED") {
+    if (isApprovedDismissed) return null;
+    return (
+      <div
+        role="status"
+        className="flex items-center justify-between gap-4 rounded-2xl border border-emerald-300 bg-gradient-to-r from-emerald-50 via-teal-50/70 to-green-50/60 p-4 sm:p-5 shadow-sm text-emerald-950"
+      >
+        <div className="flex items-center gap-3.5">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-700">
+            <CheckCircle2 className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm font-extrabold text-emerald-950">
+                Your profile changes were approved and are now live
+              </span>
+              <span className="inline-flex items-center rounded-md bg-emerald-200/90 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-950">
+                APPROVED
+              </span>
+            </div>
+            <p className="mt-1 text-xs leading-5 text-emerald-800">
+              All approved updates have been published to your public advocate profile.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={onDismissApproved}
+          className="shrink-0 text-xs font-bold text-emerald-800 hover:text-emerald-950 px-2.5 py-1 rounded-lg hover:bg-emerald-100/60 transition cursor-pointer"
+        >
+          Dismiss
+        </button>
+      </div>
+    );
   }
 
   const submittedItems = getSubmittedItems(profileChange);
   const count = submittedItems.length;
 
-  if (status === "REJECTED") {
+  if (rawStatus === "REJECTED") {
     return (
       <div
         role="alert"
@@ -531,7 +571,7 @@ function StatusBanner({
               type="button"
               disabled={actionLoading}
               onClick={onCancelRequest}
-              className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-rose-300 bg-white px-3.5 text-xs font-bold text-rose-900 shadow-xs hover:bg-rose-50 transition disabled:opacity-50"
+              className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-rose-300 bg-white px-3.5 text-xs font-bold text-rose-900 shadow-xs hover:bg-rose-50 transition disabled:opacity-50 cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Cancel request
@@ -542,50 +582,54 @@ function StatusBanner({
     );
   }
 
-  // Pending approval state (status === "SUBMITTED" or status === "DRAFT")
-  return (
-    <div
-      role="status"
-      className="rounded-2xl border border-blue-200 bg-gradient-to-r from-blue-50 via-sky-50/70 to-indigo-50/60 p-4 sm:p-5 shadow-sm text-blue-950"
-    >
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-start gap-3.5">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/15 text-blue-700 mt-0.5">
-            <ShieldCheck className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm font-extrabold text-blue-950">
-                You have changes awaiting approval ({count} {count === 1 ? "field" : "fields"}).
-              </span>
-              <span className="inline-flex items-center rounded-md bg-blue-200/80 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-blue-900">
-                UNDER REVIEW
-              </span>
+  // Pending approval state ONLY for SUBMITTED, PENDING
+  if (rawStatus === "SUBMITTED" || rawStatus === "PENDING") {
+    return (
+      <div
+        role="status"
+        className="rounded-2xl border border-blue-200 bg-gradient-to-r from-blue-50 via-sky-50/70 to-indigo-50/60 p-4 sm:p-5 shadow-sm text-blue-950"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-start gap-3.5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/15 text-blue-700 mt-0.5">
+              <ShieldCheck className="w-5 h-5" />
             </div>
-            <p className="mt-1 text-xs leading-5 text-blue-900">
-              Your current profile stays live until approved. Approval fields are read-only while under review. You can cancel the request to make more changes.
-            </p>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm font-extrabold text-blue-950">
+                  You have changes awaiting approval ({count} {count === 1 ? "field" : "fields"}).
+                </span>
+                <span className="inline-flex items-center rounded-md bg-blue-200/80 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-blue-900">
+                  UNDER REVIEW
+                </span>
+              </div>
+              <p className="mt-1 text-xs leading-5 text-blue-900">
+                Your current profile stays live until approved. Approval fields are read-only while under review. You can cancel the request to make more changes.
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
-          <SubmittedItemsDropdown items={submittedItems} statusTag="Pending" />
-          <button
-            type="button"
-            disabled={actionLoading}
-            onClick={onCancelRequest}
-            className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-red-300 bg-white px-4 text-xs font-bold text-red-700 shadow-xs hover:bg-red-50 hover:text-red-900 transition disabled:opacity-50"
-          >
-            {actionLoading ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            ) : (
-              <RotateCcw className="w-3.5 h-3.5" />
-            )}
-            Cancel request
-          </button>
+          <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
+            <SubmittedItemsDropdown items={submittedItems} statusTag="Pending" />
+            <button
+              type="button"
+              disabled={actionLoading}
+              onClick={onCancelRequest}
+              className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-red-300 bg-white px-4 text-xs font-bold text-red-700 shadow-xs hover:bg-red-50 hover:text-red-900 transition disabled:opacity-50 cursor-pointer"
+            >
+              {actionLoading ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <RotateCcw className="w-3.5 h-3.5" />
+              )}
+              Cancel request
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  return null;
 }
 
 /* =========================================================================
@@ -606,7 +650,8 @@ export default function AdvocateEditProfile() {
   const [actionLoading, setActionLoading] = useState(false);
 
   const [pageError, setPageError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [cancelNotice, setCancelNotice] = useState("");
+  const [isApprovedBannerDismissed, setIsApprovedBannerDismissed] = useState(false);
 
   // Photo uploads
   const [previewPhoto, setPreviewPhoto] = useState("");
@@ -769,12 +814,13 @@ export default function AdvocateEditProfile() {
 
   const isFieldPending = useCallback(
     (fieldKey) => {
+      if (cancelNotice) return false;
       if (!profileChange) return false;
       const status = String(profileChange.status || "").toUpperCase();
-      if (status !== "SUBMITTED" && status !== "DRAFT" && status !== "PENDING") return false;
+      if (status !== "SUBMITTED" && status !== "PENDING") return false;
       return checkFieldMatch(fieldKey, pendingKeys);
     },
-    [profileChange, pendingKeys, checkFieldMatch],
+    [cancelNotice, profileChange, pendingKeys, checkFieldMatch],
   );
 
   const changeId =
@@ -819,6 +865,7 @@ export default function AdvocateEditProfile() {
 
   const isFieldApproved = useCallback(
     (fieldKey) => {
+      if (cancelNotice) return false;
       if (
         !showApprovedBadges ||
         !profileChange ||
@@ -828,61 +875,16 @@ export default function AdvocateEditProfile() {
       }
       return checkFieldMatch(fieldKey, pendingKeys);
     },
-    [showApprovedBadges, profileChange, pendingKeys, checkFieldMatch],
+    [cancelNotice, showApprovedBadges, profileChange, pendingKeys, checkFieldMatch],
   );
 
   const isFieldPendingOrChanged = useCallback(
     (fieldKey) => {
+      if (cancelNotice) return false;
       if (!isApprovalField(fieldKey)) return false;
-
-      // Check if already in profileChange requestedChanges
-      if (isFieldPending(fieldKey)) return true;
-
-      // Check if modified in this session
-      switch (fieldKey) {
-        case "experienceYears":
-          return cleanText(form.experienceYears) !== cleanText(initialForm.experienceYears);
-        case "about":
-          return cleanText(form.about) !== cleanText(initialForm.about);
-        case "videoCallPricePer15Min":
-          return cleanText(form.videoCallPricePer15Min) !== cleanText(initialForm.videoCallPricePer15Min);
-        case "voiceCallPricePer15Min":
-          return cleanText(form.voiceCallPricePer15Min) !== cleanText(initialForm.voiceCallPricePer15Min);
-        case "offlineVisitingFee":
-          return cleanText(form.offlineVisitingFee) !== cleanText(initialForm.offlineVisitingFee);
-        case "officeVisitDurationMinutes":
-          return cleanText(form.officeVisitDurationMinutes) !== cleanText(initialForm.officeVisitDurationMinutes);
-        case "officeAddress":
-          return cleanText(form.officeAddress) !== cleanText(initialForm.officeAddress);
-        case "pincode":
-          return cleanText(form.pincode) !== cleanText(initialForm.pincode);
-        case "city":
-          return cleanText(form.city) !== cleanText(initialForm.city);
-        case "state":
-          return cleanText(form.state) !== cleanText(initialForm.state);
-        case "officeLocation":
-        case "officeLatitude":
-        case "officeLongitude":
-          return (
-            form.officeLatitude !== initialForm.officeLatitude ||
-            form.officeLongitude !== initialForm.officeLongitude
-          );
-        case "officePhoto":
-          return Boolean(officePhotoBlob);
-        case "profilePhoto":
-          return Boolean(profilePhotoFile);
-        default:
-          return false;
-      }
+      return isFieldPending(fieldKey);
     },
-    [
-      isApprovalField,
-      isFieldPending,
-      form,
-      initialForm,
-      officePhotoBlob,
-      profilePhotoFile,
-    ],
+    [cancelNotice, isApprovalField, isFieldPending],
   );
 
   const hasApprovalChanges = useMemo(() => {
@@ -965,18 +967,23 @@ export default function AdvocateEditProfile() {
     setPreviewPhoto(profile?.profilePhotoUrl || "");
   }, [initialForm, profile]);
 
-  const isSubmitted = isApproved && profileChange?.status === "SUBMITTED";
-  const requestedChanges = useMemo(
-    () => profileChange?.requestedChanges || profileChange?.changes || {},
-    [profileChange],
-  );
+  const isSubmitted = isApproved && !cancelNotice && (profileChange?.status === "SUBMITTED" || profileChange?.status === "PENDING");
+  const requestedChanges = useMemo(() => {
+    if (cancelNotice) return {};
+    if (!profileChange) return {};
+    const status = String(profileChange.status || "").toUpperCase();
+    if (status !== "SUBMITTED" && status !== "PENDING") return {};
+    return profileChange?.requestedChanges || profileChange?.changes || {};
+  }, [cancelNotice, profileChange]);
 
   /* =========================================================================
      GET PROFILE
   ========================================================================== */
 
-  const fetchProfile = useCallback(async () => {
-    setLoading(true);
+  const fetchProfile = useCallback(async ({ silent = false } = {}) => {
+    if (!silent) {
+      setLoading(true);
+    }
     setPageError("");
 
     try {
@@ -988,8 +995,18 @@ export default function AdvocateEditProfile() {
 
       const raw = response.advocate;
       const liveOffice = response.office || raw?.office || {};
-      const profileChange =
+      let profileChange =
         response.profileChange ?? raw?.profileChange ?? null;
+      const statusUpper = String(profileChange?.status || "").toUpperCase();
+      if (
+        statusUpper === "WITHDRAWN" ||
+        statusUpper === "CANCELLED" ||
+        statusUpper === "DISCARDED" ||
+        statusUpper === "DRAFT" ||
+        statusUpper === ""
+      ) {
+        profileChange = null;
+      }
       const data = {
         ...raw,
         office: liveOffice,
@@ -1123,7 +1140,6 @@ export default function AdvocateEditProfile() {
       [name]: "",
     }));
 
-    setSuccess("");
     setPageError("");
   };
 
@@ -1374,7 +1390,6 @@ export default function AdvocateEditProfile() {
     if (saving) return;
 
     setPageError("");
-    setSuccess("");
 
     if (!validate()) return;
 
@@ -1382,7 +1397,6 @@ export default function AdvocateEditProfile() {
     const hasFiles = Boolean(profilePhotoFile) || Boolean(officePhotoBlob);
 
     if (Object.keys(payload).length === 0 && !hasFiles) {
-      setSuccess("No profile changes to save.");
       return;
     }
 
@@ -1437,12 +1451,10 @@ export default function AdvocateEditProfile() {
               "Failed to submit profile change request for admin approval.",
           );
         }
-        setSuccess(
-          submitRes?.message ||
-            "Profile changes saved and submitted for admin approval.",
-        );
+        setCancelNotice("");
+        setIsApprovedBannerDismissed(false);
       } else {
-        setSuccess(response?.message || "Profile changes saved successfully.");
+        setCancelNotice("");
       }
 
       // Refresh profile to update draft banner and pending hints
@@ -1482,32 +1494,40 @@ export default function AdvocateEditProfile() {
 
   const handleCancelRequest = async () => {
     if (actionLoading) return;
-    const confirmed = window.confirm(
-      "Cancel this request? Your submitted changes will be withdrawn.",
-    );
-    if (!confirmed) return;
 
     setActionLoading(true);
     setPageError("");
-    setSuccess("");
 
     try {
-      if (profileChange?.status === "SUBMITTED") {
-        const res = await advocateProfileApi.withdrawProfileChange();
-        if (!res?.success) {
-          throw new Error(res?.message || "Failed to cancel change request.");
-        }
-      } else if (profileChange?.status === "DRAFT") {
-        const res = await advocateProfileApi.discardProfileChange();
-        if (!res?.success) {
-          throw new Error(res?.message || "Failed to cancel change request.");
+      const statusUpper = String(profileChange?.status || "").toUpperCase();
+      if (statusUpper === "SUBMITTED" || statusUpper === "PENDING") {
+        try {
+          await advocateProfileApi.withdrawProfileChange();
+        } catch (withdrawErr) {
+          console.warn("Withdraw warning:", withdrawErr);
         }
       }
-      setSuccess("Profile change request cancelled. You can now edit your profile.");
-      await fetchProfile();
+
+      try {
+        await advocateProfileApi.discardProfileChange();
+      } catch (discardErr) {
+        console.warn("Discard warning:", discardErr);
+      }
+
+      setProfile((prev) => (prev ? { ...prev, profileChange: null } : prev));
+      setProfilePhotoFile(null);
+      setOfficePhotoBlob(null);
+      setOfficePhotoPreview(profile?.officePhotoUrl || profile?.office?.photoUrl || "");
+      setPreviewPhoto(profile?.profilePhotoUrl || "");
+      setCancelNotice(
+        "Profile change request cancelled. Your submitted changes have been withdrawn.",
+      );
+      await fetchProfile({ silent: true });
     } catch (err) {
       console.error("Cancel change request error:", err);
-      setPageError(err?.data?.message || err?.message || "Failed to cancel change request.");
+      setPageError(
+        err?.data?.message || err?.message || "Failed to cancel change request.",
+      );
     } finally {
       setActionLoading(false);
     }
@@ -1529,7 +1549,6 @@ export default function AdvocateEditProfile() {
 
     setProfilePhotoFile(file);
     setPreviewPhoto(URL.createObjectURL(file));
-    setSuccess("New profile photo selected. Click 'Save Changes' or 'Request for approval' to submit.");
   };
 
   const handleLanguageKeyDown = (event) => {
@@ -1625,10 +1644,12 @@ export default function AdvocateEditProfile() {
             STATUS BANNER (APPROVAL WORKFLOW)
         ===================================================== */}
         <StatusBanner
-          profileChange={profileChange}
+          profileChange={cancelNotice ? null : profileChange}
           isApproved={isApproved}
           onCancelRequest={handleCancelRequest}
           actionLoading={actionLoading}
+          isApprovedDismissed={isApprovedBannerDismissed}
+          onDismissApproved={() => setIsApprovedBannerDismissed(true)}
         />
 
         {/* FEEDBACK ALERTS */}
@@ -1639,10 +1660,27 @@ export default function AdvocateEditProfile() {
           </div>
         )}
 
-        {success && (
-          <div className="flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3.5">
-            <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-emerald-600" />
-            <p className="text-sm font-bold text-emerald-700">{success}</p>
+        {cancelNotice && (
+          <div
+            role="alert"
+            className="flex items-start justify-between gap-3 rounded-2xl border border-red-300 bg-red-50 px-4 py-3.5 text-red-950 shadow-xs"
+          >
+            <div className="flex items-start gap-3">
+              <AlertCircle size={18} className="mt-0.5 shrink-0 text-red-600" />
+              <div>
+                <p className="text-sm font-bold text-red-950">{cancelNotice}</p>
+                <p className="text-xs text-red-800 mt-0.5">
+                  Your submitted changes have been withdrawn. Your profile is now editable.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setCancelNotice("")}
+              className="text-xs font-bold text-red-700 hover:text-red-950 px-2 py-0.5"
+            >
+              Dismiss
+            </button>
           </div>
         )}
 
@@ -2383,7 +2421,6 @@ export default function AdvocateEditProfile() {
           setOfficePhotoBlob(blob);
           setOfficePhotoPreview(dataUrl);
           setIsCameraOpen(false);
-          setSuccess("New office chamber photo captured. Click 'Save Changes' or 'Request for approval' to submit.");
         }}
         allowFallback={true}
       />

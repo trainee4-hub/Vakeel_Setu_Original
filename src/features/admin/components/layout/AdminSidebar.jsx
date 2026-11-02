@@ -2,13 +2,44 @@ import { useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Icon } from "@shared/components/ui/Button";
 import useAdminAuth from "../../hooks/useAdminAuth";
-import { getDisplayRole } from "../../utils/adminUtils";
+import { ADMIN_PATHS, getDisplayRole } from "../../utils/adminUtils";
 import { ADMIN_NAV_GROUPS, initialsOf } from "./navigation";
 
 export default function AdminSidebar({ user, onNavigate, onSignOut, signingOut = false }) {
   const { has } = useAdminAuth();
   const location = useLocation();
   const name = user?.fullName || "Admin";
+
+  const isItemActive = (item) => {
+    const currentPath = location.pathname;
+    if (currentPath === item.to) return true;
+
+    // Profile Changes Request matches /admin/advocates/profile-changes and /admin/advocates/:id/profile-change
+    if (item.to === ADMIN_PATHS.profileChanges.list) {
+      return (
+        currentPath.startsWith(ADMIN_PATHS.profileChanges.list) ||
+        currentPath.includes("/profile-change")
+      );
+    }
+
+    // Advocates tab: must NOT match when on profile changes!
+    if (item.to === ADMIN_PATHS.advocates.list) {
+      if (
+        currentPath.startsWith(ADMIN_PATHS.profileChanges.list) ||
+        currentPath.includes("/profile-change")
+      ) {
+        return false;
+      }
+      if (item.end) return currentPath === item.to;
+      return currentPath.startsWith(`${item.to}/`);
+    }
+
+    if (item.end) {
+      return currentPath === item.to;
+    }
+
+    return currentPath.startsWith(`${item.to}/`);
+  };
 
   const visibleGroups = ADMIN_NAV_GROUPS.map((group) => ({
     ...group,
@@ -18,7 +49,7 @@ export default function AdminSidebar({ user, onNavigate, onSignOut, signingOut =
   // Check if current route is inside a group's items
   const isGroupActive = (group) =>
     group.items.some(
-      (item) => location.pathname === item.to || location.pathname.startsWith(`${item.to}/`),
+      (item) => isItemActive(item),
     );
 
   // Open state for collapsible groups
@@ -114,28 +145,32 @@ export default function AdminSidebar({ user, onNavigate, onSignOut, signingOut =
 
                 {isOpen && (
                   <ul className="ml-3 space-y-1 border-l border-white/10 pl-3">
-                    {group.items.map((item) => (
-                      <li key={item.to}>
-                        <NavLink
-                          to={item.to}
-                          onClick={onNavigate}
-                          className={({ isActive }) =>
-                            `flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
-                              isActive
-                                ? "bg-amber-500/15 text-amber-400 font-semibold"
-                                : "text-slate-400 hover:bg-white/5 hover:text-white"
-                            }`
-                          }
-                        >
-                          {({ isActive }) => (
-                            <>
-                              <Icon name={item.icon} filled={isActive} className="text-[18px]" />
-                              <span>{item.label}</span>
-                            </>
-                          )}
-                        </NavLink>
-                      </li>
-                    ))}
+                    {group.items.map((item) => {
+                      const active = isItemActive(item);
+                      return (
+                        <li key={item.to}>
+                          <NavLink
+                            to={item.to}
+                            end={Boolean(item.end)}
+                            onClick={onNavigate}
+                            className={() =>
+                              `flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
+                                active
+                                  ? "bg-amber-500/15 text-amber-400 font-semibold"
+                                  : "text-slate-400 hover:bg-white/5 hover:text-white"
+                              }`
+                            }
+                          >
+                            {() => (
+                              <>
+                                <Icon name={item.icon} filled={active} className="text-[18px]" />
+                                <span>{item.label}</span>
+                              </>
+                            )}
+                          </NavLink>
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </div>
@@ -150,28 +185,32 @@ export default function AdminSidebar({ user, onNavigate, onSignOut, signingOut =
                 </p>
               ) : null}
               <ul className="space-y-1">
-                {group.items.map((item) => (
-                  <li key={item.to}>
-                    <NavLink
-                      to={item.to}
-                      onClick={onNavigate}
-                      className={({ isActive }) =>
-                        `flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
-                          isActive
-                            ? "bg-amber-500/10 text-amber-400"
-                            : "text-slate-300 hover:bg-white/5 hover:text-white"
-                        }`
-                      }
-                    >
-                      {({ isActive }) => (
-                        <>
-                          <Icon name={item.icon} filled={isActive} className="text-[20px]" />
-                          {item.label}
-                        </>
-                      )}
-                    </NavLink>
-                  </li>
-                ))}
+                {group.items.map((item) => {
+                  const active = isItemActive(item);
+                  return (
+                    <li key={item.to}>
+                      <NavLink
+                        to={item.to}
+                        end={Boolean(item.end)}
+                        onClick={onNavigate}
+                        className={() =>
+                          `flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
+                            active
+                              ? "bg-amber-500/10 text-amber-400 font-semibold"
+                              : "text-slate-300 hover:bg-white/5 hover:text-white"
+                          }`
+                        }
+                      >
+                        {() => (
+                          <>
+                            <Icon name={item.icon} filled={active} className="text-[20px]" />
+                            {item.label}
+                          </>
+                        )}
+                      </NavLink>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           );

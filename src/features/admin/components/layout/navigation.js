@@ -9,7 +9,7 @@ export const ADMIN_NAV_GROUPS = [
   {
     title: null,
     items: [
-      { to: ADMIN_PATHS.dashboard, label: "Overview", icon: "dashboard", permissions: null },
+      { to: ADMIN_PATHS.dashboard, label: "Overview", icon: "dashboard", permissions: null, end: true },
     ],
   },
   {

@@ -8,7 +8,7 @@ import { ErrorState } from "@shared/components/feedback/ErrorState";
 import { TableSkeleton } from "@shared/components/feedback/LoadingSkeleton";
 import { Button, Icon } from "@shared/components/ui/Button";
 import { getProfileChangeRequests } from "../../../services/platform/adminAdvocatesApi";
-import { ADMIN_PATHS, formatDateTime } from "../../../utils/adminUtils";
+import { ADMIN_PATHS, formatDateTime, clearAdminCache } from "../../../utils/adminUtils";
 
 const FIELD_LABELS = {
   experienceYears: "Experience",
@@ -108,6 +108,16 @@ export default function ProfileChangeRequestsList() {
       setLoading(false);
     }
   }, [currentTab, currentPage, searchTerm]);
+
+  const handleRefresh = async () => {
+    if (loading) return;
+    try {
+      clearAdminCache();
+    } catch {
+      // ignore
+    }
+    await loadData();
+  };
 
   useEffect(() => {
     loadData();
@@ -351,12 +361,12 @@ function getRowAdvocateInfo(row) {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setReloadTrigger((k) => k + 1)}
+            onClick={handleRefresh}
             disabled={loading}
           >
             <Icon
               name="refresh"
-              className={`text-[16px] mr-1.5 ${loading ? "animate-spin" : ""}`}
+              className={`text-[16px] mr-1.5 inline-block ${loading ? "animate-spin" : ""}`}
             />
             Refresh
           </Button>

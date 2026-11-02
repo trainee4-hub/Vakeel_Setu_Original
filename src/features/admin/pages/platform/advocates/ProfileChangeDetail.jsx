@@ -323,12 +323,18 @@ export default function ProfileChangeDetail() {
   if (Array.isArray(change.changes)) {
     change.changes.forEach((c) => {
       if (!c || !c.field) return;
+      const isPhotoField =
+        c.field === "profilePhoto" ||
+        c.field === "profilePhotoUrl" ||
+        c.field === "officePhoto" ||
+        c.field === "officePhotoUrl";
+      const isCoordField =
+        c.field === "officeLatitude" ||
+        c.field === "officeLongitude";
       const alreadyHandled =
         differences.some((d) => d.key === c.field) ||
-        c.field === "officeLatitude" ||
-        c.field === "officeLongitude" ||
-        c.field === "profilePhotoUrl" ||
-        c.field === "officePhotoUrl";
+        isPhotoField ||
+        isCoordField;
       if (!alreadyHandled) {
         const isFee = ["videoCallPricePer15Min", "voiceCallPricePer15Min", "offlineVisitingFee"].includes(c.field);
         const unit =
@@ -355,8 +361,44 @@ export default function ProfileChangeDetail() {
     (requested.officeLatitude !== undefined && Number(requested.officeLatitude) !== Number(current.officeLatitude)) ||
     (requested.officeLongitude !== undefined && Number(requested.officeLongitude) !== Number(current.officeLongitude));
 
-  const hasPhotoDiff = requested.profilePhotoUrl && requested.profilePhotoUrl !== current.profilePhotoUrl;
-  const hasOfficePhotoDiff = requested.officePhotoUrl && requested.officePhotoUrl !== current.officePhotoUrl;
+  // 7. Photos - normalized keys (profilePhoto / profilePhotoUrl, officePhoto / officePhotoUrl)
+  const requestedProfilePhoto =
+    requested.profilePhotoUrl ||
+    requested.profilePhoto ||
+    change.profilePhotoUrl ||
+    change.profilePhoto ||
+    null;
+  const currentProfilePhoto =
+    current.profilePhotoUrl ||
+    current.profilePhoto ||
+    advocateInfo.profilePhotoUrl ||
+    advocateInfo.profilePhoto ||
+    null;
+
+  const requestedOfficePhoto =
+    requested.officePhotoUrl ||
+    requested.officePhoto ||
+    change.officePhotoUrl ||
+    change.officePhoto ||
+    null;
+  const currentOfficePhoto =
+    current.officePhotoUrl ||
+    current.officePhoto ||
+    advocateInfo.officePhotoUrl ||
+    advocateInfo.officePhoto ||
+    null;
+
+  const hasPhotoInChanges = Array.isArray(change.changes) && change.changes.some((c) => c?.field === "profilePhoto" || c?.field === "profilePhotoUrl");
+  const hasPhotoDiff = Boolean(
+    requestedProfilePhoto &&
+      (hasPhotoInChanges || (currentProfilePhoto ? requestedProfilePhoto !== currentProfilePhoto : true))
+  );
+
+  const hasOfficePhotoInChanges = Array.isArray(change.changes) && change.changes.some((c) => c?.field === "officePhoto" || c?.field === "officePhotoUrl");
+  const hasOfficePhotoDiff = Boolean(
+    requestedOfficePhoto &&
+      (hasOfficePhotoInChanges || (currentOfficePhoto ? requestedOfficePhoto !== currentOfficePhoto : true))
+  );
 
   return (
     <div className="space-y-6">
@@ -471,8 +513,8 @@ export default function ProfileChangeDetail() {
               to={ADMIN_PATHS.advocates.detail(advocateId)}
               className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-700 mt-0.5"
             >
-              <span>View Full Advocate Record</span>
-              <Icon name="open_in_new" className="text-[14px]" />
+              <span className="text-[.80rem] text-black px-3 py-2 border rounded-full">Profile Details</span>
+              {/* <Icon name="open_in_new" className="text-[14px]" /> */}
             </Link>
           </div>
         </div>
@@ -595,144 +637,76 @@ export default function ProfileChangeDetail() {
       </div>
 
       {/* =========================================================================
-         PHOTOS COMPARISON CARDS
+         REQUESTED PHOTOS (ONLY NEW PHOTO, NO COMPARISON)
       ========================================================================= */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Profile Photo Comparison */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-2xs">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-extrabold text-slate-950">
-              Profile Photo Comparison
-            </h3>
-            {hasPhotoDiff ? (
-              <span className="rounded-full bg-amber-100 text-amber-900 text-[11px] font-bold px-2 py-0.5">
-                New Photo Requested
-              </span>
-            ) : (
-              <span className="text-xs text-slate-400">Unchanged</span>
-            )}
-          </div>
+      {((hasPhotoDiff && requestedProfilePhoto) || (hasOfficePhotoDiff && requestedOfficePhoto)) && (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {/* Requested Profile Photo Card (Only if changed) */}
+          {hasPhotoDiff && requestedProfilePhoto && (
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-2xs">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-extrabold text-slate-950">
+                  Requested Profile Photo
+                </h3>
+                <span className="rounded-full bg-amber-100 text-amber-900 text-[11px] font-bold px-2 py-0.5">
+                  Requested
+                </span>
+              </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <span className="block text-xs font-bold text-slate-500 mb-2">Current Live Photo</span>
-              {current.profilePhotoUrl ? (
+              <div className="max-w-xs">
                 <button
                   type="button"
-                  onClick={() => setEnlargedPhotoUrl(current.profilePhotoUrl)}
-                  className="group relative w-full aspect-square rounded-xl overflow-hidden border border-slate-200 bg-slate-50 block"
+                  onClick={() => setEnlargedPhotoUrl(requestedProfilePhoto)}
+                  className="group relative w-full aspect-square rounded-2xl overflow-hidden border-2 border-amber-400 bg-amber-50 block shadow-sm cursor-pointer"
                 >
                   <img
-                    src={current.profilePhotoUrl}
-                    alt="Current profile"
-                    className="w-full h-full object-cover group-hover:scale-105 transition"
-                  />
-                  <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold">
-                    Click to enlarge
-                  </div>
-                </button>
-              ) : (
-                <div className="w-full aspect-square rounded-xl border border-dashed border-slate-200 flex items-center justify-center text-slate-400 text-xs">
-                  No current photo
-                </div>
-              )}
-            </div>
-
-            <div>
-              <span className="block text-xs font-bold text-amber-900 mb-2">Requested New Photo</span>
-              {requested.profilePhotoUrl ? (
-                <button
-                  type="button"
-                  onClick={() => setEnlargedPhotoUrl(requested.profilePhotoUrl)}
-                  className="group relative w-full aspect-square rounded-xl overflow-hidden border-2 border-amber-400 bg-amber-50 block"
-                >
-                  <img
-                    src={requested.profilePhotoUrl}
+                    src={requestedProfilePhoto}
                     alt="Requested profile"
-                    className="w-full h-full object-cover group-hover:scale-105 transition"
+                    className="w-full h-full object-cover group-hover:scale-105 transition duration-200"
                   />
                   <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold">
                     Click to enlarge
                   </div>
                 </button>
-              ) : (
-                <div className="w-full aspect-square rounded-xl border border-dashed border-slate-200 flex items-center justify-center text-slate-400 text-xs">
-                  No change requested
-                </div>
-              )}
+              </div>
             </div>
-          </div>
-        </div>
+          )}
 
-        {/* Office Photo Comparison */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-2xs">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-extrabold text-slate-950">
-              Live Office Chamber Photo Comparison
-            </h3>
-            {hasOfficePhotoDiff ? (
-              <span className="rounded-full bg-amber-100 text-amber-900 text-[11px] font-bold px-2 py-0.5">
-                New Office Photo
-              </span>
-            ) : (
-              <span className="text-xs text-slate-400">Unchanged</span>
-            )}
-          </div>
+          {/* Requested Office Chamber Photo Card (Only if changed) */}
+          {hasOfficePhotoDiff && requestedOfficePhoto && (
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-2xs">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-extrabold text-slate-950">
+                  Requested Office Photo
+                </h3>
+                <span className="rounded-full bg-amber-100 text-amber-900 text-[11px] font-bold px-2 py-0.5">
+                  Requested
+                </span>
+              </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <span className="block text-xs font-bold text-slate-500 mb-2">Current Live Office</span>
-              {current.officePhotoUrl ? (
+              <div className="max-w-md">
                 <button
                   type="button"
-                  onClick={() => setEnlargedPhotoUrl(current.officePhotoUrl)}
-                  className="group relative w-full aspect-video rounded-xl overflow-hidden border border-slate-200 bg-slate-50 block"
+                  onClick={() => setEnlargedPhotoUrl(requestedOfficePhoto)}
+                  className="group relative w-full aspect-video rounded-2xl overflow-hidden border-2 border-amber-400 bg-amber-50 block shadow-sm cursor-pointer"
                 >
                   <img
-                    src={current.officePhotoUrl}
-                    alt="Current office"
-                    className="w-full h-full object-cover group-hover:scale-105 transition"
-                  />
-                  <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold">
-                    Click to enlarge
-                  </div>
-                </button>
-              ) : (
-                <div className="w-full aspect-video rounded-xl border border-dashed border-slate-200 flex items-center justify-center text-slate-400 text-xs">
-                  No current photo
-                </div>
-              )}
-            </div>
-
-            <div>
-              <span className="block text-xs font-bold text-amber-900 mb-2">Requested Office Photo</span>
-              {requested.officePhotoUrl ? (
-                <button
-                  type="button"
-                  onClick={() => setEnlargedPhotoUrl(requested.officePhotoUrl)}
-                  className="group relative w-full aspect-video rounded-xl overflow-hidden border-2 border-amber-400 bg-amber-50 block"
-                >
-                  <img
-                    src={requested.officePhotoUrl}
+                    src={requestedOfficePhoto}
                     alt="Requested office"
-                    className="w-full h-full object-cover group-hover:scale-105 transition"
+                    className="w-full h-full object-cover group-hover:scale-105 transition duration-200"
                   />
                   <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold">
                     Click to enlarge
                   </div>
                 </button>
-              ) : (
-                <div className="w-full aspect-video rounded-xl border border-dashed border-slate-200 flex items-center justify-center text-slate-400 text-xs">
-                  No change requested
-                </div>
-              )}
+              </div>
+              <p className="text-[11px] text-slate-500 mt-3">
+                Inspect the photo to confirm clear visibility of the chamber entrance, door, and advocate nameplate.
+              </p>
             </div>
-          </div>
-          <p className="text-[11px] text-slate-400 mt-3">
-            Inspect the photo to confirm clear visibility of the chamber entrance, door, and advocate nameplate.
-          </p>
+          )}
         </div>
-      </div>
+      )}
 
       {/* =========================================================================
          CONFIRM APPROVE MODAL
