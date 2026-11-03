@@ -24,6 +24,7 @@ export const DEFAULT_FILTERS = {
   rating: "",
   sort: "",
   pincode: "",
+  onlyOnline: false,
 };
 
 export const INDIAN_STATES = [
@@ -66,7 +67,7 @@ export const INDIAN_STATES = [
 ];
 
 export const SORT_OPTIONS = [
-  { label: "Recommended", value: "" },
+  { label: "Default", value: "" },
   { label: "Rating: High to Low", value: "rating" },
   { label: "Experience: High to Low", value: "experience" },
   { label: "Most Cases Handled", value: "casesHandled" },

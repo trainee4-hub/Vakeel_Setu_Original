@@ -15,6 +15,7 @@ const FindLawyer = ({ onViewAdvocate, initialSpecialty = "" }) => {
   const {
     advocates,
     visibleAdvocates,
+    onlineCount,
     loading,
     error,
     filters,
@@ -69,6 +70,7 @@ const FindLawyer = ({ onViewAdvocate, initialSpecialty = "" }) => {
 
             <ResultsToolbar
               totalCount={totalCount}
+              onlineCount={onlineCount}
               filters={filters}
               setFilters={setFilters}
             />

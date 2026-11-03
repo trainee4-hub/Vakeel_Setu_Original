@@ -134,11 +134,26 @@ const useFindLawyer = ({ initialSpecialty = "" } = {}) => {
     }
   }, [practiceAreaFromUrl]);
 
+  const onlineCount = useMemo(() => {
+    return advocates.filter((advocate) => advocate?.isOnline === true).length;
+  }, [advocates]);
+
+  const prevOnlyOnlineRef = useRef(filters.onlyOnline);
+  useEffect(() => {
+    if (prevOnlyOnlineRef.current !== filters.onlyOnline) {
+      prevOnlyOnlineRef.current = filters.onlyOnline;
+      setCurrentPage(1);
+    }
+  }, [filters.onlyOnline]);
+
   // Server-side advocate search handles full-text filtering across the database.
   // We avoid filtering by search query here to prevent flickering/blanking the list
   // before the server response arrives.
   const visibleAdvocates = useMemo(() => {
     return advocates.filter((advocate) => {
+      if (filters.onlyOnline && advocate?.isOnline !== true) {
+        return false;
+      }
       if (!matchesExact(advocate?.state, filters.state)) return false;
       if (!matchesExact(advocate?.city, filters.city)) return false;
       if (!matchesExact(advocate?.bestPracticeArea, filters.bestPracticeArea)) {
@@ -391,6 +406,7 @@ const useFindLawyer = ({ initialSpecialty = "" } = {}) => {
   return {
     advocates,
     visibleAdvocates,
+    onlineCount,
     loading,
     error,
     filters,

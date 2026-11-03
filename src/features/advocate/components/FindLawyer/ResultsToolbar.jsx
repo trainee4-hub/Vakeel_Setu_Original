@@ -8,20 +8,87 @@ import {
 
 const ResultsToolbar = ({
   totalCount,
+  onlineCount = 0,
   filters,
   setFilters,
 }) => {
   const sortingDisabled = isValidPincode(filters.pincode);
 
   return (
-    <section className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <section className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between flex-wrap">
       <div>
         <p className="text-sm font-medium text-slate-500">
           <span className="font-bold text-slate-900">
-            {totalCount}
+            {filters.onlyOnline ? onlineCount : totalCount}
           </span>{" "}
-          Advocates Found
+          {filters.onlyOnline ? "Online Advocates Found" : "Advocates "}
         </p>
+      </div>
+
+      {/* Online Advocates Toggle Strip */}
+      <div
+        role="tablist"
+        aria-label="Filter advocates by availability"
+        className="inline-flex items-center rounded-xl border border-slate-200/90 bg-slate-100/90 p-1 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)]"
+      >
+        <button
+          type="button"
+          role="tab"
+          aria-selected={!filters.onlyOnline}
+          onClick={() =>
+            setFilters((previous) => ({
+              ...previous,
+              onlyOnline: false,
+            }))
+          }
+          className={`flex items-center rounded-lg px-4 py-1.5 text-xs font-bold transition-all duration-200 ${
+            !filters.onlyOnline
+              ? "bg-emerald-600/90 text-slate-900 shadow-sm shadow-slate-200/60"
+              : "text-slate-500 hover:text-slate-800"
+          }`}
+        >
+          <span>All</span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          aria-selected={Boolean(filters.onlyOnline)}
+          onClick={() =>
+            setFilters((previous) => ({
+              ...previous,
+              onlyOnline: !previous.onlyOnline,
+            }))
+          }
+          className={`group flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all duration-200 ${
+            filters.onlyOnline
+              ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/30"
+              : "text-slate-600 hover:text-slate-900"
+          }`}
+        >
+          <span className="relative flex h-2 w-2">
+            <span
+              className={`absolute inline-flex h-full w-full rounded-full bg-emerald-400 ${
+                filters.onlyOnline ? "animate-ping opacity-75" : "opacity-40"
+              }`}
+            />
+            <span
+              className={`relative inline-flex h-2 w-2 rounded-full ${
+                filters.onlyOnline ? "bg-white" : "bg-emerald-500"
+              }`}
+            />
+          </span>
+          <span>Online Now</span>
+          <span
+            className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold transition-colors ${
+              filters.onlyOnline
+                ? "bg-emerald-700/70 text-white"
+                : "bg-emerald-50 text-emerald-700 border border-emerald-200/70"
+            }`}
+          >
+            {onlineCount}
+          </span>
+        </button>
       </div>
 
       <div className="flex items-center gap-2">
