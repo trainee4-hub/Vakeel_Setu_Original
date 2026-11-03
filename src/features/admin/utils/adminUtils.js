@@ -328,6 +328,34 @@ export function normalizePagination(raw, page = 1, limit = 10, count = 0) {
   };
 }
 
+/**
+ * Ensures items are properly paginated even if the backend returns all records in a single array.
+ */
+export function paginateResponse(items, rawPagination, page = 1, limit = 15) {
+  const safeItems = Array.isArray(items) ? items : [];
+  const safeLimit = Math.max(1, Number(limit) || 15);
+  const safePage = Math.max(1, Number(page) || 1);
+
+  // If backend provided pagination metadata AND already sliced the items
+  if (rawPagination && safeItems.length <= safeLimit) {
+    return {
+      items: safeItems,
+      pagination: normalizePagination(rawPagination, safePage, safeLimit, safeItems.length),
+    };
+  }
+
+  // Otherwise, backend returned all items unpaginated (or missing server slicing)
+  const total = safeItems.length;
+  const pagination = normalizePagination(rawPagination, safePage, safeLimit, total);
+  const startIndex = (pagination.currentPage - 1) * pagination.limit;
+  const slicedItems = safeItems.slice(startIndex, startIndex + pagination.limit);
+
+  return {
+    items: slicedItems,
+    pagination,
+  };
+}
+
 /* ------------------------------- UX -------------------------------- */
 
 /** Brings the page's error banner into view after a failed save. */

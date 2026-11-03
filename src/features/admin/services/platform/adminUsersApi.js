@@ -1,4 +1,4 @@
-import { adminRequest, extractList, extractRecord, idPath, normalizePagination } from "../../utils/adminUtils";
+import { adminRequest, extractList, extractRecord, idPath, normalizePagination, paginateResponse } from "../../utils/adminUtils";
 
 /**
  * GET /api/admin/users
@@ -14,10 +14,7 @@ export async function getUsers({ page = 1, limit = 20, search = "", role = "" } 
   const query = params.toString();
   const response = await adminRequest(`/admin/users${query ? `?${query}` : ""}`);
   const items = extractList(response, ["users", "data"]);
-  return {
-    items,
-    pagination: normalizePagination(response?.pagination, page, limit, items.length),
-  };
+  return paginateResponse(items, response?.pagination, page, limit);
 }
 
 /**

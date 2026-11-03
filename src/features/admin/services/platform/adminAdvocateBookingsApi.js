@@ -1,4 +1,4 @@
-import { adminRequest, extractList, normalizePagination } from "../../utils/adminUtils";
+import { adminRequest, extractList, normalizePagination, paginateResponse } from "../../utils/adminUtils";
 
 /**
  * GET /api/admin/advocate-bookings
@@ -25,8 +25,5 @@ export async function getAdminAdvocateBookings({
   const query = params.toString();
   const response = await adminRequest(`/admin/advocate-bookings${query ? `?${query}` : ""}`);
   const items = extractList(response, ["data", "bookings"]);
-  return {
-    items,
-    pagination: normalizePagination(response?.pagination, page, limit, items.length),
-  };
+  return paginateResponse(items, response?.pagination, page, limit);
 }

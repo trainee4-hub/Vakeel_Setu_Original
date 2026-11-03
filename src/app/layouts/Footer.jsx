@@ -398,8 +398,6 @@ const Footer = () => {
               PLATFORM
           ================================================= */}
           <div className="min-w-0">
-            <FooterHeading icon={FiGrid}>Platform</FooterHeading>
-
             <FooterNav ariaLabel="Platform">
               <FooterLink
                 label="Home"
@@ -437,8 +435,6 @@ const Footer = () => {
               RESOURCES
           ================================================= */}
           <div className="min-w-0">
-            <FooterHeading icon={FiBookmark}>Resources</FooterHeading>
-
             <FooterNav ariaLabel="Resources">
               <FooterLink
                 label="Rights"
@@ -476,19 +472,11 @@ const Footer = () => {
               LEGAL & SUPPORT
           ================================================= */}
           <div className="min-w-0">
-            <FooterHeading icon={FiLifeBuoy}>Legal & Support</FooterHeading>
-
             <FooterNav ariaLabel="Legal and Support">
               <FooterLink
                 label="Terms of Service"
                 to="/terms"
                 icon={FiCheckSquare}
-              />
-
-              <FooterLink
-                label="Support"
-                to="/help"
-                icon={FiHelpCircle}
               />
             </FooterNav>
 

@@ -1,5 +1,5 @@
 import { apiRequest } from "@shared/services/apiClient";
-import { adminRequest, extractList, extractRecord, idPath, normalizePagination } from "../../utils/adminUtils";
+import { adminRequest, extractList, extractRecord, idPath, normalizePagination, paginateResponse } from "../../utils/adminUtils";
 
 /**
  * GET /api/admin/advocates
@@ -16,10 +16,7 @@ export async function getAdvocates({ page = 1, limit = 20, status, approvalStatu
   const query = params.toString();
   const response = await adminRequest(`/admin/advocates${query ? `?${query}` : ""}`);
   const items = extractList(response, ["advocates", "data"]);
-  return {
-    items,
-    pagination: normalizePagination(response?.pagination, page, limit, items.length),
-  };
+  return paginateResponse(items, response?.pagination, page, limit);
 }
 
 /**
@@ -33,10 +30,7 @@ export async function getPendingAdvocates({ page = 1, limit = 20 } = {}) {
   const query = params.toString();
   const response = await adminRequest(`/admin/advocates/pending${query ? `?${query}` : ""}`);
   const items = extractList(response, ["data", "advocates"]);
-  return {
-    items,
-    pagination: normalizePagination(response?.pagination, page, limit, items.length),
-  };
+  return paginateResponse(items, response?.pagination, page, limit);
 }
 
 /**
@@ -50,10 +44,7 @@ export async function getAdvocateDeletionRequests({ page = 1, limit = 20 } = {})
   const query = params.toString();
   const response = await adminRequest(`/admin/advocates/deletion-requests${query ? `?${query}` : ""}`);
   const items = extractList(response, ["deletionRequests", "data", "advocates"]);
-  return {
-    items,
-    pagination: normalizePagination(response?.pagination, page, limit, items.length),
-  };
+  return paginateResponse(items, response?.pagination, page, limit);
 }
 
 /**
@@ -172,10 +163,7 @@ export async function getRejectedAdvocates({ page = 1, limit = 20, search } = {}
   const query = params.toString();
   const response = await adminRequest(`/admin/advocates/rejected${query ? `?${query}` : ""}`);
   const items = extractList(response, ["data", "advocates"]);
-  return {
-    items,
-    pagination: normalizePagination(response?.pagination, page, limit, items.length),
-  };
+  return paginateResponse(items, response?.pagination, page, limit);
 }
 
 /**
@@ -230,15 +218,12 @@ export async function getProfileChangeRequests({
     "data",
   ]);
 
+  const paginated = paginateResponse(items, response?.pagination, page, limit);
+
   return {
-    items,
+    items: paginated.items,
     counts: response?.counts || response?.data?.counts || {},
-    pagination: normalizePagination(
-      response?.pagination,
-      page,
-      limit,
-      items.length
-    ),
+    pagination: paginated.pagination,
     raw: response,
   };
 }

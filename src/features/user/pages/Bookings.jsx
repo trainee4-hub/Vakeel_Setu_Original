@@ -555,7 +555,7 @@ function formatAdvocateSlotTime(startAt, endAt) {
         }).format(end)
       : "";
 
-    return `${datePart}, ${startTimePart}${endTimePart ? ` – ${endTimePart}` : ""} IST`;
+    return `${datePart}, ${startTimePart}${endTimePart ? ` – ${endTimePart}` : ""}`;
   } catch {
     return String(startAt);
   }

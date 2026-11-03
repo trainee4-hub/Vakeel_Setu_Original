@@ -29,7 +29,35 @@ export default function usePaginatedList(fetcher, { limit = 10 } = {}) {
     fetcher({ page, limit })
       .then(({ items, pagination }) => {
         if (!ignore) {
-          setResult({ key: requestKey, status: "success", items: items ?? [], pagination: pagination ?? null, error: null });
+          const rawItems = Array.isArray(items) ? items : [];
+          let resolvedItems = rawItems;
+          let resolvedPagination = pagination ?? null;
+
+          // Client-side fallback if backend returns full unpaginated array
+          if (rawItems.length > limit) {
+            const total = pagination?.total ?? rawItems.length;
+            const totalPages = Math.ceil(total / limit) || 1;
+            const startIndex = (page - 1) * limit;
+            resolvedItems = rawItems.slice(startIndex, startIndex + limit);
+            resolvedPagination = {
+              ...(pagination || {}),
+              currentPage: page,
+              page,
+              limit,
+              total,
+              totalPages,
+              hasNextPage: page < totalPages,
+              hasPreviousPage: page > 1,
+            };
+          }
+
+          setResult({
+            key: requestKey,
+            status: "success",
+            items: resolvedItems,
+            pagination: resolvedPagination,
+            error: null,
+          });
         }
       })
       .catch((error) => {
@@ -53,6 +81,9 @@ export default function usePaginatedList(fetcher, { limit = 10 } = {}) {
         else copy.set("page", String(clean));
         return copy;
       });
+      if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
     },
     [page, setSearchParams],
   );

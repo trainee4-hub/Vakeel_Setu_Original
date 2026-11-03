@@ -107,8 +107,8 @@ export function generateAdvocateSlots({
       const startEpochMs = Date.parse(startAt);
       const endEpochMs = Date.parse(endAt);
 
-      // Label: e.g. "10:00 AM – 10:15 AM IST"
-      const label = `${formatTime12h(startHour, startMin)} – ${formatTime12h(endHour, endMin)} IST`;
+      // Label: e.g. "10:00 AM – 10:15 AM"
+      const label = `${formatTime12h(startHour, startMin)} – ${formatTime12h(endHour, endMin)}`;
       const period = getPeriodForHour(startHour);
 
       // Overlap rule: slotStart < busyEnd && slotEnd > busyStart

@@ -111,8 +111,8 @@ export default function AdvocateBookingModal({
   );
 
   // 1. DATE: A single dd/mm/yyyy input with integrated calendar picker
-  const [dateInputValue, setDateInputValue] = useState("");
-  const [selectedDate, setSelectedDate] = useState(""); // YYYY-MM-DD once valid
+  const [dateInputValue, setDateInputValue] = useState(() => formatDDMMYYYY(todayIST));
+  const [selectedDate, setSelectedDate] = useState(() => todayIST); // YYYY-MM-DD once valid
   const [dateError, setDateError] = useState("");
 
   // Calendar popover state
@@ -294,8 +294,23 @@ export default function AdvocateBookingModal({
     return rawSlots.filter((slot) => !slot.isPastOrLead);
   }, [rawSlots]);
 
-  // Sample slot start times to display before a date is chosen (every 15 min)
+  // Sample slot start times to display before a date is chosen (or fallback)
   const sampleSlotStartTimes = useMemo(() => {
+    const slots = generateAdvocateSlots({
+      dateString: todayIST,
+      durationMinutes: 15,
+      stepMinutes: 15,
+      busySlots: [],
+      minLeadMinutes,
+      currentEpochMs: Date.now(),
+    });
+    const upcoming = slots
+      .filter((s) => !s.isPastOrLead)
+      .map((s) => formatSlotStartTime(s.startAt));
+
+    if (upcoming.length > 0) {
+      return upcoming;
+    }
     return [
       "10:00 AM",
       "10:15 AM",
@@ -304,12 +319,8 @@ export default function AdvocateBookingModal({
       "11:00 AM",
       "11:15 AM",
       "11:30 AM",
-      "11:45 AM",
-      "12:00 PM",
-      "12:15 PM",
-      "12:30 PM",
     ];
-  }, []);
+  }, [todayIST, minLeadMinutes]);
 
   // Recalculate scroller buttons whenever visible slots change
   useEffect(() => {
@@ -536,11 +547,11 @@ export default function AdvocateBookingModal({
     }
   }, [paymentState, paymentResult, onBookingComplete]);
 
-  // Reset modal state on open
+  // Reset modal state on open (pre-fill with current day's date)
   useEffect(() => {
     if (isOpen) {
-      setDateInputValue("");
-      setSelectedDate("");
+      setDateInputValue(formatDDMMYYYY(todayIST));
+      setSelectedDate(todayIST);
       setSelectedSlot(null);
       setDateError("");
       setNotes("");
@@ -870,7 +881,7 @@ export default function AdvocateBookingModal({
                       <span className="text-[11px] text-slate-400">
                         {selectedMode === "IN_PERSON"
                           ? (bookingOptions?.inPersonMinutes ?? activeModeObj?.durationMinutes ?? 60)
-                          : (activeModeObj?.durationMinutes ?? 15)}m session • IST
+                          : (activeModeObj?.durationMinutes ?? 15)}m session
                       </span>
                       <button
                         type="button"
@@ -896,7 +907,7 @@ export default function AdvocateBookingModal({
                       ref={slotScrollerRef}
                       onScroll={updateScrollIndicators}
                       tabIndex={0}
-                      className="flex items-center gap-2 overflow-x-auto scroll-smooth py-1 px-1 scrollbar-none rounded-xl"
+                      className="flex items-center gap-2 overflow-x-auto scroll-smooth py-1 px-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden rounded-xl"
                     >
                       {sampleSlotStartTimes.map((timeStr) => (
                         <button
@@ -950,7 +961,7 @@ export default function AdvocateBookingModal({
                           ref={slotScrollerRef}
                           onScroll={updateScrollIndicators}
                           tabIndex={0}
-                          className="flex items-center gap-2 overflow-x-auto scroll-smooth py-1 px-1 scrollbar-none focus:outline-none focus:ring-1 focus:ring-amber-400/50 rounded-xl"
+                          className="flex items-center gap-2 overflow-x-auto scroll-smooth py-1 px-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden focus:outline-none focus:ring-1 focus:ring-amber-400/50 rounded-xl"
                         >
                           {visibleSlots.map((slot) => {
                             const isSelected = selectedSlot?.startAt === slot.startAt;
@@ -1075,7 +1086,7 @@ export default function AdvocateBookingModal({
                     <span className="text-slate-500">Date & Time</span>
                     <span className="font-bold text-slate-900 text-right">
                       {selectedDate && selectedSlot
-                        ? `${formatISTDateLong(selectedDate)} at ${formatSlotStartTime(selectedSlot.startAt)} IST`
+                        ? `${formatISTDateLong(selectedDate)} at ${formatSlotStartTime(selectedSlot.startAt)}`
                         : selectedDate
                         ? `${formatISTDateLong(selectedDate)} (Pick a time above)`
                         : "Select date and time"}

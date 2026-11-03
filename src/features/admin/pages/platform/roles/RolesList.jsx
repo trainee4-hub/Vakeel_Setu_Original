@@ -223,7 +223,10 @@ export default function RolesList() {
 
           <Pagination
             pagination={data.pagination}
-            onPageChange={setPage}
+            onPageChange={(newPage) => {
+              setPage(newPage);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
           />
         </div>
       )}

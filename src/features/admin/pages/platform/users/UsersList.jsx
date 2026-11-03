@@ -83,6 +83,7 @@ export default function UsersList() {
     const next = new URLSearchParams(searchParams);
     next.set("page", String(page));
     setSearchParams(next);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleInputChange = (e) => {

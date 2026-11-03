@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  FiAlertCircle,
   FiArrowRight,
   FiCheckCircle,
   FiFileText,
@@ -25,6 +26,11 @@ const HelpForm = ({ className = "" }) => {
     concern: "",
   });
 
+  const [errors, setErrors] = useState({
+    phone: "",
+    concern: "",
+  });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [referenceId, setReferenceId] = useState("");
@@ -38,10 +44,85 @@ const HelpForm = ({ className = "" }) => {
     }));
   };
 
+  const handlePhoneChange = (e) => {
+    // Only numbers allowed, max 10 digits
+    const digitsOnly = e.target.value.replace(/\D/g, "").slice(0, 10);
+
+    setFormData((prev) => ({
+      ...prev,
+      phone: digitsOnly,
+    }));
+
+    if (digitsOnly.length > 0 && digitsOnly.length < 10) {
+      setErrors((prev) => ({
+        ...prev,
+        phone: "Please enter a valid 10-digit phone number.",
+      }));
+    } else {
+      setErrors((prev) => ({
+        ...prev,
+        phone: "",
+      }));
+    }
+  };
+
+  const handlePhoneBlur = () => {
+    if (formData.phone && formData.phone.length < 10) {
+      setErrors((prev) => ({
+        ...prev,
+        phone: "Please enter a valid 10-digit phone number.",
+      }));
+    }
+  };
+
+  const handleConcernChange = (e) => {
+    const value = e.target.value;
+
+    setFormData((prev) => ({
+      ...prev,
+      concern: value,
+    }));
+
+    if (value.trim().length >= 10) {
+      setErrors((prev) => ({
+        ...prev,
+        concern: "",
+      }));
+    }
+  };
+
+  const handleConcernBlur = () => {
+    if (formData.concern && formData.concern.trim().length < 10) {
+      setErrors((prev) => ({
+        ...prev,
+        concern: "Concern must be at least 10 characters long.",
+      }));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (isSubmitting) return;
+
+    let hasError = false;
+    const newErrors = { phone: "", concern: "" };
+
+    const cleanPhone = formData.phone.replace(/\D/g, "");
+    if (!cleanPhone || cleanPhone.length !== 10) {
+      newErrors.phone = "Please enter a valid 10-digit phone number.";
+      hasError = true;
+    }
+
+    if (!formData.concern || formData.concern.trim().length < 10) {
+      newErrors.concern = "Concern must be at least 10 characters long.";
+      hasError = true;
+    }
+
+    if (hasError) {
+      setErrors(newErrors);
+      return;
+    }
 
     setIsSubmitting(true);
 
@@ -54,7 +135,7 @@ const HelpForm = ({ className = "" }) => {
         body: JSON.stringify({
           name: formData.name.trim(),
           email: formData.email.trim().toLowerCase(),
-          phoneNumber: formData.phone.trim(),
+          phoneNumber: cleanPhone,
           concern: formData.concern.trim(),
         }),
       });
@@ -78,13 +159,21 @@ const HelpForm = ({ className = "" }) => {
         phone: "",
         concern: "",
       });
+      setErrors({
+        phone: "",
+        concern: "",
+      });
     } catch (error) {
       console.error("Help Request Error:", error);
-
-      alert(
+      const msg =
         error?.message ||
-          "Something went wrong while submitting your request. Please try again.",
-      );
+        "Something went wrong while submitting your request. Please try again.";
+
+      if (msg.toLowerCase().includes("phone")) {
+        setErrors((prev) => ({ ...prev, phone: msg }));
+      } else {
+        setErrors((prev) => ({ ...prev, concern: msg }));
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -93,6 +182,7 @@ const HelpForm = ({ className = "" }) => {
   const handleNewRequest = () => {
     setIsSubmitted(false);
     setReferenceId("");
+    setErrors({ phone: "", concern: "" });
   };
 
   return (
@@ -365,8 +455,11 @@ const HelpForm = ({ className = "" }) => {
                       name="phone"
                       type="tel"
                       value={formData.phone}
-                      onChange={handleChange}
-                      placeholder="Enter your phone number"
+                      onChange={handlePhoneChange}
+                      onBlur={handlePhoneBlur}
+                      maxLength={10}
+                      error={errors.phone}
+                      placeholder="Enter 10-digit phone number"
                       icon="phone"
                       required
                     />
@@ -395,7 +488,7 @@ const HelpForm = ({ className = "" }) => {
                       </span>
 
                       <span className="hidden sm:block text-[11px] font-medium text-slate-400">
-                        Be as specific as possible
+                        Be as specific as possible (min. 10 characters)
                       </span>
                     </label>
 
@@ -417,33 +510,38 @@ const HelpForm = ({ className = "" }) => {
                         name="concern"
                         required
                         value={formData.concern}
-                        onChange={handleChange}
+                        onChange={handleConcernChange}
+                        onBlur={handleConcernBlur}
                         rows={3}
                         placeholder="Briefly explain your legal issue, situation or question..."
-                        className="
+                        className={`
                           w-full
                           min-h-[100px]
                           rounded-xl
                           border
-                          border-slate-200
-                          bg-slate-50/70
                           px-10
                           py-3
                           text-sm
                           font-medium
-                          text-slate-700
-                          placeholder:text-slate-400
                           outline-none
                           resize-none
                           transition-all
                           duration-200
-                          focus:border-amber-400
-                          focus:bg-white
-                          focus:ring-4
-                          focus:ring-amber-50
-                        "
+                          ${
+                            errors.concern
+                              ? "border-rose-400 bg-rose-50/20 text-slate-900 placeholder:text-slate-400 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10"
+                              : "border-slate-200 bg-slate-50/70 text-slate-700 placeholder:text-slate-400 focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-50"
+                          }
+                        `}
                       />
                     </div>
+
+                    {errors.concern && (
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-rose-600 px-0.5 mt-1">
+                        <FiAlertCircle className="shrink-0 text-sm" />
+                        <span>{errors.concern}</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Submit */}
@@ -607,6 +705,9 @@ const FormField = ({
   type,
   value,
   onChange,
+  onBlur,
+  maxLength,
+  error,
   placeholder,
   icon,
   required = false,
@@ -641,29 +742,35 @@ const FormField = ({
           required={required}
           value={value}
           onChange={onChange}
+          onBlur={onBlur}
+          maxLength={maxLength}
           placeholder={placeholder}
-          className="
+          className={`
             w-full
             h-11
             rounded-xl
             border
-            border-slate-200
-            bg-slate-50/70
             px-10
             text-sm
             font-medium
-            text-slate-700
-            placeholder:text-slate-400
             outline-none
             transition-all
             duration-200
-            focus:border-amber-400
-            focus:bg-white
-            focus:ring-4
-            focus:ring-amber-50
-          "
+            ${
+              error
+                ? "border-rose-400 bg-rose-50/20 text-slate-900 placeholder:text-slate-400 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10"
+                : "border-slate-200 bg-slate-50/70 text-slate-700 placeholder:text-slate-400 focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-50"
+            }
+          `}
         />
       </div>
+
+      {error && (
+        <p className="flex items-center gap-1.5 text-xs font-semibold text-rose-600 px-0.5 mt-1">
+          <FiAlertCircle className="shrink-0 text-sm" />
+          <span>{error}</span>
+        </p>
+      )}
     </div>
   );
 };

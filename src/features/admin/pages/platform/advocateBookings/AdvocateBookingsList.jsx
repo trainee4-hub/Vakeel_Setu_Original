@@ -212,7 +212,7 @@ export default function AdvocateBookingsList() {
     {
       key: "bookingReference",
       header: "Booking Reference",
-      className: "whitespace-nowrap w-[150px]",
+      className: "whitespace-nowrap w-[130px]",
       primary: true,
       render: (item) => (
         <div>
@@ -223,25 +223,25 @@ export default function AdvocateBookingsList() {
     {
       key: "client",
       header: "Client Details",
-      className: "min-w-[150px]",
+      className: "min-w-[130px]",
       render: (item) => <ClientHoverCell item={item} />,
     },
     {
       key: "advocate",
       header: "Advocate Details",
-      className: "min-w-[150px]",
+      className: "min-w-[130px]",
       render: (item) => <AdvocateHoverCell advocate={item.advocate} />,
     },
     {
       key: "mode",
       header: "Mode",
-      className: "whitespace-nowrap w-[110px]",
+      className: "whitespace-nowrap w-[95px]",
       render: (item) => renderModeBadge(item.mode),
     },
     {
       key: "slot",
       header: "Slot",
-      className: "min-w-[140px]",
+      className: "min-w-[130px]",
       render: (item) => (
         <div className="text-xs space-y-0.5">
           <p className="font-semibold text-slate-900">{formatDate(item.startAt)}</p>
@@ -254,7 +254,7 @@ export default function AdvocateBookingsList() {
     {
       key: "amount",
       header: "Amount",
-      className: "whitespace-nowrap w-[90px]",
+      className: "whitespace-nowrap w-[75px]",
       render: (item) => {
         const amt = item.breakdown?.total;
         if (amt == null || Number.isNaN(Number(amt))) {
@@ -275,7 +275,7 @@ export default function AdvocateBookingsList() {
     {
       key: "status",
       header: "Status",
-      className: "min-w-[160px]",
+      className: "min-w-[150px]",
       render: (item) => {
         const isCompleted = Boolean(item.completedAt || item.status === "COMPLETED");
         const isConfirmedOrPaid = ["CONFIRMED", "PAID"].includes(item.status);
@@ -334,12 +334,27 @@ export default function AdvocateBookingsList() {
     {
       key: "date",
       header: "Booked On",
-      className: "whitespace-nowrap w-[140px]",
-      render: (item) => (
-        <span className="text-xs text-slate-500 whitespace-nowrap">
-          {formatDateTime(item.confirmedAt || item.payment?.paidAt || item.createdAt)}
-        </span>
-      ),
+      className: "whitespace-nowrap min-w-[130px]",
+      render: (item) => {
+        const rawDate = item.confirmedAt || item.payment?.paidAt || item.createdAt;
+        if (!rawDate) return <span className="text-xs text-slate-400 font-medium">—</span>;
+        const d = new Date(rawDate);
+        if (Number.isNaN(d.getTime())) return <span className="text-xs text-slate-400 font-medium">—</span>;
+        const dateStr = formatDate(rawDate);
+        const timeStr = d.toLocaleTimeString("en-IN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        });
+        return (
+          <div className="text-xs space-y-0.5 whitespace-nowrap">
+            <p className="font-semibold text-slate-800">{dateStr}</p>
+            <p className="text-slate-500 font-mono text-[11px] uppercase">
+              {timeStr}
+            </p>
+          </div>
+        );
+      },
     },
   ];
 
@@ -435,7 +450,7 @@ export default function AdvocateBookingsList() {
           {/* Responsive Table Container with horizontal scroll on narrow screens */}
           <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
             <div className="overflow-x-auto">
-              <table className="hidden w-full min-w-[920px] text-left text-sm md:table">
+              <table className="hidden w-full min-w-[840px] text-left text-sm md:table">
                 <caption className="sr-only">Private Advocate Bookings</caption>
                 <thead className="border-b border-slate-200 bg-slate-50/80 text-xs font-semibold text-slate-500">
                   <tr>
@@ -443,7 +458,7 @@ export default function AdvocateBookingsList() {
                       <th
                         key={column.key}
                         scope="col"
-                        className={`px-3.5 py-3 sm:px-4 ${column.className ?? ""}`}
+                        className={`px-3 py-3 sm:px-3.5 ${column.className ?? ""}`}
                       >
                         {column.header}
                       </th>
@@ -459,7 +474,7 @@ export default function AdvocateBookingsList() {
                       {columns.map((column) => (
                         <td
                           key={column.key}
-                          className={`px-3.5 py-3 sm:px-4 sm:py-3.5 text-slate-600 ${column.className ?? ""}`}
+                          className={`px-3 py-3 sm:px-3.5 text-slate-600 ${column.className ?? ""}`}
                         >
                           {column.render(item)}
                         </td>
@@ -491,7 +506,10 @@ export default function AdvocateBookingsList() {
           <Pagination
             pagination={data.pagination}
             page={page}
-            onPageChange={setPage}
+            onPageChange={(newPage) => {
+              setPage(newPage);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
           />
         </div>
       )}

@@ -1,4 +1,4 @@
-import { adminRequest, extractList, extractRecord, idPath, normalizePagination } from "../../utils/adminUtils";
+import { adminRequest, extractList, extractRecord, idPath, normalizePagination, paginateResponse } from "../../utils/adminUtils";
 
 /**
  * GET /api/admin/help?page&limit&status&search
@@ -16,11 +16,12 @@ export async function getHelpRequests({ page = 1, limit = 20, status = "", searc
   const query = params.toString();
   const response = await adminRequest(`/admin/help${query ? `?${query}` : ""}`);
   const items = extractList(response, ["helpRequests", "data", "items"]);
+  const paginated = paginateResponse(items, response?.pagination, page, safeLimit);
 
   return {
-    items,
-    helpRequests: items,
-    pagination: normalizePagination(response?.pagination, page, safeLimit, items.length),
+    items: paginated.items,
+    helpRequests: paginated.items,
+    pagination: paginated.pagination,
     counts: response?.counts || null,
   };
 }

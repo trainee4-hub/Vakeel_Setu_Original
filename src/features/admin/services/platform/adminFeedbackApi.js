@@ -1,4 +1,4 @@
-import { adminRequest, extractList, idPath, normalizePagination } from "../../utils/adminUtils";
+import { adminRequest, extractList, idPath, normalizePagination, paginateResponse } from "../../utils/adminUtils";
 
 /**
  * GET /api/admin/feedback
@@ -13,10 +13,7 @@ export async function getFeedbackList({ page = 1, limit = 20 } = {}) {
   const query = params.toString();
   const response = await adminRequest(`/admin/feedback${query ? `?${query}` : ""}`);
   const items = extractList(response, ["data", "feedback"]);
-  return {
-    items,
-    pagination: normalizePagination(response?.pagination, page, limit, items.length),
-  };
+  return paginateResponse(items, response?.pagination, page, limit);
 }
 
 /**

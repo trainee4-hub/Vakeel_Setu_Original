@@ -146,11 +146,19 @@ const useFindLawyer = ({ initialSpecialty = "" } = {}) => {
     }
   }, [filters.onlyOnline]);
 
+  const prevSortRef = useRef(filters.sort);
+  useEffect(() => {
+    if (prevSortRef.current !== filters.sort) {
+      prevSortRef.current = filters.sort;
+      setCurrentPage(1);
+    }
+  }, [filters.sort]);
+
   // Server-side advocate search handles full-text filtering across the database.
   // We avoid filtering by search query here to prevent flickering/blanking the list
   // before the server response arrives.
   const visibleAdvocates = useMemo(() => {
-    return advocates.filter((advocate) => {
+    const filtered = advocates.filter((advocate) => {
       if (filters.onlyOnline && advocate?.isOnline !== true) {
         return false;
       }
@@ -199,6 +207,24 @@ const useFindLawyer = ({ initialSpecialty = "" } = {}) => {
 
       return true;
     });
+
+    if (filters.sort === "rating") {
+      return [...filtered].sort(
+        (a, b) => getNumericValue(b?.averageRating) - getNumericValue(a?.averageRating),
+      );
+    }
+    if (filters.sort === "experience") {
+      return [...filtered].sort(
+        (a, b) => getNumericValue(b?.experienceYears) - getNumericValue(a?.experienceYears),
+      );
+    }
+    if (filters.sort === "casesHandled") {
+      return [...filtered].sort(
+        (a, b) => getNumericValue(b?.casesHandled) - getNumericValue(a?.casesHandled),
+      );
+    }
+
+    return filtered;
   }, [advocates, filters, selectedExperienceRange]);
 
   const fetchAdvocates = useCallback(async () => {
