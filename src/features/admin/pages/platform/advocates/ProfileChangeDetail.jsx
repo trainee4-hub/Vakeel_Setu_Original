@@ -552,7 +552,7 @@ export default function ProfileChangeDetail() {
                 <tr key={diff.key} className="hover:bg-slate-50/50 transition">
                   <td className="py-4 px-6 font-bold text-slate-800 align-top">
                     {diff.label}
-                  </td>
+                  </td> 
                   <td className="py-4 px-6 text-slate-600 align-top">
                     {diff.isFee ? (
                       <span className="font-semibold text-slate-700">

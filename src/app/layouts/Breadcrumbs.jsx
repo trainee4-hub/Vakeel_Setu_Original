@@ -25,6 +25,7 @@ const SEGMENT_LABELS = {
   "ipc": "IPC",
   "bns": "BNS",
   "faq": "FAQ",
+  "legal-services": "Legal Services",
 };
 
 /* =========================================================

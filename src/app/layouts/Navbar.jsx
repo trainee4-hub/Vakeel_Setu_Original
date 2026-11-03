@@ -27,6 +27,7 @@ import {
 
 import { useAuth } from "../../features/auth";
 import LanguageTranslator from "./LanguageTranslator";
+import { LegalServicesMegaMenu, LEGAL_SERVICES_CATEGORIES } from "../../features/legalServices";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -50,6 +51,7 @@ const Navbar = () => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   const [mobileMenu, setMobileMenu] = useState(false);
+  const [mobileLegalServicesOpen, setMobileLegalServicesOpen] = useState(false);
 
   const profileMenuRef = useRef(null);
 
@@ -236,6 +238,14 @@ const Navbar = () => {
               </button>
             )}
 
+            {/* LEGAL SERVICES MEGA MENU */}
+            {!isAdvocate && (
+              <LegalServicesMegaMenu
+                navItemClass={navItemClass}
+                isActive={isActive}
+              />
+            )}
+
             {/* BOOKINGS */}
 
             {!isAdvocate && !isAdmin && (
@@ -257,24 +267,6 @@ const Navbar = () => {
               )
             )}
 
-            {/* MESSAGES */}
-
-            {loggedIn ? (
-              <Link
-                to={isAdvocate ? "/advocate/messages" : "/messages"}
-                className={navItemClass(isAdvocate ? "/advocate/messages" : "/messages")}
-              >
-                Messages
-              </Link>
-            ) : (
-              <button
-                type="button"
-                onClick={() => handleProtectedNavigation("/messages")}
-                className={navItemClass("/messages")}
-              >
-                Messages
-              </button>
-            )}
 
             {/* ===========================================================
                 LEGAL HUB
@@ -669,6 +661,52 @@ const Navbar = () => {
                 Legal Assistant
               </button>
 
+              {/* Legal Services - Mega / Mobile */}
+              <div className="rounded-xl bg-slate-50/80 border border-slate-200/60 overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-3">
+                  <Link
+                    to="/legal-services"
+                    onClick={handleMobileNavigation}
+                    className={`text-sm font-semibold ${
+                      isActive("/legal-services")
+                        ? "text-amber-600 font-bold"
+                        : "text-slate-700"
+                    }`}
+                  >
+                   Services
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => setMobileLegalServicesOpen((prev) => !prev)}
+                    className="p-1 text-slate-500 hover:text-amber-600"
+                    aria-label="Toggle Legal Services sub-menu"
+                  >
+                    <IoChevronDown
+                      className={`text-base transition-transform duration-200 ${
+                        mobileLegalServicesOpen ? "rotate-180 text-amber-600" : ""
+                      }`}
+                    />
+                  </button>
+                </div>
+                {mobileLegalServicesOpen && (
+                  <div className="border-t border-slate-200 bg-white px-3 py-2 space-y-1 max-h-60 overflow-y-auto">
+                    {LEGAL_SERVICES_CATEGORIES.map((c) => (
+                      <Link
+                        key={c.slug}
+                        to={`/legal-services/${c.slug}`}
+                        onClick={handleMobileNavigation}
+                        className="block rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-amber-50 hover:text-amber-700"
+                      >
+                        <span className="font-bold text-slate-400 mr-1.5">
+                          {c.number}.
+                        </span>
+                        {c.title}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {/* My Bookings - Protected */}
               <button
                 type="button"
@@ -687,14 +725,6 @@ const Navbar = () => {
                 My Payments
               </button>
 
-              {/* Messages - Protected */}
-              <button
-                type="button"
-                onClick={() => handleProtectedNavigation("/messages")}
-                className="block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-white"
-              >
-                Messages
-              </button>
 
               <div className="my-2 h-px bg-slate-200" />
 

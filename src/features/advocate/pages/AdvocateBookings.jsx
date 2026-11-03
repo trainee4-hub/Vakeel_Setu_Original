@@ -797,7 +797,7 @@ export default function AdvocateBookings() {
             <div className="shrink-0 flex items-center justify-between gap-4 border-b border-slate-100 px-4 py-4 sm:px-5">
               <div>
                 <h2 className="text-[16px] font-extrabold text-slate-950">
-                  {tabs.find((t) => t.id === tab)?.label || "All"} Bookings
+                  {tabs.find((t) => t.id === tab)?.label || "All"} Consultation
                 </h2>
                 <p className="mt-1 text-xs text-slate-500">
                   {filteredBookings.length}{" "}

@@ -56,6 +56,14 @@ import {
   SectionDetails,
 } from "../../features/legalHub";
 
+/* ================= LEGAL SERVICES ================= */
+
+import {
+  LegalServicesIndexPage,
+  CategoryLandingPage,
+  ServiceDetailPage,
+} from "../../features/legalServices";
+
 
 const USER_ROLES = [
   "user",
@@ -357,6 +365,23 @@ const AppRoutes = () => {
       <Route
         path="/legal-hub/:type/:id"
         element={<LegalHubDetail />}
+      />
+
+      {/* ================= LEGAL SERVICES ================= */}
+
+      <Route
+        path="/legal-services"
+        element={<LegalServicesIndexPage />}
+      />
+
+      <Route
+        path="/legal-services/:categorySlug"
+        element={<CategoryLandingPage />}
+      />
+
+      <Route
+        path="/legal-services/:categorySlug/:serviceSlug"
+        element={<ServiceDetailPage />}
       />
 
       {/* ================= HELP & LEGAL ================= */}
