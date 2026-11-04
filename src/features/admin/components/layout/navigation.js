@@ -46,6 +46,12 @@ export const ADMIN_NAV_GROUPS = [
         permissions: [ADMIN_PERMISSIONS.ADVOCATE_BOOKINGS_VIEW],
       },
       {
+        to: ADMIN_PATHS.withdrawals.list,
+        label: "Withdrawal Requests",
+        icon: "payments",
+        permissions: [ADMIN_PERMISSIONS.PAYOUTS_VIEW],
+      },
+      {
         to: ADMIN_PATHS.feedback.list,
         label: "Feedback",
         icon: "rate_review",

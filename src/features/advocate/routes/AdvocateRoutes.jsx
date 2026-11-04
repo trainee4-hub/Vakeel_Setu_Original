@@ -20,6 +20,7 @@ import {
   AdvocateMyProfile,
   AdvocateEditProfile,
   AdvocateAccountSettings,
+  AdvocateEarnings,
 } from "../index";
 
 const ADVOCATE_ROLES = [
@@ -95,6 +96,13 @@ export default function AdvocateRoutes() {
             <Route
               path="bookings"
               element={<AdvocateBookings />}
+            />
+
+            {/* EARNINGS & WITHDRAWALS */}
+
+            <Route
+              path="earnings"
+              element={<AdvocateEarnings />}
             />
 
             {/* MESSAGES */}

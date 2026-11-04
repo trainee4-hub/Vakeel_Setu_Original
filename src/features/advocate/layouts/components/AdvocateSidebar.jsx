@@ -9,6 +9,7 @@ import {
   Settings,
   UserRound,
   UserRoundPlus,
+  Wallet,
 } from "lucide-react";
 
 const cleanText = (value) => {
@@ -97,6 +98,11 @@ export default function AdvocateSidebar({
       label: "My Bookings",
       path: "/advocate/bookings",
       Icon: CalendarDays,
+    },
+    {
+      label: "Earnings & Payouts",
+      path: "/advocate/earnings",
+      Icon: Wallet,
     },
     {
       label: "Messages",

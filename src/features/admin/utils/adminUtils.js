@@ -57,6 +57,10 @@ export const ADMIN_PATHS = {
   advocateBookings: {
     list: `${BASE}/advocate-bookings`,
   },
+  withdrawals: {
+    list: `${BASE}/withdrawals`,
+    detail: (id) => `${BASE}/withdrawals/${enc(id)}`,
+  },
   feedback: {
     list: `${BASE}/feedback`,
   },

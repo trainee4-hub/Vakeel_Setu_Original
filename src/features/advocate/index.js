@@ -11,6 +11,7 @@ export { default as AdvocatePricing } from "./pages/AdvocatePricing";
 export { default as AdvocateMyProfile } from "./pages/AdvocateMyProfile";
 export { default as AdvocateEditProfile } from "./pages/AdvocateEditProfile";
 export { default as AdvocateAccountSettings } from "./pages/AdvocateAccountSettings";
+export { default as AdvocateEarnings } from "./pages/AdvocateEarnings";
 
 // Components
 export { default as FindLawyer } from "./components/FindLawyer/FindLawyer";
@@ -24,6 +25,7 @@ export { default as AdvocateProfileSkeleton } from "./components/skeleton/Advoca
 // Services
 export * from "./services/advocateApi";
 export * from "./services/advocateProfileApi";
+export * from "./services/advocateEarningsApi";
 
 // Hooks
 export { default as useAdvocateDashboard } from "./hooks/useAdvocateDashboard";

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   FiArrowRight,
@@ -25,10 +25,12 @@ import {
 } from "react-icons/fa";
 
 import { useAuth } from "../../features/auth";
+import { FeedbackModal } from "../../features/feedback";
 
 const Footer = () => {
   const navigate = useNavigate();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user, token } = useAuth();
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
   const currentYear = new Date().getFullYear();
 
@@ -478,6 +480,12 @@ const Footer = () => {
                 to="/terms"
                 icon={FiCheckSquare}
               />
+
+              <FooterLink
+                label="Feedback to Improve Us"
+                onClick={() => setIsFeedbackOpen(true)}
+                icon={FiMessageSquare}
+              />
             </FooterNav>
 
             {/* SUPPORT CARD */}
@@ -624,6 +632,14 @@ const Footer = () => {
           </div>
         </div>
       </div>
+
+      <FeedbackModal
+        isOpen={isFeedbackOpen}
+        onClose={() => setIsFeedbackOpen(false)}
+        isLoggedIn={isLoggedIn}
+        user={user}
+        token={token}
+      />
     </footer>
   );
 };

@@ -38,6 +38,10 @@ export const ADMIN_PERMISSIONS = Object.freeze({
   HELP_VIEW: "help:view",
   HELP_RESPOND: "help:respond",
 
+  // Payouts & Withdrawals
+  PAYOUTS_VIEW: "payouts:view",
+  PAYOUTS_MANAGE: "payouts:manage",
+
   // Content Domains
   BLOGS_READ: "blogs:read",
   BLOGS_CREATE: "blogs:create",
