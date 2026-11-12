@@ -263,6 +263,169 @@ export function formatSlotStartTime(startAt) {
 }
 
 /**
+ * Extracts IST (Asia/Kolkata) date string and minutes from midnight for an epoch ms.
+ */
+export function getISTTimeComponents(epochMs) {
+  const d = new Date(epochMs);
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+  const parts = formatter.formatToParts(d);
+  const map = {};
+  for (const p of parts) map[p.type] = p.value;
+  const dateStr = `${map.year}-${map.month}-${map.day}`;
+  const hour = Number(map.hour);
+  const minute = Number(map.minute);
+  const minutesFromMidnight = hour * 60 + minute;
+  return { dateStr, hour, minute, minutesFromMidnight };
+}
+
+/**
+ * Formats a slot range in IST (Asia/Kolkata).
+ * E.g., "10:00 – 10:30 AM" or "11:45 AM – 12:15 PM"
+ * If durationMinutes is given and endAt is not, computes endAt.
+ */
+export function formatSlotRange(startAt, endAt, durationMinutes) {
+  if (!startAt) return "";
+  try {
+    const startMs = Date.parse(startAt);
+    if (isNaN(startMs)) return String(startAt);
+    let endMs = endAt ? Date.parse(endAt) : NaN;
+    if (isNaN(endMs) && durationMinutes) {
+      endMs = startMs + Number(durationMinutes) * 60 * 1000;
+    }
+    if (isNaN(endMs)) {
+      return formatSlotStartTime(startAt);
+    }
+
+    const start = new Date(startMs);
+    const end = new Date(endMs);
+
+    const startFormatter = new Intl.DateTimeFormat("en-IN", {
+      timeZone: "Asia/Kolkata",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+    const endFormatter = new Intl.DateTimeFormat("en-IN", {
+      timeZone: "Asia/Kolkata",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    const startParts = startFormatter.formatToParts(start);
+    const endParts = endFormatter.formatToParts(end);
+
+    const getPart = (parts, type) => parts.find((p) => p.type === type)?.value || "";
+    const startHour = getPart(startParts, "hour");
+    const startMin = getPart(startParts, "minute");
+    const startDayPeriod = getPart(startParts, "dayPeriod");
+
+    const endHour = getPart(endParts, "hour");
+    const endMin = getPart(endParts, "minute");
+    const endDayPeriod = getPart(endParts, "dayPeriod");
+
+    if (startDayPeriod && endDayPeriod && startDayPeriod.toUpperCase() === endDayPeriod.toUpperCase()) {
+      return `${startHour}:${startMin} – ${endHour}:${endMin} ${endDayPeriod.toUpperCase()}`;
+    }
+
+    return `${startHour}:${startMin} ${startDayPeriod.toUpperCase()} – ${endHour}:${endMin} ${endDayPeriod.toUpperCase()}`;
+  } catch {
+    return String(startAt);
+  }
+}
+
+/**
+ * Evaluates whether extending a booking by stepMinutes (default 15) is allowed.
+ * Conditions for +15 to be enabled:
+ * 1. The next 15 minutes are free: check the busy-slots intervals with newEnd > busy.startAt && startAt < busy.endAt
+ * 2. The new end is inside the working window for that day (10:00-13:00 or 14:00-18:00 IST) and before lunch break
+ * 3. The new end is on the same day (not past midnight)
+ *
+ * Returns { available: true } or { available: false, reason: string }
+ */
+export function checkNextStepAvailable({
+  startAt,
+  currentDurationMinutes = 15,
+  stepMinutes = 15,
+  busySlots = [],
+}) {
+  if (!startAt) return { available: false, reason: "No slot selected" };
+
+  const startMs = Date.parse(startAt);
+  if (isNaN(startMs)) return { available: false, reason: "Invalid slot time" };
+
+  const newDuration = Number(currentDurationMinutes) + Number(stepMinutes);
+  const newEndMs = startMs + newDuration * 60 * 1000;
+
+  // Extract IST components
+  const startIST = getISTTimeComponents(startMs);
+  const newEndIST = getISTTimeComponents(newEndMs);
+
+  // 1. Same day check (not past midnight)
+  if (newEndIST.dateStr !== startIST.dateStr) {
+    return { available: false, reason: "Outside working hours" };
+  }
+
+  // 2. Working window check:
+  // Morning session: 10:00 (600m) to 13:00 (780m)
+  // Afternoon session: 14:00 (840m) to 18:00 (1080m)
+  // Lunch break: 13:00 to 14:00
+  const startM = startIST.minutesFromMidnight;
+  const newEndM = newEndIST.minutesFromMidnight;
+
+  let sessionEndM = 1080; // default 18:00
+  if (startM < 780) {
+    // Started in morning session: must end by 13:00 (780m) before lunch
+    sessionEndM = 780;
+  } else if (startM >= 840) {
+    // Started in afternoon session: must end by 18:00 (1080m)
+    sessionEndM = 1080;
+  } else {
+    // Started during lunch or outside standard session
+    return { available: false, reason: "Outside working hours" };
+  }
+
+  if (newEndM > sessionEndM) {
+    return { available: false, reason: "Outside working hours" };
+  }
+
+  // 3. Busy slots overlap check: newEnd > busy.startAt && startAt < busy.endAt
+  const parsedBusyIntervals = (Array.isArray(busySlots) ? busySlots : [])
+    .map((b) => ({
+      startAt: b.startAt,
+      startMs: Date.parse(b.startAt),
+      endMs: Date.parse(b.endAt),
+    }))
+    .filter((b) => !isNaN(b.startMs) && !isNaN(b.endMs));
+
+  const conflictingBusySlots = parsedBusyIntervals.filter(
+    (b) => newEndMs > b.startMs && startMs < b.endMs
+  );
+
+  if (conflictingBusySlots.length > 0) {
+    // Find the earliest conflicting busy slot
+    conflictingBusySlots.sort((a, b) => a.startMs - b.startMs);
+    const earliestConflicting = conflictingBusySlots[0];
+    const busyStartTime = formatSlotStartTime(earliestConflicting.startAt);
+    return {
+      available: false,
+      reason: `The advocate is busy after ${busyStartTime}`,
+    };
+  }
+
+  return { available: true, reason: null };
+}
+
+/**
  * Generates calendar weeks matrix for a given year & month (0-indexed month).
  */
 export function getCalendarMonthMatrix(year, monthIndex) {

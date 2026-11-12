@@ -23,30 +23,35 @@ export async function getAdvocateBusySlots(advocateId, dateString) {
 /**
  * POST /api/advocates/:id/booking-quote
  * Authenticated user only (401 otherwise).
- * Body: { mode, startAt }
+ * Body: { mode, startAt, durationMinutes? }
  * Returns: { success: true, available: true, startAt, endAt, durationMinutes, mode, breakdown: { fee, gst, platformFee, total, totalPaise, ... } }
  */
-export async function getAdvocateBookingQuote(advocateId, { mode, startAt }) {
+export async function getAdvocateBookingQuote(advocateId, { mode, startAt, durationMinutes }) {
   if (!advocateId) throw new Error("advocateId is required");
   return apiRequest(`/advocates/${encodeURIComponent(advocateId)}/booking-quote`, {
     method: "POST",
-    body: { mode, startAt },
+    body: {
+      mode,
+      startAt,
+      ...(durationMinutes ? { durationMinutes: Number(durationMinutes) } : {}),
+    },
   });
 }
 
 /**
  * POST /api/user/advocate-bookings/checkout
  * Authenticated user only.
- * Body: { advocateId, mode, startAt, notes? }
+ * Body: { advocateId, mode, startAt, durationMinutes?, notes? }
  * Returns: { success: true, checkout: { checkoutId, razorpayOrderId, amount, currency, keyId, status, expiresAt, booking, prefill } }
  */
-export async function createAdvocateCheckout({ advocateId, mode, startAt, notes }) {
+export async function createAdvocateCheckout({ advocateId, mode, startAt, durationMinutes, notes }) {
   return apiRequest("/user/advocate-bookings/checkout", {
     method: "POST",
     body: {
       advocateId,
       mode,
       startAt,
+      ...(durationMinutes ? { durationMinutes: Number(durationMinutes) } : {}),
       ...(notes ? { notes: String(notes).trim() } : {}),
     },
   });

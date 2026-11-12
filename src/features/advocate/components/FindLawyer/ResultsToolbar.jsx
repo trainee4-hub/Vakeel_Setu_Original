@@ -16,7 +16,7 @@ const ResultsToolbar = ({
           <span className="font-bold text-slate-900">
             {filters.onlyOnline ? onlineCount : totalCount}
           </span>{" "}
-          {filters.onlyOnline ? "Online Advocates Found" : "Advocates "}
+          {filters.onlyOnline ? "Online Advocates" : "Advocates "}
         </p>
       </div>
 

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "../../auth";
 import { getAdvocateProfileCompletion } from "@/utils/advocateProfile";
 import { getAdvocateAppointments } from "../services/advocateBookingApi";
+import { getAdvocateEarnings } from "../services/advocateEarningsApi";
 
 /* =========================================================================
    ADVOCATE DASHBOARD DATA
@@ -39,7 +40,9 @@ export default function useAdvocateDashboard() {
     COMPLETED: 0,
     REFUNDED: 0,
   });
+  const [earningsSummary, setEarningsSummary] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
   /* -----------------------------------------------------------------------
@@ -52,19 +55,25 @@ export default function useAdvocateDashboard() {
   );
 
   /* -----------------------------------------------------------------------
-     FETCH REAL APPOINTMENT DATA
+     FETCH REAL APPOINTMENT & EARNINGS DATA
   ----------------------------------------------------------------------- */
 
   const lastFetchTimeRef = useRef(0);
   const isFetchingRef = useRef(false);
 
-  const fetchDashboardData = useCallback(async () => {
+  const fetchDashboardData = useCallback(async (silent = false) => {
     if (!user || isFetchingRef.current) return;
     isFetchingRef.current = true;
-    setIsLoading(true);
+    if (silent) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
     setError(null);
+
     try {
-      const res = await getAdvocateAppointments(
+      // 1. Fetch Authoritative Appointments
+      const appointmentsPromise = getAdvocateAppointments(
         {
           status: "ALL",
           page: 1,
@@ -74,6 +83,14 @@ export default function useAdvocateDashboard() {
         { forceRefresh: true, cache: false },
       );
 
+      // 2. Fetch Authoritative Earnings Summary
+      const earningsPromise = getAdvocateEarnings({ page: 1, limit: 10 }).catch((err) => {
+        console.warn("[Dashboard] Could not fetch earnings summary:", err);
+        return null;
+      });
+
+      const [res, earningsRes] = await Promise.all([appointmentsPromise, earningsPromise]);
+
       if (res?.success) {
         setAppointments(res.appointments || []);
         if (res.counts) {
@@ -82,28 +99,39 @@ export default function useAdvocateDashboard() {
       } else {
         throw new Error(res?.message || "Failed to load bookings");
       }
+
+      if (earningsRes?.summary) {
+        setEarningsSummary(earningsRes.summary);
+      }
     } catch (err) {
       setError(err?.message || "Could not load consultation bookings.");
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
       isFetchingRef.current = false;
       lastFetchTimeRef.current = Date.now();
     }
   }, [user]);
 
   useEffect(() => {
-    fetchDashboardData();
+    fetchDashboardData(false);
+
+    // Periodic auto-sync every 25 seconds so new bookings and status updates reflect dynamically
+    const pollInterval = setInterval(() => {
+      fetchDashboardData(true);
+    }, 25000);
 
     // Re-fetch on window focus, throttled to at most once every 10 seconds
     const onFocus = () => {
       if (Date.now() - lastFetchTimeRef.current < 10000 || isFetchingRef.current) {
         return;
       }
-      fetchDashboardData();
+      fetchDashboardData(true);
     };
 
     window.addEventListener("focus", onFocus);
     return () => {
+      clearInterval(pollInterval);
       window.removeEventListener("focus", onFocus);
     };
   }, [fetchDashboardData]);
@@ -147,10 +175,11 @@ export default function useAdvocateDashboard() {
 
     // Future or ongoing slot
     const futureOrOngoing = active.filter((b) => {
+      const startMs = new Date(b.scheduledAt || b.startAt || 0).getTime();
       const end = b.endAt
         ? new Date(b.endAt).getTime()
-        : b.startAt
-          ? new Date(b.startAt).getTime() + 30 * 60 * 1000
+        : startMs
+          ? startMs + (b.durationMinutes || 15) * 60 * 1000
           : 0;
       return end >= now;
     });
@@ -161,10 +190,8 @@ export default function useAdvocateDashboard() {
       )[0];
     }
 
-    // Fallback: earliest pending/confirmed booking
-    return [...active].sort(
-      (a, b) => new Date(a.startAt || 0).getTime() - new Date(b.startAt || 0).getTime(),
-    )[0];
+    // When there are no future or ongoing sessions, schedule is genuinely clear!
+    return null;
   }, [appointments]);
 
   /* -----------------------------------------------------------------------
@@ -212,30 +239,96 @@ export default function useAdvocateDashboard() {
   }, [appointments]);
 
   /* -----------------------------------------------------------------------
-     OVERVIEW STATS
+     DERIVED COUNTS & OVERVIEW STATS
   ----------------------------------------------------------------------- */
+
+  const derivedCounts = useMemo(() => {
+    let upCount = 0;
+    let compCount = 0;
+    let pastCount = 0;
+    const now = Date.now();
+
+    for (const b of appointments) {
+      if (!b) continue;
+      const isCompleted = Boolean(
+        b.completedAt ||
+        b.status === "COMPLETED" ||
+        b.callStatus === "COMPLETED"
+      );
+      if (isCompleted) {
+        compCount++;
+        continue;
+      }
+      if (b.status === "CANCELLED" || b.status === "REFUNDED") {
+        continue;
+      }
+
+      const slotTime = b.startAt ? new Date(b.startAt).getTime() : 0;
+      if (slotTime > 0 && slotTime < now) {
+        pastCount++;
+      } else {
+        upCount++;
+      }
+    }
+
+    return {
+      ALL: counts?.ALL ?? appointments.length,
+      UPCOMING: (counts?.UPCOMING !== undefined && counts?.UPCOMING !== null) ? counts.UPCOMING : upCount,
+      PAST_DUE: (counts?.PAST_DUE !== undefined && counts?.PAST_DUE !== null) ? counts.PAST_DUE : pastCount,
+      COMPLETED: (counts?.COMPLETED !== undefined && counts?.COMPLETED !== null) ? counts.COMPLETED : compCount,
+    };
+  }, [appointments, counts]);
+
+  /* -----------------------------------------------------------------------
+     DYNAMIC EARNINGS CALCULATION
+     Prioritizes official ledger summary; falls back to active appointments fee sum
+  ----------------------------------------------------------------------- */
+
+  const earningsAmount = useMemo(() => {
+    // 1. Authoritative summary total
+    if (earningsSummary) {
+      if (typeof earningsSummary.totalEarned === "number" && earningsSummary.totalEarned >= 0) {
+        return earningsSummary.totalEarned;
+      }
+      if (typeof earningsSummary.available === "number" && earningsSummary.available >= 0) {
+        return earningsSummary.available;
+      }
+    }
+
+    // 2. Fallback: Sum of consultation fees from confirmed/paid/completed bookings
+    return appointments
+      .filter((b) => !["CANCELLED", "REFUNDED"].includes(b?.status))
+      .reduce((acc, b) => {
+        const fee = Number(b?.fee ?? b?.amount ?? b?.consultationFee ?? b?.payment?.amount ?? 0);
+        return acc + (!isNaN(fee) && fee > 0 ? fee : 0);
+      }, 0);
+  }, [earningsSummary, appointments]);
 
   const stats = useMemo(() => {
     return {
       todayBookings: todayBookingsCount,
-      upcoming: counts.UPCOMING ?? 0,
-      completed: counts.COMPLETED ?? 0,
-      earnings: "Not available yet",
+      upcoming: derivedCounts.UPCOMING,
+      completed: derivedCounts.COMPLETED,
+      earnings: `₹${Number(earningsAmount || 0).toLocaleString("en-IN")}`,
+      earningsAmount,
     };
-  }, [todayBookingsCount, counts]);
+  }, [todayBookingsCount, derivedCounts, earningsAmount]);
 
   return {
     advocate: user,
     completion,
     appointments,
-    counts,
+    counts: derivedCounts,
     todayBookingsCount,
     upcoming: upcomingList,
     nextUpcoming,
     recent: recentList,
     stats,
+    earningsSummary,
+    earningsAmount,
     isLoading,
+    isRefreshing,
     error,
-    refresh: fetchDashboardData,
+    refresh: () => fetchDashboardData(false),
   };
 }

@@ -6,6 +6,7 @@ import { ErrorState } from "@shared/components/feedback/ErrorState";
 import { TableSkeleton } from "@shared/components/feedback/LoadingSkeleton";
 import { getAdminAdvocateBookings } from "../../../services/platform/adminAdvocateBookingsApi";
 import { formatDateTime, formatDate } from "../../../utils/adminUtils";
+import { formatDurationHuman } from "@/shared/utils/formatDuration";
 import { FiVideo, FiPhone, FiBriefcase, FiSearch, FiX, FiCopy, FiCheck, FiAlertCircle } from "react-icons/fi";
 import { AdvocateHoverCell, ClientHoverCell } from "./BookingHoverCards";
 
@@ -109,21 +110,26 @@ function formatTimeSlot(startAt, endAt, durationMinutes) {
   if (!startAt) return "—";
   try {
     const s = new Date(startAt);
+    let e = endAt ? new Date(endAt) : null;
+    if (!e && durationMinutes) {
+      e = new Date(s.getTime() + Number(durationMinutes) * 60000);
+    }
     const startStr = s.toLocaleTimeString("en-IN", {
+      timeZone: "Asia/Kolkata",
       hour: "2-digit",
       minute: "2-digit",
       hour12: true,
     });
     let endStr = "";
-    if (endAt) {
-      const e = new Date(endAt);
+    if (e && !Number.isNaN(e.getTime())) {
       endStr = e.toLocaleTimeString("en-IN", {
+        timeZone: "Asia/Kolkata",
         hour: "2-digit",
         minute: "2-digit",
         hour12: true,
       });
     }
-    const durationLabel = durationMinutes ? ` (${durationMinutes}m)` : "";
+    const durationLabel = durationMinutes ? ` · ${formatDurationHuman(durationMinutes, { subHourUnit: "min" })}` : "";
     return endStr ? `${startStr} – ${endStr}${durationLabel}` : `${startStr}${durationLabel}`;
   } catch {
     return String(startAt);
@@ -244,9 +250,9 @@ export default function AdvocateBookingsList() {
       className: "min-w-[130px]",
       render: (item) => (
         <div className="text-xs space-y-0.5">
-          <p className="font-semibold text-slate-900">{formatDate(item.startAt)}</p>
+          <p className="font-semibold text-slate-900">{formatDate(item.scheduledAt || item.startAt)}</p>
           <p className="text-slate-500 font-mono text-[11px]">
-            {formatTimeSlot(item.startAt, item.endAt, item.durationMinutes)}
+            {formatTimeSlot(item.scheduledAt || item.startAt, item.endAt, item.durationMinutes)}
           </p>
         </div>
       ),

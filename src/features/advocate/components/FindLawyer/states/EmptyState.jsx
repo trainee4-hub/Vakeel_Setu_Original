@@ -48,7 +48,7 @@ const EmptyState = ({ onReset }) => {
               aria-hidden="true"
             />
             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-600">
-              No Matching Results
+              No One Online
             </span>
             <span
               className="h-1.5 w-1.5 rounded-full bg-amber-500"
@@ -66,70 +66,6 @@ const EmptyState = ({ onReset }) => {
             advocates.
           </p>
 
-          <div className="mx-auto mt-8 grid max-w-lg grid-cols-1 gap-3 text-left sm:grid-cols-2">
-            <div className="flex items-start gap-3 rounded-2xl border border-slate-100 bg-slate-50/80 px-4 py-3.5">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-amber-500 shadow-sm">
-                <span className="material-symbols-outlined text-[18px]">tune</span>
-              </div>
-
-              <div className="min-w-0">
-                <p className="text-xs font-bold text-slate-800">
-                  Broaden your filters
-                </p>
-                <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
-                  Try removing experience, rating or location filters.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3 rounded-2xl border border-slate-100 bg-slate-50/80 px-4 py-3.5">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-amber-500 shadow-sm">
-                <span className="material-symbols-outlined text-[18px]">
-                  location_on
-                </span>
-              </div>
-
-              <div className="min-w-0">
-                <p className="text-xs font-bold text-slate-800">
-                  Try another location
-                </p>
-                <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
-                  Search in a nearby city or state for more results.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <button
-              type="button"
-              onClick={onReset}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 text-sm font-bold text-white shadow-lg shadow-slate-900/10 transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-xl active:translate-y-0"
-            >
-              <span className="material-symbols-outlined text-[18px]">
-                restart_alt
-              </span>
-              Clear All Filters
-            </button>
-
-            <button
-              type="button"
-              onClick={onReset}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 text-sm font-bold text-slate-700 transition-all duration-200 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700"
-            >
-              <span className="material-symbols-outlined text-[18px]">search</span>
-              Start New Search
-            </button>
-          </div>
-
-          <div className="mt-7 flex items-center justify-center gap-2">
-            <span className="material-symbols-outlined text-[15px] text-slate-400">
-              info
-            </span>
-            <p className="text-[11px] font-medium text-slate-400">
-              You can always refine your search again after viewing results.
-            </p>
-          </div>
         </div>
       </div>
 

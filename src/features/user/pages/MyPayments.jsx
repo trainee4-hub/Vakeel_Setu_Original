@@ -15,6 +15,7 @@ import {
   FiRefreshCw,
 } from "react-icons/fi";
 import { getUserPayments } from "../services/consultancyApi";
+import { formatDurationHuman } from "../../../shared/utils/formatDuration";
 import {
   formatPaiseToRupees,
   formatPaymentDateTime,
@@ -79,7 +80,7 @@ export default function MyPayments() {
   const getPackageTitle = (item) => {
     const isVideo = item.callType === "VIDEO_CALL";
     const typeLabel = isVideo ? "Video Consultation" : "Voice Consultation";
-    const durationLabel = item.duration ? `${item.duration} min` : "15 min";
+    const durationLabel = formatDurationHuman(item.duration || 15, { subHourUnit: "min" });
     return `${typeLabel} (${durationLabel})`;
   };
 

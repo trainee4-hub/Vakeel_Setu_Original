@@ -6,6 +6,7 @@ import {
 } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import { formatDurationHuman } from "@/shared/utils/formatDuration";
 
 const MotionSection = motion.section;
 import {
@@ -18,12 +19,14 @@ import {
   ChevronRight,
   Clock3,
   Copy,
+  IndianRupee,
   Mail,
   MapPin,
   Phone,
   RefreshCw,
   Search,
   ShieldCheck,
+  User,
   Users,
   Video,
   X,
@@ -195,6 +198,40 @@ const formatISTStartTime = (startAt) => {
   }
 };
 
+const formatISTTimeRange = (startAt, endAt, durationMinutes) => {
+  if (!startAt) return "—";
+  try {
+    const start = new Date(startAt);
+    if (Number.isNaN(start.getTime())) return "—";
+    let end = endAt ? new Date(endAt) : null;
+    if (!end && durationMinutes) {
+      end = new Date(start.getTime() + Number(durationMinutes) * 60000);
+    }
+
+    const startStr = new Intl.DateTimeFormat("en-IN", {
+      timeZone: "Asia/Kolkata",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    }).format(start);
+
+    let endStr = "";
+    if (end && !Number.isNaN(end.getTime())) {
+      endStr = new Intl.DateTimeFormat("en-IN", {
+        timeZone: "Asia/Kolkata",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      }).format(end);
+    }
+
+    const durationSuffix = durationMinutes ? ` · ${formatDurationHuman(durationMinutes, { subHourUnit: "min" })}` : "";
+    return endStr ? `${startStr} – ${endStr}${durationSuffix}` : `${startStr}${durationSuffix}`;
+  } catch {
+    return "—";
+  }
+};
+
 /**
  * Derived consultation state matching user side ("Pending" / "Completed")
  * and admin ("Consultation Pending" / "Consultation Completed").
@@ -289,7 +326,16 @@ const getMode = (booking) => {
     return {
       type: "video",
       label: "Video Call",
+      fullLabel: "Online Video Call",
+      shortBadge: "Video",
       Icon: Video,
+      badgeClass: "border-sky-300 bg-sky-50 text-sky-800 shadow-2xs font-extrabold",
+      iconColor: "text-sky-600",
+      avatarBg: "bg-sky-50 border-sky-200 text-sky-800",
+      avatarBadgeBg: "bg-sky-500 text-white",
+      cardBorder: "border-sky-200/90 bg-sky-50/50",
+      detailIconBox: "border border-sky-200 bg-sky-100 text-sky-700",
+      detailCardBg: "border-sky-200/80 bg-sky-50/60",
     };
   }
 
@@ -297,14 +343,32 @@ const getMode = (booking) => {
     return {
       type: "call",
       label: "Voice Call",
+      fullLabel: "Direct Voice Call",
+      shortBadge: "Voice",
       Icon: Phone,
+      badgeClass: "border-purple-300 bg-purple-50 text-purple-800 shadow-2xs font-extrabold",
+      iconColor: "text-purple-600",
+      avatarBg: "bg-purple-50 border-purple-200 text-purple-800",
+      avatarBadgeBg: "bg-purple-600 text-white",
+      cardBorder: "border-purple-200/90 bg-purple-50/50",
+      detailIconBox: "border border-purple-200 bg-purple-100 text-purple-700",
+      detailCardBg: "border-purple-200/80 bg-purple-50/60",
     };
   }
 
   return {
     type: "in_person",
     label: "Personal Meeting",
-    Icon: Users,
+    fullLabel: "In-Person Office Visit",
+    shortBadge: "In-Person",
+    Icon: BriefcaseBusiness,
+    badgeClass: "border-emerald-300 bg-emerald-50 text-emerald-900 shadow-2xs font-black",
+    iconColor: "text-emerald-700",
+    avatarBg: "bg-emerald-50 border-emerald-200 text-emerald-800",
+    avatarBadgeBg: "bg-emerald-600 text-white",
+    cardBorder: "border-emerald-200/90 bg-emerald-50/50",
+    detailIconBox: "border border-emerald-200 bg-emerald-100 text-emerald-800",
+    detailCardBg: "border-emerald-200/80 bg-emerald-50/60",
   };
 };
 
@@ -364,6 +428,7 @@ const AdvocateBookingsSkeleton = () => (
 const ClientAvatar = ({ booking, size = "md" }) => {
   const client = getClient(booking);
   const name = getClientName(booking);
+  const mode = getMode(booking);
 
   const image =
     client?.profilePhotoUrl ||
@@ -376,21 +441,35 @@ const ClientAvatar = ({ booking, size = "md" }) => {
       ? "h-14 w-14 text-sm"
       : "h-11 w-11 text-xs";
 
-  if (image) {
-    return (
-      <img
-        src={image}
-        alt={name}
-        className={`${sizeClass} shrink-0 rounded-2xl object-cover ring-1 ring-slate-200`}
-      />
-    );
-  }
-
   return (
-    <div
-      className={`${sizeClass} flex shrink-0 items-center justify-center rounded-2xl border border-amber-200 bg-amber-50 font-extrabold text-amber-700`}
-    >
-      {getInitials(name)}
+    <div className="relative shrink-0">
+      {image ? (
+        <img
+          src={image}
+          alt={name}
+          className={`${sizeClass} rounded-2xl object-cover ring-2 ${
+            mode.type === "in_person"
+              ? "ring-emerald-300"
+              : mode.type === "video"
+              ? "ring-sky-300"
+              : "ring-purple-300"
+          }`}
+        />
+      ) : (
+        <div
+          className={`${sizeClass} flex items-center justify-center rounded-2xl border font-extrabold transition-colors ${mode.avatarBg}`}
+        >
+          {getInitials(name)}
+        </div>
+      )}
+
+      {/* Mini Mode Icon Badge attached to avatar */}
+      <span
+        title={mode.label}
+        className={`absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-white shadow-xs ${mode.avatarBadgeBg}`}
+      >
+        <mode.Icon size={8} strokeWidth={3} />
+      </span>
     </div>
   );
 };
@@ -873,24 +952,28 @@ export default function AdvocateBookings() {
                           </p>
                         )}
 
-                        <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-medium text-slate-400">
-                          <span className="inline-flex items-center gap-1 text-slate-600 font-semibold">
-                            <CalendarDays size={11} className="text-amber-500" />
-                            {formatISTDate(booking.startAt)}
+                        {/* Date, Time & Mode Badge */}
+                        <div className="mt-2 flex flex-wrap items-center justify-between gap-1.5">
+                          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-700">
+                            <span className="inline-flex items-center gap-1">
+                              <CalendarDays size={12} className="text-amber-500 shrink-0" />
+                              <span>{formatISTDate(booking.scheduledAt || booking.startAt)}</span>
+                            </span>
+
+                            <span className="text-slate-300">•</span>
+
+                            <span className="inline-flex items-center gap-1 font-mono text-slate-600">
+                              <Clock3 size={11} className="text-blue-500 shrink-0" />
+                              <span>{formatISTTimeRange(booking.scheduledAt || booking.startAt, booking.endAt, booking.durationMinutes)}</span>
+                            </span>
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] tracking-tight ${mode.badgeClass}`}
+                          >
+                            <mode.Icon size={11} className={mode.iconColor} />
+                            <span>{mode.label}</span>
                           </span>
+                          </div>
 
-                          <span>•</span>
-
-                          <span>
-                            {formatISTStartTime(booking.startAt)}
-                          </span>
-
-                          <span>•</span>
-
-                          <span className="inline-flex items-center gap-1">
-                            <mode.Icon size={11} />
-                            {mode.label}
-                          </span>
                         </div>
 
                         {/* Tappable client phone and action bar */}
@@ -1064,7 +1147,7 @@ export default function AdvocateBookings() {
               <div className="flex justify-between">
                 <span className="text-slate-500 font-medium">Slot Time:</span>
                 <span className="font-semibold text-slate-800">
-                  {formatISTDate(confirmBooking.startAt)} • {formatISTStartTime(confirmBooking.startAt)}
+                  {formatISTDate(confirmBooking.scheduledAt || confirmBooking.startAt)} • {formatISTTimeRange(confirmBooking.scheduledAt || confirmBooking.startAt, confirmBooking.endAt, confirmBooking.durationMinutes)}
                 </span>
               </div>
               {Boolean(confirmBooking.subject) && (
@@ -1273,71 +1356,71 @@ function BookingDetails({ booking, onInitiateComplete, completing }) {
 
       {/* SCHEDULE CARDS (IST) */}
       <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-amber-600 shadow-sm">
+        <div className="rounded-2xl border border-amber-200/80 bg-amber-50/40 p-4 transition-all">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-200 bg-amber-100 text-amber-700 shadow-2xs">
             <CalendarDays size={17} />
           </div>
 
-          <p className="mt-3 text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">
+          <p className="mt-3 text-[10px] font-extrabold uppercase tracking-[0.1em] text-amber-900/60">
             Date
           </p>
 
-          <p className="mt-1 text-sm font-extrabold text-slate-800">
-            {formatISTDate(booking.startAt)}
+          <p className="mt-1 text-sm font-black text-slate-900">
+            {formatISTDate(booking.scheduledAt || booking.startAt)}
           </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm">
+        <div className="rounded-2xl border border-blue-200/80 bg-blue-50/40 p-4 transition-all">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-blue-200 bg-blue-100 text-blue-700 shadow-2xs">
             <Clock3 size={17} />
           </div>
 
-          <p className="mt-3 text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">
-            Time Starting
+          <p className="mt-3 text-[10px] font-extrabold uppercase tracking-[0.1em] text-blue-900/60">
+            Time Range
           </p>
 
-          <p className="mt-1 text-sm font-extrabold text-slate-800">
-            {formatISTStartTime(booking.startAt)}
+          <p className="mt-1 text-sm font-black text-slate-900">
+            {formatISTTimeRange(booking.scheduledAt || booking.startAt, booking.endAt, booking.durationMinutes)}
           </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-emerald-600 shadow-sm">
+        <div className={`rounded-2xl border ${mode.cardBorder} p-4 transition-all`}>
+          <div className={`flex h-9 w-9 items-center justify-center rounded-xl shadow-2xs ${mode.detailIconBox}`}>
             <mode.Icon size={17} />
           </div>
 
-          <p className="mt-3 text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">
-            Consultation Mode
-          </p>
+          <div className="mt-3 flex items-center justify-between">
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-500">
+              Consultation Mode
+            </p>
+            <span className={`rounded-full px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide border ${mode.badgeClass}`}>
+              {mode.shortBadge}
+            </span>
+          </div>
 
-          <p className="mt-1 text-sm font-extrabold text-slate-800">
+          <p className="mt-1 text-sm font-black text-slate-950">
             {mode.label}
           </p>
         </div>
       </div>
 
-      {/* BACKEND INSTRUCTION MESSAGE */}
-      {/* {booking.message && (
-        <div className="mt-5 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50/80 p-4">
-          <AlertCircle size={18} className="mt-0.5 shrink-0 text-red-600" />
-          <div>
-            <p className="text-xs font-extrabold uppercase tracking-wide text-amber-900">
-              Instruction
-            </p>
-            <p className="mt-1 text-sm font-medium leading-relaxed text-amber-950">
-              {booking.message}
-            </p>
-          </div>
-        </div>
-      )} */}
-
       {/* CLIENT CONTACT & CONSULTATION INFORMATION */}
-      <section className="mt-5 rounded-[22px] border border-amber-200/70 bg-amber-50/25 p-5 sm:p-6">
-        <div className="flex items-center gap-2">
-          <BriefcaseBusiness size={17} className="text-amber-600" />
-          <h3 className="text-sm font-extrabold text-slate-950">
-            Client & Consultation Information
-          </h3>
+      <section className="mt-5 rounded-[22px] border border-amber-200/70 bg-amber-50/25 p-5 sm:p-6 shadow-2xs">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <BriefcaseBusiness size={17} className="text-amber-600" />
+            <h3 className="text-sm font-extrabold text-slate-950">
+              Client & Consultation Information
+            </h3>
+          </div>
+
+          {/* Prominent High-Contrast Mode Badge */}
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-black shadow-xs ${mode.badgeClass}`}
+          >
+            <mode.Icon size={13} className={mode.iconColor} />
+            <span>{mode.fullLabel}</span>
+          </span>
         </div>
 
         {/* PHONE NUMBER - CLEAR FOCAL POINT */}
@@ -1365,27 +1448,28 @@ function BookingDetails({ booking, onInitiateComplete, completing }) {
 
         {/* REMAINING FIELDS - BALANCED (3 COLUMNS) */}
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">
-              Client Name
-            </p>
-            <p className="mt-1 text-sm font-bold text-slate-900 truncate">
+          <div className="rounded-xl border border-slate-200/60 bg-white/80 p-3">
+            <div className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">
+              <User size={12} className="text-slate-500" />
+              <span>Client Name</span>
+            </div>
+            <p className="mt-1 text-sm font-extrabold text-slate-900 truncate">
               {clientName}
             </p>
           </div>
 
-          <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">
-              Email Address
-            </p>
+          <div className="rounded-xl border border-slate-200/60 bg-white/80 p-3">
+            <div className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">
+              <Mail size={12} className="text-blue-500" />
+              <span>Email Address</span>
+            </div>
             {email ? (
               <a
                 href={`mailto:${email}`}
                 aria-label={`Email client at ${email}`}
                 title={`Email ${email}`}
-                className="mt-1 inline-flex items-center gap-1.5 text-sm font-bold text-slate-900 hover:text-amber-600 hover:underline truncate max-w-full"
+                className="mt-1 inline-flex items-center gap-1 text-sm font-extrabold text-slate-900 hover:text-amber-600 hover:underline truncate max-w-full"
               >
-                <Mail size={13} className="shrink-0 text-amber-600" />
                 <span className="truncate">{email}</span>
               </a>
             ) : (
@@ -1393,15 +1477,29 @@ function BookingDetails({ booking, onInitiateComplete, completing }) {
             )}
           </div>
 
-          <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">
-              Consultation Fee
-            </p>
-            <p className="mt-1 text-sm font-bold text-slate-900">
+          <div className="rounded-xl border border-slate-200/60 bg-white/80 p-3">
+            <div className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">
+              <IndianRupee size={12} className="text-emerald-600" />
+              <span>Consultation Fee</span>
+            </div>
+            <p className="mt-1 text-sm font-black text-slate-900">
               ₹{Number(booking.fee || 0).toLocaleString("en-IN")}
             </p>
           </div>
         </div>
+
+        {/* IN-PERSON OFFICE NOTICE */}
+        {mode.type === "in_person" && (
+          <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-emerald-300 bg-emerald-50/70 p-3 text-xs text-emerald-950">
+            <MapPin size={16} className="mt-0.5 shrink-0 text-emerald-700" />
+            <div>
+              <p className="font-extrabold text-emerald-900">Physical Office Visit</p>
+              <p className="mt-0.5 text-[11px] leading-relaxed text-emerald-800">
+                Client will arrive in-person at your registered office location for this appointment.
+              </p>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* CONFIRMATION / WORKSPACE NOTE */}

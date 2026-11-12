@@ -24,6 +24,7 @@ import {
 } from "react-icons/fi";
 import { useAuth } from "../../auth";
 import { getUserRole } from "../../../utils/advocateProfile";
+import { formatDurationHuman } from "../../../shared/utils/formatDuration";
 import {
   getUserBookings,
   getUserBookingById,
@@ -526,11 +527,14 @@ export default function Bookings() {
    ADVOCATE HELPERS & CARD
 ========================================================================= */
 
-function formatAdvocateSlotTime(startAt, endAt) {
+function formatAdvocateSlotTime(startAt, endAt, durationMinutes) {
   if (!startAt) return "";
   try {
     const start = new Date(startAt);
-    const end = endAt ? new Date(endAt) : null;
+    let end = endAt ? new Date(endAt) : null;
+    if (!end && durationMinutes) {
+      end = new Date(start.getTime() + Number(durationMinutes) * 60000);
+    }
 
     const datePart = new Intl.DateTimeFormat("en-IN", {
       day: "numeric",
@@ -580,8 +584,10 @@ function AdvocateBookingCard({ booking, onClick }) {
     (booking.breakdown?.total ?? 0);
   const formattedPrice = formatBookingAmount(rawTotal);
 
-  const slotDisplay = booking.startAt
-    ? formatAdvocateSlotTime(booking.startAt, booking.endAt)
+  const effectiveStart = booking.scheduledAt || booking.startAt;
+  const effectiveEnd = booking.endAt;
+  const slotDisplay = effectiveStart
+    ? formatAdvocateSlotTime(effectiveStart, effectiveEnd, booking.durationMinutes)
     : formatPaymentDateTime(booking.createdAt);
 
   return (
@@ -673,7 +679,7 @@ function AdvocateBookingCard({ booking, onClick }) {
               {booking.durationMinutes && (
                 <span className="flex items-center gap-1">
                   <FiClock className="text-slate-400" />
-                  <span>{booking.durationMinutes} min</span>
+                  <span>{formatDurationHuman(booking.durationMinutes, { subHourUnit: "min" })}</span>
                 </span>
               )}
               {booking.subject && (
@@ -765,7 +771,7 @@ function BookingCard({ booking, onClick }) {
               </span>
               <span className="flex items-center gap-1">
                 <FiClock className="text-slate-400" />
-                <span>{booking.durationMinutes} min</span>
+                <span>{formatDurationHuman(booking.durationMinutes, { subHourUnit: "min" })}</span>
               </span>
             </div>
           </div>
@@ -866,7 +872,7 @@ function BookingDetailView({ booking, onOpenReceipt }) {
               <div className="flex justify-between">
                 <span className="text-slate-500">Duration</span>
                 <span className="font-bold text-slate-800">
-                  {booking.durationMinutes} minutes
+                  {formatDurationHuman(booking.durationMinutes)}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -1032,8 +1038,10 @@ function AdvocateBookingDetailView({ booking, onOpenReceipt }) {
     (booking.breakdown?.total ?? 0);
   const formattedPrice = formatBookingAmount(rawTotal);
 
-  const slotDisplay = booking.startAt
-    ? formatAdvocateSlotTime(booking.startAt, booking.endAt)
+  const effectiveStart = booking.scheduledAt || booking.startAt;
+  const effectiveEnd = booking.endAt;
+  const slotDisplay = effectiveStart
+    ? formatAdvocateSlotTime(effectiveStart, effectiveEnd, booking.durationMinutes)
     : formatPaymentDateTime(booking.createdAt);
 
   return (
@@ -1121,7 +1129,7 @@ function AdvocateBookingDetailView({ booking, onOpenReceipt }) {
                 <div className="flex justify-between">
                   <span className="text-slate-500">Duration</span>
                   <span className="font-bold text-slate-800">
-                    {booking.durationMinutes} minutes
+                    {formatDurationHuman(booking.durationMinutes)}
                   </span>
                 </div>
               )}
@@ -1387,9 +1395,9 @@ function PrintableReceiptModal({ booking, onClose }) {
                           ? "In-Person Meeting"
                           : "Voice Call"
                       }${booking.subject ? ` • ${booking.subject}` : ""}${
-                        booking.durationMinutes ? ` • ${booking.durationMinutes} min` : ""
+                        booking.durationMinutes ? ` • ${formatDurationHuman(booking.durationMinutes, { subHourUnit: "min" })}` : ""
                       }`
-                    : `Expert Consultation • Mode: ${isVideo ? "Video Call" : "Voice Call"} • Duration: ${booking.durationMinutes} min`}
+                    : `Expert Consultation • Mode: ${isVideo ? "Video Call" : "Voice Call"} • Duration: ${formatDurationHuman(booking.durationMinutes || 15, { subHourUnit: "min" })}`}
                 </p>
               </div>
               <p className="text-base font-black text-slate-950">

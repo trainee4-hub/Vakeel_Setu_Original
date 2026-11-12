@@ -38,6 +38,7 @@ import ConsultationCard from "./sidebar/ConsultationCard";
 import OfficeInformation from "./sidebar/OfficeInformation";
 
 import AdvocateBookingModal from "./modals/AdvocateBookingModal";
+import UserLocationModal from "./modals/UserLocationModal";
 import OfflineAdvocateDialog from "./modals/OfflineAdvocateDialog";
 import ReviewModal from "./modals/ReviewModal";
 import { getAdvocateBookingOptions } from "../../services/advocateBookingApi";
@@ -145,6 +146,8 @@ const AdvocateProfile = ({
   const [bookingOptionsLoading, setBookingOptionsLoading] = useState(false);
   const [selectedBookingMode, setSelectedBookingMode] = useState("");
   const [isAdvocateBookingModalOpen, setIsAdvocateBookingModalOpen] = useState(false);
+  const [isUserLocationModalOpen, setIsUserLocationModalOpen] = useState(false);
+  const [travelDetails, setTravelDetails] = useState(null);
   const [isOfflineDialogOpen, setIsOfflineDialogOpen] = useState(false);
 
   const handleBookExpertFromOffline = useCallback(() => {
@@ -261,8 +264,26 @@ const AdvocateProfile = ({
       return;
     }
 
+    // For In-Person consultation: show geolocation map modal first
+    if (selectedBookingMode === "IN_PERSON") {
+      setIsUserLocationModalOpen(true);
+      return;
+    }
+
     setIsAdvocateBookingModalOpen(true);
   }, [isOnline, isLoggedIn, advocateId, selectedBookingMode, navigate, location.pathname]);
+
+  const handleLocationConfirmed = useCallback((details) => {
+    setTravelDetails(details);
+    setIsUserLocationModalOpen(false);
+    setIsAdvocateBookingModalOpen(true);
+  }, []);
+
+  const handleLocationSkipped = useCallback(() => {
+    setTravelDetails(null);
+    setIsUserLocationModalOpen(false);
+    setIsAdvocateBookingModalOpen(true);
+  }, []);
 
   /* =========================================================
      PAGE STATE
@@ -1074,6 +1095,18 @@ useEffect(() => {
         }
       />
 
+      {/* ================= USER LOCATION MODAL (FOR IN-PERSON) ================= */}
+
+      <UserLocationModal
+        isOpen={isUserLocationModalOpen}
+        onClose={() => setIsUserLocationModalOpen(false)}
+        officeLat={officeLat}
+        officeLng={officeLng}
+        officeLocation={advocate?.officeAddress || advocate?.office?.address || advocate?.location || ""}
+        onConfirmLocation={handleLocationConfirmed}
+        onSkip={handleLocationSkipped}
+      />
+
       {/* ================= ADVOCATE BOOKING MODAL ================= */}
 
       <AdvocateBookingModal
@@ -1083,6 +1116,7 @@ useEffect(() => {
         bookingOptions={bookingOptions}
         initialMode={selectedBookingMode}
         currentUser={user}
+        travelDetails={travelDetails}
         onBookingComplete={onConsultationBooked}
       />
 

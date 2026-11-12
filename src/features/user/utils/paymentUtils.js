@@ -1,3 +1,5 @@
+import { formatDurationHuman } from "@/shared/utils/formatDuration";
+
 /**
  * Formats an amount with an EXPLICIT unit argument ('RUPEES' or 'PAISE').
  * NO DEFAULT UNIT. Throws error if unit is omitted or invalid.
@@ -340,16 +342,17 @@ export function getAdvocateBookingTitle(booking) {
     "";
 
   const duration = booking.durationMinutes || booking.duration || 15;
+  const durationLabel = formatDurationHuman(duration, { subHourUnit: "min" });
 
   if (advocateName) {
-    return `${modeLabel} with ${advocateName} • ${duration} min`;
+    return `${modeLabel} with ${advocateName} • ${durationLabel}`;
   }
-  return `${modeLabel} Consultation • ${duration} min`;
+  return `${modeLabel} Consultation • ${durationLabel}`;
 }
 
 /**
  * Resolves title for consultancy booking:
- * "Expert Consultation • {Mode} • {duration} min"
+ * "Expert Consultation • {Mode} • {duration}"
  * e.g. "Expert Consultation • Video Call • 15 min"
  */
 export function getConsultancyBookingTitle(booking) {
@@ -357,7 +360,7 @@ export function getConsultancyBookingTitle(booking) {
   const isVideo = (booking.callType || booking.mode) === "VIDEO_CALL";
   const modeLabel = isVideo ? "Video Call" : "Voice Call";
   const duration = booking.durationMinutes || booking.duration || 15;
-  return `Expert Consultation • ${modeLabel} • ${duration} min`;
+  return `Expert Consultation • ${modeLabel} • ${formatDurationHuman(duration, { subHourUnit: "min" })}`;
 }
 
 /**

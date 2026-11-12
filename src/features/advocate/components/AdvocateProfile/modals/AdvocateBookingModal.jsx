@@ -19,6 +19,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import {
   getAdvocateBusySlots,
+  getAdvocateBookingQuote,
   createAdvocateCheckout,
   verifyAdvocatePayment,
   getAdvocateCheckoutStatus,
@@ -29,9 +30,12 @@ import {
   addDaysToISTDateString,
   formatISTDateLong,
   formatSlotStartTime,
+  formatSlotRange,
+  checkNextStepAvailable,
   getCalendarMonthMatrix,
 } from "../../../utils/advocateSlotUtils";
 import { usePaymentStateMachine, PAYMENT_STATES } from "@/features/user/hooks/usePaymentStateMachine";
+import { formatDurationHuman } from "@/shared/utils/formatDuration";
 
 function getModeIcon(mode) {
   switch (mode) {
@@ -79,6 +83,7 @@ export default function AdvocateBookingModal({
   initialMode,
   currentUser,
   onBookingComplete,
+  travelDetails,
 }) {
   const navigate = useNavigate();
 
@@ -102,6 +107,39 @@ export default function AdvocateBookingModal({
     () => modes.find((m) => m.mode === selectedMode) || modes[0] || null,
     [modes, selectedMode]
   );
+
+  const isInPersonMode = useMemo(
+    () =>
+      String(selectedMode || "").toUpperCase().includes("PERSON") ||
+      String(activeModeObj?.mode || "").toUpperCase().includes("PERSON"),
+    [selectedMode, activeModeObj]
+  );
+
+  const isExtendable = Boolean(activeModeObj?.extendable);
+
+  const defaultDuration = useMemo(() => {
+    if (isExtendable) {
+      return Number(activeModeObj?.minDurationMinutes || 15);
+    }
+    return isInPersonMode
+      ? Number(bookingOptions?.inPersonMinutes ?? activeModeObj?.durationMinutes ?? 60)
+      : Number(activeModeObj?.durationMinutes ?? 15);
+  }, [isExtendable, isInPersonMode, bookingOptions, activeModeObj]);
+
+  const [durationMinutes, setDurationMinutes] = useState(defaultDuration);
+
+  // Quote breakdown and range from backend quote
+  const [quoteBreakdown, setQuoteBreakdown] = useState(null);
+  const [quoteRange, setQuoteRange] = useState(null);
+  const [, setIsQuoteLoading] = useState(false);
+  const quoteTimerRef = useRef(null);
+
+  // Reset duration when defaultDuration changes (e.g. mode changes)
+  useEffect(() => {
+    setDurationMinutes(defaultDuration);
+    setQuoteBreakdown(null);
+    setQuoteRange(null);
+  }, [defaultDuration]);
 
   // Range bounds in IST
   const todayIST = useMemo(() => getTodayISTDateString(), []);
@@ -274,19 +312,22 @@ export default function AdvocateBookingModal({
   // Generate slots in IST
   const rawSlots = useMemo(() => {
     if (!selectedDate) return [];
-    const isOffice = selectedMode === "IN_PERSON";
-    const durationMinutes = isOffice
-      ? (bookingOptions?.inPersonMinutes ?? activeModeObj?.durationMinutes ?? 60)
-      : (activeModeObj?.durationMinutes ?? 15);
+    const durationMinutes = isInPersonMode
+      ? Number(bookingOptions?.inPersonMinutes ?? activeModeObj?.durationMinutes ?? 60)
+      : Number(activeModeObj?.durationMinutes ?? 15);
+
+    // Slot interval step matches the advocate's configured session duration
+    const stepMinutes = durationMinutes > 0 ? durationMinutes : 15;
+
     return generateAdvocateSlots({
       dateString: selectedDate,
       durationMinutes,
-      stepMinutes: 15,
+      stepMinutes,
       busySlots,
       minLeadMinutes,
       currentEpochMs: Date.now(),
     });
-  }, [selectedDate, selectedMode, bookingOptions, activeModeObj, busySlots, minLeadMinutes]);
+  }, [selectedDate, isInPersonMode, bookingOptions, activeModeObj, busySlots, minLeadMinutes]);
 
   // Visible slots: Past slots and slots inside minLeadMinutes are HIDDEN
   // Busy slots and slots that run past the working window ARE shown, but visibly disabled with distinct blocked styling
@@ -294,12 +335,43 @@ export default function AdvocateBookingModal({
     return rawSlots.filter((slot) => !slot.isPastOrLead);
   }, [rawSlots]);
 
+  // Soft warning check for IN_PERSON consultations (Both today & future dates)
+  const travelNotice = useMemo(() => {
+    if (!travelDetails || !isInPersonMode || !selectedSlot) {
+      return null;
+    }
+    const formattedTravel = formatDurationHuman(travelDetails.travelTimeMinutes);
+    const isToday = selectedDate === todayIST;
+    if (isToday) {
+      const slotStartMs = selectedSlot.startEpochMs || (selectedSlot.startAt ? Date.parse(selectedSlot.startAt) : 0);
+      const earliestArrivalMs = Date.now() + (travelDetails.travelTimeMinutes * 60 * 1000);
+      if (slotStartMs < earliestArrivalMs) {
+        return {
+          isTight: true,
+          title: "Tight Schedule Alert",
+          message: `Advocate office is ~${travelDetails.roadKm} km away (~${formattedTravel} travel). You may arrive after ${formatSlotStartTime(selectedSlot?.startAt)}. Ensure you can make it in time.`,
+        };
+      }
+    }
+    // For future dates or ample time today
+    return {
+      isTight: false,
+      title: "In-Person Visit Notice",
+      message: `Advocate office is ~${travelDetails.roadKm} km away (~${formattedTravel} travel). Please plan your schedule accordingly.`,
+    };
+  }, [travelDetails, isInPersonMode, selectedDate, todayIST, selectedSlot]);
+
   // Sample slot start times to display before a date is chosen (or fallback)
   const sampleSlotStartTimes = useMemo(() => {
+    const durationMinutes = isInPersonMode
+      ? Number(bookingOptions?.inPersonMinutes ?? activeModeObj?.durationMinutes ?? 60)
+      : Number(activeModeObj?.durationMinutes ?? 15);
+    const stepMinutes = durationMinutes > 0 ? durationMinutes : 15;
+
     const slots = generateAdvocateSlots({
       dateString: todayIST,
-      durationMinutes: 15,
-      stepMinutes: 15,
+      durationMinutes,
+      stepMinutes,
       busySlots: [],
       minLeadMinutes,
       currentEpochMs: Date.now(),
@@ -320,7 +392,7 @@ export default function AdvocateBookingModal({
       "11:15 AM",
       "11:30 AM",
     ];
-  }, [todayIST, minLeadMinutes]);
+  }, [isInPersonMode, bookingOptions, activeModeObj, todayIST, minLeadMinutes]);
 
   // Recalculate scroller buttons whenever visible slots change
   useEffect(() => {
@@ -333,9 +405,96 @@ export default function AdvocateBookingModal({
     if (selectedSlot) {
       if (!selectedDate || !selectedSlot.startAt.startsWith(selectedDate) || selectedSlot.disabled) {
         setSelectedSlot(null);
+        setDurationMinutes(defaultDuration);
+        setQuoteBreakdown(null);
+        setQuoteRange(null);
       }
     }
-  }, [selectedDate, selectedSlot]);
+  }, [selectedDate, selectedSlot, defaultDuration]);
+
+  // Debounced quote fetch (~300ms) on slot / mode / duration change
+  useEffect(() => {
+    if (quoteTimerRef.current) {
+      clearTimeout(quoteTimerRef.current);
+    }
+
+    if (!advocateId || !selectedSlot?.startAt || !selectedMode) {
+      setQuoteBreakdown(null);
+      setQuoteRange(null);
+      return;
+    }
+
+    quoteTimerRef.current = setTimeout(async () => {
+      setIsQuoteLoading(true);
+      try {
+        const res = await getAdvocateBookingQuote(advocateId, {
+          mode: selectedMode,
+          startAt: selectedSlot.startAt,
+          durationMinutes,
+        });
+
+        if (res && res.success && res.breakdown) {
+          setQuoteBreakdown(res.breakdown);
+          if (res.startAt && res.endAt) {
+            setQuoteRange({ startAt: res.startAt, endAt: res.endAt });
+          }
+        }
+      } catch (err) {
+        // Fall back to client instant preview
+        console.warn("Quote fetch fallback to client preview:", err);
+      } finally {
+        setIsQuoteLoading(false);
+      }
+    }, 300);
+
+    return () => {
+      if (quoteTimerRef.current) {
+        clearTimeout(quoteTimerRef.current);
+      }
+    };
+  }, [advocateId, selectedSlot?.startAt, selectedMode, durationMinutes]);
+
+  // Computed range in IST
+  const computedStartAt = quoteRange?.startAt || selectedSlot?.startAt;
+  const computedEndAt = useMemo(() => {
+    if (quoteRange?.endAt) return quoteRange.endAt;
+    if (selectedSlot?.startAt) {
+      const startMs = Date.parse(selectedSlot.startAt);
+      if (!isNaN(startMs)) {
+        return new Date(startMs + durationMinutes * 60 * 1000).toISOString();
+      }
+    }
+    return selectedSlot?.endAt || null;
+  }, [quoteRange?.endAt, selectedSlot, durationMinutes]);
+
+  // +15 availability check
+  const nextStepCheck = useMemo(() => {
+    if (!selectedSlot?.startAt || !isExtendable) {
+      return { available: false, reason: null };
+    }
+    return checkNextStepAvailable({
+      startAt: selectedSlot.startAt,
+      currentDurationMinutes: durationMinutes,
+      stepMinutes: 15,
+      busySlots,
+    });
+  }, [selectedSlot, isExtendable, durationMinutes, busySlots]);
+
+  const canIncrease = isExtendable && nextStepCheck.available;
+  const increaseDisabledReason = nextStepCheck.reason;
+  const canDecrease = isExtendable && durationMinutes > 15;
+
+  const handleIncreaseDuration = () => {
+    if (!canIncrease) return;
+    setDurationMinutes((prev) => prev + 15);
+    setSlotTakenMessage("");
+  };
+
+  const handleDecreaseDuration = () => {
+    if (!canDecrease) return;
+    setDurationMinutes((prev) => Math.max(15, prev - 15));
+    setSlotTakenMessage("");
+  };
 
   // Handle dd/mm/yyyy input formatting and range validation
   const handleDateInputChange = (e) => {
@@ -498,35 +657,71 @@ export default function AdvocateBookingModal({
     onInitiateCheckout: async () => {
       setSlotTakenMessage("");
 
-      // Re-verify busy slots immediately before opening payment window
+      // Re-verify busy slots across the entire duration window immediately before opening payment window
       const freshBusyRes = await getAdvocateBusySlots(advocateId, selectedDate);
-      const isStillAvailable = !(freshBusyRes?.busy || []).some((b) => {
+      const freshBusyList = freshBusyRes?.busySlots || freshBusyRes?.busy || freshBusyRes?.data?.busySlots || [];
+      const slotStartMs = selectedSlot.startEpochMs || Date.parse(selectedSlot.startAt);
+      const slotEndMs = slotStartMs + durationMinutes * 60 * 1000;
+      const isStillAvailable = !freshBusyList.some((b) => {
         const busyStart = Date.parse(b.startAt);
         const busyEnd = Date.parse(b.endAt);
-        return selectedSlot.startEpochMs < busyEnd && selectedSlot.endEpochMs > busyStart;
+        return slotStartMs < busyEnd && slotEndMs > busyStart;
       });
 
       if (!isStillAvailable) {
-        setSlotTakenMessage("This slot was just booked. Please choose another time.");
+        const msg = `The advocate isn't free for the full ${durationMinutes} min.`;
+        setSlotTakenMessage(`${msg} Please reduce the duration or pick another time.`);
         setSelectedSlot(null);
+        setDurationMinutes(defaultDuration);
         fetchBusySlots(selectedDate);
 
-        const slotErr = new Error("This slot was just booked. Please choose another time.");
+        const slotErr = new Error(msg);
         slotErr.code = "SLOT_TAKEN";
         throw slotErr;
       }
 
-      // Checkout request WITHOUT subject
-      const res = await createAdvocateCheckout({
-        advocateId,
-        mode: selectedMode,
-        startAt: selectedSlot.startAt,
-        notes: notes.trim() || undefined,
-      });
+      try {
+        // Checkout request with durationMinutes
+        const res = await createAdvocateCheckout({
+          advocateId,
+          mode: selectedMode,
+          startAt: selectedSlot.startAt,
+          durationMinutes,
+          notes: notes.trim() || undefined,
+        });
 
-      const co = res?.checkout || res;
-      setCheckoutData(co);
-      return co;
+        const co = res?.checkout || res;
+        setCheckoutData(co);
+        return co;
+      } catch (err) {
+        if (err?.code === "SLOT_TAKEN" || err?.status === 409) {
+          const msg = `The advocate isn't free for the full ${durationMinutes} min. Please reduce the duration or pick another time.`;
+          setSlotTakenMessage(msg);
+          if (selectedDate) fetchBusySlots(selectedDate);
+          const customErr = new Error(msg);
+          customErr.code = "SLOT_TAKEN";
+          throw customErr;
+        }
+        if (err?.code === "USER_SLOT_CONFLICT") {
+          const msg = err.message || "You already have another booking in this time range.";
+          setSlotTakenMessage(msg);
+          throw err;
+        }
+        if (err?.code === "INVALID_DURATION") {
+          setDurationMinutes(defaultDuration);
+          const msg = err.message || "Invalid duration. Duration has been reset to 15 min.";
+          setSlotTakenMessage(msg);
+          throw err;
+        }
+        if (err?.code === "AMOUNT_TOO_HIGH") {
+          const msg = "Please choose a shorter duration";
+          setSlotTakenMessage(msg);
+          const customErr = new Error(msg);
+          customErr.code = "AMOUNT_TOO_HIGH";
+          throw customErr;
+        }
+        throw err;
+      }
     },
     onVerifyPayment: async (verifyPayload) => {
       return verifyAdvocatePayment({
@@ -553,6 +748,9 @@ export default function AdvocateBookingModal({
       setDateInputValue(formatDDMMYYYY(todayIST));
       setSelectedDate(todayIST);
       setSelectedSlot(null);
+      setDurationMinutes(defaultDuration);
+      setQuoteBreakdown(null);
+      setQuoteRange(null);
       setDateError("");
       setNotes("");
       setSlotTakenMessage("");
@@ -564,7 +762,7 @@ export default function AdvocateBookingModal({
       const [y, m] = todayIST.split("-").map(Number);
       setCalendarView({ year: y, monthIndex: m - 1 });
     }
-  }, [isOpen, todayIST, resetPayment]);
+  }, [isOpen, todayIST, resetPayment, defaultDuration]);
 
   if (!isOpen || advocate?.isOnline === false) return null;
 
@@ -576,12 +774,20 @@ export default function AdvocateBookingModal({
     return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
   };
 
-  // Fees from active mode object in booking-options
-  const fee = Number(activeModeObj?.fee ?? 0);
-  const gst = Number(activeModeObj?.gst ?? 0);
-  const gstPercent = activeModeObj?.gstPercent ?? 18;
-  const platformFee = Number(activeModeObj?.platformFee ?? 25);
-  const totalPayable = Number(activeModeObj?.total ?? (fee + gst + platformFee));
+  // Fees calculation: authoritatively uses backend quote if available, otherwise instant preview
+  const steps = isExtendable ? Math.max(1, Math.round(durationMinutes / 15)) : 1;
+
+  const stepPrice = Number(activeModeObj?.pricePerStep ?? activeModeObj?.fee ?? 0);
+  const instantFee = isExtendable ? stepPrice * steps : Number(activeModeObj?.fee ?? 0);
+  const gstPercent = quoteBreakdown?.gstPercent ?? activeModeObj?.gstPercent ?? 18;
+  const instantGst = Math.round(instantFee * (gstPercent / 100) * 100) / 100;
+  const instantPlatformFee = Number(activeModeObj?.platformFee ?? 25);
+  const instantTotal = instantFee + instantGst + instantPlatformFee;
+
+  const fee = Number(quoteBreakdown?.fee ?? instantFee);
+  const gst = Number(quoteBreakdown?.gst ?? instantGst);
+  const platformFee = Number(quoteBreakdown?.platformFee ?? instantPlatformFee);
+  const totalPayable = Number(quoteBreakdown?.total ?? instantTotal);
 
   const isSubmitting =
     paymentState === PAYMENT_STATES.STARTING ||
@@ -650,8 +856,13 @@ export default function AdvocateBookingModal({
               <div>
                 <h3 className="text-lg sm:text-xl font-bold text-slate-900">
                   Booking confirmed! {advocateName} will contact you at{" "}
-                  {selectedSlot ? formatSlotStartTime(selectedSlot.startAt) : ""}.
+                  {selectedSlot ? formatSlotRange(computedStartAt, computedEndAt, durationMinutes) : ""}.
                 </h3>
+                {selectedSlot && (
+                  <p className="text-xs font-semibold text-slate-600 mt-1">
+                    {formatDurationHuman(durationMinutes, { subHourUnit: "min" })} consultation ({formatSlotRange(computedStartAt, computedEndAt, durationMinutes)})
+                  </p>
+                )}
                 {paymentResult?.booking?.bookingId && (
                   <p className="text-xs font-bold text-slate-700 mt-2 font-mono bg-slate-100 py-1 px-3 rounded-lg inline-block">
                     Booking ID: {paymentResult.booking.bookingId}
@@ -879,9 +1090,12 @@ export default function AdvocateBookingModal({
                   {selectedDate ? (
                     <div className="flex items-center gap-2">
                       <span className="text-[11px] text-slate-400">
-                        {selectedMode === "IN_PERSON"
-                          ? (bookingOptions?.inPersonMinutes ?? activeModeObj?.durationMinutes ?? 60)
-                          : (activeModeObj?.durationMinutes ?? 15)}m session
+                        {formatDurationHuman(
+                          isInPersonMode
+                            ? (bookingOptions?.inPersonMinutes ?? activeModeObj?.durationMinutes ?? 60)
+                            : (activeModeObj?.durationMinutes ?? 15),
+                          { subHourUnit: "min" }
+                        )} session
                       </span>
                       <button
                         type="button"
@@ -940,8 +1154,10 @@ export default function AdvocateBookingModal({
                         No bookable slots remaining for this date. Please pick another date.
                       </p>
                     ) : (
-                      /* Active Horizontal Slot Scroller */
-                      <div className="relative group">
+                      <>
+                       
+                        {/* Active Horizontal Slot Scroller */}
+                        <div className="relative group">
                         {canScrollLeft && (
                           <button
                             type="button"
@@ -977,10 +1193,15 @@ export default function AdvocateBookingModal({
                                   aria-disabled="true"
                                   tabIndex={-1}
                                   title={slot.reason || (slot.isBusy ? "Already booked" : "Unavailable")}
-                                  className="shrink-0 px-3.5 py-2 rounded-xl border border-slate-300/80 bg-slate-100 text-slate-400 text-xs font-medium cursor-not-allowed select-none flex items-center gap-1.5 transition-colors"
+                                  className="shrink-0 px-3.5 py-2.5 rounded-xl border border-slate-300/80 bg-slate-100 text-slate-400 text-xs font-medium cursor-not-allowed select-none flex items-center gap-1.5 transition-colors"
                                 >
                                   <FiSlash className="w-3 h-3 text-red-400 shrink-0 stroke-[2.5]" aria-hidden="true" />
                                   <span className="line-through">{startTimeOnly}</span>
+                                  {slot.isBusy && (
+                                    <span className="rounded-md bg-red-100 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-red-600">
+                                      Booked
+                                    </span>
+                                  )}
                                 </button>
                               );
                             }
@@ -989,9 +1210,13 @@ export default function AdvocateBookingModal({
                               <button
                                 key={slot.startAt}
                                 type="button"
+                                title={slot.label}
                                 onClick={() => {
                                   setSelectedSlot(slot);
+                                  setDurationMinutes(defaultDuration);
                                   setSlotTakenMessage("");
+                                  setQuoteBreakdown(null);
+                                  setQuoteRange(null);
                                 }}
                                 className={`shrink-0 px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
                                   isSelected
@@ -1020,10 +1245,88 @@ export default function AdvocateBookingModal({
                           </button>
                         )}
                       </div>
-                    )}
-                  </>
-                )}
-              </section>
+
+                      {/* Soft Travel Warning for IN_PERSON consultations (Today & Next/Future Days) */}
+                      {travelNotice && (
+                        <div
+                          className={`mt-2.5 flex items-start gap-2.5 rounded-xl border p-3 text-xs animate-fadeIn ${
+                            travelNotice.isTight
+                              ? "border-amber-300 bg-amber-50 text-amber-900"
+                              : "border-amber-200/80 bg-amber-50/60 text-slate-800"
+                          }`}
+                        >
+                          <FiAlertCircle
+                            className={`mt-0.5 shrink-0 text-base ${
+                              travelNotice.isTight ? "text-amber-600" : "text-amber-700"
+                            }`}
+                          />
+                          <div>
+                            <p className="font-bold text-amber-950">{travelNotice.title}</p>
+                            <p className="mt-0.5 text-slate-700 leading-relaxed">
+                              {travelNotice.message}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Duration extension controls (+15 / −15) for extendable modes */}
+                      {selectedSlot && isExtendable && (
+                        <div className="mt-3 p-3.5 bg-slate-50 border border-slate-200/90 rounded-2xl flex flex-wrap items-center justify-between gap-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="p-2 rounded-xl bg-amber-100/70 text-amber-700">
+                              <FiClock className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-bold text-slate-900">
+                                  {formatSlotRange(computedStartAt, computedEndAt, durationMinutes)}
+                                </span>
+                                <span className="text-xs font-semibold text-slate-600 bg-slate-200/70 px-2 py-0.5 rounded-md">
+                                  {formatDurationHuman(durationMinutes, { subHourUnit: "min" })}
+                                </span>
+                              </div>
+                              {increaseDisabledReason ? (
+                                <p className="text-[11px] text-amber-700 font-medium mt-0.5">
+                                  {increaseDisabledReason}
+                                </p>
+                              ) : (
+                                <p className="text-[11px] text-slate-500 mt-0.5">
+                                  Extend consultation in 15-min increments
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 ml-auto sm:ml-0">
+                            <button
+                              type="button"
+                              disabled={!canDecrease}
+                              onClick={handleDecreaseDuration}
+                              title={canDecrease ? "Reduce 15 minutes" : "Minimum duration is 15 min"}
+                              aria-label="Reduce duration by 15 minutes"
+                              className="px-3 py-1.5 rounded-xl border text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer bg-white border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300 active:scale-95 shadow-2xs"
+                            >
+                              −15
+                            </button>
+
+                            <button
+                              type="button"
+                              disabled={!canIncrease}
+                              onClick={handleIncreaseDuration}
+                              title={increaseDisabledReason || "Extend 15 minutes"}
+                              aria-label="Extend duration by 15 minutes"
+                              className="px-3 py-1.5 rounded-xl border text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer bg-white border-slate-200 text-slate-700 hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800 active:scale-95 shadow-2xs"
+                            >
+                              +15
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+            </section>
 
               {/* ─────────────────────────────────────────────────────────
                   3. BRIEF NOTES (OPTIONAL)
@@ -1074,9 +1377,7 @@ export default function AdvocateBookingModal({
                       })}
                       <span>{activeModeObj?.label || selectedMode}</span>
                       <span className="text-[11px] font-semibold text-slate-500">
-                        ({selectedMode === "IN_PERSON"
-                          ? (bookingOptions?.inPersonMinutes ?? activeModeObj?.durationMinutes ?? 60)
-                          : (activeModeObj?.durationMinutes ?? 15)}m)
+                        ({formatDurationHuman(durationMinutes, { subHourUnit: "min" })})
                       </span>
                     </div>
                   </div>
@@ -1086,7 +1387,7 @@ export default function AdvocateBookingModal({
                     <span className="text-slate-500">Date & Time</span>
                     <span className="font-bold text-slate-900 text-right">
                       {selectedDate && selectedSlot
-                        ? `${formatISTDateLong(selectedDate)} at ${formatSlotStartTime(selectedSlot.startAt)}`
+                        ? `${formatISTDateLong(selectedDate)} (${formatSlotRange(computedStartAt, computedEndAt, durationMinutes)} · ${formatDurationHuman(durationMinutes, { subHourUnit: "min" })})`
                         : selectedDate
                         ? `${formatISTDateLong(selectedDate)} (Pick a time above)`
                         : "Select date and time"}
@@ -1105,7 +1406,10 @@ export default function AdvocateBookingModal({
 
                 <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-2 text-xs sm:text-sm">
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-600">{activeModeObj?.label} Fee</span>
+                    <span className="text-slate-600">
+                      {activeModeObj?.label} Fee
+                      {isExtendable && durationMinutes > 15 ? ` (${steps} × ₹${formatRupees(stepPrice)})` : ""}
+                    </span>
                     <span className="font-semibold text-slate-900">
                       ₹{formatRupees(fee)}
                     </span>
@@ -1150,7 +1454,7 @@ export default function AdvocateBookingModal({
                 startPayment(
                   {
                     title: `Consultation with ${advocateName}`,
-                    duration: activeModeObj?.durationMinutes || 15,
+                    duration: durationMinutes,
                   },
                   {
                     phoneNumber: currentUser?.phone || "",

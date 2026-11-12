@@ -6,6 +6,7 @@ import CallPhoneButton from "@/features/advocate/components/CallPhoneButton";
 import { API_BASE_URL } from "@shared/services/apiClient";
 import { getAuthToken } from "@/utils/auth";
 import { ADMIN_PATHS, formatDate } from "../../../utils/adminUtils";
+import { formatDurationHuman } from "@/shared/utils/formatDuration";
 
 
 function formatAmount(amt) {
@@ -22,21 +23,26 @@ function formatTimeSlot(startAt, endAt, durationMinutes) {
   if (!startAt) return "—";
   try {
     const s = new Date(startAt);
+    let e = endAt ? new Date(endAt) : null;
+    if (!e && durationMinutes) {
+      e = new Date(s.getTime() + Number(durationMinutes) * 60000);
+    }
     const startStr = s.toLocaleTimeString("en-IN", {
+      timeZone: "Asia/Kolkata",
       hour: "2-digit",
       minute: "2-digit",
       hour12: true,
     });
     let endStr = "";
-    if (endAt) {
-      const e = new Date(endAt);
+    if (e && !Number.isNaN(e.getTime())) {
       endStr = e.toLocaleTimeString("en-IN", {
+        timeZone: "Asia/Kolkata",
         hour: "2-digit",
         minute: "2-digit",
         hour12: true,
       });
     }
-    const durationLabel = durationMinutes ? ` (${durationMinutes}m)` : "";
+    const durationLabel = durationMinutes ? ` · ${formatDurationHuman(durationMinutes, { subHourUnit: "min" })}` : "";
     return endStr ? `${startStr} – ${endStr}${durationLabel}` : `${startStr}${durationLabel}`;
   } catch {
     return String(startAt);
@@ -782,9 +788,9 @@ export function ClientHoverCell({ item, className = "" }) {
                 Scheduled Slot
               </span>
               <div className="flex items-center justify-between text-xs mt-1">
-                <span className="font-semibold text-slate-800">{formatDate(item?.startAt)}</span>
+                <span className="font-semibold text-slate-800">{formatDate(item?.scheduledAt || item?.startAt)}</span>
                 <span className="text-slate-600 font-mono text-[11px]">
-                  {formatTimeSlot(item?.startAt, item?.endAt, item?.durationMinutes)}
+                  {formatTimeSlot(item?.scheduledAt || item?.startAt, item?.endAt, item?.durationMinutes)}
                 </span>
               </div>
             </div>

@@ -146,11 +146,12 @@ export default function AdvocateEarnings() {
         )}
 
         {/* TOP HERO HEADER */}
-        <div className="flex flex-col justify-between gap-5 rounded-[26px] border border-slate-200/90 bg-white p-6 shadow-[0_12px_40px_rgba(15,23,42,0.035)] sm:flex-row sm:items-center sm:p-7">
-          <div className="min-w-0">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-amber-200/70 bg-amber-50 text-amber-600 shadow-sm">
-                <IndianRupee className="h-5 w-5" />
+        <div className="relative overflow-hidden flex flex-col justify-between gap-5 rounded-[26px] border border-slate-200/90 bg-white p-6 shadow-[0_12px_40px_rgba(15,23,42,0.035)] sm:flex-row sm:items-center sm:p-7">
+          <div className="pointer-events-none absolute right-0 top-0 h-full w-80 bg-gradient-to-l from-amber-50/70 via-amber-50/30 to-transparent" />
+          <div className="relative min-w-0">
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-amber-200/80 bg-amber-50 text-amber-600 shadow-sm">
+                <IndianRupee className="h-6 w-6 stroke-[2.2]" />
               </div>
               <div>
                 <h1 className="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
@@ -163,7 +164,7 @@ export default function AdvocateEarnings() {
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="relative flex shrink-0 items-center gap-3">
             <button
               type="button"
               onClick={() => {

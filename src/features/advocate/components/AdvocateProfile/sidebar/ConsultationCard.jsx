@@ -6,10 +6,10 @@ import {
   FiArrowRight,
   FiAlertCircle,
 } from "react-icons/fi";
+import { formatDurationHuman } from "@/shared/utils/formatDuration";
 
 function formatDurationLabel(minutes) {
-  if (!minutes) return "";
-  return `${minutes} min`;
+  return formatDurationHuman(minutes, { subHourUnit: "min" });
 }
 
 function getModeIcon(mode) {
@@ -163,11 +163,11 @@ const ConsultationCard = forwardRef(function ConsultationCard(
 
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-slate-900 text-sm leading-tight">
-                    {modeItem.label}
-                  </p>
+  {modeItem.mode === "IN_PERSON" ? "Office Visit Meetting" : modeItem.label}
+</p>
                   {modeItem.durationMinutes && (
                     <p className="text-xs text-slate-400 mt-0.5">
-                      {modeItem.durationMinutes} min
+                      {formatDurationLabel(modeItem.durationMinutes)}
                     </p>
                   )}
                 </div>

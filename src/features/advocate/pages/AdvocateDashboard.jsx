@@ -9,6 +9,7 @@ import {
   useOutletContext,
 } from "react-router-dom";
 import { motion as Motion } from "framer-motion";
+import { formatDurationHuman } from "@/shared/utils/formatDuration";
 const motion = Motion;
 void motion;
 import {
@@ -26,10 +27,12 @@ import {
   Crown,
   Eye,
   Gavel,
+  IndianRupee,
   Lightbulb,
   LockKeyhole,
   Phone,
   Plus,
+  RefreshCw,
   Sparkles,
   Star,
   TrendingUp,
@@ -221,6 +224,7 @@ const getPracticeArea = (
 const getConsultationDate = (
   consultation,
 ) =>
+  consultation?.scheduledAt ||
   consultation?.startAt ||
   consultation?.scheduledDate ||
   consultation?.date ||
@@ -230,16 +234,34 @@ const getConsultationDate = (
 const getConsultationTime = (
   consultation,
 ) => {
-  if (consultation?.startAt) {
+  const startAt = consultation?.scheduledAt || consultation?.startAt;
+  if (startAt) {
     try {
-      const start = new Date(consultation.startAt);
+      const start = new Date(startAt);
       if (!Number.isNaN(start.getTime())) {
-        return new Intl.DateTimeFormat("en-IN", {
+        let end = consultation.endAt ? new Date(consultation.endAt) : null;
+        if (!end && consultation.durationMinutes) {
+          end = new Date(start.getTime() + Number(consultation.durationMinutes) * 60000);
+        }
+        const startStr = new Intl.DateTimeFormat("en-IN", {
           timeZone: "Asia/Kolkata",
           hour: "numeric",
           minute: "2-digit",
           hour12: true,
         }).format(start);
+
+        let endStr = "";
+        if (end && !Number.isNaN(end.getTime())) {
+          endStr = new Intl.DateTimeFormat("en-IN", {
+            timeZone: "Asia/Kolkata",
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+          }).format(end);
+        }
+
+        const durationSuffix = consultation.durationMinutes ? ` · ${formatDurationHuman(consultation.durationMinutes, { subHourUnit: "min" })}` : "";
+        return endStr ? `${startStr} – ${endStr}${durationSuffix}` : `${startStr}${durationSuffix}`;
       }
     } catch {
       // fallback
@@ -278,7 +300,15 @@ const getMode = (consultation) => {
     return {
       type: "video",
       label: "Video Call",
+      fullLabel: "Online Video Call",
+      shortBadge: "Video",
       Icon: Video,
+      badgeClass: "border-sky-300 bg-sky-50 text-sky-800 shadow-2xs font-extrabold",
+      iconColor: "text-sky-600",
+      avatarBg: "bg-sky-50 border-sky-200 text-sky-800",
+      avatarBadgeBg: "bg-sky-500 text-white",
+      cardBorder: "border-sky-200/90 bg-sky-50/50",
+      detailIconBox: "border border-sky-200 bg-sky-100 text-sky-700",
     };
   }
 
@@ -286,14 +316,30 @@ const getMode = (consultation) => {
     return {
       type: "call",
       label: "Voice Call",
+      fullLabel: "Direct Voice Call",
+      shortBadge: "Voice",
       Icon: Phone,
+      badgeClass: "border-purple-300 bg-purple-50 text-purple-800 shadow-2xs font-extrabold",
+      iconColor: "text-purple-600",
+      avatarBg: "bg-purple-50 border-purple-200 text-purple-800",
+      avatarBadgeBg: "bg-purple-600 text-white",
+      cardBorder: "border-purple-200/90 bg-purple-50/50",
+      detailIconBox: "border border-purple-200 bg-purple-100 text-purple-700",
     };
   }
 
   return {
     type: "in_person",
     label: "Personal Meeting",
-    Icon: Users,
+    fullLabel: "In-Person Office Visit",
+    shortBadge: "In-Person",
+    Icon: BriefcaseBusiness,
+    badgeClass: "border-emerald-300 bg-emerald-50 text-emerald-900 shadow-2xs font-black",
+    iconColor: "text-emerald-700",
+    avatarBg: "bg-emerald-50 border-emerald-200 text-emerald-800",
+    avatarBadgeBg: "bg-emerald-600 text-white",
+    cardBorder: "border-emerald-200/90 bg-emerald-50/50",
+    detailIconBox: "border border-emerald-200 bg-emerald-100 text-emerald-800",
   };
 };
 
@@ -602,6 +648,7 @@ const StatCard = ({
   label,
   value,
   tone,
+  onClick,
 }) => {
   void Icon;
   const tones = {
@@ -621,7 +668,18 @@ const StatCard = ({
       transition={{
         duration: 0.2,
       }}
-      className="flex h-full flex-col rounded-[22px] border border-slate-200/80 bg-white p-4 shadow-[0_8px_30px_rgba(15,23,42,0.035)] transition-shadow hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)] sm:p-5"
+      onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={(e) => {
+        if (onClick && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      className={`flex h-full flex-col rounded-[22px] border border-slate-200/80 bg-white p-4 shadow-[0_8px_30px_rgba(15,23,42,0.035)] transition-all hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)] sm:p-5 ${
+        onClick ? "cursor-pointer active:scale-[0.98]" : ""
+      }`}
     >
       <div
         className={`flex h-10 w-10 items-center justify-center rounded-xl border ${tones[tone] ||
@@ -638,7 +696,7 @@ const StatCard = ({
       <p
         className={`mt-auto pt-1 leading-tight tracking-tight text-slate-950 ${
           typeof value === "string" && value.length > 8
-            ? "text-[13px] font-bold text-slate-500 sm:text-[14px]"
+            ? "text-[16px] font-black text-slate-900 sm:text-[18px]"
             : "text-[21px] font-extrabold sm:text-[24px]"
         }`}
       >
@@ -653,6 +711,9 @@ const OverviewStats = ({
   todayCount = 0,
   upcomingCount = 0,
   completedCount = 0,
+  onRefresh,
+  isRefreshing = false,
+  onNavigate,
 }) => {
   const today = Number.isFinite(stats?.todayBookings)
     ? stats.todayBookings
@@ -666,12 +727,42 @@ const OverviewStats = ({
     ? stats.completed
     : completedCount;
 
+  // Real, formatted earnings directly from advocate ledger or appointments
+  const earningsDisplay =
+    stats?.earnings && stats.earnings !== "Not available yet"
+      ? stats.earnings
+      : stats?.earningsAmount !== undefined
+      ? `₹${Number(stats.earningsAmount || 0).toLocaleString("en-IN")}`
+      : "₹0";
+
   return (
     <section>
-      <SectionHeading
-        title="Today's Overview"
-        description="A quick snapshot of your practice today."
-      />
+      <div className="mb-4 flex items-end justify-between gap-4">
+        <div>
+          <h2 className="text-[17px] font-bold tracking-tight text-slate-950 sm:text-lg">
+            Today's Overview
+          </h2>
+          <p className="mt-1 text-[13px] leading-5 text-slate-500">
+            A quick snapshot of your practice today.
+          </p>
+        </div>
+
+        {onRefresh && (
+          <button
+            type="button"
+            onClick={onRefresh}
+            disabled={isRefreshing}
+            className="inline-flex min-h-[36px] items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-bold text-slate-700 shadow-2xs transition hover:border-amber-300 hover:bg-amber-50/50 hover:text-amber-800 disabled:opacity-60"
+            title="Refresh bookings and earnings"
+          >
+            <RefreshCw
+              size={13}
+              className={isRefreshing ? "animate-spin text-amber-500" : "text-slate-400"}
+            />
+            <span>Refresh</span>
+          </button>
+        )}
+      </div>
 
       <div className="grid grid-cols-2 items-stretch gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard
@@ -679,6 +770,7 @@ const OverviewStats = ({
           label="Today's Bookings"
           value={today}
           tone="amber"
+          onClick={() => onNavigate?.("/advocate/bookings")}
         />
 
         <StatCard
@@ -686,6 +778,7 @@ const OverviewStats = ({
           label="Upcoming"
           value={upcoming}
           tone="blue"
+          onClick={() => onNavigate?.("/advocate/bookings?status=UPCOMING")}
         />
 
         <StatCard
@@ -693,13 +786,15 @@ const OverviewStats = ({
           label="Completed"
           value={completed}
           tone="emerald"
+          onClick={() => onNavigate?.("/advocate/bookings?status=COMPLETED")}
         />
 
         <StatCard
-          Icon={CircleDollarSign}
-          label="Earnings"
-          value="Not available yet"
+          Icon={IndianRupee}
+          label="Total Earnings"
+          value={earningsDisplay}
           tone="violet"
+          onClick={() => onNavigate?.("/advocate/earnings")}
         />
       </div>
     </section>
@@ -879,10 +974,18 @@ const UpcomingConsultation = ({
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4 min-w-0">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-sm font-extrabold text-slate-700">
-              {getInitials(
-                clientName,
-              )}
+            <div className="relative shrink-0">
+              <div
+                className={`flex h-12 w-12 items-center justify-center rounded-2xl border font-extrabold transition-colors ${mode.avatarBg}`}
+              >
+                {getInitials(clientName)}
+              </div>
+              <span
+                title={mode.label}
+                className={`absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-white shadow-xs ${mode.avatarBadgeBg}`}
+              >
+                <mode.Icon size={8} strokeWidth={3} />
+              </span>
             </div>
 
             <div className="min-w-0">
@@ -940,14 +1043,10 @@ const UpcomingConsultation = ({
             )}
           </div>
 
-          <div className="inline-flex items-center gap-2 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-[13px] font-medium text-slate-600">
-            <mode.Icon
-              size={16}
-              className="text-slate-400"
-            />
-
-            {mode.label}
-          </div>
+          <span className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-bold ${mode.badgeClass}`}>
+            <mode.Icon size={14} className={mode.iconColor} />
+            <span>{mode.fullLabel || mode.label}</span>
+          </span>
         </div>
 
         {/* ACTIONS */}
@@ -1211,29 +1310,64 @@ const RecentActivity = ({
                     : ""
                     }`}
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-100 bg-amber-50 text-amber-600">
-                    <ItemMode.Icon
-                      size={17}
-                    />
+                  {/* Client Avatar with Mode Indicator */}
+                  <div className="relative shrink-0">
+                    <div
+                      className={`flex h-11 w-11 items-center justify-center rounded-2xl border font-extrabold transition-colors ${ItemMode.avatarBg}`}
+                    >
+                      {getInitials(getClientName(item))}
+                    </div>
+                    <span
+                      title={ItemMode.label}
+                      className={`absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full border border-white shadow-2xs ${ItemMode.avatarBadgeBg}`}
+                    >
+                      <ItemMode.Icon size={7} strokeWidth={3} />
+                    </span>
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[13px] font-bold leading-5 text-slate-700 sm:text-sm">
-                      Consultation with{" "}
-                      {getClientName(
-                        item,
-                      )}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="truncate text-[13px] font-bold leading-5 text-slate-800 sm:text-sm">
+                        Consultation with{" "}
+                        <span className="font-extrabold text-slate-950">
+                          {getClientName(item)}
+                        </span>
+                      </p>
+                    </div>
 
-                    <p className="mt-1 truncate text-[11px] font-medium leading-4 text-slate-400 sm:text-xs">
-                      {item.subject || getPracticeArea(item)}
-                      {dateStr ? ` • ${dateStr}` : ""}
-                      {timeStr && timeStr !== "Time unavailable" ? ` • ${timeStr}` : ""}
-                    </p>
+                    <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] font-medium text-slate-400">
+                      {/* Mode Badge Pill */}
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-tight ${ItemMode.badgeClass}`}
+                      >
+                        <ItemMode.Icon size={10} className={ItemMode.iconColor} />
+                        <span>{ItemMode.label}</span>
+                      </span>
+
+                      {dateStr && (
+                        <>
+                          <span className="text-slate-300">•</span>
+                          <span className="text-slate-600 font-semibold">{dateStr}</span>
+                        </>
+                      )}
+                      {timeStr && timeStr !== "Time unavailable" && (
+                        <>
+                          <span className="text-slate-300">•</span>
+                          <span className="font-mono text-slate-500">{timeStr}</span>
+                        </>
+                      )}
+                    </div>
                   </div>
 
                   <div className="flex shrink-0 items-center gap-3">
-                    <span className={`hidden rounded-full border px-3 py-1.5 text-[10px] font-bold capitalize sm:inline-flex ${derived.className}`}>
+                    {/* Consultation Fee badge if present */}
+                    {item?.fee ? (
+                      <span className="hidden font-mono text-xs font-black text-slate-800 sm:inline-block">
+                        ₹{Number(item.fee).toLocaleString("en-IN")}
+                      </span>
+                    ) : null}
+
+                    <span className={`hidden rounded-full border px-2.5 py-1 text-[10px] font-bold capitalize sm:inline-flex ${derived.className}`}>
                       {derived.label}
                     </span>
 
@@ -2318,6 +2452,7 @@ export default function AdvocateDashboard() {
     todayBookingsCount = 0,
     completion = null,
     isLoading = false,
+    isRefreshing = false,
     error = null,
     refresh,
   } = dashboard;
@@ -2795,6 +2930,9 @@ export default function AdvocateDashboard() {
             completedCount={
               counts?.COMPLETED ?? 0
             }
+            onRefresh={refresh}
+            isRefreshing={isRefreshing}
+            onNavigate={navigate}
           />
 
           {/* =========================================================
