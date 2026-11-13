@@ -12,11 +12,12 @@ import { ADMIN_PERMISSIONS } from "../../../utils/permissions";
 import {
   getContentCreators,
   createContentCreator,
+  updateContentCreatorRoles,
 } from "../../../services/platform/adminContentCreatorsApi";
 import { getRoles } from "../../../services/platform/adminRolesApi";
 import { formatDate } from "../../../utils/adminUtils";
 
-export default function ContentCreatorsList() {
+export default function StaffAccountsList() {
   const toast = useToast();
   const { has } = useAdminAuth();
   const canCreate = has(ADMIN_PERMISSIONS.CONTENT_CREATORS_CREATE);
@@ -45,6 +46,11 @@ export default function ContentCreatorsList() {
   const [_invalidRoles, setInvalidRoles] = useState([]);
   const [hideRolesField, setHideRolesField] = useState(false);
 
+  // Edit Existing Staff Roles Modal State
+  const [editingCreator, setEditingCreator] = useState(null);
+  const [editRoleNames, setEditRoleNames] = useState([]);
+  const [editSubmitting, setEditSubmitting] = useState(false);
+
   const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -69,7 +75,7 @@ export default function ContentCreatorsList() {
       const res = await getRoles({ isActive: true, limit: 100 });
       setAvailableRoles(res.items || []);
     } catch (err) {
-      console.error("[ContentCreatorsList] Failed to load available roles:", err);
+      console.error("[StaffAccountsList] Failed to load available roles:", err);
     } finally {
       setRolesLoading(false);
     }
@@ -88,6 +94,39 @@ export default function ContentCreatorsList() {
     setShowPassword(false);
     setShowAddModal(true);
     loadAvailableRoles();
+  };
+
+  const handleOpenEditRoles = (row) => {
+    const existingRoles = Array.isArray(row?.roles)
+      ? row.roles
+          .map((r) => (typeof r === "object" && r !== null ? r.name : String(r)))
+          .filter((name) => name && name !== "CONTENT_CREATOR" && name !== "ADMIN")
+      : [];
+    setEditingCreator(row);
+    setEditRoleNames(existingRoles);
+    loadAvailableRoles();
+  };
+
+  const handleToggleEditRole = (roleName) => {
+    setEditRoleNames((prev) =>
+      prev.includes(roleName) ? prev.filter((r) => r !== roleName) : [...prev, roleName],
+    );
+  };
+
+  const handleSaveRoles = async (e) => {
+    e.preventDefault();
+    if (!editingCreator) return;
+    setEditSubmitting(true);
+    try {
+      await updateContentCreatorRoles(editingCreator.id, { roleNames: editRoleNames });
+      toast.show("Staff roles updated. Staff must sign in again for changes to take effect.", "success");
+      setEditingCreator(null);
+      setReloadTrigger((k) => k + 1);
+    } catch (err) {
+      toast.show(err?.data?.message || err?.message || "Failed to update staff roles.", "error");
+    } finally {
+      setEditSubmitting(false);
+    }
   };
 
   const handleRoleChange = (e) => {
@@ -318,6 +357,25 @@ export default function ContentCreatorsList() {
                 </span>
               ),
             },
+            ...(canManageRoles
+              ? [
+                  {
+                    key: "actions",
+                    header: "Actions",
+                    className: "text-right",
+                    render: (row) => (
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEditRoles(row)}
+                        className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                      >
+                        <Icon name="edit" className="text-[14px]" />
+                        Edit Role
+                      </button>
+                    ),
+                  },
+                ]
+              : []),
           ]}
         />
       )}
@@ -483,6 +541,89 @@ export default function ContentCreatorsList() {
                 </Button>
                 <Button variant="primary" type="submit" disabled={submitting}>
                   {submitting ? "Creating Account…" : "Create Staff Account"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
+
+      {/* EDIT STAFF ROLES MODAL */}
+      {editingCreator ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm" role="dialog" aria-modal="true">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <h3 className="text-lg font-bold text-slate-950">Edit Staff Roles</h3>
+                <p className="text-xs text-slate-500">
+                  {editingCreator.fullName || editingCreator.name} ({editingCreator.email})
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingCreator(null)}
+                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+              >
+                <Icon name="close" className="text-[20px]" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveRoles} className="mt-4 space-y-4">
+              <p className="text-xs text-slate-500">
+                Select one or more RBAC roles to assign. Staff must sign in again for permission changes to take effect.
+              </p>
+
+              {rolesLoading ? (
+                <div className="p-3 text-xs text-slate-400">Loading active roles…</div>
+              ) : availableRoles.length === 0 ? (
+                <div className="p-3 text-xs text-slate-500 italic rounded-xl border border-slate-200">
+                  No active custom roles available.
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                  {availableRoles.map((role) => {
+                    const checked = editRoleNames.includes(role.name);
+                    return (
+                      <label
+                        key={role.id || role.name}
+                        className={`flex items-start gap-3 rounded-xl border p-3 cursor-pointer transition-colors ${
+                          checked
+                            ? "border-amber-400 bg-amber-50/60"
+                            : "border-slate-200 bg-white hover:bg-slate-50"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => handleToggleEditRole(role.name)}
+                          className="mt-0.5 h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-semibold text-slate-900">
+                            {role.displayName || role.name}
+                          </p>
+                          <p className="font-mono text-[10px] text-slate-500">{role.name}</p>
+                          {role.description ? (
+                            <p className="mt-0.5 text-[11px] text-slate-500">{role.description}</p>
+                          ) : null}
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                <Button
+                  variant="tertiary"
+                  type="button"
+                  onClick={() => setEditingCreator(null)}
+                  disabled={editSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button variant="primary" type="submit" disabled={editSubmitting}>
+                  {editSubmitting ? "Saving…" : "Save Roles"}
                 </Button>
               </div>
             </form>

@@ -31,9 +31,11 @@ import {
   formatISTDateLong,
   formatSlotStartTime,
   formatSlotRange,
+  getISTTimeComponents,
   checkNextStepAvailable,
   getCalendarMonthMatrix,
 } from "../../../utils/advocateSlotUtils";
+import { estimateTravelMinutesFromRoadKm } from "../../../utils/distanceUtils";
 import { usePaymentStateMachine, PAYMENT_STATES } from "@/features/user/hooks/usePaymentStateMachine";
 import { formatDurationHuman } from "@/shared/utils/formatDuration";
 
@@ -81,6 +83,7 @@ export default function AdvocateBookingModal({
   advocate,
   bookingOptions,
   initialMode,
+  initialDurationMinutes = null,
   currentUser,
   onBookingComplete,
   travelDetails,
@@ -134,12 +137,21 @@ export default function AdvocateBookingModal({
   const [, setIsQuoteLoading] = useState(false);
   const quoteTimerRef = useRef(null);
 
-  // Reset duration when defaultDuration changes (e.g. mode changes)
+  // Reset duration when defaultDuration or initialDurationMinutes changes (e.g. mode changes or card stepper)
   useEffect(() => {
-    setDurationMinutes(defaultDuration);
+    if (
+      isExtendable &&
+      initialDurationMinutes &&
+      Number(initialDurationMinutes) >= Number(activeModeObj?.minDurationMinutes || 15) &&
+      Number(initialDurationMinutes) <= Number(activeModeObj?.maxDurationMinutes || 180)
+    ) {
+      setDurationMinutes(Number(initialDurationMinutes));
+    } else {
+      setDurationMinutes(defaultDuration);
+    }
     setQuoteBreakdown(null);
     setQuoteRange(null);
-  }, [defaultDuration]);
+  }, [defaultDuration, initialDurationMinutes, isExtendable, activeModeObj, isOpen]);
 
   // Range bounds in IST
   const todayIST = useMemo(() => getTodayISTDateString(), []);
@@ -170,6 +182,8 @@ export default function AdvocateBookingModal({
   const [busySlots, setBusySlots] = useState([]);
   const [loadingBusySlots, setLoadingBusySlots] = useState(false);
   const [slotFetchError, setSlotFetchError] = useState("");
+  const [slotNowMs, setSlotNowMs] = useState(() => Date.now());
+  const [slotRefreshed, setSlotRefreshed] = useState(false);
 
   // 3. BRIEF NOTES (optional, max 500 chars)
   const [notes, setNotes] = useState("");
@@ -281,16 +295,24 @@ export default function AdvocateBookingModal({
   };
 
   // Fetch busy slots for valid selectedDate
-  const fetchBusySlots = useCallback(async (dateStr) => {
+  const fetchBusySlots = useCallback(async (dateStr, { manual = false } = {}) => {
     if (!advocateId || !dateStr) return;
     setLoadingBusySlots(true);
     setSlotFetchError("");
+    if (manual) setSlotRefreshed(false);
     try {
-      const res = await getAdvocateBusySlots(advocateId, dateStr);
+      const [res] = await Promise.all([
+        getAdvocateBusySlots(advocateId, dateStr),
+        manual ? new Promise((resolve) => setTimeout(resolve, 450)) : Promise.resolve(),
+      ]);
       if (res && Array.isArray(res.busy)) {
         setBusySlots(res.busy);
       } else {
         setBusySlots([]);
+      }
+      setSlotNowMs(Date.now());
+      if (manual) {
+        setSlotRefreshed(true);
       }
     } catch (err) {
       console.error("Failed to fetch busy slots:", err);
@@ -299,6 +321,12 @@ export default function AdvocateBookingModal({
       setLoadingBusySlots(false);
     }
   }, [advocateId]);
+
+  useEffect(() => {
+    if (!slotRefreshed) return undefined;
+    const t = setTimeout(() => setSlotRefreshed(false), 1600);
+    return () => clearTimeout(t);
+  }, [slotRefreshed]);
 
   // Fetch busy slots whenever a valid date is selected
   useEffect(() => {
@@ -325,31 +353,83 @@ export default function AdvocateBookingModal({
       stepMinutes,
       busySlots,
       minLeadMinutes,
-      currentEpochMs: Date.now(),
+      currentEpochMs: slotNowMs,
     });
-  }, [selectedDate, isInPersonMode, bookingOptions, activeModeObj, busySlots, minLeadMinutes]);
+  }, [selectedDate, isInPersonMode, bookingOptions, activeModeObj, busySlots, minLeadMinutes, slotNowMs]);
 
-  // Visible slots: Past slots and slots inside minLeadMinutes are HIDDEN
-  // Busy slots and slots that run past the working window ARE shown, but visibly disabled with distinct blocked styling
+  // Visible slots: Past/lead-time slots and slots running past working hours are HIDDEN.
+  // Genuinely booked slots (isBusy) are shown as Booked.
+  // Same-day In-Person slots starting before (now + travelTimeMinutes + 15-min buffer) are disabled as "Too soon to reach in time".
   const visibleSlots = useMemo(() => {
-    return rawSlots.filter((slot) => !slot.isPastOrLead);
-  }, [rawSlots]);
+    const filtered = rawSlots.filter((slot) => !slot.isPastOrLead && !slot.runsPastWindow);
+    if (
+      !isInPersonMode ||
+      selectedDate !== todayIST ||
+      !travelDetails?.travelTimeMinutes
+    ) {
+      return filtered;
+    }
 
-  // Soft warning check for IN_PERSON consultations (Both today & future dates)
+    const bufferMinutes = 15;
+    const minReachableEpochMs =
+      slotNowMs + (Number(travelDetails.travelTimeMinutes) + bufferMinutes) * 60 * 1000;
+
+    return filtered.map((slot) => {
+      const startMs = slot.startEpochMs || (slot.startAt ? Date.parse(slot.startAt) : 0);
+      if (!slot.isBusy && startMs > 0 && startMs < minReachableEpochMs) {
+        return {
+          ...slot,
+          disabled: true,
+          tooSoonToReach: true,
+          reason: "Too soon to reach in time",
+        };
+      }
+      return slot;
+    });
+  }, [rawSlots, isInPersonMode, selectedDate, todayIST, travelDetails, slotNowMs]);
+
+  // Clear selectedSlot if a refresh marks it busy or past
+  useEffect(() => {
+    if (!selectedSlot) return;
+    const stillAvailable = visibleSlots.some(
+      (s) => s.startAt === selectedSlot.startAt && !s.disabled,
+    );
+    if (!stillAvailable) {
+      setSelectedSlot(null);
+    }
+  }, [visibleSlots, selectedSlot]);
+
+  // Travel info & smart slot suggestion for IN_PERSON consultations
   const travelNotice = useMemo(() => {
     if (!travelDetails || !isInPersonMode || !selectedSlot) {
       return null;
     }
-    const formattedTravel = formatDurationHuman(travelDetails.travelTimeMinutes);
+    const travelMinutes =
+      travelDetails.travelTimeMinutes != null
+        ? Number(travelDetails.travelTimeMinutes)
+        : estimateTravelMinutesFromRoadKm(travelDetails.roadKm);
+    const formattedTravel = formatDurationHuman(travelMinutes);
     const isToday = selectedDate === todayIST;
     if (isToday) {
       const slotStartMs = selectedSlot.startEpochMs || (selectedSlot.startAt ? Date.parse(selectedSlot.startAt) : 0);
-      const earliestArrivalMs = Date.now() + (travelDetails.travelTimeMinutes * 60 * 1000);
+      const earliestArrivalMs = Date.now() + (travelMinutes * 60 * 1000);
       if (slotStartMs < earliestArrivalMs) {
+        const suggestedSlot = visibleSlots.find((s) => {
+          if (s.disabled) return false;
+          const sMs = s.startEpochMs || (s.startAt ? Date.parse(s.startAt) : 0);
+          return sMs >= earliestArrivalMs;
+        });
+        const { hour: etaHour, minute: etaMin } = getISTTimeComponents(earliestArrivalMs);
+        const etaMeridiem = etaHour >= 12 ? "PM" : "AM";
+        const etaDisplayHour = etaHour % 12 === 0 ? 12 : etaHour % 12;
+        const etaLabel = `${etaDisplayHour}:${String(etaMin).padStart(2, "0")} ${etaMeridiem}`;
         return {
           isTight: true,
-          title: "Tight Schedule Alert",
-          message: `Advocate office is ~${travelDetails.roadKm} km away (~${formattedTravel} travel). You may arrive after ${formatSlotStartTime(selectedSlot?.startAt)}. Ensure you can make it in time.`,
+          title: "Suggested Arrival & Slot",
+          suggestedSlot: suggestedSlot || null,
+          message: suggestedSlot
+            ? `Advocate office is ~${travelDetails.roadKm} km away (~${formattedTravel} travel). Estimated arrival is around ${etaLabel} — we recommend ${formatSlotStartTime(suggestedSlot.startAt)} for a comfortable visit.`
+            : `Advocate office is ~${travelDetails.roadKm} km away (~${formattedTravel} travel). Estimated arrival is around ${etaLabel}. Consider picking tomorrow's date or switching to a Video/Voice Call.`,
         };
       }
     }
@@ -357,9 +437,10 @@ export default function AdvocateBookingModal({
     return {
       isTight: false,
       title: "In-Person Visit Notice",
+      suggestedSlot: null,
       message: `Advocate office is ~${travelDetails.roadKm} km away (~${formattedTravel} travel). Please plan your schedule accordingly.`,
     };
-  }, [travelDetails, isInPersonMode, selectedDate, todayIST, selectedSlot]);
+  }, [travelDetails, isInPersonMode, selectedDate, todayIST, selectedSlot, visibleSlots]);
 
   // Sample slot start times to display before a date is chosen (or fallback)
   const sampleSlotStartTimes = useMemo(() => {
@@ -377,7 +458,7 @@ export default function AdvocateBookingModal({
       currentEpochMs: Date.now(),
     });
     const upcoming = slots
-      .filter((s) => !s.isPastOrLead)
+      .filter((s) => !s.isPastOrLead && !s.runsPastWindow)
       .map((s) => formatSlotStartTime(s.startAt));
 
     if (upcoming.length > 0) {
@@ -950,7 +1031,13 @@ export default function AdvocateBookingModal({
                   </span>
                 </div>
 
-                <div className="relative">
+                <div
+                  className={`relative flex items-center rounded-2xl border bg-white transition-all focus-within:ring-2 ${
+                    dateError
+                      ? "border-red-300 focus-within:ring-red-500/20 focus-within:border-red-500"
+                      : "border-slate-200 focus-within:ring-amber-500/20 focus-within:border-amber-500"
+                  }`}
+                >
                   <input
                     ref={dateInputRef}
                     id="booking-date-input"
@@ -962,11 +1049,8 @@ export default function AdvocateBookingModal({
                     onBlur={handleDateInputBlur}
                     placeholder="DD/MM/YYYY"
                     aria-invalid={Boolean(dateError) || undefined}
-                    className={`w-full p-3 pr-11 rounded-2xl border text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 transition-all ${
-                      dateError
-                        ? "border-red-300 focus:ring-red-500/20 focus:border-red-500"
-                        : "border-slate-200 focus:ring-amber-500/20 focus:border-amber-500"
-                    }`}
+                    style={{ outline: "none", boxShadow: "none" }}
+                    className="w-[116px] sm:w-[126px] shrink-0 border-0 bg-transparent py-3 pl-3 pr-1 text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0"
                   />
 
                   <button
@@ -976,11 +1060,14 @@ export default function AdvocateBookingModal({
                       updatePopoverPosition();
                       setIsCalendarOpen((prev) => !prev);
                     }}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50/70 rounded-xl transition-colors cursor-pointer"
+                    style={{ outline: "none", boxShadow: "none" }}
+                    className="group flex-1 flex items-center justify-end py-2.5 pr-3 pl-2 text-slate-400 hover:text-amber-600 rounded-r-2xl transition-colors cursor-pointer outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0"
                     title="Open calendar"
                     aria-label="Open date calendar"
                   >
-                    <FiCalendar className="w-4 h-4" />
+                    <span className="p-1.5 rounded-xl group-hover:bg-amber-50/70 transition-colors">
+                      <FiCalendar className="w-4 h-4" />
+                    </span>
                   </button>
                 </div>
 
@@ -1097,14 +1184,20 @@ export default function AdvocateBookingModal({
                           { subHourUnit: "min" }
                         )} session
                       </span>
+                      {slotRefreshed && !loadingBusySlots && (
+                        <span className="text-[10px] font-semibold text-emerald-600">
+                          Updated
+                        </span>
+                      )}
                       <button
                         type="button"
-                        onClick={() => fetchBusySlots(selectedDate)}
+                        onClick={() => fetchBusySlots(selectedDate, { manual: true })}
                         disabled={loadingBusySlots}
-                        className="p-1 text-slate-400 hover:text-amber-600 rounded-md transition-colors cursor-pointer"
+                        className="p-1 text-slate-400 hover:text-amber-600 disabled:opacity-60 rounded-md transition-colors cursor-pointer"
                         title="Refresh availability"
+                        aria-label="Refresh availability"
                       >
-                        <FiRefreshCw className={`w-3.5 h-3.5 ${loadingBusySlots ? "animate-spin" : ""}`} />
+                        <FiRefreshCw className={`w-3.5 h-3.5 ${loadingBusySlots ? "animate-spin text-amber-600" : ""}`} />
                       </button>
                     </div>
                   ) : (
@@ -1202,6 +1295,11 @@ export default function AdvocateBookingModal({
                                       Booked
                                     </span>
                                   )}
+                                  {slot.tooSoonToReach && (
+                                    <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-amber-700">
+                                      Too soon
+                                    </span>
+                                  )}
                                 </button>
                               );
                             }
@@ -1246,7 +1344,7 @@ export default function AdvocateBookingModal({
                         )}
                       </div>
 
-                      {/* Soft Travel Warning for IN_PERSON consultations (Today & Next/Future Days) */}
+                      {/* Travel Info & Suggested Slot for IN_PERSON consultations */}
                       {travelNotice && (
                         <div
                           className={`mt-2.5 flex items-start gap-2.5 rounded-xl border p-3 text-xs animate-fadeIn ${
@@ -1260,11 +1358,26 @@ export default function AdvocateBookingModal({
                               travelNotice.isTight ? "text-amber-600" : "text-amber-700"
                             }`}
                           />
-                          <div>
+                          <div className="flex-1 min-w-0">
                             <p className="font-bold text-amber-950">{travelNotice.title}</p>
                             <p className="mt-0.5 text-slate-700 leading-relaxed">
                               {travelNotice.message}
                             </p>
+                            {travelNotice.suggestedSlot && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedSlot(travelNotice.suggestedSlot);
+                                  setDurationMinutes(defaultDuration);
+                                  setSlotTakenMessage("");
+                                  setQuoteBreakdown(null);
+                                  setQuoteRange(null);
+                                }}
+                                className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-amber-500 px-2.5 py-1 text-[11px] font-bold text-white shadow-xs transition hover:bg-amber-600 cursor-pointer"
+                              >
+                                Switch to {formatSlotStartTime(travelNotice.suggestedSlot.startAt)}
+                              </button>
+                            )}
                           </div>
                         </div>
                       )}

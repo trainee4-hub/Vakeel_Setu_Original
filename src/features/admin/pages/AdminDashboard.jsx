@@ -8,6 +8,8 @@ import { getPendingAdvocates, getAdvocateDeletionRequests } from "../services/pl
 import { getConsultancyRequests } from "../services/platform/adminConsultancyApi";
 import { getFeedbackList } from "../services/platform/adminFeedbackApi";
 import { getHelpRequests } from "../services/platform/adminHelpApi";
+import { getAdminWithdrawals } from "../services/platform/adminWithdrawalsApi";
+import { getAdminAdvocateBookings } from "../services/platform/adminAdvocateBookingsApi";
 import { LEGAL_SECTION_META } from "../components/forms/legalSectionMeta";
 import useAdminAuth from "../hooks/useAdminAuth";
 import { ADMIN_PATHS, formatDate } from "../utils/adminUtils";
@@ -31,6 +33,7 @@ const PLATFORM_MODULES = [
     key: "pendingAdvocates",
     label: "Pending Approvals",
     icon: "badge",
+    tone: "amber",
     caption: "Advocate applications awaiting review",
     to: `${ADMIN_PATHS.advocates.list}?tab=pending`,
     permission: ADMIN_PERMISSIONS.ADVOCATES_VIEW,
@@ -40,6 +43,7 @@ const PLATFORM_MODULES = [
     key: "deletionRequests",
     label: "Deletion Requests",
     icon: "person_remove",
+    tone: "rose",
     caption: "Advocate account deletion queue",
     to: `${ADMIN_PATHS.advocates.list}?tab=deletions`,
     permission: ADMIN_PERMISSIONS.ADVOCATES_VIEW,
@@ -49,6 +53,7 @@ const PLATFORM_MODULES = [
     key: "pendingConsultancy",
     label: "Pending Consultations",
     icon: "phone_in_talk",
+    tone: "blue",
     caption: "Scheduled legal consultations",
     to: ADMIN_PATHS.consultancy.list,
     permission: ADMIN_PERMISSIONS.CONSULTANCY_VIEW,
@@ -58,6 +63,7 @@ const PLATFORM_MODULES = [
     key: "totalFeedback",
     label: "Total Feedback",
     icon: "rate_review",
+    tone: "violet",
     caption: "Citizen queries & feedback",
     to: ADMIN_PATHS.feedback.list,
     permission: ADMIN_PERMISSIONS.FEEDBACK_VIEW,
@@ -67,10 +73,36 @@ const PLATFORM_MODULES = [
     key: "openHelpRequests",
     label: "Open Help Requests",
     icon: "contact_support",
+    tone: "orange",
     caption: "Support requests awaiting resolution",
     to: `${ADMIN_PATHS.help.list}?status=OPEN`,
     permission: ADMIN_PERMISSIONS.HELP_VIEW,
     load: () => getHelpRequests({ status: "OPEN", page: 1, limit: 1 }),
+  },
+];
+
+// Additional platform tiles shown only for assigned staff roles (!isFullAdmin)
+const STAFF_EXTRA_PLATFORM_MODULES = [
+  {
+    key: "pendingWithdrawals",
+    label: "Pending Withdrawals",
+    icon: "payments",
+    tone: "emerald",
+    caption: "Advocate payout requests awaiting review",
+    to: ADMIN_PATHS.withdrawals.list,
+    permission: ADMIN_PERMISSIONS.PAYOUTS_VIEW,
+    load: () => getAdminWithdrawals({ status: "REQUESTED", page: 1, limit: 1 }),
+    countOf: (res) => res?.counts?.REQUESTED ?? res?.pagination?.total ?? res?.withdrawals?.length,
+  },
+  {
+    key: "advocateBookings",
+    label: "Private Advocate Bookings",
+    icon: "event_note",
+    tone: "indigo",
+    caption: "Direct client-to-advocate consultations",
+    to: ADMIN_PATHS.advocateBookings.list,
+    permission: ADMIN_PERMISSIONS.ADVOCATE_BOOKINGS_VIEW,
+    load: () => getAdminAdvocateBookings({ page: 1, limit: 1 }),
   },
 ];
 
@@ -80,6 +112,7 @@ const CONTENT_MODULES = [
     label: "Blogs",
     recentLabel: "Blog",
     icon: "article",
+    tone: "sky",
     caption: "Published articles",
     paths: ADMIN_PATHS.blogs,
     createLabel: "Create Blog",
@@ -93,6 +126,7 @@ const CONTENT_MODULES = [
     label: "IPC Sections",
     recentLabel: "IPC Section",
     icon: "gavel",
+    tone: "amber",
     caption: "Indian Penal Code reference",
     paths: ADMIN_PATHS.ipc,
     createLabel: "Add IPC Section",
@@ -106,6 +140,7 @@ const CONTENT_MODULES = [
     label: "BNS Sections",
     recentLabel: "BNS Section",
     icon: "balance",
+    tone: "indigo",
     caption: "Bharatiya Nyaya Sanhita reference",
     paths: ADMIN_PATHS.bns,
     createLabel: "Add BNS Section",
@@ -119,6 +154,7 @@ const CONTENT_MODULES = [
     label: "User Rights",
     recentLabel: "User Right",
     icon: "verified_user",
+    tone: "emerald",
     caption: "Citizens' rights explained",
     paths: ADMIN_PATHS.userRights,
     createLabel: "Add User Right",
@@ -132,6 +168,7 @@ const CONTENT_MODULES = [
     label: "Guides",
     recentLabel: "Guide",
     icon: "menu_book",
+    tone: "violet",
     caption: "Step-by-step legal guides",
     paths: ADMIN_PATHS.guides,
     createLabel: "Create Guide",
@@ -145,6 +182,7 @@ const CONTENT_MODULES = [
     label: "Updates",
     recentLabel: "Update",
     icon: "update",
+    tone: "cyan",
     caption: "Legal and platform changes",
     paths: ADMIN_PATHS.updates,
     createLabel: "Post Update",
@@ -158,15 +196,17 @@ const CONTENT_MODULES = [
 const RECENT_LIMIT = 5;
 
 export default function AdminDashboard() {
-  const { user, has } = useAdminAuth();
+  const { user, has, isFullAdmin } = useAdminAuth();
   const [reloadKey, setReloadKey] = useState(0);
   const [result, setResult] = useState({ key: null, data: {} });
 
-  // Filter modules user has permission to see
-  const visiblePlatformModules = useMemo(
-    () => PLATFORM_MODULES.filter((m) => has(m.permission)),
-    [has],
-  );
+  // Filter modules user has permission to see (keep Main Admin overview untouched)
+  const visiblePlatformModules = useMemo(() => {
+    const base = isFullAdmin
+      ? PLATFORM_MODULES
+      : [...PLATFORM_MODULES, ...STAFF_EXTRA_PLATFORM_MODULES];
+    return base.filter((m) => has(m.permission));
+  }, [has, isFullAdmin]);
 
   const visibleContentModules = useMemo(
     () => CONTENT_MODULES.filter((m) => has(m.viewPermission)),
@@ -254,19 +294,34 @@ export default function AdminDashboard() {
 
           {/* Operational Platform Tiles */}
           {visiblePlatformModules.length > 0 && (
-            <div className="mb-6">
-              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">
+            <div className="mb-8">
+              <h2 className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500">
                 Platform Operations
               </h2>
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <div
+                className={`grid gap-4 sm:grid-cols-2 ${
+                  visiblePlatformModules.length === 5
+                    ? "lg:grid-cols-3 xl:grid-cols-5"
+                    : visiblePlatformModules.length === 3
+                    ? "xl:grid-cols-3"
+                    : visiblePlatformModules.length === 2
+                    ? "xl:grid-cols-2"
+                    : "xl:grid-cols-4"
+                }`}
+              >
                 {visiblePlatformModules.map((module) => (
                   <StatCard
                     key={module.key}
                     to={module.to}
                     icon={module.icon}
+                    tone={module.tone}
                     label={module.label}
                     caption={module.caption}
-                    count={data[module.key]?.pagination?.total ?? data[module.key]?.items?.length}
+                    count={
+                      module.countOf
+                        ? module.countOf(data[module.key])
+                        : (data[module.key]?.pagination?.total ?? data[module.key]?.items?.length)
+                    }
                   />
                 ))}
               </div>
@@ -277,7 +332,7 @@ export default function AdminDashboard() {
           {visibleContentModules.length > 0 && (
             <div>
               {visiblePlatformModules.length > 0 && (
-                <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">
+                <h2 className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500">
                   Legal Knowledge & Content
                 </h2>
               )}
@@ -287,6 +342,7 @@ export default function AdminDashboard() {
                     key={module.key}
                     to={module.paths.list}
                     icon={module.icon}
+                    tone={module.tone}
                     label={module.label}
                     caption={module.caption}
                     count={data[module.key]?.pagination?.total}
@@ -296,88 +352,160 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          <div className="mt-8 grid gap-6 lg:grid-cols-5">
-            <Card className="p-5 lg:col-span-2">
-              <h2 className="text-base font-semibold text-slate-950">Quick Actions</h2>
-              <ul className="mt-4 space-y-1">
-                {has(ADMIN_PERMISSIONS.ADVOCATES_VIEW) && (
-                  <li>
-                    <Link
-                      to={`${ADMIN_PATHS.advocates.list}?tab=pending`}
-                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-amber-50 hover:text-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
-                    >
-                      <Icon name="badge" className="text-[20px] text-amber-600" />
-                      Review Pending Advocates
-                    </Link>
-                  </li>
-                )}
-                {has(ADMIN_PERMISSIONS.ROLES_MANAGE) && (
-                  <li>
-                    <Link
-                      to={ADMIN_PATHS.roles.create}
-                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-amber-50 hover:text-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
-                    >
-                      <Icon name="admin_panel_settings" className="text-[20px] text-amber-600" />
-                      Create New Role
-                    </Link>
-                  </li>
-                )}
-                {has(ADMIN_PERMISSIONS.CONTENT_CREATORS_CREATE) && (
-                  <li>
-                    <Link
-                      to={ADMIN_PATHS.contentCreators.list}
-                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-amber-50 hover:text-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
-                    >
-                      <Icon name="person_add" className="text-[20px] text-amber-600" />
-                      Add Staff Account
-                    </Link>
-                  </li>
-                )}
-                {visibleContentModules
-                  .filter((module) => has(module.createPermission))
-                  .map((module) => (
-                    <li key={module.key}>
-                      <Link
-                        to={module.paths.create}
-                        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-amber-50 hover:text-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
-                      >
-                        <Icon name="add" className="text-[20px] text-amber-600" />
-                        {module.createLabel}
-                      </Link>
-                    </li>
-                  ))}
-              </ul>
-            </Card>
+          {(() => {
+            const showRecentContent = isFullAdmin || visibleContentModules.length > 0;
+            const staffPlatformActions = !isFullAdmin
+              ? [
+                  has(ADMIN_PERMISSIONS.PAYOUTS_VIEW) && {
+                    key: "withdrawals",
+                    to: ADMIN_PATHS.withdrawals.list,
+                    icon: "payments",
+                    label: "Review Withdrawal Requests",
+                  },
+                  has(ADMIN_PERMISSIONS.ADVOCATE_BOOKINGS_VIEW) && {
+                    key: "advocateBookings",
+                    to: ADMIN_PATHS.advocateBookings.list,
+                    icon: "event_note",
+                    label: "View Private Advocate Bookings",
+                  },
+                  has(ADMIN_PERMISSIONS.CONSULTANCY_VIEW) && {
+                    key: "consultancy",
+                    to: ADMIN_PATHS.consultancy.list,
+                    icon: "phone_in_talk",
+                    label: "Review Consultations",
+                  },
+                  has(ADMIN_PERMISSIONS.FEEDBACK_VIEW) && {
+                    key: "feedback",
+                    to: ADMIN_PATHS.feedback.list,
+                    icon: "rate_review",
+                    label: "View Feedback",
+                  },
+                  has(ADMIN_PERMISSIONS.HELP_VIEW) && {
+                    key: "help",
+                    to: `${ADMIN_PATHS.help.list}?status=OPEN`,
+                    icon: "contact_support",
+                    label: "Resolve Help Requests",
+                  },
+                  has(ADMIN_PERMISSIONS.USERS_VIEW) && {
+                    key: "users",
+                    to: ADMIN_PATHS.users.list,
+                    icon: "people",
+                    label: "View Clients",
+                  },
+                ].filter(Boolean)
+              : [];
 
-            <Card className="p-5 lg:col-span-3">
-              <h2 className="text-base font-semibold text-slate-950">Recent Content</h2>
-              {recent.length ? (
-                <ul className="mt-4 divide-y divide-slate-100">
-                  {recent.map((entry) => (
-                    <li key={entry.id}>
-                      <Link
-                        to={entry.to}
-                        className="flex items-center gap-3 rounded-lg py-3 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
-                      >
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-                          <Icon name={entry.module.icon} className="text-[18px]" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-slate-900">{entry.title}</p>
-                          <p className="text-xs text-slate-500">{entry.module.recentLabel}</p>
-                        </div>
-                        <time dateTime={entry.at} className="shrink-0 text-xs text-slate-400">
-                          {formatDate(entry.at)}
-                        </time>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="mt-4 text-sm text-slate-500">Content you publish will appear here.</p>
-              )}
-            </Card>
-          </div>
+            const hasAnyQuickAction =
+              has(ADMIN_PERMISSIONS.ADVOCATES_VIEW) ||
+              has(ADMIN_PERMISSIONS.ROLES_MANAGE) ||
+              has(ADMIN_PERMISSIONS.CONTENT_CREATORS_CREATE) ||
+              visibleContentModules.some((module) => has(module.createPermission)) ||
+              staffPlatformActions.length > 0;
+
+            const showQuickActions = isFullAdmin || hasAnyQuickAction;
+
+            if (!showQuickActions && !showRecentContent) return null;
+
+            return (
+              <div className={`mt-8 grid gap-6 ${showQuickActions && showRecentContent ? "lg:grid-cols-5" : ""}`}>
+                {showQuickActions && (
+                  <Card className={`p-5 ${showRecentContent ? "lg:col-span-2" : ""}`}>
+                    <h2 className="text-base font-semibold text-slate-950">Quick Actions</h2>
+                    <ul className="mt-4 space-y-1">
+                      {has(ADMIN_PERMISSIONS.ADVOCATES_VIEW) && (
+                        <li>
+                          <Link
+                            to={`${ADMIN_PATHS.advocates.list}?tab=pending`}
+                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-amber-50 hover:text-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                          >
+                            <Icon name="badge" className="text-[20px] text-amber-600" />
+                            Review Pending Advocates
+                          </Link>
+                        </li>
+                      )}
+                      {has(ADMIN_PERMISSIONS.ROLES_MANAGE) && (
+                        <li>
+                          <Link
+                            to={ADMIN_PATHS.roles.create}
+                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-amber-50 hover:text-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                          >
+                            <Icon name="admin_panel_settings" className="text-[20px] text-amber-600" />
+                            Create New Role
+                          </Link>
+                        </li>
+                      )}
+                      {has(ADMIN_PERMISSIONS.CONTENT_CREATORS_CREATE) && (
+                        <li>
+                          <Link
+                            to={ADMIN_PATHS.contentCreators.list}
+                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-amber-50 hover:text-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                          >
+                            <Icon name="person_add" className="text-[20px] text-amber-600" />
+                            Add Staff Account
+                          </Link>
+                        </li>
+                      )}
+                      {staffPlatformActions.map((action) => (
+                        <li key={action.key}>
+                          <Link
+                            to={action.to}
+                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-amber-50 hover:text-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                          >
+                            <Icon name={action.icon} className="text-[20px] text-amber-600" />
+                            {action.label}
+                          </Link>
+                        </li>
+                      ))}
+                      {visibleContentModules
+                        .filter((module) => has(module.createPermission))
+                        .map((module) => (
+                          <li key={module.key}>
+                            <Link
+                              to={module.paths.create}
+                              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-amber-50 hover:text-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                            >
+                              <Icon name="add" className="text-[20px] text-amber-600" />
+                              {module.createLabel}
+                            </Link>
+                          </li>
+                        ))}
+                    </ul>
+                  </Card>
+                )}
+
+                {showRecentContent && (
+                  <Card className={`p-5 ${showQuickActions ? "lg:col-span-3" : ""}`}>
+                    <h2 className="text-base font-semibold text-slate-950">Recent Content</h2>
+                    {recent.length ? (
+                      <ul className="mt-4 divide-y divide-slate-100">
+                        {recent.map((entry) => (
+                          <li key={entry.id}>
+                            <Link
+                              to={entry.to}
+                              className="flex items-center gap-3 rounded-lg py-3 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                            >
+                              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                                <Icon name={entry.module.icon} className="text-[18px]" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate text-sm font-medium text-slate-900">{entry.title}</p>
+                                <p className="text-xs text-slate-500">{entry.module.recentLabel}</p>
+                              </div>
+                              <time dateTime={entry.at} className="shrink-0 text-xs text-slate-400">
+                                {formatDate(entry.at)}
+                              </time>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="mt-4 text-sm text-slate-500">Content you publish will appear here.</p>
+                    )}
+                  </Card>
+                )}
+              </div>
+            );
+          })()}
         </>
       )}
     </>

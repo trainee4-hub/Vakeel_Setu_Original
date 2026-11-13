@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   FiMapPin,
   FiNavigation,
@@ -8,10 +8,10 @@ import {
   FiCheck,
   FiLoader,
 } from "react-icons/fi";
-import { estimateTravelDetails } from "../../../utils/distanceUtils";
-
-const DEFAULT_LAT = 28.6304;
-const DEFAULT_LNG = 77.2177;
+import {
+  fetchOsrmRoute,
+  geocodeAddressWithNominatim,
+} from "../../../utils/distanceUtils";
 
 function loadLeaflet() {
   return new Promise((resolve, reject) => {
@@ -69,29 +69,117 @@ export default function UserLocationModal({
   const mapInstanceRef = useRef(null);
   const userMarkerRef = useRef(null);
   const officeMarkerRef = useRef(null);
+  const routeLineRef = useRef(null);
   const LRef = useRef(null);
 
+  const [geocodedOffice, setGeocodedOffice] = useState(null);
+  const [resolvingOffice, setResolvingOffice] = useState(false);
   const [userLat, setUserLat] = useState(null);
   const [userLng, setUserLng] = useState(null);
   const [detecting, setDetecting] = useState(false);
+  const [calculatingRoute, setCalculatingRoute] = useState(false);
   const [detectError, setDetectError] = useState("");
-  const [travelDetails, setTravelDetails] = useState(null);
+  const [routeResult, setRouteResult] = useState(null);
 
-  // Guaranteed fallback office coordinates (Delhi NCR default if advocate coords missing)
-  const targetOfficeLat =
-    officeLat != null && !isNaN(Number(officeLat)) ? Number(officeLat) : DEFAULT_LAT;
-  const targetOfficeLng =
-    officeLng != null && !isNaN(Number(officeLng)) ? Number(officeLng) : DEFAULT_LNG;
+  const directOffice = useMemo(() => {
+    const hasDirect =
+      officeLat !== null &&
+      officeLat !== undefined &&
+      officeLng !== null &&
+      officeLng !== undefined &&
+      Number.isFinite(Number(officeLat)) &&
+      Number.isFinite(Number(officeLng));
+    return hasDirect
+      ? { lat: Number(officeLat), lng: Number(officeLng), isEstimatedFromAddress: false }
+      : null;
+  }, [officeLat, officeLng]);
 
-  // Recalculate distance whenever userLat / userLng changes
+  const resolvedOffice = directOffice || geocodedOffice;
+
+  const travelDetails =
+    isOpen && userLat != null && userLng != null && resolvedOffice
+      ? routeResult
+      : null;
+
+  // Geocode office address via Nominatim only when direct coords are missing
   useEffect(() => {
-    if (userLat != null && userLng != null) {
-      const details = estimateTravelDetails(userLat, userLng, targetOfficeLat, targetOfficeLng);
-      setTravelDetails(details);
+    if (!isOpen || directOffice) return undefined;
+    let cancelled = false;
+
+    if (String(officeLocation || "").trim()) {
+      Promise.resolve().then(() => {
+        if (!cancelled) setResolvingOffice(true);
+      });
+      geocodeAddressWithNominatim(officeLocation).then((coords) => {
+        if (cancelled) return;
+        setResolvingOffice(false);
+        if (coords) {
+          setGeocodedOffice(coords);
+        } else {
+          setGeocodedOffice(null);
+          onSkip?.();
+        }
+      });
     } else {
-      setTravelDetails(null);
+      Promise.resolve().then(() => {
+        if (!cancelled) onSkip?.();
+      });
     }
-  }, [userLat, userLng, targetOfficeLat, targetOfficeLng]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, directOffice, officeLocation, onSkip]);
+
+  // Fetch OSRM route (with 8s timeout + Haversine ~approx fallback) whenever user or office point updates
+  useEffect(() => {
+    if (!isOpen || userLat == null || userLng == null || !resolvedOffice) {
+      return undefined;
+    }
+
+    let cancelled = false;
+    Promise.resolve().then(() => {
+      if (!cancelled) setCalculatingRoute(true);
+    });
+
+    fetchOsrmRoute(userLat, userLng, resolvedOffice.lat, resolvedOffice.lng).then(
+      (details) => {
+        if (cancelled) return;
+        setCalculatingRoute(false);
+        setRouteResult(
+          details
+            ? {
+                ...details,
+                isEstimatedFromAddress: Boolean(resolvedOffice.isEstimatedFromAddress),
+              }
+            : null,
+        );
+
+        const L = LRef.current;
+        const map = mapInstanceRef.current;
+        if (!L || !map) return;
+
+        if (routeLineRef.current) {
+          routeLineRef.current.remove();
+          routeLineRef.current = null;
+        }
+
+        if (Array.isArray(details?.routeCoordinates) && details.routeCoordinates.length > 1) {
+          const line = L.polyline(details.routeCoordinates, {
+            color: "#f59e0b",
+            weight: 4,
+            opacity: 0.9,
+          }).addTo(map);
+          routeLineRef.current = line;
+          map.fitBounds(line.getBounds(), { padding: [45, 45], maxZoom: 15 });
+        }
+      },
+    );
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, userLat, userLng, resolvedOffice]);
 
   // Set user pin on map
   const setUserPosition = useCallback(
@@ -137,22 +225,22 @@ export default function UserLocationModal({
         userMarkerRef.current = marker;
       }
 
-      if (pan) {
+      if (pan && resolvedOffice) {
         // Fit bounds with office marker
         const bounds = L.latLngBounds([
           [lat, lng],
-          [targetOfficeLat, targetOfficeLng],
+          [resolvedOffice.lat, resolvedOffice.lng],
         ]);
         map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
       }
     },
-    [targetOfficeLat, targetOfficeLng]
+    [resolvedOffice]
   );
 
   // Detect GPS
   const handleDetectLocation = useCallback(() => {
     if (!navigator.geolocation) {
-      setDetectError("Geolocation is not supported by your browser.");
+      setDetectError("We couldn't get your location — you can still continue booking.");
       return;
     }
 
@@ -166,21 +254,17 @@ export default function UserLocationModal({
         const lng = Number(pos.coords.longitude.toFixed(6));
         setUserPosition(lat, lng, true);
       },
-      (err) => {
+      () => {
         setDetecting(false);
-        if (err.code === 1) {
-          setDetectError("Location permission denied. Please tap on the map to set your location.");
-        } else {
-          setDetectError("Unable to retrieve location. Please tap on the map directly.");
-        }
+        setDetectError("We couldn't get your location — you can still continue booking.");
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
   }, [setUserPosition]);
 
-  // Initialize Map
+  // Initialize Map once office coordinates are resolved
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || !resolvedOffice) return;
 
     let isCancelled = false;
 
@@ -193,12 +277,9 @@ export default function UserLocationModal({
           delete mapContainerRef.current._leaflet_id;
         }
 
-        const centerLat = officeLat || DEFAULT_LAT;
-        const centerLng = officeLng || DEFAULT_LNG;
-
         const map = L.map(mapContainerRef.current, {
-          center: [centerLat, centerLng],
-          zoom: officeLat ? 13 : 11,
+          center: [resolvedOffice.lat, resolvedOffice.lng],
+          zoom: 13,
           zoomControl: true,
         });
         mapInstanceRef.current = map;
@@ -233,7 +314,7 @@ export default function UserLocationModal({
           iconAnchor: [17, 34],
         });
 
-        const oMarker = L.marker([targetOfficeLat, targetOfficeLng], { icon: officeIcon }).addTo(map);
+        const oMarker = L.marker([resolvedOffice.lat, resolvedOffice.lng], { icon: officeIcon }).addTo(map);
         oMarker.bindPopup(`<strong style="font-size:12px;">Advocate's Office</strong><br/><span style="font-size:11px; color:#64748b;">${officeLocation || "Consultation Chambers"}</span>`);
         officeMarkerRef.current = oMarker;
 
@@ -253,6 +334,10 @@ export default function UserLocationModal({
 
     return () => {
       isCancelled = true;
+      if (routeLineRef.current) {
+        routeLineRef.current.remove();
+        routeLineRef.current = null;
+      }
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
@@ -260,7 +345,7 @@ export default function UserLocationModal({
       userMarkerRef.current = null;
       officeMarkerRef.current = null;
     };
-  }, [isOpen, officeLat, officeLng, officeLocation, setUserPosition, handleDetectLocation]);
+  }, [isOpen, resolvedOffice, officeLocation, setUserPosition, handleDetectLocation]);
 
   if (!isOpen) return null;
 
@@ -402,22 +487,29 @@ export default function UserLocationModal({
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center justify-between gap-1.5">
                 <p className="font-extrabold text-xs text-amber-950 sm:text-sm">
-                  {travelDetails
-                    ? `Advocate office is ~${travelDetails.roadKm} km away (~${
-                        travelDetails.travelTimeMinutes >= 60
-                          ? `${Math.floor(travelDetails.travelTimeMinutes / 60)} ${
-                              Math.floor(travelDetails.travelTimeMinutes / 60) === 1 ? "hour" : "hours"
-                            }${
-                              travelDetails.travelTimeMinutes % 60 > 0
-                                ? ` ${travelDetails.travelTimeMinutes % 60} ${
-                                    travelDetails.travelTimeMinutes % 60 === 1 ? "minute" : "minutes"
-                                  }`
-                                : ""
-                            }`
-                          : `${travelDetails.travelTimeMinutes} minutes`
-                      } travel)`
-                    : "In-Person Meeting Travel Advisory"}
+                  {resolvingOffice
+                    ? "Locating advocate's office..."
+                    : calculatingRoute
+                      ? "Calculating driving route & travel time..."
+                      : travelDetails
+                        ? `Advocate's office is ${travelDetails.isApprox ? "~" : ""}${travelDetails.roadKm} km away · ${travelDetails.isApprox ? "~approx " : "about "}${
+                            travelDetails.travelTimeMinutes >= 60
+                              ? `${Math.floor(travelDetails.travelTimeMinutes / 60)} ${
+                                  Math.floor(travelDetails.travelTimeMinutes / 60) === 1 ? "hour" : "hours"
+                                }${
+                                  travelDetails.travelTimeMinutes % 60 > 0
+                                    ? ` ${travelDetails.travelTimeMinutes % 60} min`
+                                    : ""
+                                }`
+                              : `${travelDetails.travelTimeMinutes} min`
+                          } by road from your location.`
+                        : "In-Person Meeting Travel Advisory"}
                 </p>
+                {resolvedOffice?.isEstimatedFromAddress && (
+                  <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+                    Estimated from address
+                  </span>
+                )}
                
               </div>
 

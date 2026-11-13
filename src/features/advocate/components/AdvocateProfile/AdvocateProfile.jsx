@@ -42,6 +42,7 @@ import UserLocationModal from "./modals/UserLocationModal";
 import OfflineAdvocateDialog from "./modals/OfflineAdvocateDialog";
 import ReviewModal from "./modals/ReviewModal";
 import { getAdvocateBookingOptions } from "../../services/advocateBookingApi";
+import { extractOfficeCoords } from "../../utils/distanceUtils";
 
 import ProfileErrorState from "./common/ProfileErrorState";
 
@@ -145,7 +146,13 @@ const AdvocateProfile = ({
   const [bookingOptions, setBookingOptions] = useState(null);
   const [bookingOptionsLoading, setBookingOptionsLoading] = useState(false);
   const [selectedBookingMode, setSelectedBookingMode] = useState("");
+  const [selectedBookingDuration, setSelectedBookingDuration] = useState(null);
   const [isAdvocateBookingModalOpen, setIsAdvocateBookingModalOpen] = useState(false);
+
+  const handleSelectBookingMode = useCallback((mode) => {
+    setSelectedBookingMode(mode);
+    setSelectedBookingDuration(null);
+  }, []);
   const [isUserLocationModalOpen, setIsUserLocationModalOpen] = useState(false);
   const [travelDetails, setTravelDetails] = useState(null);
   const [isOfflineDialogOpen, setIsOfflineDialogOpen] = useState(false);
@@ -264,14 +271,28 @@ const AdvocateProfile = ({
       return;
     }
 
-    // For In-Person consultation: show geolocation map modal first
+    // For In-Person consultation: show geolocation/route modal if office coords or address exist;
+    // otherwise gracefully skip directly to booking
     if (selectedBookingMode === "IN_PERSON") {
-      setIsUserLocationModalOpen(true);
+      const coords = extractOfficeCoords(advocate);
+      const addr = String(
+        advocate?.officeAddress ||
+          advocate?.office?.address ||
+          advocate?.office?.officeAddress ||
+          advocate?.location ||
+          "",
+      ).trim();
+      if (coords || addr) {
+        setIsUserLocationModalOpen(true);
+      } else {
+        setTravelDetails(null);
+        setIsAdvocateBookingModalOpen(true);
+      }
       return;
     }
 
     setIsAdvocateBookingModalOpen(true);
-  }, [isOnline, isLoggedIn, advocateId, selectedBookingMode, navigate, location.pathname]);
+  }, [isOnline, isLoggedIn, advocateId, advocate, selectedBookingMode, navigate, location.pathname]);
 
   const handleLocationConfirmed = useCallback((details) => {
     setTravelDetails(details);
@@ -594,21 +615,16 @@ useEffect(() => {
     advocate?.officePhotoUrl ||
     null;
 
-  const officeLat =
-    advocate?.office?.latitude ??
-    advocate?.office?.officeLatitude ??
-    advocate?.officeLatitude ??
-    null;
-  const officeLng =
-    advocate?.office?.longitude ??
-    advocate?.office?.officeLongitude ??
-    advocate?.officeLongitude ??
-    null;
-  const hasOfficeCoords =
-    officeLat !== null &&
-    officeLng !== null &&
-    !Number.isNaN(Number(officeLat)) &&
-    !Number.isNaN(Number(officeLng));
+  const extractedOfficeCoords = extractOfficeCoords(advocate);
+  const officeLat = extractedOfficeCoords?.lat ?? null;
+  const officeLng = extractedOfficeCoords?.lng ?? null;
+  const hasOfficeCoords = Boolean(extractedOfficeCoords);
+  const officeAddressText =
+    advocate?.officeAddress ||
+    advocate?.office?.address ||
+    advocate?.office?.officeAddress ||
+    advocate?.location ||
+    "";
 
   // Google Maps external directions link: uses coordinates when present
   const officeMapsUrl = hasOfficeCoords
@@ -1014,7 +1030,9 @@ useEffect(() => {
               ref={bookingSectionRef}
               highlight={highlightBooking}
               selectedMode={selectedBookingMode}
-              onSelectMode={setSelectedBookingMode}
+              onSelectMode={handleSelectBookingMode}
+              selectedDuration={selectedBookingDuration}
+              onChangeDuration={setSelectedBookingDuration}
               bookingOptions={bookingOptions}
               isOnline={isOnline}
               loading={bookingOptionsLoading}
@@ -1102,7 +1120,7 @@ useEffect(() => {
         onClose={() => setIsUserLocationModalOpen(false)}
         officeLat={officeLat}
         officeLng={officeLng}
-        officeLocation={advocate?.officeAddress || advocate?.office?.address || advocate?.location || ""}
+        officeLocation={officeAddressText}
         onConfirmLocation={handleLocationConfirmed}
         onSkip={handleLocationSkipped}
       />
@@ -1115,6 +1133,7 @@ useEffect(() => {
         advocate={advocate}
         bookingOptions={bookingOptions}
         initialMode={selectedBookingMode}
+        initialDurationMinutes={selectedBookingDuration}
         currentUser={user}
         travelDetails={travelDetails}
         onBookingComplete={onConsultationBooked}

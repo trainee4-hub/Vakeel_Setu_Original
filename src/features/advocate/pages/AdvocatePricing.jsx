@@ -23,6 +23,11 @@ import {
 } from "lucide-react";
 
 import { apiRequest } from "@shared/services/apiClient";
+import {
+  getOfficeVisitDurationOptions,
+  isValidOfficeVisitDuration,
+  OFFICE_VISIT_DURATION_ERROR,
+} from "@/utils/advocateProfileFormUtils";
 import { getAuthToken } from "@/utils/auth";
 
 /* =========================================================================
@@ -429,8 +434,8 @@ const AdvocatePricing = () => {
       } else {
         officeVal = feeNum;
       }
-      if (!Number.isInteger(durNum) || durNum < 1 || durNum > 1440) {
-        next.officeVisitDurationMinutes = "Duration must be a whole number between 1 and 1440 minutes.";
+      if (!isValidOfficeVisitDuration(durNum)) {
+        next.officeVisitDurationMinutes = OFFICE_VISIT_DURATION_ERROR;
       } else {
         durationVal = durNum;
       }
@@ -945,25 +950,29 @@ const AdvocatePricing = () => {
                       <Clock3 size={16} />
                     </div>
 
-                    <input
+                    <select
                       id="office-visit-duration"
-                      type="number"
-                      min="1"
-                      max="1440"
-                      step="1"
                       value={pricing.officeVisitDurationMinutes}
                       onChange={setField("officeVisitDurationMinutes")}
-                      placeholder="60"
-                      className={`h-12 w-full rounded-xl border bg-slate-50/70 pl-14 pr-4 text-sm font-bold text-slate-950 outline-none transition-all placeholder:font-medium placeholder:text-slate-400 focus:bg-white focus:ring-4 ${
+                      className={`h-12 w-full rounded-xl border bg-slate-50/70 pl-14 pr-4 text-sm font-bold text-slate-950 outline-none transition-all focus:bg-white focus:ring-4 ${
                         errors.officeVisitDurationMinutes
                           ? "border-red-300 focus:border-red-400 focus:ring-red-500/10"
                           : "border-slate-200 focus:border-amber-400 focus:ring-amber-500/10"
                       }`}
-                    />
+                    >
+                      <option value="">Select duration</option>
+                      {getOfficeVisitDurationOptions(
+                        pricing.officeVisitDurationMinutes,
+                      ).map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <p className="mt-2 text-xs leading-5 text-slate-400">
-                    Stored as officeVisitDurationMinutes (1 to 1440 min).
+                    Minimum 30 min, in 15-minute increments (30, 45, 60, ...).
                   </p>
 
                   <FieldError>{errors.officeVisitDurationMinutes}</FieldError>

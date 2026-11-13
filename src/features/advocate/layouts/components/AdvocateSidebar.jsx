@@ -105,11 +105,6 @@ export default function AdvocateSidebar({
       Icon: Wallet,
     },
     {
-      label: "Messages",
-      path: "/advocate/messages",
-      Icon: MessageSquare,
-    },
-    {
       label: "My Team",
       path: "/advocate/team",
       Icon: UserRoundPlus,

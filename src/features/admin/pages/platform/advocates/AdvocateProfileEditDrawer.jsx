@@ -9,6 +9,11 @@ import {
   updateAdvocateProfile,
 } from "../../../services/platform/adminAdvocatesApi";
 import { countWords } from "../../../utils/adminUtils";
+import {
+  getOfficeVisitDurationOptions,
+  isValidOfficeVisitDuration,
+  OFFICE_VISIT_DURATION_ERROR,
+} from "@/utils/advocateProfileFormUtils";
 
 const GENDER_OPTIONS = ["Male", "Female", "Other", "Prefer not to say"];
 
@@ -311,8 +316,8 @@ export default function AdvocateProfileEditDrawer({
     officePricingError = "Office visit duration and fee must both be provided together, or both left empty.";
   } else if (officeDurStr !== "") {
     const durNum = Number(officeDurStr);
-    if (!Number.isInteger(durNum) || durNum < 1 || durNum > 1440) {
-      officePricingError = "Office visit duration must be an integer between 1 and 1440 minutes.";
+    if (!isValidOfficeVisitDuration(durNum)) {
+      officePricingError = OFFICE_VISIT_DURATION_ERROR;
     }
   }
 
@@ -983,16 +988,19 @@ export default function AdvocateProfileEditDrawer({
                   label="Office Duration (min)"
                   error={fieldErrors.officeVisitDurationMinutes || officePricingError}
                 >
-                  <input
+                  <select
                     id="edit-officeVisitDuration"
-                    type="number"
-                    min={1}
-                    max={1440}
                     value={formState.officeVisitDurationMinutes ?? ""}
                     onChange={(e) => handleChange("officeVisitDurationMinutes", e.target.value)}
                     className={fieldClass(Boolean(fieldErrors.officeVisitDurationMinutes || officePricingError))}
-                    placeholder="60"
-                  />
+                  >
+                    <option value="">Select duration</option>
+                    {getOfficeVisitDurationOptions(formState.officeVisitDurationMinutes).map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
                 </FormField>
 
                 <FormField

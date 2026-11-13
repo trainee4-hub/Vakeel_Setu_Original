@@ -200,7 +200,7 @@ export default function WithdrawalsList() {
       />
 
       {/* Tabs */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 pb-3">
+      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
         {STATUS_TABS.map((tab) => {
           const count = counts[tab] ?? 0;
           const active = status === tab;
@@ -216,8 +216,8 @@ export default function WithdrawalsList() {
                 flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all
                 ${
                   active
-                    ? "border border-amber-500/40 bg-amber-500/10 text-amber-400"
-                    : "border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white"
+                    ? "border border-amber-300 bg-amber-50 text-amber-700 shadow-xs"
+                    : "border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900"
                 }
               `}
             >
@@ -225,7 +225,7 @@ export default function WithdrawalsList() {
               <span
                 className={`
                   rounded-full px-2 py-0.5 text-[10px] font-bold
-                  ${active ? "bg-amber-400 text-slate-950" : "bg-slate-800 text-slate-300"}
+                  ${active ? "bg-amber-500 text-white" : "bg-slate-100 text-slate-700"}
                 `}
               >
                 {count}
@@ -247,7 +247,7 @@ export default function WithdrawalsList() {
               setPage(1);
             }}
             placeholder="Search by Withdrawal ID, advocate name, phone, or UTR..."
-            className="w-full rounded-xl border border-slate-800 bg-slate-900/80 py-2.5 pl-9 pr-8 text-xs text-slate-200 placeholder-slate-500 focus:border-amber-500 focus:outline-none"
+            className="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-9 pr-8 text-xs text-slate-800 placeholder-slate-400 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
           />
           {search && (
             <button
@@ -256,7 +256,7 @@ export default function WithdrawalsList() {
                 setSearch("");
                 setPage(1);
               }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
             >
               <FiX className="text-xs" />
             </button>
@@ -266,7 +266,7 @@ export default function WithdrawalsList() {
         <button
           type="button"
           onClick={loadData}
-          className="flex h-10 items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-3.5 text-xs font-semibold text-slate-300 hover:text-white"
+          className="flex h-10 items-center gap-2 rounded-xl border border-slate-300 bg-white px-3.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors"
         >
           <FiRefreshCw className={`text-xs ${loading ? "animate-spin" : ""}`} />
           Refresh
@@ -292,10 +292,10 @@ export default function WithdrawalsList() {
           }
         />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 shadow-xl">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="border-b border-slate-800 bg-slate-950/60 text-[11px] uppercase tracking-wider text-slate-400">
+            <table className="w-full text-left text-xs text-slate-600">
+              <thead className="border-b border-slate-200 bg-slate-50/80 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                 <tr>
                   <th className="py-3.5 px-4">Withdrawal ID</th>
                   <th className="py-3.5 px-4">Advocate</th>
@@ -306,7 +306,7 @@ export default function WithdrawalsList() {
                   <th className="py-3.5 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-slate-100">
                 {withdrawals.map((item) => {
                   const st = item.status;
                   const isPaid = st === "PAID";
@@ -321,7 +321,7 @@ export default function WithdrawalsList() {
                     <tr
                       key={item.id}
                       onClick={() => navigate(`/admin/withdrawals/${item.id}`)}
-                      className="cursor-pointer hover:bg-slate-800/40 transition-colors"
+                      className="cursor-pointer hover:bg-slate-50/80 transition-colors"
                     >
                       {/* ID with Copy */}
                       <td className="whitespace-nowrap py-3.5 px-4">
@@ -329,17 +329,17 @@ export default function WithdrawalsList() {
                           className="flex items-center gap-1.5"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <span className="font-mono font-bold text-amber-400">
+                          <span className="font-mono font-bold text-amber-700">
                             {item.withdrawalId}
                           </span>
                           <button
                             type="button"
                             onClick={() => handleCopy(item.withdrawalId)}
                             title="Copy ID"
-                            className="text-slate-500 hover:text-white"
+                            className="text-slate-400 hover:text-slate-700"
                           >
                             {copiedId === item.withdrawalId ? (
-                              <FiCheck className="text-emerald-400 text-xs" />
+                              <FiCheck className="text-emerald-600 text-xs" />
                             ) : (
                               <FiCopy className="text-xs" />
                             )}
@@ -349,33 +349,33 @@ export default function WithdrawalsList() {
 
                       {/* Advocate */}
                       <td className="py-3.5 px-4">
-                        <p className="font-semibold text-white">
+                        <p className="font-semibold text-slate-900">
                           {item.advocate?.name || item.advocate?.fullName || "Advocate"}
                         </p>
-                        <p className="text-[11px] text-slate-400">
+                        <p className="text-[11px] text-slate-500">
                           {item.advocate?.phone || "-"}
                         </p>
                         {item.advocate?.barCouncilId && (
-                          <p className="text-[10px] font-mono text-slate-500">
+                          <p className="text-[10px] font-mono text-slate-400">
                             BC: {item.advocate.barCouncilId}
                           </p>
                         )}
                       </td>
 
                       {/* Amount */}
-                      <td className="whitespace-nowrap py-3.5 px-4 font-mono font-bold text-sm text-white">
+                      <td className="whitespace-nowrap py-3.5 px-4 font-mono font-bold text-sm text-slate-900">
                         ₹{Number(item.amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                       </td>
 
                       {/* Bank Details */}
                       <td className="py-3.5 px-4">
-                        <p className="text-slate-200 font-medium">
+                        <p className="text-slate-800 font-medium">
                           {item.bank?.bankName || "-"}
                         </p>
-                        <p className="text-[11px] font-mono text-slate-400">
+                        <p className="text-[11px] font-mono text-slate-500">
                           {item.bank?.accountNumberMasked || "-"} • {item.bank?.ifsc || "-"}
                         </p>
-                        <p className="text-[10px] text-slate-500">
+                        <p className="text-[10px] text-slate-400">
                           A/C: {item.bank?.accountHolderName || "-"}
                         </p>
                       </td>
@@ -388,12 +388,12 @@ export default function WithdrawalsList() {
                               inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold
                               ${
                                 isPaid
-                                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                                   : isApproved
-                                  ? "bg-blue-500/10 text-blue-400 border border-blue-500/30"
+                                  ? "bg-blue-50 text-blue-700 border border-blue-200"
                                   : isRequested
-                                  ? "bg-amber-500/10 text-amber-400 border border-amber-500/30"
-                                  : "bg-red-500/10 text-red-400 border border-red-500/30"
+                                  ? "bg-amber-50 text-amber-700 border border-amber-200"
+                                  : "bg-red-50 text-red-700 border border-red-200"
                               }
                             `}
                           >
@@ -402,14 +402,14 @@ export default function WithdrawalsList() {
 
                           {/* Security Badges */}
                           {hasNewBank && (
-                            <span className="inline-flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-400 border border-amber-500/20">
+                            <span className="inline-flex items-center gap-1 rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 border border-amber-200">
                               <FiAlertTriangle className="text-[10px]" />
                               New bank account
                             </span>
                           )}
 
                           {hasNameMismatch && (
-                            <span className="inline-flex items-center gap-1 rounded bg-red-500/10 px-1.5 py-0.5 text-[10px] font-medium text-red-400 border border-red-500/20">
+                            <span className="inline-flex items-center gap-1 rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-medium text-red-700 border border-red-200">
                               <FiAlertCircle className="text-[10px]" />
                               Name mismatch
                             </span>
@@ -418,7 +418,7 @@ export default function WithdrawalsList() {
                       </td>
 
                       {/* Requested At */}
-                      <td className="whitespace-nowrap py-3.5 px-4 text-slate-400 font-mono text-[11px]">
+                      <td className="whitespace-nowrap py-3.5 px-4 text-slate-500 font-mono text-[11px]">
                         {formatDate(item.createdAt)}
                       </td>
 
@@ -430,7 +430,7 @@ export default function WithdrawalsList() {
                         <div className="flex items-center justify-end gap-1.5">
                           <Link
                             to={`/admin/withdrawals/${item.id}`}
-                            className="inline-flex items-center gap-1 rounded-lg border border-slate-800 bg-slate-800/60 px-2.5 py-1.5 text-xs font-semibold text-slate-300 hover:border-slate-700 hover:text-white"
+                            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 transition-colors"
                           >
                             Review
                             <FiExternalLink className="text-[10px]" />
@@ -440,7 +440,7 @@ export default function WithdrawalsList() {
                             <button
                               type="button"
                               onClick={() => setApprovingItem(item)}
-                              className="rounded-lg bg-blue-600/20 border border-blue-500/30 px-2.5 py-1.5 text-xs font-semibold text-blue-300 hover:bg-blue-600/30"
+                              className="rounded-lg bg-blue-50 border border-blue-200 px-2.5 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors"
                             >
                               Approve
                             </button>
@@ -453,7 +453,7 @@ export default function WithdrawalsList() {
                                 setPayingItem(item);
                                 setUtrNumber("");
                               }}
-                              className="rounded-lg bg-emerald-600/20 border border-emerald-500/30 px-2.5 py-1.5 text-xs font-semibold text-emerald-300 hover:bg-emerald-600/30"
+                              className="rounded-lg bg-emerald-50 border border-emerald-200 px-2.5 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition-colors"
                             >
                               Pay (UTR)
                             </button>
@@ -466,7 +466,7 @@ export default function WithdrawalsList() {
                                 setRejectingItem(item);
                                 setRejectionReason("");
                               }}
-                              className="rounded-lg bg-red-600/20 border border-red-500/30 px-2 py-1.5 text-xs font-semibold text-red-300 hover:bg-red-600/30"
+                              className="rounded-lg bg-red-50 border border-red-200 px-2.5 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 transition-colors"
                             >
                               Reject
                             </button>
@@ -482,7 +482,7 @@ export default function WithdrawalsList() {
 
           {/* Pagination */}
           {pagination.totalPages > 1 && (
-            <div className="border-t border-slate-800 p-4">
+            <div className="border-t border-slate-200 p-4">
               <Pagination
                 page={pagination.page}
                 totalPages={pagination.totalPages}
@@ -508,23 +508,23 @@ export default function WithdrawalsList() {
 
       {/* REJECT MODAL */}
       {rejectingItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="relative w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-6 text-white shadow-2xl">
-            <h3 className="text-lg font-bold">Reject Withdrawal</h3>
-            <p className="mt-1 text-xs text-slate-400">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm">
+          <div className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-2xl">
+            <h3 className="text-lg font-bold text-slate-900">Reject Withdrawal</h3>
+            <p className="mt-1 text-xs text-slate-500">
               Rejecting will release held funds (₹{Number(rejectingItem.amount).toFixed(2)}) back to the advocate&apos;s available balance immediately.
             </p>
 
             <div className="mt-4">
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                Rejection Reason <span className="text-red-400">*</span>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Rejection Reason <span className="text-red-500">*</span>
               </label>
               <textarea
                 rows={3}
                 placeholder="Explain why this request is being rejected (e.g., incorrect bank IFSC, name mismatch)..."
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
-                className="w-full rounded-xl border border-slate-800 bg-slate-950 p-2.5 text-xs text-slate-100 placeholder-slate-500 focus:border-red-500 focus:outline-none"
+                className="w-full rounded-xl border border-slate-300 bg-white p-2.5 text-xs text-slate-900 placeholder-slate-400 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
               />
             </div>
 
@@ -533,7 +533,7 @@ export default function WithdrawalsList() {
                 type="button"
                 disabled={actionLoading}
                 onClick={() => setRejectingItem(null)}
-                className="rounded-xl border border-slate-800 bg-slate-800/40 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800"
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
               >
                 Cancel
               </button>
@@ -541,7 +541,7 @@ export default function WithdrawalsList() {
                 type="button"
                 disabled={actionLoading || rejectionReason.trim().length < 5}
                 onClick={handleReject}
-                className="rounded-xl bg-red-600 px-4 py-2 text-xs font-semibold text-white shadow-md hover:bg-red-500 disabled:opacity-50"
+                className="rounded-xl bg-red-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-red-700 disabled:opacity-50"
               >
                 {actionLoading ? "Rejecting..." : "Confirm Rejection"}
               </button>
@@ -552,25 +552,25 @@ export default function WithdrawalsList() {
 
       {/* MARK PAID MODAL WITH UTR */}
       {payingItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="relative w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-6 text-white shadow-2xl">
-            <h3 className="text-lg font-bold">Mark as Paid</h3>
-            <p className="mt-1 text-xs text-slate-400">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm">
+          <div className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-2xl">
+            <h3 className="text-lg font-bold text-slate-900">Mark as Paid</h3>
+            <p className="mt-1 text-xs text-slate-500">
               Enter the bank transfer UTR or transaction reference number for payout{" "}
-              <strong className="text-amber-400">{payingItem.withdrawalId}</strong> (₹
+              <strong className="text-amber-700">{payingItem.withdrawalId}</strong> (₹
               {Number(payingItem.amount).toFixed(2)}).
             </p>
 
             <div className="mt-4">
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                UTR / Reference Number <span className="text-emerald-400">*</span>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                UTR / Reference Number <span className="text-emerald-600">*</span>
               </label>
               <input
                 type="text"
                 placeholder="e.g. UTR123456789012"
                 value={utrNumber}
                 onChange={(e) => setUtrNumber(e.target.value.toUpperCase())}
-                className="w-full rounded-xl border border-slate-800 bg-slate-950 p-2.5 font-mono text-xs text-slate-100 placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
+                className="w-full rounded-xl border border-slate-300 bg-white p-2.5 font-mono text-xs text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               />
             </div>
 
@@ -579,7 +579,7 @@ export default function WithdrawalsList() {
                 type="button"
                 disabled={actionLoading}
                 onClick={() => setPayingItem(null)}
-                className="rounded-xl border border-slate-800 bg-slate-800/40 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800"
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
               >
                 Cancel
               </button>
@@ -587,7 +587,7 @@ export default function WithdrawalsList() {
                 type="button"
                 disabled={actionLoading || utrNumber.trim().length < 6}
                 onClick={handleMarkPaid}
-                className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-md hover:bg-emerald-500 disabled:opacity-50"
+                className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"
               >
                 {actionLoading ? "Processing..." : "Mark as Paid"}
               </button>

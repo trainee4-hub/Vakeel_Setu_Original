@@ -28,7 +28,7 @@ const WithdrawalsList = lazy(() => import("../pages/platform/withdrawals/Withdra
 const WithdrawalDetail = lazy(() => import("../pages/platform/withdrawals/WithdrawalDetail"));
 const HelpRequestsList = lazy(() => import("../pages/platform/help/HelpRequestsList"));
 const HelpRequestDetail = lazy(() => import("../pages/platform/help/HelpRequestDetail"));
-const ContentCreatorsList = lazy(() => import("../pages/platform/contentCreators/ContentCreatorsList"));
+const StaffAccountsList = lazy(() => import("../pages/platform/contentCreators/StaffAccountsList"));
 
 // Content Pages
 const BlogList = lazy(() => import("../pages/content/blogs/BlogList"));
@@ -213,7 +213,7 @@ export default function AdminRoutes() {
           </Route>
 
           <Route element={<PermissionRouteGuard required={[ADMIN_PERMISSIONS.CONTENT_CREATORS_VIEW]} />}>
-            <Route path="content-creators" element={<ContentCreatorsList />} />
+            <Route path="content-creators" element={<StaffAccountsList />} />
           </Route>
 
           {/* ==================== CONTENT ROUTES ==================== */}
@@ -224,6 +224,7 @@ export default function AdminRoutes() {
               element={
                 <PermissionRouteGuard
                   required={[
+                    ADMIN_PERMISSIONS.BLOGS_READ,
                     ADMIN_PERMISSIONS.BLOGS_CREATE,
                     ADMIN_PERMISSIONS.BLOGS_UPDATE,
                     ADMIN_PERMISSIONS.BLOGS_DELETE,

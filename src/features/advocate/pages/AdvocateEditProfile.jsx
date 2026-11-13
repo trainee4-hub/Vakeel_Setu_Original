@@ -7,6 +7,11 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import {
+  getOfficeVisitDurationOptions,
+  isValidOfficeVisitDuration,
+  OFFICE_VISIT_DURATION_ERROR,
+} from "@/utils/advocateProfileFormUtils";
 
 // Keep Framer Motion recognized by ESLint configurations without JSX usage tracking.
 void motion;
@@ -1301,8 +1306,8 @@ export default function AdvocateEditProfile() {
       if (!Number.isFinite(fee) || fee < 0) {
         nextErrors.offlineVisitingFee = "Office visiting fee must be 0 or greater.";
       }
-      if (!Number.isInteger(dur) || dur < 1 || dur > 1440) {
-        nextErrors.officeVisitDurationMinutes = "Duration must be a whole number between 1 and 1440 minutes.";
+      if (!isValidOfficeVisitDuration(dur)) {
+        nextErrors.officeVisitDurationMinutes = OFFICE_VISIT_DURATION_ERROR;
       }
     }
 
@@ -2056,7 +2061,7 @@ export default function AdvocateEditProfile() {
 
                 <Field
                   label="Office Visit Duration (min)"
-                  hint="1 to 1440 minutes"
+                  hint="Minimum 30 min, in 15-min steps"
                   isPending={isFieldPendingOrChanged("officeVisitDurationMinutes")}
                   isApproved={isFieldApproved("officeVisitDurationMinutes")}
                   pendingHint={
@@ -2066,17 +2071,24 @@ export default function AdvocateEditProfile() {
                   }
                   error={errors.officeVisitDurationMinutes}
                 >
-                  <input
-                    type="number"
-                    min="1"
-                    max="1440"
-                    step="1"
+                  <select
                     disabled={isSubmitted && isApprovalField("officeVisitDurationMinutes") && isFieldPending("officeVisitDurationMinutes")}
-                    value={form.officeVisitDurationMinutes}
+                    value={
+                      form.officeVisitDurationMinutes !== null &&
+                      form.officeVisitDurationMinutes !== undefined
+                        ? String(form.officeVisitDurationMinutes)
+                        : ""
+                    }
                     onChange={(e) => handleChange("officeVisitDurationMinutes", e.target.value)}
-                    placeholder="60"
                     className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-800 transition focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
-                  />
+                  >
+                    <option value="">Select duration</option>
+                    {getOfficeVisitDurationOptions(form.officeVisitDurationMinutes).map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
                 </Field>
               </div>
             </section>

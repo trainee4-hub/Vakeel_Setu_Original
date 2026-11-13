@@ -28,6 +28,7 @@ import {
   buildAdvocateProfilePatch,
   buildFormStateFromAdvocate,
   countWords,
+  getOfficeVisitDurationOptions,
   mapServerFieldErrors,
   sameTag,
   validateAdvocateProfileForm,
@@ -1332,25 +1333,34 @@ export default function AdvocateCompleteProfile() {
               <Field
                 label="Office duration (min)"
                 error={errors.officeVisitDurationMinutes}
-                
+                hint="Minimum 30 min, in 15-min steps"
               >
-                <input
-                  type="number"
-                  min="1"
-                  max="1440"
-                  inputMode="numeric"
-                  value={form.officeVisitDurationMinutes ?? ""}
+                <select
+                  value={
+                    form.officeVisitDurationMinutes !== null &&
+                    form.officeVisitDurationMinutes !== undefined
+                      ? String(form.officeVisitDurationMinutes)
+                      : ""
+                  }
                   onChange={(event) =>
                     setField(
                       "officeVisitDurationMinutes",
                       event.target.value,
                     )
                   }
-                  placeholder="60 minute"
                   className={inputClass(
                     Boolean(errors.officeVisitDurationMinutes),
                   )}
-                />
+                >
+                  <option value="">Select duration</option>
+                  {getOfficeVisitDurationOptions(
+                    form.officeVisitDurationMinutes,
+                  ).map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
               </Field>
 
               <Field

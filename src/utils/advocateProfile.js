@@ -129,7 +129,7 @@ const FIELD_VALIDATORS = {
   officeVisitDurationMinutes: (val) => {
     if (val === null || val === undefined || val === "") return true;
     const num = Number(val);
-    return Number.isInteger(num) && num >= 1 && num <= 1440;
+    return Number.isInteger(num) && num >= 30 && num <= 1440 && num % 15 === 0;
   },
   offlineVisitingFee: (val) =>
     val === null || val === undefined || hasNonNegativeNumber(val),

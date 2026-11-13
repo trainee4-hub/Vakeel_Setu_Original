@@ -27,6 +27,65 @@ export const EDITABLE_ARRAY_FIELDS = ["practiceAreas", "courtPractice"];
 export const ABOUT_MIN_WORDS = 50;
 export const ABOUT_MAX_WORDS = 500;
 
+export const OFFICE_VISIT_MIN_MINUTES = 30;
+export const OFFICE_VISIT_MAX_MINUTES = 240;
+export const OFFICE_VISIT_STEP_MINUTES = 15;
+export const OFFICE_VISIT_DURATION_ERROR =
+  "Office visit duration must be at least 30 minutes and in 15-minute increments (30, 45, 60, ...).";
+
+/** Returns true when value is an integer >= 30, <= 1440, and a multiple of 15. */
+export const isValidOfficeVisitDuration = (value) => {
+  const num = Number(value);
+  return (
+    Number.isInteger(num) &&
+    num >= OFFICE_VISIT_MIN_MINUTES &&
+    num <= 1440 &&
+    num % OFFICE_VISIT_STEP_MINUTES === 0
+  );
+};
+
+const formatOfficeDurationLabel = (minutes) => {
+  if (minutes < 60) return `${minutes} min`;
+  const hrs = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  const hrLabel = `${hrs} hr${hrs > 1 ? "s" : ""}`;
+  return mins > 0
+    ? `${hrLabel} ${mins} min (${minutes} min)`
+    : `${hrLabel} (${minutes} min)`;
+};
+
+export const OFFICE_VISIT_DURATION_OPTIONS = Array.from(
+  {
+    length:
+      (OFFICE_VISIT_MAX_MINUTES - OFFICE_VISIT_MIN_MINUTES) /
+        OFFICE_VISIT_STEP_MINUTES +
+      1,
+  },
+  (_, idx) => {
+    const minutes =
+      OFFICE_VISIT_MIN_MINUTES + idx * OFFICE_VISIT_STEP_MINUTES;
+    return {
+      value: String(minutes),
+      label: formatOfficeDurationLabel(minutes),
+    };
+  },
+);
+
+/** Returns standard 15-min duration options, preserving an existing non-standard
+ *  legacy value at the top if present so the select never silently blanks it. */
+export const getOfficeVisitDurationOptions = (currentValue) => {
+  const str = String(currentValue ?? "").trim();
+  if (!str) return OFFICE_VISIT_DURATION_OPTIONS;
+  const exists = OFFICE_VISIT_DURATION_OPTIONS.some((opt) => opt.value === str);
+  if (exists) return OFFICE_VISIT_DURATION_OPTIONS;
+  const num = Number(str);
+  if (!Number.isFinite(num) || num <= 0) return OFFICE_VISIT_DURATION_OPTIONS;
+  const label = isValidOfficeVisitDuration(num)
+    ? formatOfficeDurationLabel(num)
+    : `${num} min (invalid — select 30+ min in 15-min steps)`;
+  return [{ value: str, label }, ...OFFICE_VISIT_DURATION_OPTIONS];
+};
+
 /** Shared by the live counter and the submit validator so the two can never
  *  disagree about what counts as a word. */
 export const countWords = (value) =>
@@ -260,8 +319,8 @@ if (casesError) {
     }
   } else {
     if (hasOfficeDuration) {
-      if (!Number.isInteger(officeDurationVal) || officeDurationVal < 1 || officeDurationVal > 1440) {
-        errors.officeVisitDurationMinutes = "Office visit duration must be a whole number between 1 and 1440 minutes.";
+      if (!isValidOfficeVisitDuration(officeDurationVal)) {
+        errors.officeVisitDurationMinutes = OFFICE_VISIT_DURATION_ERROR;
       }
     }
     if (hasOfficeFee) {

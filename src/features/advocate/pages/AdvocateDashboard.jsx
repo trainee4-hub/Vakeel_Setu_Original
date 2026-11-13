@@ -239,10 +239,6 @@ const getConsultationTime = (
     try {
       const start = new Date(startAt);
       if (!Number.isNaN(start.getTime())) {
-        let end = consultation.endAt ? new Date(consultation.endAt) : null;
-        if (!end && consultation.durationMinutes) {
-          end = new Date(start.getTime() + Number(consultation.durationMinutes) * 60000);
-        }
         const startStr = new Intl.DateTimeFormat("en-IN", {
           timeZone: "Asia/Kolkata",
           hour: "numeric",
@@ -250,18 +246,8 @@ const getConsultationTime = (
           hour12: true,
         }).format(start);
 
-        let endStr = "";
-        if (end && !Number.isNaN(end.getTime())) {
-          endStr = new Intl.DateTimeFormat("en-IN", {
-            timeZone: "Asia/Kolkata",
-            hour: "numeric",
-            minute: "2-digit",
-            hour12: true,
-          }).format(end);
-        }
-
         const durationSuffix = consultation.durationMinutes ? ` · ${formatDurationHuman(consultation.durationMinutes, { subHourUnit: "min" })}` : "";
-        return endStr ? `${startStr} – ${endStr}${durationSuffix}` : `${startStr}${durationSuffix}`;
+        return `${startStr}${durationSuffix}`;
       }
     } catch {
       // fallback
@@ -1055,7 +1041,7 @@ const UpcomingConsultation = ({
           <button
             type="button"
             onClick={handlePrimary}
-            className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-slate-950/10 transition hover:-translate-y-0.5 hover:bg-slate-800"
+            className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-slate-950/10 transition hover:-translate-y-0.5 hover:bg-slate-800 cursor-pointer"
           >
             <mode.Icon size={17} />
             <span>
@@ -1063,17 +1049,19 @@ const UpcomingConsultation = ({
                 ? (meetingUrl ? "Join Video Call" : "Join Meeting")
                 : mode.type === "call"
                   ? "Call Client"
-                  : "Meeting Details"}
+                  : "View Booking Details"}
             </span>
           </button>
 
-          <button
-            type="button"
-            onClick={() => onBookings?.()}
-            className="min-h-[44px] rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950"
-          >
-            View Details
-          </button>
+          {(mode.type === "video" || mode.type === "call") && (
+            <button
+              type="button"
+              onClick={() => onBookings?.()}
+              className="min-h-[44px] rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 cursor-pointer"
+            >
+              View Details
+            </button>
+          )}
         </div>
       </div>
     </motion.div>

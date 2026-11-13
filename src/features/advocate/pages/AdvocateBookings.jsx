@@ -964,7 +964,7 @@ export default function AdvocateBookings() {
 
                             <span className="inline-flex items-center gap-1 font-mono text-slate-600">
                               <Clock3 size={11} className="text-blue-500 shrink-0" />
-                              <span>{formatISTTimeRange(booking.scheduledAt || booking.startAt, booking.endAt, booking.durationMinutes)}</span>
+                              <span>{formatISTStartTime(booking.scheduledAt || booking.startAt)}</span>
                             </span>
                           <span
                             className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] tracking-tight ${mode.badgeClass}`}
@@ -1147,7 +1147,7 @@ export default function AdvocateBookings() {
               <div className="flex justify-between">
                 <span className="text-slate-500 font-medium">Slot Time:</span>
                 <span className="font-semibold text-slate-800">
-                  {formatISTDate(confirmBooking.scheduledAt || confirmBooking.startAt)} • {formatISTTimeRange(confirmBooking.scheduledAt || confirmBooking.startAt, confirmBooking.endAt, confirmBooking.durationMinutes)}
+                  {formatISTDate(confirmBooking.scheduledAt || confirmBooking.startAt)} • {formatISTStartTime(confirmBooking.scheduledAt || confirmBooking.startAt)}
                 </span>
               </div>
               {Boolean(confirmBooking.subject) && (
@@ -1376,11 +1376,11 @@ function BookingDetails({ booking, onInitiateComplete, completing }) {
           </div>
 
           <p className="mt-3 text-[10px] font-extrabold uppercase tracking-[0.1em] text-blue-900/60">
-            Time Range
+            Time
           </p>
 
           <p className="mt-1 text-sm font-black text-slate-900">
-            {formatISTTimeRange(booking.scheduledAt || booking.startAt, booking.endAt, booking.durationMinutes)}
+            {formatISTStartTime(booking.scheduledAt || booking.startAt)}
           </p>
         </div>
 

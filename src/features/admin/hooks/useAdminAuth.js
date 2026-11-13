@@ -53,6 +53,7 @@ export default function useAdminAuth() {
           role: accountRole,
           accountType,
           roles,
+          ...(Array.isArray(admin?.roleDetails) ? { roleDetails: admin.roleDetails } : {}),
           permissions: perms,
         },
         token,

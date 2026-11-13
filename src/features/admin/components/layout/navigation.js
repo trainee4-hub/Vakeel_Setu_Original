@@ -88,6 +88,7 @@ export const ADMIN_NAV_GROUPS = [
         label: "Blogs",
         icon: "article",
         permissions: [
+          ADMIN_PERMISSIONS.BLOGS_READ,
           ADMIN_PERMISSIONS.BLOGS_CREATE,
           ADMIN_PERMISSIONS.BLOGS_UPDATE,
           ADMIN_PERMISSIONS.BLOGS_DELETE,
