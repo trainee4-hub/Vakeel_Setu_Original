@@ -23,6 +23,7 @@ import {
   createAdvocateCheckout,
   verifyAdvocatePayment,
   getAdvocateCheckoutStatus,
+  cancelAdvocateCheckout,
 } from "../../../services/advocateBookingApi";
 import {
   generateAdvocateSlots,
@@ -34,10 +35,13 @@ import {
   getISTTimeComponents,
   checkNextStepAvailable,
   getCalendarMonthMatrix,
+  formatStepperDuration,
+  formatSlotStartEndTime,
 } from "../../../utils/advocateSlotUtils";
 import { estimateTravelMinutesFromRoadKm } from "../../../utils/distanceUtils";
 import { usePaymentStateMachine, PAYMENT_STATES } from "@/features/user/hooks/usePaymentStateMachine";
 import { formatDurationHuman } from "@/shared/utils/formatDuration";
+import DurationStepper from "../common/DurationStepper";
 
 function getModeIcon(mode) {
   switch (mode) {
@@ -134,6 +138,7 @@ export default function AdvocateBookingModal({
   // Quote breakdown and range from backend quote
   const [quoteBreakdown, setQuoteBreakdown] = useState(null);
   const [quoteRange, setQuoteRange] = useState(null);
+  const [holdExpiredMessage, setHoldExpiredMessage] = useState("");
   const [, setIsQuoteLoading] = useState(false);
   const quoteTimerRef = useRef(null);
 
@@ -459,20 +464,27 @@ export default function AdvocateBookingModal({
     });
     const upcoming = slots
       .filter((s) => !s.isPastOrLead && !s.runsPastWindow)
-      .map((s) => formatSlotStartTime(s.startAt));
+      .map((s) => s.label || formatSlotStartEndTime(s.startAt, s.endAt));
 
     if (upcoming.length > 0) {
       return upcoming;
     }
-    return [
-      "10:00 AM",
-      "10:15 AM",
-      "10:30 AM",
-      "10:45 AM",
-      "11:00 AM",
-      "11:15 AM",
-      "11:30 AM",
-    ];
+    return isInPersonMode
+      ? [
+          "10:00 AM – 11:00 AM",
+          "11:00 AM – 12:00 PM",
+          "12:00 PM – 1:00 PM",
+          "2:00 PM – 3:00 PM",
+          "3:00 PM – 4:00 PM",
+        ]
+      : [
+          "10:00 AM – 10:15 AM",
+          "10:15 AM – 10:30 AM",
+          "10:30 AM – 10:45 AM",
+          "10:45 AM – 11:00 AM",
+          "11:00 AM – 11:15 AM",
+          "11:15 AM – 11:30 AM",
+        ];
   }, [isInPersonMode, bookingOptions, activeModeObj, todayIST, minLeadMinutes]);
 
   // Recalculate scroller buttons whenever visible slots change
@@ -548,6 +560,20 @@ export default function AdvocateBookingModal({
     return selectedSlot?.endAt || null;
   }, [quoteRange?.endAt, selectedSlot, durationMinutes]);
 
+  // Derived epoch boundaries for live covered slots highlighting
+  const selectedStartMs = useMemo(() => {
+    if (!selectedSlot?.startAt) return NaN;
+    return selectedSlot.startEpochMs || Date.parse(selectedSlot.startAt);
+  }, [selectedSlot]);
+
+  const selectedEndMs = useMemo(() => {
+    if (isNaN(selectedStartMs) || !durationMinutes) return NaN;
+    return selectedStartMs + Number(durationMinutes) * 60 * 1000;
+  }, [selectedStartMs, durationMinutes]);
+
+  const maxDuration = Math.min(180, Number(activeModeObj?.maxDurationMinutes || 180));
+  const minDuration = Number(activeModeObj?.minDurationMinutes || 15);
+
   // +15 availability check
   const nextStepCheck = useMemo(() => {
     if (!selectedSlot?.startAt || !isExtendable) {
@@ -561,19 +587,35 @@ export default function AdvocateBookingModal({
     });
   }, [selectedSlot, isExtendable, durationMinutes, busySlots]);
 
-  const canIncrease = isExtendable && nextStepCheck.available;
-  const increaseDisabledReason = nextStepCheck.reason;
-  const canDecrease = isExtendable && durationMinutes > 15;
+  const canIncrease =
+    isExtendable && durationMinutes < maxDuration && nextStepCheck.available;
+  const increaseDisabledReason =
+    durationMinutes >= maxDuration
+      ? "Maximum consultation duration is 3 hours"
+      : nextStepCheck.reason;
+  const canDecrease = isExtendable && durationMinutes > minDuration;
 
   const handleIncreaseDuration = () => {
-    if (!canIncrease) return;
-    setDurationMinutes((prev) => prev + 15);
+    setQuoteBreakdown(null);
+    setQuoteRange(null);
+    setDurationMinutes((prev) => {
+      const current = Number(prev) || 15;
+      const next = current + 15;
+      if (next > maxDuration) return maxDuration;
+      return next;
+    });
     setSlotTakenMessage("");
   };
 
   const handleDecreaseDuration = () => {
-    if (!canDecrease) return;
-    setDurationMinutes((prev) => Math.max(15, prev - 15));
+    setQuoteBreakdown(null);
+    setQuoteRange(null);
+    setDurationMinutes((prev) => {
+      const current = Number(prev) || 15;
+      const next = current - 15;
+      if (next < minDuration) return minDuration;
+      return next;
+    });
     setSlotTakenMessage("");
   };
 
@@ -710,7 +752,7 @@ export default function AdvocateBookingModal({
       if (remainingMs <= 0) {
         setHoldRemainingSeconds(0);
         if (holdIntervalRef.current) clearInterval(holdIntervalRef.current);
-        alert("Your slot hold has expired. Please select a time slot again.");
+        setHoldExpiredMessage("Your slot hold has expired. Please select a time slot again.");
         setCheckoutData(null);
         setSelectedSlot(null);
         if (selectedDate) fetchBusySlots(selectedDate);
@@ -814,6 +856,15 @@ export default function AdvocateBookingModal({
     onCheckStatus: async (checkoutId) => {
       return getAdvocateCheckoutStatus(checkoutId);
     },
+    onCancelCheckout: async (checkoutId) => {
+      return cancelAdvocateCheckout(checkoutId);
+    },
+    onSlotReleased: () => {
+      setCheckoutData(null);
+      if (selectedDate) {
+        fetchBusySlots(selectedDate, { manual: true });
+      }
+    },
   });
 
   // Call onBookingComplete callback on successful payment
@@ -829,9 +880,12 @@ export default function AdvocateBookingModal({
       setDateInputValue(formatDDMMYYYY(todayIST));
       setSelectedDate(todayIST);
       setSelectedSlot(null);
-      setDurationMinutes(defaultDuration);
+      setDurationMinutes(
+        initialDurationMinutes ? Number(initialDurationMinutes) : defaultDuration
+      );
       setQuoteBreakdown(null);
       setQuoteRange(null);
+      setHoldExpiredMessage("");
       setDateError("");
       setNotes("");
       setSlotTakenMessage("");
@@ -843,7 +897,32 @@ export default function AdvocateBookingModal({
       const [y, m] = todayIST.split("-").map(Number);
       setCalendarView({ year: y, monthIndex: m - 1 });
     }
-  }, [isOpen, todayIST, resetPayment, defaultDuration]);
+  }, [isOpen, todayIST, resetPayment, defaultDuration, initialDurationMinutes]);
+
+  const ratePerUnit = useMemo(() => {
+    if (selectedMode === "VOICE_CALL") {
+      return Number(
+        advocate?.voiceCallPricePer15Min ??
+        advocate?.pricing?.voiceCall?.price ??
+        activeModeObj?.fee ??
+        0
+      );
+    }
+    if (selectedMode === "VIDEO_CALL") {
+      return Number(
+        advocate?.videoCallPricePer15Min ??
+        advocate?.pricing?.videoCall?.price ??
+        activeModeObj?.fee ??
+        0
+      );
+    }
+    return Number(
+      advocate?.offlineVisitingFee ??
+      advocate?.pricing?.officeVisit?.price ??
+      activeModeObj?.fee ??
+      0
+    );
+  }, [selectedMode, advocate, activeModeObj]);
 
   if (!isOpen || advocate?.isOnline === false) return null;
 
@@ -855,20 +934,14 @@ export default function AdvocateBookingModal({
     return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
   };
 
-  // Fees calculation: authoritatively uses backend quote if available, otherwise instant preview
+  // Fees calculation: single source of truth across stepper, breakdown, and Pay button
   const steps = isExtendable ? Math.max(1, Math.round(durationMinutes / 15)) : 1;
-
-  const stepPrice = Number(activeModeObj?.pricePerStep ?? activeModeObj?.fee ?? 0);
-  const instantFee = isExtendable ? stepPrice * steps : Number(activeModeObj?.fee ?? 0);
-  const gstPercent = quoteBreakdown?.gstPercent ?? activeModeObj?.gstPercent ?? 18;
-  const instantGst = Math.round(instantFee * (gstPercent / 100) * 100) / 100;
-  const instantPlatformFee = Number(activeModeObj?.platformFee ?? 25);
-  const instantTotal = instantFee + instantGst + instantPlatformFee;
-
-  const fee = Number(quoteBreakdown?.fee ?? instantFee);
-  const gst = Number(quoteBreakdown?.gst ?? instantGst);
-  const platformFee = Number(quoteBreakdown?.platformFee ?? instantPlatformFee);
-  const totalPayable = Number(quoteBreakdown?.total ?? instantTotal);
+  const stepPrice = isExtendable ? ratePerUnit : Number(activeModeObj?.fee ?? ratePerUnit);
+  const fee = isExtendable ? steps * stepPrice : stepPrice;
+  const gstPercent = Number(quoteBreakdown?.gstPercent ?? activeModeObj?.gstPercent ?? 18);
+  const gst = Math.round(fee * (gstPercent / 100) * 100) / 100;
+  const platformFee = Number(activeModeObj?.platformFee ?? 25);
+  const totalPayable = Math.round((fee + gst + platformFee) * 100) / 100;
 
   const isSubmitting =
     paymentState === PAYMENT_STATES.STARTING ||
@@ -905,7 +978,15 @@ export default function AdvocateBookingModal({
 
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => {
+              if (checkoutData?.checkoutId) {
+                cancelAdvocateCheckout(checkoutData.checkoutId).catch((err) => {
+                  console.warn("[AdvocateBookingModal] cancel on modal close failed:", err);
+                });
+                setCheckoutData(null);
+              }
+              onClose();
+            }}
             disabled={isSubmitting}
             className="p-2 -mr-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors disabled:opacity-50 cursor-pointer"
             aria-label="Close modal"
@@ -981,8 +1062,14 @@ export default function AdvocateBookingModal({
               <button
                 type="button"
                 onClick={() => {
+                  if (checkoutData?.checkoutId) {
+                    cancelAdvocateCheckout(checkoutData.checkoutId).catch((err) => {
+                      console.warn("[AdvocateBookingModal] cancel on retry failed:", err);
+                    });
+                    setCheckoutData(null);
+                  }
                   resetPayment();
-                  if (selectedDate) fetchBusySlots(selectedDate);
+                  if (selectedDate) fetchBusySlots(selectedDate, { manual: true });
                 }}
                 className="py-2.5 px-6 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-colors cursor-pointer"
               >
@@ -1004,6 +1091,26 @@ export default function AdvocateBookingModal({
                   <span className="font-mono text-xs font-bold text-amber-900 bg-white px-2.5 py-1 rounded-lg border border-amber-300">
                     {formatTimer(holdRemainingSeconds)}
                   </span>
+                </div>
+              )}
+
+              {/* In-app Slot Hold Expired Banner (Replacing native browser alert) */}
+              {holdExpiredMessage && (
+                <div className="p-3.5 bg-amber-50 border border-amber-300 rounded-2xl flex items-center justify-between gap-3 text-amber-900 shadow-xs animate-fade-in">
+                  <div className="flex items-center gap-2.5">
+                    <FiAlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
+                    <p className="text-xs font-semibold leading-snug">
+                      {holdExpiredMessage}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setHoldExpiredMessage("")}
+                    className="p-1 text-amber-700 hover:text-amber-950 rounded-lg hover:bg-amber-100/70 transition-colors cursor-pointer"
+                    aria-label="Dismiss alert"
+                  >
+                    <FiX className="w-4 h-4" />
+                  </button>
                 </div>
               )}
 
@@ -1273,8 +1380,16 @@ export default function AdvocateBookingModal({
                           className="flex items-center gap-2 overflow-x-auto scroll-smooth py-1 px-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden focus:outline-none focus:ring-1 focus:ring-amber-400/50 rounded-xl"
                         >
                           {visibleSlots.map((slot) => {
-                            const isSelected = selectedSlot?.startAt === slot.startAt;
-                            const startTimeOnly = formatSlotStartTime(slot.startAt);
+                            const isStart = Boolean(selectedSlot && selectedSlot.startAt === slot.startAt);
+                            const slotStartMs = slot.startEpochMs || Date.parse(slot.startAt);
+                            const isCovered = Boolean(
+                              !isNaN(selectedStartMs) &&
+                              !isNaN(selectedEndMs) &&
+                              slotStartMs >= selectedStartMs &&
+                              slotStartMs < selectedEndMs
+                            );
+                            const slotTimeLabel =
+                              slot.label || formatSlotStartEndTime(slot.startAt, slot.endAt);
 
                             /* Disabled slots: booked or runs past working window */
                             if (slot.disabled) {
@@ -1289,7 +1404,7 @@ export default function AdvocateBookingModal({
                                   className="shrink-0 px-3.5 py-2.5 rounded-xl border border-slate-300/80 bg-slate-100 text-slate-400 text-xs font-medium cursor-not-allowed select-none flex items-center gap-1.5 transition-colors"
                                 >
                                   <FiSlash className="w-3 h-3 text-red-400 shrink-0 stroke-[2.5]" aria-hidden="true" />
-                                  <span className="line-through">{startTimeOnly}</span>
+                                  <span className="line-through">{slotTimeLabel}</span>
                                   {slot.isBusy && (
                                     <span className="rounded-md bg-red-100 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-red-600">
                                       Booked
@@ -1304,11 +1419,31 @@ export default function AdvocateBookingModal({
                               );
                             }
 
+                            // Dynamic chip style:
+                            // - Start chip: strong amber/filled
+                            // - Other covered chips: lighter amber tint connecting the block
+                            // - Uncovered chips: normal unselected style
+                            let chipStyle =
+                              "border-slate-200 hover:border-amber-400 hover:bg-amber-50/60 bg-white text-slate-800";
+                            if (isStart) {
+                              chipStyle =
+                                "border-amber-500 bg-amber-500 text-white font-bold shadow-xs scale-[1.02]";
+                            } else if (isCovered) {
+                              chipStyle =
+                                "border-amber-300 bg-amber-50 text-amber-900 font-bold shadow-2xs hover:bg-amber-100/70";
+                            }
+
+                            const chipTitle = isStart
+                              ? `${slot.label} (Start of consultation)`
+                              : isCovered
+                              ? `${slot.label} (Included in ${durationMinutes} min consultation)`
+                              : slot.label;
+
                             return (
                               <button
                                 key={slot.startAt}
                                 type="button"
-                                title={slot.label}
+                                title={chipTitle}
                                 onClick={() => {
                                   setSelectedSlot(slot);
                                   setDurationMinutes(defaultDuration);
@@ -1316,13 +1451,9 @@ export default function AdvocateBookingModal({
                                   setQuoteBreakdown(null);
                                   setQuoteRange(null);
                                 }}
-                                className={`shrink-0 px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
-                                  isSelected
-                                    ? "border-amber-500 bg-amber-500 text-white font-bold shadow-xs scale-[1.02]"
-                                    : "border-slate-200 hover:border-amber-400 hover:bg-amber-50/60 bg-white text-slate-800"
-                                }`}
+                                className={`shrink-0 px-3.5 py-2.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${chipStyle}`}
                               >
-                                {startTimeOnly}
+                                {slotTimeLabel}
                               </button>
                             );
                           })}
@@ -1384,55 +1515,50 @@ export default function AdvocateBookingModal({
 
                       {/* Duration extension controls (+15 / −15) for extendable modes */}
                       {selectedSlot && isExtendable && (
-                        <div className="mt-3 p-3.5 bg-slate-50 border border-slate-200/90 rounded-2xl flex flex-wrap items-center justify-between gap-3">
-                          <div className="flex items-center gap-2.5">
-                            <div className="p-2 rounded-xl bg-amber-100/70 text-amber-700">
+                        <div className="mt-3 p-2 sm:p-3 bg-slate-50 border border-slate-200/90 rounded-2xl flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
+                            <div className="p-2 rounded-xl bg-amber-100/70 text-amber-700 shrink-0">
                               <FiClock className="w-4 h-4" />
                             </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm font-bold text-slate-900">
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-1.5 sm:gap-2 whitespace-nowrap">
+                                <span className="text-xs sm:text-sm font-bold text-slate-900 shrink-0">
                                   {formatSlotRange(computedStartAt, computedEndAt, durationMinutes)}
                                 </span>
-                                <span className="text-xs font-semibold text-slate-600 bg-slate-200/70 px-2 py-0.5 rounded-md">
-                                  {formatDurationHuman(durationMinutes, { subHourUnit: "min" })}
+                                <span className="text-[10px] sm:text-xs font-semibold text-slate-600 bg-slate-200/70 px-1.5 sm:px-2 py-0.5 rounded-md shrink-0">
+                                  {formatStepperDuration(durationMinutes)}
                                 </span>
                               </div>
                               {increaseDisabledReason ? (
-                                <p className="text-[11px] text-amber-700 font-medium mt-0.5">
+                                <p className="text-[11px] text-amber-700 font-medium mt-0.5 truncate">
                                   {increaseDisabledReason}
                                 </p>
                               ) : (
-                                <p className="text-[11px] text-slate-500 mt-0.5">
+                                <p className="text-[11px] text-slate-500 mt-0.5 hidden xs:block truncate">
                                   Extend consultation in 15-min increments
                                 </p>
                               )}
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-1.5 ml-auto sm:ml-0">
-                            <button
-                              type="button"
-                              disabled={!canDecrease}
-                              onClick={handleDecreaseDuration}
-                              title={canDecrease ? "Reduce 15 minutes" : "Minimum duration is 15 min"}
-                              aria-label="Reduce duration by 15 minutes"
-                              className="px-3 py-1.5 rounded-xl border text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer bg-white border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300 active:scale-95 shadow-2xs"
-                            >
-                              −15
-                            </button>
-
-                            <button
-                              type="button"
-                              disabled={!canIncrease}
-                              onClick={handleIncreaseDuration}
-                              title={increaseDisabledReason || "Extend 15 minutes"}
-                              aria-label="Extend duration by 15 minutes"
-                              className="px-3 py-1.5 rounded-xl border text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer bg-white border-slate-200 text-slate-700 hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800 active:scale-95 shadow-2xs"
-                            >
-                              +15
-                            </button>
-                          </div>
+                          <DurationStepper
+                            durationMinutes={durationMinutes}
+                            onIncrease={handleIncreaseDuration}
+                            onDecrease={handleDecreaseDuration}
+                            canIncrease={canIncrease}
+                            canDecrease={canDecrease}
+                            increaseTitle={
+                              increaseDisabledReason ||
+                              (durationMinutes >= maxDuration
+                                ? "Maximum 3 hours reached"
+                                : "Add 15 minutes")
+                            }
+                            decreaseTitle={
+                              canDecrease
+                                ? "Reduce 15 minutes"
+                                : `Minimum duration is ${minDuration} min`
+                            }
+                          />
                         </div>
                       )}
                     </>

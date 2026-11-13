@@ -2000,7 +2000,11 @@ export default function AdvocateEditProfile() {
 
               <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 <Field
-                  label="Voice Call (₹ / 15 min)"
+                  label={
+                    String(form.voiceCallPricePer15Min ?? "").trim()
+                      ? `Voice Call — ₹${String(form.voiceCallPricePer15Min).trim()} / 15 min`
+                      : "Voice Call (₹ / 15 min)"
+                  }
                   hint="Empty = not offered"
                   isPending={isFieldPendingOrChanged("voiceCallPricePer15Min")}
                   isApproved={isFieldApproved("voiceCallPricePer15Min")}
@@ -2020,7 +2024,11 @@ export default function AdvocateEditProfile() {
                 </Field>
 
                 <Field
-                  label="Video Call (₹ / 15 min)"
+                  label={
+                    String(form.videoCallPricePer15Min ?? "").trim()
+                      ? `Video Call — ₹${String(form.videoCallPricePer15Min).trim()} / 15 min`
+                      : "Video Call (₹ / 15 min)"
+                  }
                   hint="Empty = not offered"
                   isPending={isFieldPendingOrChanged("videoCallPricePer15Min")}
                   isApproved={isFieldApproved("videoCallPricePer15Min")}
@@ -2040,7 +2048,11 @@ export default function AdvocateEditProfile() {
                 </Field>
 
                 <Field
-                  label="Office Visit Price (₹)"
+                  label={
+                    String(form.offlineVisitingFee ?? "").trim()
+                      ? `Office Visit — ₹${String(form.offlineVisitingFee).trim()}`
+                      : "Office Visit Price (₹)"
+                  }
                   hint="Fixed fee for consultation"
                   isPending={isFieldPendingOrChanged("offlineVisitingFee")}
                   isApproved={isFieldApproved("offlineVisitingFee")}

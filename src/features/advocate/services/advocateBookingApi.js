@@ -84,6 +84,19 @@ export async function getAdvocateCheckoutStatus(checkoutId) {
 }
 
 /**
+ * POST /api/user/advocate-bookings/checkout/:checkoutId/cancel
+ * Authenticated user only.
+ * Safely checks with Razorpay before releasing the temporary slot hold.
+ * Returns: { success: true, result: "RELEASED" | "PAYMENT_PROCESSING" | "PAID" | "HOLD_KEPT" | "ALREADY_CLOSED", message?: string, bookingId?: string }
+ */
+export async function cancelAdvocateCheckout(checkoutId) {
+  if (!checkoutId) throw new Error("checkoutId is required");
+  return apiRequest(`/user/advocate-bookings/checkout/${encodeURIComponent(checkoutId)}/cancel`, {
+    method: "POST",
+  });
+}
+
+/**
  * GET /api/advocate/appointments?status=ALL&page=1&limit=20
  * Authenticated advocate only.
  * Valid statuses: ALL, UPCOMING, PAST_DUE, COMPLETED, REFUNDED.

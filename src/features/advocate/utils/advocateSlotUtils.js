@@ -19,7 +19,7 @@ function pad(num) {
 export function formatTime12h(hour, minute) {
   const meridiem = hour >= 12 ? "PM" : "AM";
   const displayHour = hour % 12 === 0 ? 12 : hour % 12;
-  return `${pad(displayHour)}:${pad(minute)} ${meridiem}`;
+  return `${displayHour}:${pad(minute)} ${meridiem}`;
 }
 
 /**
@@ -263,6 +263,30 @@ export function formatSlotStartTime(startAt) {
 }
 
 /**
+ * Formats slot range with full start and end time without leading zeros e.g. "4:15 PM – 4:30 PM".
+ */
+export function formatSlotStartEndTime(startAt, endAt) {
+  if (!startAt) return "";
+  const startStr = formatSlotStartTime(startAt);
+  if (!endAt) return startStr;
+  const endStr = formatSlotStartTime(endAt);
+  return `${startStr} – ${endStr}`;
+}
+
+/**
+ * Formats duration in minutes into a clean compact string for steppers/badges:
+ * Examples: 15 -> "15 min", 60 -> "1 hr", 75 -> "1 hr 15 min", 120 -> "2 hrs"
+ */
+export function formatStepperDuration(minutes) {
+  const m = Number(minutes) || 15;
+  if (m < 60) return `${m} min`;
+  const hrs = Math.floor(m / 60);
+  const rem = m % 60;
+  const hrLabel = `${hrs} hr${hrs > 1 ? "s" : ""}`;
+  return rem > 0 ? `${hrLabel} ${rem} min` : hrLabel;
+}
+
+/**
  * Extracts IST (Asia/Kolkata) date string and minutes from midnight for an epoch ms.
  */
 export function getISTTimeComponents(epochMs) {
@@ -364,6 +388,9 @@ export function checkNextStepAvailable({
   if (isNaN(startMs)) return { available: false, reason: "Invalid slot time" };
 
   const newDuration = Number(currentDurationMinutes) + Number(stepMinutes);
+  if (!Number.isFinite(newDuration) || newDuration > 180) {
+    return { available: false, reason: "Maximum consultation duration is 3 hours" };
+  }
   const newEndMs = startMs + newDuration * 60 * 1000;
 
   // Extract IST components

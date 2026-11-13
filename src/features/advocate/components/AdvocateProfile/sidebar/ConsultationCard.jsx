@@ -6,10 +6,11 @@ import {
   FiArrowRight,
   FiAlertCircle,
 } from "react-icons/fi";
-import { formatDurationHuman } from "@/shared/utils/formatDuration";
+import { formatStepperDuration } from "../../../utils/advocateSlotUtils";
+import DurationStepper from "../common/DurationStepper";
 
 function formatDurationLabel(minutes) {
-  return formatDurationHuman(minutes, { subHourUnit: "min" });
+  return formatStepperDuration(minutes);
 }
 
 function getModeIcon(mode) {
@@ -56,6 +57,7 @@ const ConsultationCard = forwardRef(function ConsultationCard(
     selectedDuration = null,
     onChangeDuration,
     bookingOptions,
+    advocate,
     isOnline = false,
     loading = false,
     onProceed,
@@ -64,26 +66,47 @@ const ConsultationCard = forwardRef(function ConsultationCard(
 ) {
   const isBookable = bookingOptions?.bookable !== false;
   const modes = Array.isArray(bookingOptions?.modes) ? bookingOptions.modes : [];
-  const currentMode = modes.find((m) => m.mode === selectedMode) || modes[0] || null;
 
-  const isExtendable = Boolean(currentMode?.extendable);
+  // Default mode is VOICE_CALL if none selected, or first available mode
+  const defaultMode =
+    modes.find((m) => m.mode === "VOICE_CALL") ||
+    modes[0] ||
+    null;
+
+  const currentMode =
+    (selectedMode ? modes.find((m) => m.mode === selectedMode) : null) ||
+    defaultMode;
+
+  const defaultVoiceFee =
+    advocate?.voiceCallPricePer15Min != null
+      ? Number(advocate.voiceCallPricePer15Min)
+      : advocate?.pricing?.voiceCall?.price != null
+      ? Number(advocate.pricing.voiceCall.price)
+      : null;
+
+  const isExtendable = Boolean(currentMode?.extendable ?? true);
   const minDuration = Number(
     currentMode?.minDurationMinutes || currentMode?.durationMinutes || 15,
   );
-  const maxDuration = Number(currentMode?.maxDurationMinutes || 180);
+  const maxDuration = Math.min(180, Number(currentMode?.maxDurationMinutes || 180));
   const stepMinutes = 15;
   const effectiveDuration = isExtendable
     ? Math.min(
         maxDuration,
         Math.max(minDuration, Number(selectedDuration) || minDuration),
       )
-    : Number(currentMode?.durationMinutes || 0);
+    : Number(currentMode?.durationMinutes || 15);
+
+  const baseUnitFee =
+    currentMode?.fee != null
+      ? Number(currentMode.fee)
+      : defaultVoiceFee;
 
   const computedFee =
-    currentMode?.fee != null
+    baseUnitFee != null
       ? isExtendable && minDuration > 0
-        ? Math.round((Number(currentMode.fee) / minDuration) * effectiveDuration)
-        : Number(currentMode.fee)
+        ? Math.round((baseUnitFee / minDuration) * effectiveDuration)
+        : baseUnitFee
       : null;
 
   const canDecrease = isExtendable && effectiveDuration - stepMinutes >= minDuration;
@@ -123,55 +146,38 @@ const ConsultationCard = forwardRef(function ConsultationCard(
           Consultation Fee
         </p>
 
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-slate-900 tracking-tight">
-              {computedFee != null
-                ? `₹${computedFee.toLocaleString("en-IN")}`
-                : "—"}
-            </span>
-
-            {effectiveDuration > 0 && (
-              <span className="text-sm font-medium text-slate-500">
-                / {formatDurationLabel(effectiveDuration)}
+        <div className="flex items-center justify-between gap-2">
+          {computedFee != null ? (
+            <div className="flex items-baseline gap-1.5 min-w-0">
+              <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight shrink-0">
+                ₹{computedFee.toLocaleString("en-IN")}
               </span>
-            )}
-          </div>
+
+              {effectiveDuration > 0 && (
+                <span className="text-xs sm:text-sm font-medium text-slate-500 whitespace-nowrap">
+                  / {formatDurationLabel(effectiveDuration)}
+                </span>
+              )}
+            </div>
+          ) : (
+            <div className="h-9" />
+          )}
 
           {isBookable && isExtendable && (
-            <div
-              className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50/90 p-1 shadow-2xs"
-              role="group"
-              aria-label="Adjust consultation duration"
-            >
-              <button
-                type="button"
-                disabled={!canDecrease}
-                onClick={() =>
-                  onChangeDuration?.(Math.max(minDuration, effectiveDuration - stepMinutes))
-                }
-                title={canDecrease ? "Reduce 15 minutes" : `Minimum ${minDuration} min`}
-                aria-label="Reduce duration by 15 minutes"
-                className="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-white border border-slate-200/80 text-slate-700 hover:bg-slate-100 hover:border-slate-300 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-2xs"
-              >
-                −15
-              </button>
-              <span className="px-2 text-xs font-bold text-slate-800 tabular-nums select-none">
-                {effectiveDuration}m
-              </span>
-              <button
-                type="button"
-                disabled={!canIncrease}
-                onClick={() =>
-                  onChangeDuration?.(Math.min(maxDuration, effectiveDuration + stepMinutes))
-                }
-                title={canIncrease ? "Add 15 minutes" : `Maximum ${maxDuration} min`}
-                aria-label="Extend duration by 15 minutes"
-                className="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-white border border-amber-200/90 text-amber-700 hover:bg-amber-500 hover:text-white hover:border-amber-500 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-2xs"
-              >
-                +15
-              </button>
-            </div>
+            <DurationStepper
+              className="shrink-0"
+              durationMinutes={effectiveDuration}
+              onIncrease={() =>
+                onChangeDuration?.(Math.min(maxDuration, effectiveDuration + stepMinutes))
+              }
+              onDecrease={() =>
+                onChangeDuration?.(Math.max(minDuration, effectiveDuration - stepMinutes))
+              }
+              canIncrease={canIncrease}
+              canDecrease={canDecrease}
+              increaseTitle={canIncrease ? "Add 15 minutes" : "Maximum 3 hrs"}
+              decreaseTitle={canDecrease ? "Reduce 15 minutes" : `Minimum ${minDuration} min`}
+            />
           )}
         </div>
         <p className="text-[11px] text-slate-400 mt-1">

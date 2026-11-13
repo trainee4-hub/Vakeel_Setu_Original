@@ -169,9 +169,8 @@ const AdvocateProfile = ({
     setIsOfflineDialogOpen(false);
 
     if (!eventDetail.handled) {
-      console.warn("No handler responded to vakeelsetu:open-consultancy");
-      alert(
-        "Our Expert Consultation assistant could not be opened automatically. Please click the Expert Consultation button at the bottom of your screen."
+      console.warn(
+        "No handler responded to vakeelsetu:open-consultancy. Please use the Expert Consultation assistant at the bottom of your screen."
       );
     }
   }, []);
@@ -1034,6 +1033,7 @@ useEffect(() => {
               selectedDuration={selectedBookingDuration}
               onChangeDuration={setSelectedBookingDuration}
               bookingOptions={bookingOptions}
+              advocate={advocate}
               isOnline={isOnline}
               loading={bookingOptionsLoading}
               onProceed={handleProceedToBooking}

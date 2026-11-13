@@ -1287,7 +1287,11 @@ export default function AdvocateCompleteProfile() {
           >
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               <Field
-                label="Voice call (₹ / 15 min)"
+                label={
+                  String(form.voiceCallPricePer15Min ?? "").trim()
+                    ? `Voice Call — ₹${String(form.voiceCallPricePer15Min).trim()} / 15 min`
+                    : "Voice Call (₹ / 15 min)"
+                }
                 error={errors.voiceCallPricePer15Min}
               >
                 <input
@@ -1309,7 +1313,11 @@ export default function AdvocateCompleteProfile() {
               </Field>
 
               <Field
-                label="Video call (₹ / 15 min)"
+                label={
+                  String(form.videoCallPricePer15Min ?? "").trim()
+                    ? `Video Call — ₹${String(form.videoCallPricePer15Min).trim()} / 15 min`
+                    : "Video Call (₹ / 15 min)"
+                }
                 error={errors.videoCallPricePer15Min}
               >
                 <input
@@ -1364,9 +1372,12 @@ export default function AdvocateCompleteProfile() {
               </Field>
 
               <Field
-                label="Office visit (₹)"
+                label={
+                  String(form.offlineVisitingFee ?? "").trim()
+                    ? `Office Visit — ₹${String(form.offlineVisitingFee).trim()}`
+                    : "Office Visit (₹)"
+                }
                 error={errors.offlineVisitingFee}
-               
               >
                 <input
                   type="number"

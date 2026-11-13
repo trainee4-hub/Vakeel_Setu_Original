@@ -42,12 +42,16 @@ const QUICK_POLL_MAX_TRIES = 3; // ~15 seconds
  * @param {Function} callbacks.onVerifyPayment - POST /verify call
  * @param {Function} callbacks.onCheckStatus - GET /status call
  * @param {Function} [callbacks.onFallbackToFree] - Invoked if checkout 404s (self-correcting fallback)
+ * @param {Function} [callbacks.onCancelCheckout] - POST /cancel call to verify Razorpay status and release hold
+ * @param {Function} [callbacks.onSlotReleased] - Callback when slot hold is released
  */
 export function usePaymentStateMachine({
   onInitiateCheckout,
   onVerifyPayment,
   onCheckStatus,
   onFallbackToFree,
+  onCancelCheckout,
+  onSlotReleased,
 } = {}) {
   const [state, setState] = useState(PAYMENT_STATES.IDLE);
   const [errorMessage, setErrorMessage] = useState("");
@@ -59,6 +63,7 @@ export function usePaymentStateMachine({
   const abortControllerRef = useRef(null);
   const activeCheckoutIdRef = useRef(null);
   const isPollingRef = useRef(false);
+  const hasPaidRef = useRef(false);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -205,6 +210,7 @@ export function usePaymentStateMachine({
       }
 
       // Immediately move to starting synchronously before any await
+      hasPaidRef.current = false;
       setState(PAYMENT_STATES.STARTING);
       setErrorMessage("");
 
@@ -323,6 +329,7 @@ export function usePaymentStateMachine({
             // Callback is NOT proof of payment.
             // Go to Confirming -> POST /verify (ignore failure) -> Poll /status
             if (!isMountedRef.current) return;
+            hasPaidRef.current = true;
             setState(PAYMENT_STATES.CONFIRMING);
 
             if (onVerifyPayment) {
@@ -341,23 +348,79 @@ export function usePaymentStateMachine({
             executeStatusPoll(checkoutId, false, packageData);
           },
           modal: {
-            ondismiss: () => {
+            ondismiss: async () => {
               // User dismissed popup: closing popup does NOT mean payment failed.
-              // Run quick mode poll (3 tries)
-              if (!isMountedRef.current) return;
-              setState(PAYMENT_STATES.CONFIRMING);
-              executeStatusPoll(checkoutId, true, packageData);
+              await handleDismissOrFailed("ondismiss");
             },
           },
         };
 
-        const rzp = new RazorpayClass(razorpayOptions);
+        const handleDismissOrFailed = async (triggerSource) => {
+          if (!isMountedRef.current || hasPaidRef.current) return;
 
-        rzp.on("payment.failed", (failedRes) => {
-          console.warn("[Payments] Razorpay payment.failed event:", failedRes);
-          if (!isMountedRef.current) return;
+          if (typeof onCancelCheckout === "function") {
+            try {
+              setState(PAYMENT_STATES.CONFIRMING);
+              const cancelRes = await onCancelCheckout(checkoutId);
+              if (!isMountedRef.current || hasPaidRef.current) return;
+
+              const result = String(
+                cancelRes?.result || cancelRes?.status || ""
+              ).toUpperCase();
+
+              // RELEASED or ALREADY_CLOSED: Go back to slot picker, refresh busy-slots
+              if (result === "RELEASED" || result === "ALREADY_CLOSED") {
+                isPollingRef.current = false;
+                setState(PAYMENT_STATES.IDLE);
+                setErrorMessage("");
+                onSlotReleased?.(cancelRes);
+                return;
+              }
+
+              // PAID: Show the Success screen
+              if (result === "PAID") {
+                executeStatusPoll(checkoutId, false, packageData);
+                return;
+              }
+
+              // PAYMENT_PROCESSING: Show Processing screen, poll status
+              if (result === "PAYMENT_PROCESSING") {
+                setState(PAYMENT_STATES.PROCESSING);
+                setErrorMessage(
+                  cancelRes?.message ||
+                    "Your payment is being confirmed. Please don't pay again."
+                );
+                executeStatusPoll(checkoutId, true, packageData);
+                return;
+              }
+
+              // HOLD_KEPT: Status couldn't be confirmed, poll status a few times
+              if (result === "HOLD_KEPT") {
+                setErrorMessage(
+                  cancelRes?.message ||
+                    "We couldn't confirm the payment status. The slot will free up in a few minutes."
+                );
+                executeStatusPoll(checkoutId, true, packageData);
+                return;
+              }
+            } catch (err) {
+              console.warn(
+                `[Payments] cancel checkout (${triggerSource}) failed, falling back to status poll:`,
+                err
+              );
+            }
+          }
+
+          // Fallback / default behavior: run quick mode poll (3 tries)
           setState(PAYMENT_STATES.CONFIRMING);
           executeStatusPoll(checkoutId, true, packageData);
+        };
+
+        const rzp = new RazorpayClass(razorpayOptions);
+
+        rzp.on("payment.failed", async (failedRes) => {
+          console.warn("[Payments] Razorpay payment.failed event:", failedRes);
+          await handleDismissOrFailed("payment.failed");
         });
 
         // Move to popup_open
@@ -384,6 +447,8 @@ export function usePaymentStateMachine({
       onInitiateCheckout,
       onFallbackToFree,
       onVerifyPayment,
+      onCancelCheckout,
+      onSlotReleased,
       executeStatusPoll,
     ]
   );

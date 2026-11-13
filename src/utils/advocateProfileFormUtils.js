@@ -28,18 +28,18 @@ export const ABOUT_MIN_WORDS = 50;
 export const ABOUT_MAX_WORDS = 500;
 
 export const OFFICE_VISIT_MIN_MINUTES = 30;
-export const OFFICE_VISIT_MAX_MINUTES = 240;
+export const OFFICE_VISIT_MAX_MINUTES = 180;
 export const OFFICE_VISIT_STEP_MINUTES = 15;
 export const OFFICE_VISIT_DURATION_ERROR =
-  "Office visit duration must be at least 30 minutes and in 15-minute increments (30, 45, 60, ...).";
+  "Office visit duration must be at least 30 minutes and up to 3 hours in 15-minute increments (30, 45, 60, ...).";
 
-/** Returns true when value is an integer >= 30, <= 1440, and a multiple of 15. */
+/** Returns true when value is an integer >= 30, <= 180, and a multiple of 15. */
 export const isValidOfficeVisitDuration = (value) => {
   const num = Number(value);
   return (
     Number.isInteger(num) &&
     num >= OFFICE_VISIT_MIN_MINUTES &&
-    num <= 1440 &&
+    num <= OFFICE_VISIT_MAX_MINUTES &&
     num % OFFICE_VISIT_STEP_MINUTES === 0
   );
 };
@@ -49,9 +49,7 @@ const formatOfficeDurationLabel = (minutes) => {
   const hrs = Math.floor(minutes / 60);
   const mins = minutes % 60;
   const hrLabel = `${hrs} hr${hrs > 1 ? "s" : ""}`;
-  return mins > 0
-    ? `${hrLabel} ${mins} min (${minutes} min)`
-    : `${hrLabel} (${minutes} min)`;
+  return mins > 0 ? `${hrLabel} ${mins} min` : hrLabel;
 };
 
 export const OFFICE_VISIT_DURATION_OPTIONS = Array.from(

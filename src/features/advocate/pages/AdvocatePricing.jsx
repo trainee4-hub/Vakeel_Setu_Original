@@ -895,7 +895,11 @@ const AdvocatePricing = () => {
             >
               <PricingInput
                 id="video-call-charge"
-                label="Video call fee (15 min)"
+                label={
+                  String(pricing.videoCallPricePer15Min ?? "").trim()
+                    ? `Video Call — ₹${String(pricing.videoCallPricePer15Min).trim()} / 15 min`
+                    : "Video Call (₹ / 15 min)"
+                }
                 description="Stored as videoCallPricePer15Min on your advocate profile."
                 value={pricing.videoCallPricePer15Min}
                 error={errors.videoCallPricePer15Min}
@@ -912,7 +916,11 @@ const AdvocatePricing = () => {
             >
               <PricingInput
                 id="voice-call-charge"
-                label="Voice call fee (15 min)"
+                label={
+                  String(pricing.voiceCallPricePer15Min ?? "").trim()
+                    ? `Voice Call — ₹${String(pricing.voiceCallPricePer15Min).trim()} / 15 min`
+                    : "Voice Call (₹ / 15 min)"
+                }
                 description="Stored as voiceCallPricePer15Min on your advocate profile."
                 value={pricing.voiceCallPricePer15Min}
                 error={errors.voiceCallPricePer15Min}
@@ -930,7 +938,11 @@ const AdvocatePricing = () => {
               <div className="grid gap-4 sm:grid-cols-2">
                 <PricingInput
                   id="offline-visiting-fee"
-                  label="Office visiting fee (₹)"
+                  label={
+                    String(pricing.offlineVisitingFee ?? "").trim()
+                      ? `Office Visit — ₹${String(pricing.offlineVisitingFee).trim()}`
+                      : "Office Visiting Fee (₹)"
+                  }
                   description="Stored as offlineVisitingFee on your advocate profile."
                   value={pricing.offlineVisitingFee}
                   error={errors.offlineVisitingFee}
