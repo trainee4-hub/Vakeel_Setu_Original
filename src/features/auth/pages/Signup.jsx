@@ -2935,15 +2935,6 @@ restoreUserSession(
             registrationId,
           );
 
-    if (
-      import.meta.env.DEV
-    ) {
-      console.log(
-        `[signup] ${selectedRole} Google registration:`,
-        googleUrl,
-      );
-    }
-
     window.location.assign(
       googleUrl,
     );

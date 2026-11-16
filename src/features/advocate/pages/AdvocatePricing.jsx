@@ -28,6 +28,7 @@ import {
   isValidOfficeVisitDuration,
   OFFICE_VISIT_DURATION_ERROR,
 } from "@/utils/advocateProfileFormUtils";
+import { formatDurationHuman } from "@/shared/utils/formatDuration";
 import { getAuthToken } from "@/utils/auth";
 
 /* =========================================================================
@@ -897,8 +898,8 @@ const AdvocatePricing = () => {
                 id="video-call-charge"
                 label={
                   String(pricing.videoCallPricePer15Min ?? "").trim()
-                    ? `Video Call — ₹${String(pricing.videoCallPricePer15Min).trim()} / 15 min`
-                    : "Video Call (₹ / 15 min)"
+                    ? `Video Call — ₹${String(pricing.videoCallPricePer15Min).trim()} / 15 minutes`
+                    : "Video Call (₹ / 15 minutes)"
                 }
                 description="Stored as videoCallPricePer15Min on your advocate profile."
                 value={pricing.videoCallPricePer15Min}
@@ -918,8 +919,8 @@ const AdvocatePricing = () => {
                 id="voice-call-charge"
                 label={
                   String(pricing.voiceCallPricePer15Min ?? "").trim()
-                    ? `Voice Call — ₹${String(pricing.voiceCallPricePer15Min).trim()} / 15 min`
-                    : "Voice Call (₹ / 15 min)"
+                    ? `Voice Call — ₹${String(pricing.voiceCallPricePer15Min).trim()} / 15 minutes`
+                    : "Voice Call (₹ / 15 minutes)"
                 }
                 description="Stored as voiceCallPricePer15Min on your advocate profile."
                 value={pricing.voiceCallPricePer15Min}
@@ -940,7 +941,11 @@ const AdvocatePricing = () => {
                   id="offline-visiting-fee"
                   label={
                     String(pricing.offlineVisitingFee ?? "").trim()
-                      ? `Office Visit — ₹${String(pricing.offlineVisitingFee).trim()}`
+                      ? `Office Visit — ₹${String(pricing.offlineVisitingFee).trim()}${
+                          formatDurationHuman(pricing.officeVisitDurationMinutes || 60)
+                            ? ` / ${formatDurationHuman(pricing.officeVisitDurationMinutes || 60)}`
+                            : ""
+                        }`
                       : "Office Visiting Fee (₹)"
                   }
                   description="Stored as offlineVisitingFee on your advocate profile."
@@ -954,7 +959,7 @@ const AdvocatePricing = () => {
                     htmlFor="office-visit-duration"
                     className="mb-2 block text-xs font-extrabold uppercase tracking-[0.1em] text-slate-500"
                   >
-                    Office visit duration (min)
+                    Office Consultation Duration
                   </label>
 
                   <div className="relative">

@@ -148,8 +148,6 @@ const HelpForm = ({ className = "" }) => {
         );
       }
 
-      console.log("Help Request Submitted:", data);
-
       setReferenceId(data?.referenceId || "");
       setIsSubmitted(true);
 

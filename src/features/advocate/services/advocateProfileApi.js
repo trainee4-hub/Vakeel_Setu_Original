@@ -142,16 +142,6 @@ const patch = async (
     typeof FormData !== "undefined" &&
     body instanceof FormData;
 
-  console.log(
-    "[advocateProfileApi] PATCH request:",
-    {
-      endpoint:
-        `${API_BASE_URL}${endpoint}`,
-      isFormData,
-      body: isFormData ? "FormData" : body,
-    },
-  );
-
   const response =
     await fetch(
       `${API_BASE_URL}${endpoint}`,

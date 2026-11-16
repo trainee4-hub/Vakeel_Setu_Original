@@ -260,7 +260,6 @@ const AdvocateSignup = () => {
         // Flow: GET presigned URL → PUT to S3 → PUT /advocate/profile (update DB)
         if (advocateData.photo && resolvedAdvocateId) {
           uploadProfilePhoto(resolvedAdvocateId)
-            .then((key) => console.log('✅ Photo uploaded to S3 & DB updated:', key))
             .catch((err) => console.warn('⚠️ Background photo upload failed (non-blocking):', err))
         }
 
@@ -438,8 +437,6 @@ const AdvocateSignup = () => {
       })
       const data = await response.json()
 
-      console.log('Verify Aadhaar Response:', { status: response.status, data })
-
       // Backend always returns HTTP 200 — must check isAadhaarVerified flag
       // and data.message from the third-party UIDAI response
       const thirdPartyMessage = data?.data?.message || ''
@@ -453,7 +450,6 @@ const AdvocateSignup = () => {
         // Automatically upload profile photo if selected
         if (advocateData.photo) {
           uploadProfilePhoto(formValues.advocateId)
-            .then(() => console.log('Profile photo uploaded automatically'))
             .catch(err => console.error('Auto upload failed:', err))
         }
       } else {

@@ -276,29 +276,17 @@ export async function apiRequest(
   if (isGet && cache !== false && !forceRefresh) {
     const cached = apiCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < cached.ttl) {
-      if (import.meta.env.DEV) {
-        console.log(`[apiClient] (cache hit) GET ${url}`);
-      }
       return safeClone(cached.data);
     }
 
     // 2. In-flight request coalescing
     if (inFlightRequests.has(cacheKey)) {
-      if (import.meta.env.DEV) {
-        console.log(`[apiClient] (in-flight join) GET ${url}`);
-      }
       const shared = await inFlightRequests.get(cacheKey);
       return safeClone(shared);
     }
   }
 
   const execute = async () => {
-    if (import.meta.env.DEV) {
-      console.log(
-        `[apiClient] ${method} ${url}`,
-      );
-    }
-
     let response;
 
     try {
@@ -413,9 +401,6 @@ export async function apiRequest(
       const prefix = getResourcePrefix(normalizedPath);
       const mappedTargets = MUTATION_INVALIDATION_MAP[prefix];
       if (mappedTargets && mappedTargets.length > 0) {
-        if (import.meta.env.DEV) {
-          console.log(`[apiClient] (cache invalidate) mutation ${normalizedPath} clearing:`, mappedTargets);
-        }
         clearApiCache(mappedTargets);
       } else if (prefix) {
         clearApiCache(prefix);

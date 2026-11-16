@@ -1183,7 +1183,11 @@ function AdvocateBookingDetailView({ booking, onOpenReceipt }) {
                   <span className="text-base font-black text-slate-900">
                     {formatBookingAmount(
                       booking.payment.amountRupees ||
-                        (booking.payment.amount ? booking.payment.amount / 100 : rawTotal)
+                        (booking.payment.amount
+                          ? (rawTotal && Number(booking.payment.amount) > Number(rawTotal) * 50
+                              ? booking.payment.amount / 100
+                              : booking.payment.amount)
+                          : rawTotal)
                     )}
                   </span>
                   {booking.payment.paidAt && (

@@ -33,6 +33,7 @@ import {
   sameTag,
   validateAdvocateProfileForm,
 } from "@/utils/advocateProfileFormUtils";
+import { formatDurationHuman } from "@/shared/utils/formatDuration";
 
 /* =========================================================================
    ADVOCATE COMPLETE PROFILE
@@ -482,15 +483,6 @@ export default function AdvocateCompleteProfile() {
     [user, form],
   );
 
-  console.log(
-    "PROFILE COMPLETION:",
-    completion,
-  );
-
-  console.log(
-    "MISSING FIELDS:",
-    completion.missingFields,
-  );
   /* -----------------------------------------------------------------------
      PHOTO
   ----------------------------------------------------------------------- */
@@ -573,19 +565,9 @@ export default function AdvocateCompleteProfile() {
     setErrors(validationErrors);
     setSubmitError(null);
 
-    console.log(
-      "SUBMIT VALIDATION:",
-      validationErrors,
-    );
-
     if (
       Object.keys(validationErrors).length > 0
     ) {
-      console.log(
-        "SUBMIT BLOCKED BY VALIDATION:",
-        validationErrors,
-      );
-
       return;
     }
 
@@ -594,11 +576,6 @@ export default function AdvocateCompleteProfile() {
         form,
         originalRef.current,
       );
-
-    console.log(
-      "PROFILE PATCH PAYLOAD:",
-      payload,
-    );
 
     /* Nothing changed, but current form is complete */
     if (
@@ -647,23 +624,6 @@ export default function AdvocateCompleteProfile() {
           ...form,
           ...(advocate || {}),
         });
-
-      console.log(
-        "SAVED ADVOCATE:",
-        advocate,
-      );
-
-      console.log(
-        "MERGED ADVOCATE:",
-        normalized,
-      );
-
-      console.log(
-        "PROFILE COMPLETE AFTER SAVE:",
-        isAdvocateProfileComplete(
-          normalized,
-        ),
-      );
 
       originalRef.current =
         normalized;
@@ -1289,8 +1249,8 @@ export default function AdvocateCompleteProfile() {
               <Field
                 label={
                   String(form.voiceCallPricePer15Min ?? "").trim()
-                    ? `Voice Call — ₹${String(form.voiceCallPricePer15Min).trim()} / 15 min`
-                    : "Voice Call (₹ / 15 min)"
+                    ? `Voice Call — ₹${String(form.voiceCallPricePer15Min).trim()} / 15 minutes`
+                    : "Voice Call (₹ / 15 minutes)"
                 }
                 error={errors.voiceCallPricePer15Min}
               >
@@ -1315,8 +1275,8 @@ export default function AdvocateCompleteProfile() {
               <Field
                 label={
                   String(form.videoCallPricePer15Min ?? "").trim()
-                    ? `Video Call — ₹${String(form.videoCallPricePer15Min).trim()} / 15 min`
-                    : "Video Call (₹ / 15 min)"
+                    ? `Video Call — ₹${String(form.videoCallPricePer15Min).trim()} / 15 minutes`
+                    : "Video Call (₹ / 15 minutes)"
                 }
                 error={errors.videoCallPricePer15Min}
               >
@@ -1339,7 +1299,37 @@ export default function AdvocateCompleteProfile() {
               </Field>
 
               <Field
-                label="Office duration (min)"
+                label={
+                  String(form.offlineVisitingFee ?? "").trim()
+                    ? `Office Visit — ₹${String(form.offlineVisitingFee).trim()}${
+                        formatDurationHuman(form.officeVisitDurationMinutes || 60)
+                          ? ` / ${formatDurationHuman(form.officeVisitDurationMinutes || 60)}`
+                          : ""
+                      }`
+                    : "Office Visit (₹)"
+                }
+                error={errors.offlineVisitingFee}
+              >
+                <input
+                  type="number"
+                  min="0"
+                  inputMode="numeric"
+                  value={form.offlineVisitingFee ?? ""}
+                  onChange={(event) =>
+                    setField(
+                      "offlineVisitingFee",
+                      event.target.value,
+                    )
+                  }
+                  placeholder="1000 rupees"
+                  className={inputClass(
+                    Boolean(errors.offlineVisitingFee),
+                  )}
+                />
+              </Field>
+
+              <Field
+                label="Office Consultation Duration"
                 error={errors.officeVisitDurationMinutes}
                 hint="Minimum 30 min, in 15-min steps"
               >
@@ -1369,32 +1359,6 @@ export default function AdvocateCompleteProfile() {
                     </option>
                   ))}
                 </select>
-              </Field>
-
-              <Field
-                label={
-                  String(form.offlineVisitingFee ?? "").trim()
-                    ? `Office Visit — ₹${String(form.offlineVisitingFee).trim()}`
-                    : "Office Visit (₹)"
-                }
-                error={errors.offlineVisitingFee}
-              >
-                <input
-                  type="number"
-                  min="0"
-                  inputMode="numeric"
-                  value={form.offlineVisitingFee ?? ""}
-                  onChange={(event) =>
-                    setField(
-                      "offlineVisitingFee",
-                      event.target.value,
-                    )
-                  }
-                  placeholder="1000 rupees"
-                  className={inputClass(
-                    Boolean(errors.offlineVisitingFee),
-                  )}
-                />
               </Field>
             </div>
           </Card>

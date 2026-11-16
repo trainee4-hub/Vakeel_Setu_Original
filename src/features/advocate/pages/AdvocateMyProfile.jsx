@@ -40,6 +40,7 @@ import {
   getAdvocateVerificationStatus,
 } from "../index";
 import OfficeLocationPicker from "../components/office/OfficeLocationPicker";
+import AdvocateCredentialsCard from "../components/AdvocateProfile/sidebar/AdvocateCredentialsCard";
 
 /* =========================================================================
    HELPERS
@@ -544,18 +545,13 @@ export default function AdvocateMyProfile() {
           const profileChange =
             response.profileChange ?? raw.profileChange ?? null;
 
-          console.log("=== [STEP 0 REAL DATA] advocateMyProfile.fetchProfile() ===", {
-            status: profileChange?.status,
-            changeId: profileChange?._id || profileChange?.id,
-            rawProfileChange: profileChange,
-            changes: profileChange?.changes,
-            requestedChanges: profileChange?.requestedChanges,
-            requested: profileChange?.requested,
-            changedFields: profileChange?.changedFields,
-            requestedFields: profileChange?.requestedFields,
-            extractedKeys: extractChangedFieldKeys(profileChange),
-            submittedDropdownItems: getSubmittedItems(profileChange),
-          });
+          if (import.meta.env.DEV) {
+            console.log("=== [advocateMyProfile] fetchProfile status ===", {
+              status: profileChange?.status,
+              submittedDropdownItems: getSubmittedItems(profileChange),
+            });
+          }
+
           const officeAddress =
             response.officeAddress ||
             raw.officeAddress ||
@@ -2303,6 +2299,9 @@ export default function AdvocateMyProfile() {
                   )}
                 </div>
               </section>
+
+              {/* OFFICIAL CREDENTIALS & DOWNLOADS CARD */}
+              <AdvocateCredentialsCard advocate={advocate} />
 
               {/* SERVICE & AVAILABILITY (SHOW ONLY IF REAL VALUES RETURNED) */}
               {(advocate?.callAvailability !== undefined || advocate?.isOnline !== undefined) && (

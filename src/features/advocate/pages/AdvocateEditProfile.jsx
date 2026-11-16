@@ -12,6 +12,7 @@ import {
   isValidOfficeVisitDuration,
   OFFICE_VISIT_DURATION_ERROR,
 } from "@/utils/advocateProfileFormUtils";
+import { formatDurationHuman } from "@/shared/utils/formatDuration";
 
 // Keep Framer Motion recognized by ESLint configurations without JSX usage tracking.
 void motion;
@@ -1037,19 +1038,6 @@ export default function AdvocateEditProfile() {
 
       const changes = normalizedChanges;
 
-      console.log("=== [STEP 0 REAL DATA] advocate profileChange ===", {
-        status: profileChange?.status,
-        changeId: profileChange?._id || profileChange?.id,
-        rawProfileChange: profileChange,
-        changes: profileChange?.changes,
-        requestedChanges: profileChange?.requestedChanges,
-        requested: profileChange?.requested,
-        changedFields: profileChange?.changedFields,
-        requestedFields: profileChange?.requestedFields,
-        extractedKeys: extractChangedFieldKeys(profileChange),
-        submittedDropdownItems: getSubmittedItems(profileChange),
-      });
-
       setProfile(data);
 
       const nextForm = {
@@ -1668,7 +1656,7 @@ export default function AdvocateEditProfile() {
         {cancelNotice && (
           <div
             role="alert"
-            className="flex items-start justify-between gap-3 rounded-2xl border border-red-300 bg-red-50 px-4 py-3.5 text-red-950 shadow-xs"
+            className="flex items-center justify-between gap-3 rounded-2xl border border-red-300 bg-red-50 px-4 py-3.5 text-red-950 shadow-xs"
           >
             <div className="flex items-start gap-3">
               <AlertCircle size={18} className="mt-0.5 shrink-0 text-red-600" />
@@ -1682,7 +1670,7 @@ export default function AdvocateEditProfile() {
             <button
               type="button"
               onClick={() => setCancelNotice("")}
-              className="text-xs font-bold text-red-700 hover:text-red-950 px-2 py-0.5"
+              className="text-xs font-bold text-red-700 hover:text-red-950 px-2 py-0.5 "
             >
               Dismiss
             </button>
@@ -2002,15 +1990,15 @@ export default function AdvocateEditProfile() {
                 <Field
                   label={
                     String(form.voiceCallPricePer15Min ?? "").trim()
-                      ? `Voice Call — ₹${String(form.voiceCallPricePer15Min).trim()} / 15 min`
-                      : "Voice Call (₹ / 15 min)"
+                      ? `Voice Call — ₹${String(form.voiceCallPricePer15Min).trim()} / 15 minutes`
+                      : "Voice Call (₹ / 15 minutes)"
                   }
                   hint="Empty = not offered"
                   isPending={isFieldPendingOrChanged("voiceCallPricePer15Min")}
                   isApproved={isFieldApproved("voiceCallPricePer15Min")}
                   pendingHint={
                     requestedChanges.voiceCallPricePer15Min !== undefined
-                      ? `Pending: ₹${requestedChanges.voiceCallPricePer15Min} / 15 min (Current: ₹${profile?.voiceCallPricePer15Min || 0} / 15 min)`
+                      ? `Pending: ₹${requestedChanges.voiceCallPricePer15Min} / 15 minutes (Current: ₹${profile?.voiceCallPricePer15Min || 0} / 15 minutes)`
                       : null
                   }
                   error={errors.voiceCallPricePer15Min}
@@ -2026,15 +2014,15 @@ export default function AdvocateEditProfile() {
                 <Field
                   label={
                     String(form.videoCallPricePer15Min ?? "").trim()
-                      ? `Video Call — ₹${String(form.videoCallPricePer15Min).trim()} / 15 min`
-                      : "Video Call (₹ / 15 min)"
+                      ? `Video Call — ₹${String(form.videoCallPricePer15Min).trim()} / 15 minutes`
+                      : "Video Call (₹ / 15 minutes)"
                   }
                   hint="Empty = not offered"
                   isPending={isFieldPendingOrChanged("videoCallPricePer15Min")}
                   isApproved={isFieldApproved("videoCallPricePer15Min")}
                   pendingHint={
                     requestedChanges.videoCallPricePer15Min !== undefined
-                      ? `Pending: ₹${requestedChanges.videoCallPricePer15Min} / 15 min (Current: ₹${profile?.videoCallPricePer15Min || 0} / 15 min)`
+                      ? `Pending: ₹${requestedChanges.videoCallPricePer15Min} / 15 minutes (Current: ₹${profile?.videoCallPricePer15Min || 0} / 15 minutes)`
                       : null
                   }
                   error={errors.videoCallPricePer15Min}
@@ -2050,7 +2038,11 @@ export default function AdvocateEditProfile() {
                 <Field
                   label={
                     String(form.offlineVisitingFee ?? "").trim()
-                      ? `Office Visit — ₹${String(form.offlineVisitingFee).trim()}`
+                      ? `Office Visit — ₹${String(form.offlineVisitingFee).trim()}${
+                          formatDurationHuman(form.officeVisitDurationMinutes || 60)
+                            ? ` / ${formatDurationHuman(form.officeVisitDurationMinutes || 60)}`
+                            : ""
+                        }`
                       : "Office Visit Price (₹)"
                   }
                   hint="Fixed fee for consultation"
@@ -2058,7 +2050,11 @@ export default function AdvocateEditProfile() {
                   isApproved={isFieldApproved("offlineVisitingFee")}
                   pendingHint={
                     requestedChanges.offlineVisitingFee !== undefined
-                      ? `Pending: ₹${requestedChanges.offlineVisitingFee} (Current: ₹${profile?.offlineVisitingFee || 0})`
+                      ? `Pending: ₹${requestedChanges.offlineVisitingFee}${
+                          formatDurationHuman(form.officeVisitDurationMinutes || 60)
+                            ? ` / ${formatDurationHuman(form.officeVisitDurationMinutes || 60)}`
+                            : ""
+                        } (Current: ₹${profile?.offlineVisitingFee || 0})`
                       : null
                   }
                   error={errors.offlineVisitingFee}
@@ -2072,13 +2068,13 @@ export default function AdvocateEditProfile() {
                 </Field>
 
                 <Field
-                  label="Office Visit Duration (min)"
+                  label="Office Consultation Duration"
                   hint="Minimum 30 min, in 15-min steps"
                   isPending={isFieldPendingOrChanged("officeVisitDurationMinutes")}
                   isApproved={isFieldApproved("officeVisitDurationMinutes")}
                   pendingHint={
                     requestedChanges.officeVisitDurationMinutes !== undefined
-                      ? `Pending: ${requestedChanges.officeVisitDurationMinutes} min (Current: ${profile?.officeVisitDurationMinutes || 0} min)`
+                      ? `Pending: ${formatDurationHuman(requestedChanges.officeVisitDurationMinutes) || `${requestedChanges.officeVisitDurationMinutes} minutes`} (Current: ${formatDurationHuman(profile?.officeVisitDurationMinutes) || `${profile?.officeVisitDurationMinutes || 0} minutes`})`
                       : null
                   }
                   error={errors.officeVisitDurationMinutes}

@@ -418,8 +418,10 @@ export function usePaymentStateMachine({
 
         const rzp = new RazorpayClass(razorpayOptions);
 
-        rzp.on("payment.failed", async (failedRes) => {
-          console.warn("[Payments] Razorpay payment.failed event:", failedRes);
+        rzp.on("payment.failed", async () => {
+          if (import.meta.env.DEV) {
+            console.warn("[Payments] Razorpay payment.failed event received");
+          }
           await handleDismissOrFailed("payment.failed");
         });
 

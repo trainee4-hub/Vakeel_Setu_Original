@@ -27,8 +27,6 @@ const parseErrorMessage = (data, fallback) => {
 const passwordRequest = async (endpoint, body) => {
   const url = `${API_BASE_URL}${endpoint}`;
 
-  console.log("[advocatePasswordApi] POST", url);
-
   let response;
 
   try {
@@ -40,7 +38,7 @@ const passwordRequest = async (endpoint, body) => {
       },
       body: JSON.stringify(body),
     });
-  } catch (error) {
+  } catch {
     throw new AdvocatePasswordApiError(
       "Unable to connect to the server. Please try again.",
       0,

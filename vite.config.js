@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
   resolve: {
     alias: {
@@ -19,4 +19,10 @@ export default defineConfig({
   server: {
     port: 5173,
   },
-});
+  esbuild: {
+    pure: mode === 'production'
+      ? ['console.log', 'console.info', 'console.debug', 'console.warn']
+      : [],
+    drop: mode === 'production' ? ['debugger'] : [],
+  },
+}));
