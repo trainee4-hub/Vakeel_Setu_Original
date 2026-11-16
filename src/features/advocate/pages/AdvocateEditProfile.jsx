@@ -51,6 +51,7 @@ import {
 import { advocateProfileApi } from "../services/advocateProfileApi";
 import LiveCameraModal from "../components/office/LiveCameraModal";
 import OfficeLocationPicker from "../components/office/OfficeLocationPicker";
+import AdvocateTestNoticeModal from "../components/AdvocateProfile/modals/AdvocateTestNoticeModal";
 
 const PINCODE_LOOKUP_URL = "https://api.postalpincode.in/pincode";
 
@@ -671,6 +672,9 @@ export default function AdvocateEditProfile() {
   // Pincode lookup state
   const [pincodeLoading, setPincodeLoading] = useState(false);
   const [pincodeNotice, setPincodeNotice] = useState("");
+
+  // Qualification Test Modal
+  const [testNoticeData, setTestNoticeData] = useState(null);
 
 
   /* =========================================================================
@@ -1432,10 +1436,10 @@ export default function AdvocateEditProfile() {
 
       // Save staged changes AND submit them for admin approval in ONE action -> status SUBMITTED
       if (
-        isApproved &&
-        (hasApprovalChanges ||
-          response?.data?.profileChange?.status === "DRAFT" ||
-          response?.profileChange?.status === "DRAFT")
+        hasApprovalChanges ||
+        response?.data?.profileChange?.status === "DRAFT" ||
+        response?.profileChange?.status === "DRAFT" ||
+        !isApproved
       ) {
         const submitRes = await advocateProfileApi.submitForApproval();
         if (!submitRes?.success) {
@@ -1443,6 +1447,9 @@ export default function AdvocateEditProfile() {
             submitRes?.message ||
               "Failed to submit profile change request for admin approval.",
           );
+        }
+        if (submitRes?.test?.required) {
+          setTestNoticeData(submitRes.test);
         }
         setCancelNotice("");
         setIsApprovedBannerDismissed(false);
@@ -1468,10 +1475,14 @@ export default function AdvocateEditProfile() {
           });
           setErrors((prev) => ({ ...prev, ...fieldErrMap }));
         }
+        const missingFields = requestError?.data?.missingFields;
+        const missingText = Array.isArray(missingFields) && missingFields.length > 0
+          ? ` (Missing: ${missingFields.join(", ")})`
+          : "";
         setPageError(
-          requestError?.data?.message ||
+          (requestError?.data?.message ||
             requestError?.message ||
-            "Invalid profile data submitted. Please check the required fields.",
+            "Invalid profile data submitted. Please check the required fields.") + missingText,
         );
       } else {
         setPageError(requestError?.message || "Unable to save profile changes.");
@@ -2443,6 +2454,13 @@ export default function AdvocateEditProfile() {
           setIsCameraOpen(false);
         }}
         allowFallback={true}
+      />
+
+      {/* Qualification Test Notice Modal */}
+      <AdvocateTestNoticeModal
+        isOpen={Boolean(testNoticeData)}
+        onClose={() => setTestNoticeData(null)}
+        testData={testNoticeData}
       />
     </main>
   );

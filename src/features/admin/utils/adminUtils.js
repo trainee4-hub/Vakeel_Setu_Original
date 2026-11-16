@@ -71,6 +71,9 @@ export const ADMIN_PATHS = {
   contentCreators: {
     list: `${BASE}/content-creators`,
   },
+  testQuestions: {
+    list: `${BASE}/test-questions`,
+  },
   blogs: resourcePaths("blogs"),
   ipc: resourcePaths("ipc"),
   bns: resourcePaths("bns"),

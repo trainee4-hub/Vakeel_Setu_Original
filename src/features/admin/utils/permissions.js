@@ -74,6 +74,9 @@ export const ADMIN_PERMISSIONS = Object.freeze({
   USER_RIGHTS_CREATE: "user_rights:create",
   USER_RIGHTS_UPDATE: "user_rights:update",
   USER_RIGHTS_DELETE: "user_rights:delete",
+
+  // Tests & Qualification
+  TESTS_MANAGE: "tests:manage",
 });
 
 export default ADMIN_PERMISSIONS;

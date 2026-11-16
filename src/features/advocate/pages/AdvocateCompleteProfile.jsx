@@ -15,6 +15,8 @@ import {
   uploadAdvocateProfilePhoto,
   validateAdvocatePhoto,
 } from "../index";
+import { advocateProfileApi } from "../services/advocateProfileApi";
+import AdvocateTestNoticeModal from "../components/AdvocateProfile/modals/AdvocateTestNoticeModal";
 
 import {
   getAdvocateProfileCompletion,
@@ -376,9 +378,22 @@ export default function AdvocateCompleteProfile() {
   const [availablePracticeAreas, setAvailablePracticeAreas] = useState(DEFAULT_PRACTICE_AREAS);
   const [availableCourts, setAvailableCourts] = useState(DEFAULT_COURTS);
 
+  // Approval Status & Qualification Test Modal
+  const [approvalStatus, setApprovalStatus] = useState("NOT_SUBMITTED");
+  const [testNoticeData, setTestNoticeData] = useState(null);
+
   useEffect(() => {
     let active = true;
     (async () => {
+      try {
+        const res = await apiRequest("/advocate/profile/approval-status");
+        if (active && res?.status) {
+          setApprovalStatus(res.status);
+        }
+      } catch {
+        // Fallback default NOT_SUBMITTED
+      }
+
       try {
         const res = await apiRequest("/practice-areas");
         const list = Array.isArray(res?.practiceAreas) ? res.practiceAreas : [];
@@ -587,6 +602,27 @@ export default function AdvocateCompleteProfile() {
           ...form,
         })
       ) {
+        setIsSubmitting(true);
+        try {
+          const submitRes = await advocateProfileApi.submitForApproval();
+          if (submitRes?.test?.required) {
+            setTestNoticeData(submitRes.test);
+            setApprovalStatus("PENDING");
+            return;
+          }
+        } catch (submitErr) {
+          console.error("SUBMIT FOR APPROVAL ERROR:", submitErr);
+          const missing = Array.isArray(submitErr?.data?.missingFields) && submitErr.data.missingFields.length > 0
+            ? ` (Missing: ${submitErr.data.missingFields.join(", ")})`
+            : "";
+          setSubmitError(
+            (submitErr?.data?.message || submitErr?.message || "Failed to submit profile for approval.") + missing,
+          );
+          return;
+        } finally {
+          setIsSubmitting(false);
+        }
+
         navigate(
           "/advocate/dashboard",
           { replace: true },
@@ -639,6 +675,24 @@ export default function AdvocateCompleteProfile() {
           normalized,
         )
       ) {
+        try {
+          const submitRes = await advocateProfileApi.submitForApproval();
+          if (submitRes?.test?.required) {
+            setTestNoticeData(submitRes.test);
+            setApprovalStatus("PENDING");
+            return;
+          }
+        } catch (submitErr) {
+          console.error("SUBMIT FOR APPROVAL ERROR:", submitErr);
+          const missing = Array.isArray(submitErr?.data?.missingFields) && submitErr.data.missingFields.length > 0
+            ? ` (Missing: ${submitErr.data.missingFields.join(", ")})`
+            : "";
+          setSubmitError(
+            (submitErr?.data?.message || submitErr?.message || "Failed to submit profile for approval.") + missing,
+          );
+          return;
+        }
+
         navigate(
           "/advocate/dashboard",
           { replace: true },
@@ -670,9 +724,12 @@ export default function AdvocateCompleteProfile() {
         }));
       }
 
+      const missing = Array.isArray(error?.data?.missingFields) && error.data.missingFields.length > 0
+        ? ` (Missing: ${error.data.missingFields.join(", ")})`
+        : "";
+
       setSubmitError(
-        error?.message ||
-        "We couldn't save your profile. Please try again.",
+        (error?.message || "We couldn't save your profile. Please try again.") + missing,
       );
     } finally {
       setIsSubmitting(false);
@@ -1371,7 +1428,9 @@ export default function AdvocateCompleteProfile() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="space-y-0.5">
                 <p className="text-sm text-slate-500">
-                  {completion.percentage === 100
+                  {approvalStatus === "PENDING"
+                    ? "Your profile has been submitted and is under review."
+                    : completion.percentage === 100
                     ? "Everything looks good."
                     : `${
                         completion.total - completion.completed
@@ -1383,17 +1442,24 @@ export default function AdvocateCompleteProfile() {
 
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || approvalStatus === "PENDING"}
                 className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-7 py-3 text-sm font-bold text-white outline-none shadow-sm transition-all hover:bg-amber-600 focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/20 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSubmitting ? (
                   <>
                     <span className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                    Saving...
+                    Submitting...
+                  </>
+                ) : approvalStatus === "PENDING" ? (
+                  <>
+                    <span className="material-symbols-outlined text-[18px]">
+                      pending
+                    </span>
+                    Under Review
                   </>
                 ) : (
                   <>
-                    Save and continue
+                    Submit for Approval
 
                     <span className="material-symbols-outlined text-[18px]">
                       arrow_forward
@@ -1405,6 +1471,16 @@ export default function AdvocateCompleteProfile() {
           </div>
         </form>
       </div>
+
+      {/* Qualification Test Notice Modal */}
+      <AdvocateTestNoticeModal
+        isOpen={Boolean(testNoticeData)}
+        testData={testNoticeData}
+        onClose={() => {
+          setTestNoticeData(null);
+          navigate("/advocate/dashboard", { replace: true });
+        }}
+      />
     </div>
   );
 }

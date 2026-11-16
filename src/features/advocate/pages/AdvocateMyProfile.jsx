@@ -41,6 +41,7 @@ import {
 } from "../index";
 import OfficeLocationPicker from "../components/office/OfficeLocationPicker";
 import AdvocateCredentialsCard from "../components/AdvocateProfile/sidebar/AdvocateCredentialsCard";
+import AdvocateTestNoticeModal from "../components/AdvocateProfile/modals/AdvocateTestNoticeModal";
 
 /* =========================================================================
    HELPERS
@@ -438,6 +439,8 @@ export default function AdvocateMyProfile() {
   showPreviewApprovalPopup,
   setShowPreviewApprovalPopup,
 ] = useState(false);
+
+  const [testNoticeData, setTestNoticeData] = useState(null);
 
   const [isPricingInlineEditing, setIsPricingInlineEditing] = useState(false);
   const [enlargedOfficePhoto, setEnlargedOfficePhoto] = useState(null);
@@ -1133,6 +1136,9 @@ export default function AdvocateMyProfile() {
           throw new Error(
             submitRes?.message || "Failed to submit request for approval.",
           );
+        }
+        if (submitRes?.test?.required) {
+          setTestNoticeData(submitRes.test);
         }
       }
 
@@ -2411,6 +2417,12 @@ export default function AdvocateMyProfile() {
       )}
 
 
+      {/* Test Notice Modal */}
+      <AdvocateTestNoticeModal
+        isOpen={Boolean(testNoticeData)}
+        onClose={() => setTestNoticeData(null)}
+        testData={testNoticeData}
+      />
     </>
   );
 }

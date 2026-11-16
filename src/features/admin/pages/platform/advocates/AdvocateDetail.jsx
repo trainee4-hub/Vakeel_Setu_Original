@@ -21,6 +21,7 @@ import {
 import { ADMIN_PATHS, daysUntil, formatDate, formatDateTime } from "../../../utils/adminUtils";
 import AdvocateProfileEditDrawer from "./AdvocateProfileEditDrawer";
 import OfficeLocationPicker from "@/features/advocate/components/office/OfficeLocationPicker";
+import { AdvocateTestChip, AdvocateTestDetailCard } from "../../../components/advocate/AdvocateTestStatusBadge";
 
 export default function AdvocateDetail() {
   const { id } = useParams();
@@ -468,6 +469,10 @@ export default function AdvocateDetail() {
                     Profile changes pending
                   </Link>
                 ) : null}
+
+                {advocate.test?.status && (
+                  <AdvocateTestChip status={advocate.test.status} />
+                )}
               </div>
 
               {advocate.rejectionReason ? (
@@ -478,6 +483,13 @@ export default function AdvocateDetail() {
               ) : null}
             </div>
           </Card>
+
+          {/* Qualification Test Status Card */}
+          <AdvocateTestDetailCard
+            test={advocate.test}
+            advocateId={advocate._id || advocate.id}
+            advocateName={advocateName}
+          />
 
           {/* Consultation Charges & Service Settings */}
           <Card className="p-4 sm:p-6">

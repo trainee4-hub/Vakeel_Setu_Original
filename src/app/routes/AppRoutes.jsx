@@ -63,6 +63,7 @@ import {
   CategoryLandingPage,
   ServiceDetailPage,
 } from "../../features/legalServices";
+import AdvocateTestPage from "../../features/advocateTest/pages/AdvocateTestPage";
 
 
 const USER_ROLES = [
@@ -394,6 +395,12 @@ const AppRoutes = () => {
       <Route
         path="/terms"
         element={<TermsPage />}
+      />
+
+      {/* ================= ADVOCATE QUALIFICATION TEST ================= */}
+      <Route
+        path="/advocate-test"
+        element={<AdvocateTestPage />}
       />
 
       {/* ================= FALLBACK ================= */}

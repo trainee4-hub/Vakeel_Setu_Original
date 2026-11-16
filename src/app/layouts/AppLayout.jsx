@@ -27,18 +27,22 @@ function AppLayout() {
 
   const isAdvocate = Boolean(user && isAdvocateUser(user));
 
+  const isAdvocateTest = pathname === "/advocate-test" || pathname.startsWith("/advocate-test");
+
   // If the logged-in user is an Advocate, they must strictly and exclusively
   // access the Advocate panel. Any attempt to navigate back or visit
   // public/client routes redirects immediately to their Advocate Dashboard.
   // Exception: direct URL visits to /bookings allow Bookings to render its
   // required no-access screen without a redirect loop or silent diversion.
-  if (isAdvocate && !isAdvocateWorkspace(pathname) && !pathname.startsWith("/bookings")) {
+  // Exception 2: /advocate-test is public assessment portal accessed via email token.
+  if (isAdvocate && !isAdvocateWorkspace(pathname) && !pathname.startsWith("/bookings") && !isAdvocateTest) {
     return <Navigate to="/advocate/dashboard" replace />;
   }
 
   const hidePublicChrome =
     isAdvocateWorkspace(pathname) ||
     isAdminWorkspace(pathname) ||
+    isAdvocateTest ||
     isAdvocate;
 
   const hideFooter =

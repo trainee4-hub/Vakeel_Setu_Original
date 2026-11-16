@@ -70,7 +70,12 @@ export const ADMIN_NAV_GROUPS = [
         permissions: [ADMIN_PERMISSIONS.CONTENT_CREATORS_VIEW],
       },
       {
-        
+        to: ADMIN_PATHS.testQuestions.list,
+        label: "Test Question Bank",
+        icon: "quiz",
+        permissions: [ADMIN_PERMISSIONS.TESTS_MANAGE],
+      },
+      {
         to: ADMIN_PATHS.roles.list,
         label: "Roles & Permissions",
         icon: "admin_panel_settings",

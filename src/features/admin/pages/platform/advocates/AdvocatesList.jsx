@@ -14,6 +14,7 @@ import {
   getRejectedAdvocates,
 } from "../../../services/platform/adminAdvocatesApi";
 import { ADMIN_PATHS, daysUntil, formatDate, formatDateTime } from "../../../utils/adminUtils";
+import { AdvocateTestChip } from "../../../components/advocate/AdvocateTestStatusBadge";
 
 function StatusBadge({ status }) {
   const s = String(status || "").toUpperCase();
@@ -600,6 +601,29 @@ export default function AdvocatesList() {
                           header: "Approval",
                           className: "whitespace-nowrap",
                           render: (row) => <ApprovalBadge status={row.approvalStatus} />,
+                        },
+                        {
+                          key: "testStatus",
+                          header: "Test Status",
+                          className: "whitespace-nowrap",
+                          render: (row) => {
+                            const test = row.test;
+                            if (!test && !row.testStatus) return <span className="text-xs text-slate-400">—</span>;
+                            const status = test?.status || row.testStatus;
+                            const latestScore = test?.latest
+                              ? `${test.latest.correct}/${test.latest.total || 20}`
+                              : null;
+                            return (
+                              <div className="flex flex-col gap-0.5">
+                                <AdvocateTestChip status={status} />
+                                {latestScore && (
+                                  <span className="text-[10px] text-slate-500 font-semibold">
+                                    Score: {latestScore}
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          },
                         },
                         {
                           key: "accountStatus",

@@ -29,6 +29,7 @@ const WithdrawalDetail = lazy(() => import("../pages/platform/withdrawals/Withdr
 const HelpRequestsList = lazy(() => import("../pages/platform/help/HelpRequestsList"));
 const HelpRequestDetail = lazy(() => import("../pages/platform/help/HelpRequestDetail"));
 const StaffAccountsList = lazy(() => import("../pages/platform/contentCreators/StaffAccountsList"));
+const TestQuestionsPage = lazy(() => import("../pages/platform/testQuestions/TestQuestionsPage"));
 
 // Content Pages
 const BlogList = lazy(() => import("../pages/content/blogs/BlogList"));
@@ -214,6 +215,10 @@ export default function AdminRoutes() {
 
           <Route element={<PermissionRouteGuard required={[ADMIN_PERMISSIONS.CONTENT_CREATORS_VIEW]} />}>
             <Route path="content-creators" element={<StaffAccountsList />} />
+          </Route>
+
+          <Route element={<PermissionRouteGuard required={[ADMIN_PERMISSIONS.TESTS_MANAGE]} />}>
+            <Route path="test-questions" element={<TestQuestionsPage />} />
           </Route>
 
           {/* ==================== CONTENT ROUTES ==================== */}
