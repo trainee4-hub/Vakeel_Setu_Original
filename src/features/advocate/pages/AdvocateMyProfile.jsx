@@ -15,6 +15,7 @@ import {
   BriefcaseBusiness,
   Building2,
   CalendarDays,
+  Clock3,
   Edit3,
   ExternalLink,
   Eye,
@@ -30,7 +31,6 @@ import {
   Star,
   Trophy,
   UserRound,
-  Clock3,
   Video,
   X,
 } from "lucide-react";
@@ -518,8 +518,6 @@ export default function AdvocateMyProfile() {
     fetchVerificationStatus();
   }, [fetchVerificationStatus]);
 
-
-
   const fetchProfile =
     useCallback(
       async ({
@@ -814,7 +812,6 @@ export default function AdvocateMyProfile() {
   const isProfileBlocked =
     accountStatus ===
     "BLOCKED";
-
 
  const handlePreviewProfile = () => {
   setPreviewMessage("");

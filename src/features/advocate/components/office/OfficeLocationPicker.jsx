@@ -474,7 +474,7 @@ export default function OfficeLocationPicker({
       )}
 
       {/* MAP CONTAINER */}
-      <div className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-sm">
+      <div className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-sm isolate z-0">
         <div
           ref={mapContainerRef}
           className="w-full h-64 sm:h-72 z-0"
@@ -497,7 +497,7 @@ export default function OfficeLocationPicker({
             href={`https://www.google.com/maps?q=${Number(lat).toFixed(6)},${Number(lng).toFixed(6)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="absolute top-3 right-3 z-[400] inline-flex items-center gap-1.5 rounded-xl bg-white/95 backdrop-blur-md px-3 py-1.5 text-xs font-bold text-slate-700 shadow-md border border-slate-200/90 hover:bg-amber-50 hover:text-amber-700 transition"
+            className="absolute top-3 right-3 z-10 inline-flex items-center gap-1.5 rounded-xl bg-white/95 backdrop-blur-md px-3 py-1.5 text-xs font-bold text-slate-700 shadow-md border border-slate-200/90 hover:bg-amber-50 hover:text-amber-700 transition"
           >
             <FiMapPin className="text-amber-500" />
             <span>Google Maps</span>
