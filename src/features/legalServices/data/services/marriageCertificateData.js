@@ -1,0 +1,248 @@
+// Extracted content for "Marriage Certificate" — VakeelSetu Legal Services
+// Source: Marriage_Certificate_Introduction_General_India.pdf
+
+export const marriageCertificateData = {
+  serviceSlug: "marriage-certificate",
+  categorySlug: "government-registration-certificates",
+  categoryTitle: "Government Registration & Certificates",
+  title: "Marriage Certificate",
+  h1: "Marriage Registration & Official Certificate Assistance",
+  seoTitle: "Marriage Certificate Registration under HMA & SMA | VakeelSetu",
+  metaTitle: "Marriage Certificate in India | Online Registration & Guidelines",
+  metaDescription:
+    "Register your marriage under the Hindu Marriage Act, 1955 or Special Marriage Act, 1954 and obtain an official Marriage Certificate with Bar Council-enrolled advocates.",
+  shortIntro:
+    "A Marriage Certificate is an official statutory record issued by the competent Marriage Registrar under Section 8 of the Hindu Marriage Act, 1955 or Section 13 of the Special Marriage Act, 1954, serving as conclusive documentary evidence of legal marriage. Mandated across India pursuant to Supreme Court directives in Seema v. Ashwani Kumar, it provides undisputed legal proof required for spouse visas, foreign immigration, passport updates, joint banking, insurance nominee endorsements, and statutory inheritance rights.",
+
+  trustChips: [
+    { label: "Bar Council-Enrolled Advocates", icon: "shield" },
+    { label: "HMA 1955 & SMA 1954 Filing", icon: "file" },
+    { label: "Confidential", icon: "lock" },
+    { label: "Phone & Video Consultation", icon: "phone" },
+  ],
+
+  introduction: {
+    summary:
+      "A Marriage Certificate is an official statutory record issued by the competent Marriage Registrar under the applicable law—such as Section 8 of the Hindu Marriage Act, 1955 or Section 13 of the Special Marriage Act, 1954. It certifies the solemnization of marriage with formal particulars including spouse identities, date, jurisdiction, and official registrar seals.\n\nUnder Indian law and landmark Supreme Court mandates (Seema v. Ashwani Kumar), registration of marriage is legally required across all communities. This certificate serves as undisputed prima-facie proof of legal marriage, indispensable for obtaining spouse visas, updating passports, joint property ownership, claiming insurance or pension benefits, and securing statutory inheritance rights.",
+    highlights: [
+      "Provides reliable official evidence of the date and fact of marriage across authorities.",
+      "Required for passports, spouse visas, joint property registration, insurance, and banking.",
+      "Governed by the Hindu Marriage Act, 1955 (Section 8) or Special Marriage Act, 1954 (Sections 4–18).",
+      "Compulsory across all religious communities pursuant to Supreme Court ruling in Seema v. Ashwani Kumar.",
+    ],
+  },
+
+  applicableLaws: [
+    {
+      act: "Hindu Marriage Act, 1955",
+      section: "Sections 5, 7 & 8",
+      title: "Conditions, Solemnisation & Registration of Hindu Marriages",
+      summary:
+        "Section 5 prescribes marriage conditions, Section 7 recognises customary solemnisation (including saptapadi), and Section 8 empowers State Governments to make rules for registration and maintenance of the Hindu Marriage Register.",
+      tag: "Personal Law",
+    },
+    {
+      act: "Special Marriage Act, 1954",
+      section: "Sections 4–13 & Sections 15–18",
+      title: "Civil Marriage Solemnisation & Registration of Celebrated Marriages",
+      summary:
+        "Provides a secular civil form of marriage solemnised before a Marriage Officer upon 30 days' notice, as well as procedures for registering marriages previously celebrated in other religious forms.",
+      tag: "Civil Marriage Law",
+    },
+    {
+      act: "Supreme Court Directions (Seema v. Ashwani Kumar)",
+      section: "Compulsory Registration Mandate",
+      title: "Universal Marriage Registration Across India",
+      summary:
+        "The Supreme Court directed all States and Union Territories to frame rules making marriage registration compulsory irrespective of religion, to maintain reliable public records.",
+      tag: "Judicial Mandate",
+    },
+    {
+      act: "State Marriage Registration Rules",
+      section: "State-Specific Marriage Portals & Procedures",
+      title: "Local Registrar Administration",
+      summary:
+        "Governs registration procedures, portal application forms, appointment slots, biometric capture, and certificate issuance through Sub-Registrars or designated municipal Marriage Officers.",
+      tag: "State Procedure",
+    },
+  ],
+
+  documentsRequired: [
+    {
+      category: "Spouse Identity & Age Verification",
+      items: [
+        {
+          name: "Government Identity & Age Proof",
+          detail: "Aadhaar Card, Passport, Voter ID, or 10th Class Board Certificate verifying legal marriageable age (21 years for male, 18 years for female).",
+        },
+        {
+          name: "Recent Joint & Individual Photographs",
+          detail: "Joint passport-size photographs of bride and groom on white background alongside individual passport photos.",
+        },
+      ],
+    },
+    {
+      category: "Residence & Territorial Jurisdiction Proof",
+      items: [
+        {
+          name: "Jurisdictional Address Proof",
+          detail: "Electricity bill, registered rent agreement, gas bill, or voter ID establishing that at least one spouse resided within the Registrar's jurisdiction for minimum 30 days.",
+        },
+      ],
+    },
+    {
+      category: "Ceremony & Solemnisation Proofs",
+      items: [
+        {
+          name: "Religious Marriage Certificate / Priest Declaration",
+          detail: "Certificate issued by the temple priest, Gurudwara management, Church, Mosque, or Arya Samaj Mandir where marriage was performed.",
+        },
+        {
+          name: "Wedding Invitation Card & Ceremony Photos",
+          detail: "Original printed wedding card and 2–4 printed photographs showing performance of essential rites (e.g. Saptapadi/Varmala).",
+        },
+      ],
+    },
+    {
+      category: "Witness Documents & Statutory Affidavits",
+      items: [
+        {
+          name: "Witness KYC Documents (2 or 3 Witnesses)",
+          detail: "Aadhaar card, voter ID, or passport of adult witnesses who personally attended the solemnisation ceremony.",
+        },
+        {
+          name: "Notarized Marital Status Affidavit",
+          detail: "Joint sworn affidavit declaring date/place of marriage, marital status at time of marriage, non-prohibited relationship degrees, and Indian citizenship.",
+        },
+        {
+          name: "Divorce Decree or Death Certificate (if applicable)",
+          detail: "Certified court divorce decree absolute or death certificate of previous spouse if either party was previously married.",
+        },
+      ],
+    },
+  ],
+
+  legalProcedure: [
+    {
+      step: 1,
+      tag: "JURISDICTION AUDIT",
+      title: "Eligibility Audit & Registrar Jurisdiction Verification",
+      description:
+        "Verifying legal marriageable age, prohibited degrees of relationship, religious solemnization records, and determining territorial Sub-Registrar / ADM jurisdiction.",
+      milestone: "Jurisdiction & Documents Verified",
+    },
+    {
+      step: 2,
+      tag: "ONLINE APPLICATION",
+      title: "Online Portal Filing & Appointment Slot Booking",
+      description:
+        "Filing application on the State e-District / Marriage Portal (e.g. Kaveri, IGRS, e-District Delhi), uploading KYC documents and wedding proof, and paying government fee.",
+      milestone: "Application Submitted & Slot Booked",
+    },
+    {
+      step: 3,
+      tag: "PHYSICAL APPEARANCE",
+      title: "In-Person Appearance before Marriage Registrar",
+      description:
+        "Physical appearance of both spouses along with required witnesses before the Marriage Officer for biometric capture, original document verification, and register signing.",
+      milestone: "Biometrics & Signatures Completed",
+    },
+    {
+      step: 4,
+      tag: "CERTIFICATE ISSUANCE",
+      title: "Entry in Marriage Register & Certificate Grant",
+      description:
+        "The Marriage Registrar signs and records the entry in the official Hindu Marriage / Special Marriage Register and issues the digitally signed Government Marriage Certificate.",
+      milestone: "Marriage Certificate Issued",
+    },
+  ],
+
+  whyVakeelSetu: [
+    {
+      title: "Bar Council-Enrolled Advocates",
+      description: "Guidance and drafting by advocates enrolled with the Bar Council of India.",
+    },
+    {
+      title: "Document & Procedure Guidance",
+      description: "Help with the required forms, documents and the applicable procedure.",
+    },
+    {
+      title: "Phone & Video Consultation",
+      description: "Consult from anywhere; your discussion is kept confidential.",
+    },
+  ],
+
+  whyChooseVakeelSetu: [
+    {
+      title: "Bar Council-Enrolled Advocates",
+      description: "Guidance and drafting by advocates enrolled with the Bar Council of India.",
+    },
+    {
+      title: "Document & Procedure Guidance",
+      description: "Help with the required forms, documents and the applicable procedure.",
+    },
+    {
+      title: "Phone & Video Consultation",
+      description: "Consult from anywhere; your discussion is kept confidential.",
+    },
+  ],
+
+  faqs: [
+    {
+      question: "Is marriage registration compulsory under Indian law?",
+      answer: "Yes. In the landmark judgment of Seema v. Ashwani Kumar (2006), the Supreme Court of India directed that marriage registration is mandatory across all States and Union Territories for all citizens irrespective of religion. While non-registration does not invalidate a validly solemnized religious marriage, a registered marriage certificate is compulsory for passports, spouse visas, bank nominee claims, and joint property ownership.",
+    },
+    {
+      question: "What is the difference between registration under the Hindu Marriage Act (HMA) and Special Marriage Act (SMA)?",
+      answer: "Under Section 8 of the Hindu Marriage Act, 1955, registration is post-facto registration of a marriage that has already been solemnized according to religious customs (applicable to Hindus, Buddhists, Jains, and Sikhs). Under the Special Marriage Act, 1954, marriage is solemnized civilly before the Marriage Officer after a mandatory 30-day public notice period, without requiring any religious ceremony or conversion, open to individuals of any religion or nationality.",
+    },
+    {
+      question: "Who can act as a witness for marriage registration and how many witnesses are required?",
+      answer: "Under the Hindu Marriage Act, 2 adult witnesses are typically required; under the Special Marriage Act, exactly 3 adult witnesses are required. Any adult (aged 18 or above) with a valid government photo ID (Aadhaar, Passport, Voter ID) can be a witness, including parents, siblings, relatives, colleagues, or friends who personally attended the ceremony or know the couple.",
+    },
+    {
+      question: "Can an already solemnized religious marriage be registered months or years later?",
+      answer: "Yes. A marriage solemnized according to religious rites can be registered at any time after the wedding. Most states prescribe nominal late fees if registered beyond the initial 30 to 90 days. For delayed registrations exceeding one year, an order from the District Registrar / Sub-Divisional Magistrate (SDM) may be required alongside a delay condonation affidavit.",
+    },
+    {
+      question: "Is parental consent legally required for adult marriage registration in India?",
+      answer: "No. Under both the Hindu Marriage Act and Special Marriage Act, once both parties attain the statutory age of majority (21 years for males and 18 years for females), parental consent is not legally required. The Supreme Court in Shafin Jahan v. Asokan K.M. (2018) affirmed that the choice of an adult partner is an integral facet of fundamental personal liberty and autonomy under Article 21 of the Constitution.",
+    },
+  ],
+
+  consultationCta: {
+    headline: "Need to Register Your Marriage or Obtain a Certificate? Consult Advocates",
+    subheadline:
+      "Get complete assistance with document readiness, online portal appointment scheduling, and Sub-Registrar / Marriage Officer representation.",
+    primaryButtonText: "Consult a Marriage Advocate",
+    secondaryButtonText: "Explore Verified Advocates",
+    points: [
+      "Eligibility & documentation checklist under HMA 1955 or SMA 1954",
+      "Drafting joint marital affidavits & witness declarations",
+      "Online slot booking & e-governance portal application submission",
+      "Registrar office physical verification guidance",
+    ],
+  },
+
+  researchSources: [
+    {
+      title: "Hindu Marriage Act, 1955 (Act No. 25 of 1955)",
+      source: "Ministry of Law and Justice, Government of India",
+      citation: "Sections 5, 7, 8 (Registration of Hindu Marriages)",
+    },
+    {
+      title: "Special Marriage Act, 1954 (Act No. 43 of 1954)",
+      source: "Legislative Department, Government of India",
+      citation: "Sections 4–13, 15–18 (Solemnization and Registration of Civil Marriages)",
+    },
+    {
+      title: "Seema v. Ashwani Kumar (2006) 2 SCC 578",
+      source: "Supreme Court of India",
+      citation: "Mandatory directions for compulsory registration of marriages",
+    },
+  ],
+
+  disclaimer:
+    "Prepared for educational and preliminary reference purposes. This document is a general overview and should not be treated as a legal opinion. Verify the current requirements with the competent Marriage Registrar in the relevant State or Union Territory.",
+};
+

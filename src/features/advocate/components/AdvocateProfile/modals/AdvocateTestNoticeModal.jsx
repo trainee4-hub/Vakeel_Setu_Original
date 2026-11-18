@@ -1,4 +1,5 @@
 import React from "react";
+import { createPortal } from "react-dom";
 import { Mail, Clock, ShieldCheck, X, CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function AdvocateTestNoticeModal({
@@ -24,7 +25,7 @@ export default function AdvocateTestNoticeModal({
       })
     : null;
 
-  return (
+  const modalContent = (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/65 p-4 backdrop-blur-sm animate-fade-in">
       <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl sm:p-8">
         <button
@@ -103,5 +104,11 @@ export default function AdvocateTestNoticeModal({
       </div>
     </div>
   );
+
+  if (typeof document === "undefined") {
+    return modalContent;
+  }
+
+  return createPortal(modalContent, document.body);
 }
 

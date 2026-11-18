@@ -1,0 +1,247 @@
+export const scopeOfWorkAgreementData = {
+  serviceSlug: "scope-of-work-sow-agreement",
+  categorySlug: "business-contracts-agreements",
+  categoryTitle: "Business Contracts & Agreements",
+  title: "Scope of Work (SOW) Agreement",
+  h1: "Scope of Work (SOW) Agreement Legal Framework",
+  seoTitle: "Scope of Work (SOW) Agreement in India | Commercial Project Contracting",
+  metaTitle: "Scope of Work (SOW) Agreement Drafting & Legal Framework in India",
+  metaDescription:
+    "Legal framework, deliverables, change-order protocols, acceptance criteria, and order of precedence for Scope of Work (SOW) agreements under Indian contract law.",
+  shortIntro:
+    "A Scope of Work (SOW) Agreement is a binding commercial schedule drafted by Bar Council-enrolled corporate advocates under the Indian Contract Act, 1872 and Information Technology Act, 2000, governing project-specific tasks, sprint milestones, and deliverables under a Master Services Agreement. It sets out objective acceptance testing criteria, formal change-order request (COR) protocols to prevent scope creep, milestone fee schedules, and order-of-precedence rules to prevent commercial disputes.",
+
+  trustChips: [
+    { label: "Bar Council-Enrolled Advocates", icon: "shield" },
+    { label: "SOW Architecture & Change Control", icon: "file" },
+    { label: "Confidential", icon: "lock" },
+    { label: "Phone & Video Consultation", icon: "phone" },
+  ],
+
+  introduction: {
+    summary:
+      "A Scope of Work (SOW) agreement is a legal and operational document that defines the specific tasks, deliverables, timelines, milestones, acceptance criteria and pricing associated with a project or engagement between a client and a service provider. In commercial and technology transactions, an SOW typically sits beneath a Master Services Agreement (MSA) or standard commercial terms, translating broad contractual principles into granular project execution details while establishing clear legal boundaries.",
+    highlights: [
+      "Defines project deliverables, milestones, acceptance testing protocols, and payment triggers.",
+      "Establishes change-order management processes to mitigate scope creep and timeline disputes.",
+      "Sets out explicit order-of-precedence rules governing conflicts with Master Services Agreements.",
+      "Enforceable under the Indian Contract Act, 1872 and the Information Technology Act, 2000.",
+    ],
+  },
+
+  applicableLaws: [
+    {
+      act: "Indian Contract Act, 1872",
+      section: "Sections 10, 29, 37, 73 & 74",
+      title: "Contractual Certainty, Performance & Liquidated Damages",
+      summary:
+        "Sections 10 and 29 govern contract enforceability and certainty of terms. Section 37 mandates performance of promises. Sections 73 and 74 regulate compensation for breach of project milestones and enforceability of liquidated damages provisions.",
+      tag: "Contract Code",
+    },
+    {
+      act: "Specific Relief Act, 1963",
+      section: "Sections 10, 14 & 20",
+      title: "Substituted Performance & Non-Enforceability of Personal Service",
+      summary:
+        "Section 14 bars specific performance of contracts requiring continuous supervision or personal service. Section 20 confers statutory rights of 'substituted performance', permitting the client to get the project completed through a third party at the defaulting provider's cost.",
+      tag: "Remedial Law",
+    },
+    {
+      act: "Information Technology Act, 2000",
+      section: "Sections 4 & 10A",
+      title: "Electronic SOWs, Digital Records & E-Signatures",
+      summary:
+        "Provides legal recognition for electronic records (Section 4) and statutory validity for commercial SOWs and change orders formed through electronic communications and digital signatures (Section 10A).",
+      tag: "Cyber Law",
+    },
+    {
+      act: "Commercial Courts Act, 2015 & Arbitration Act, 1996",
+      section: "Expedited Commercial Dispute Adjudication",
+      title: "Fast-Track Commercial Adjudication & Mediation",
+      summary:
+        "Governs commercial contract dispute adjudication, fast-track commercial court proceedings, mandatory Section 12A pre-institution mediation, and arbitration mechanisms.",
+      tag: "Commercial Dispute",
+    },
+  ],
+
+  documentsRequired: [
+    {
+      category: "Parent Framework & Corporate Entity Charters",
+      items: [
+        {
+          name: "Underlying Master Services Agreement (MSA)",
+          detail: "Executed parent agreement or terms of engagement setting out overarching legal, liability, and dispute frameworks.",
+        },
+        {
+          name: "Certificate of Incorporation / GSTIN Registration",
+          detail: "Statutory corporate registration particulars of client and service provider entities.",
+        },
+      ],
+    },
+    {
+      category: "Technical Specifications & Deliverables Matrix",
+      items: [
+        {
+          name: "Functional Design Specification (FDS) / Technical Architecture",
+          detail: "Detailed project requirements, system schematics, software stack, third-party API dependencies, and deliverables schedule.",
+        },
+        {
+          name: "Project Work Breakdown Structure (WBS) & Milestones",
+          detail: "Phased sprint schedule, milestone completion dates, delivery dependencies, and designated project managers.",
+        },
+      ],
+    },
+    {
+      category: "Acceptance Testing & Quality Criteria Protocols",
+      items: [
+        {
+          name: "User Acceptance Testing (UAT) Protocol & Sign-off Forms",
+          detail: "Objective acceptance criteria, testing windows (e.g. 10 business days), defect severity definitions, and deemed acceptance triggers.",
+        },
+      ],
+    },
+    {
+      category: "Change Management & Rate Card Charters",
+      items: [
+        {
+          name: "Change Order Request (COR) Procedure & Form",
+          detail: "Documented workflow for requesting, evaluating, pricing, and authorizing out-of-scope tasks and schedule extensions.",
+        },
+        {
+          name: "Resource Hourly Rate Card & Payment Milestones",
+          detail: "Agreed resource billing rates, fixed milestone fee amounts, retainage holdbacks, and invoice approval timelines.",
+        },
+      ],
+    },
+  ],
+
+  legalProcedure: [
+    {
+      step: 1,
+      tag: "REQUIREMENTS SCOPING",
+      title: "Granular Scope Definition & Milestone Structuring",
+      description:
+        "Translating commercial requirements into detailed technical tasks, establishing milestone dependencies, and defining deliverable acceptance benchmarks.",
+      milestone: "SOW Specifications Finalised",
+    },
+    {
+      step: 2,
+      tag: "LEGAL DRAFTING",
+      title: "Drafting Acceptance Testing & Change Order Rules",
+      description:
+        "Drafting clear UAT sign-off windows, deemed acceptance clauses, change-order protocols, milestone payment triggers, and MSA conflict rules.",
+      milestone: "SOW Draft Prepared",
+    },
+    {
+      step: 3,
+      tag: "EXECUTION",
+      title: "Execution as Binding Schedule to MSA",
+      description:
+        "Formally executing the SOW as a legally binding schedule to the parent MSA using authorized digital signatures (DSC) or physical signing.",
+      milestone: "SOW Formally Executed",
+    },
+    {
+      step: 4,
+      tag: "DELIVERY GOVERNANCE",
+      title: "Milestone Acceptance Sign-Off & Change Control",
+      description:
+        "Executing formal milestone acceptance certificates, tracking deliverable completions, and processing written change orders for scope changes.",
+      milestone: "Project Completed & Accepted",
+    },
+  ],
+
+  whyVakeelSetu: [
+    {
+      title: "Bar Council-Enrolled Advocates",
+      description:
+        "Guidance and drafting by advocates enrolled with the Bar Council of India.",
+    },
+    {
+      title: "Document & Procedure Guidance",
+      description:
+        "Help with the required forms, documents and the applicable procedure.",
+    },
+    {
+      title: "Phone & Video Consultation",
+      description:
+        "Consult from anywhere; your discussion is kept confidential.",
+    },
+  ],
+
+  whyChooseVakeelSetu: [
+    {
+      title: "Bar Council-Enrolled Advocates",
+      description:
+        "Guidance and drafting by advocates enrolled with the Bar Council of India.",
+    },
+    {
+      title: "Document & Procedure Guidance",
+      description:
+        "Help with the required forms, documents and the applicable procedure.",
+    },
+    {
+      title: "Phone & Video Consultation",
+      description:
+        "Consult from anywhere; your discussion is kept confidential.",
+    },
+  ],
+
+  faqs: [
+    {
+      question: "What is the legal relationship between a Scope of Work (SOW) and a Master Services Agreement (MSA)?",
+      answer: "An MSA is the parent legal contract setting out overarching covenants such as intellectual property rights, indemnification, liability caps, and dispute resolution. An SOW is an operational project schedule executed beneath the MSA that details specific deliverables, timelines, pricing, and acceptance criteria. An order-of-precedence clause dictates that the MSA governs all legal terms unless the SOW explicitly overrides a specific clause.",
+    },
+    {
+      question: "How does a Change Order Request (COR) process prevent 'Scope Creep' under Indian law?",
+      answer: "Scope creep occurs when a client requests additional features, revisions, or tasks not contemplated in the original agreement. An enforceable Change Order clause stipulates that no verbal or email requests for additional work shall be binding, and no additional fees or timeline extensions shall apply until both parties execute a formal written Change Order specifying the revised scope, cost impact, and adjusted delivery milestones.",
+    },
+    {
+      question: "What are 'Acceptance Criteria' and how does 'Deemed Acceptance' work?",
+      answer: "Acceptance criteria define objective technical and quality benchmarks that a deliverable must satisfy before the client is obligated to approve it and release milestone payments. A 'Deemed Acceptance' clause protects the service provider: it provides that if the client fails to provide written approval or detailed rejection notices within a set review period (e.g. 10 business days), or puts the deliverable into live commercial use, the deliverable is legally deemed accepted.",
+    },
+    {
+      question: "What remedies are available if a service provider fails to meet milestone deadlines?",
+      answer: "If delay is not excused by client dependencies or force majeure, the client can: (1) Enforce agreed liquidated damages / delay credits under Section 74 of the Indian Contract Act; (2) Withhold milestone fee payments until defects are rectified; or (3) Terminate the SOW for material breach upon expiry of a contractual cure period (typically 15 to 30 days).",
+    },
+    {
+      question: "What is the doctrine of 'Substituted Performance' under Section 20 of the Specific Relief Act, 1963?",
+      answer: "Following the 2018 amendment to Section 20 of the Specific Relief Act, 1963, if a service provider breaches the contract, the client has the statutory right to have the contract performed by a third party or by their own agency ('substituted performance'), and recover all extra expenses and costs incurred from the party in breach, after giving at least 30 days' written notice.",
+    },
+  ],
+
+  consultationCta: {
+    headline: "Drafting a Technical or Project SOW? Consult Commercial Contract Advocates",
+    subheadline:
+      "Draft clear milestone schedules, objective acceptance criteria, and robust change-order mechanisms to prevent project disputes.",
+    primaryButtonText: "Consult a Commercial Advocate",
+    secondaryButtonText: "Explore Verified Advocates",
+    points: [
+      "Defining granular technical deliverables & sprint milestones",
+      "Drafting objective UAT acceptance criteria & deemed acceptance rules",
+      "Change Order Request (COR) process to prevent scope creep",
+      "Order-of-precedence alignment with Master Services Agreements",
+    ],
+  },
+
+  researchSources: [
+    {
+      title: "Indian Contract Act, 1872 (Act No. 9 of 1872)",
+      source: "Ministry of Law and Justice, Government of India",
+      citation: "Sections 10, 29 (Certainty), 37, 73, and 74 (Breach and damages)",
+    },
+    {
+      title: "Specific Relief Act, 1963 (Act No. 47 of 1963)",
+      source: "Legislative Department, Government of India",
+      citation: "Section 14 (Contracts not specifically enforceable) and Section 20 (Substituted performance)",
+    },
+    {
+      title: "Information Technology Act, 2000 (Act No. 21 of 2000)",
+      source: "Ministry of Electronics and Information Technology (MeitY)",
+      citation: "Sections 4 and 10A (Electronic contracts and digital records)",
+    },
+  ],
+
+  disclaimer:
+    "Educational overview only; not a substitute for transaction-specific legal advice. SOW provisions, acceptance testing windows, and milestone payments must be tailored to the specific technical deliverables and project delivery methodologies.",
+};
+

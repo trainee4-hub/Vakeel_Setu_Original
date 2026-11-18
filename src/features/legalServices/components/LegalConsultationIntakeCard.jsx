@@ -225,7 +225,7 @@ const LegalConsultationIntakeCard = ({
           <div className="flex flex-wrap items-center justify-center gap-4 pt-1.5 text-[11px] font-medium text-slate-400">
             <span className="flex items-center gap-1.5 text-slate-300">
               <FiLock className="text-amber-400 text-xs" />
-              <span>100% Confidential</span>
+              <span>Confidential</span>
             </span>
             <span className="h-1 w-1 rounded-full bg-slate-600" />
             <span className="flex items-center gap-1.5 text-slate-300">

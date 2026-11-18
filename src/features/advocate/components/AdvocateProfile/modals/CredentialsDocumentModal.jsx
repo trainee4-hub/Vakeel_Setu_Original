@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import {
   Award,
   FileText,
@@ -66,9 +67,15 @@ export default function CredentialsDocumentModal({
     window.print();
   };
 
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/70 p-3 sm:p-4 backdrop-blur-sm print:static print:bg-white print:p-0">
-      <div className="relative flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl print:max-h-none print:w-full print:max-w-none print:border-none print:shadow-none">
+  const modalContent = (
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/70 p-3 sm:p-4 backdrop-blur-sm print:static print:bg-white print:p-0"
+      onClick={onClose}
+    >
+      <div
+        className="relative flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl print:max-h-none print:w-full print:max-w-none print:border-none print:shadow-none"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* =========================================================
             MODAL HEADER & TABS (Hidden on Print)
         ========================================================= */}
@@ -486,5 +493,11 @@ export default function CredentialsDocumentModal({
       </div>
     </div>
   );
+
+  if (typeof document === "undefined") {
+    return modalContent;
+  }
+
+  return createPortal(modalContent, document.body);
 }
 

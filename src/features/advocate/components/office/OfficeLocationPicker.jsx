@@ -68,6 +68,7 @@ export default function OfficeLocationPicker({
   error,
   showSaveButton = true,
   readOnly = false,
+  showGoogleMapsLink = true,
 }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -492,7 +493,7 @@ export default function OfficeLocationPicker({
         )} */}
 
         {/* View on Google Maps External Link */}
-        {hasCoords && (
+        {hasCoords && showGoogleMapsLink && (
           <a
             href={`https://www.google.com/maps?q=${Number(lat).toFixed(6)},${Number(lng).toFixed(6)}`}
             target="_blank"

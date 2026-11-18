@@ -61,77 +61,60 @@ const ServiceHero = ({
       </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-stretch">
           {/* =========================================================
               LEFT COLUMN (Hero Content & Trust Assurance)
           ========================================================= */}
-          <div className="lg:col-span-7 space-y-5">
-            {/* Category Chip */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-3.5 py-1 text-xs font-bold text-amber-300">
-              <FaScaleBalanced className="text-xs text-amber-400" />
-              <Link
-                to={`/legal-services/${categorySlug}`}
-                className="hover:text-amber-200 hover:underline transition-colors"
-              >
-                {categoryTitle}
-              </Link>
-              <span className="text-amber-400/50">•</span>
-              <span>Statutory Legal Service</span>
-            </div>
+          <div className="lg:col-span-7 flex flex-col justify-between">
+            <div className="space-y-5">
+              {/* Category Chip */}
+              <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-3.5 py-1 text-xs font-bold text-amber-300">
+                <FaScaleBalanced className="text-xs text-amber-400" />
+                <Link
+                  to={`/legal-services/${categorySlug}`}
+                  className="hover:text-amber-200 hover:underline transition-colors"
+                >
+                  {categoryTitle}
+                </Link>
+                <span className="text-amber-400/50">•</span>
+                <span>Statutory Legal Service</span>
+              </div>
 
-            {/* H1 Title */}
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
-              {h1 || title}
-            </h1>
-
-            {/* Short Intro Line — Typography matching Reference Image 4 */}
-            <p className="text-sm sm:text-base text-slate-300/90 font-normal leading-[1.8] tracking-normal max-w-2xl">
-              {shortIntro}
-            </p>
-
-            {/* Trust Chips */}
-            <div className="flex flex-wrap items-center gap-2 pt-1">
-              {trustChips.map((chip, index) => {
-                const IconComponent = TRUST_ICON_MAP[chip.icon] || FiCheckCircle;
-                return (
-                  <div
-                    key={index}
-                    className="flex items-center gap-2 rounded-xl border border-slate-700/60 bg-slate-900/80 px-3 py-1.5 text-xs font-semibold text-slate-200 backdrop-blur-sm"
-                  >
-                    <IconComponent className="text-amber-400 text-sm shrink-0" />
-                    <span>{chip.label}</span>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Guarantee Pills */}
-            <div className="flex flex-wrap items-center gap-3 pt-2 text-xs text-slate-300">
-              <div className="flex items-center gap-1.5 rounded-lg bg-slate-900/60 border border-slate-800 px-2.5 py-1">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              {/* H1 Title with Enhanced Attractive Visual Polish */}
+              <h1 className="text-2xl sm:text-4xl md:text-[42px] font-black tracking-tight leading-[1.2] text-white">
+                <span className="bg-gradient-to-r from-white via-slate-100 to-amber-200/90 bg-clip-text text-transparent">
+                  {h1 || title}
                 </span>
-                <span className="font-bold text-emerald-400">180+ Advocates Online</span>
-              </div>
-              <span className="text-slate-600 hidden sm:inline">•</span>
-              <div className="flex items-center gap-1">
-                <FiClock className="text-amber-400" />
-                <span>15-Min Guaranteed Callback</span>
-              </div>
-              <span className="text-slate-600 hidden sm:inline">•</span>
-              <div className="flex items-center gap-1">
-                <FiLock className="text-amber-400" />
-                <span>100% Confidential</span>
+              </h1>
+
+              {/* Short Intro Line */}
+              <p className="text-sm sm:text-base text-slate-300/95 font-normal leading-[1.8] tracking-normal max-w-2xl">
+                {shortIntro}
+              </p>
+
+              {/* Trust Chips */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                {trustChips.map((chip, index) => {
+                  const IconComponent = TRUST_ICON_MAP[chip.icon] || FiCheckCircle;
+                  return (
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 rounded-xl border border-slate-700/60 bg-slate-900/80 px-3 py-1.5 text-xs font-semibold text-slate-200 backdrop-blur-sm shadow-xs"
+                    >
+                      <IconComponent className="text-amber-400 text-sm shrink-0" />
+                      <span>{chip.label}</span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Consultation Action Bar */}
-            <div className="pt-2 flex flex-wrap items-center gap-3">
+            {/* Consultation Action Bar — Bottom aligned with the right Intake Card */}
+            <div className="pt-8 sm:pt-10 flex flex-wrap items-center gap-3.5">
               <button
                 type="button"
                 onClick={handleOpenConsultation}
-                className="flex items-center gap-2.5 rounded-xl bg-amber-500 px-6 py-3.5 text-xs sm:text-sm font-black text-slate-950 shadow-lg shadow-amber-500/20 transition-all duration-200 hover:bg-amber-400 hover:shadow-amber-500/30 active:scale-95"
+                className="flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 px-6 py-3.5 text-xs sm:text-sm font-black text-slate-950 shadow-lg shadow-amber-500/25 transition-all duration-200 hover:brightness-110 hover:shadow-amber-500/35 active:scale-95 cursor-pointer"
               >
                 <FiPhoneCall className="text-base text-slate-950" />
                 <span>Get Instant Consultation</span>
@@ -139,7 +122,7 @@ const ServiceHero = ({
 
               <Link
                 to="/find-lawyer"
-                className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800/80 px-5 py-3.5 text-xs sm:text-sm font-bold text-slate-200 transition-colors hover:bg-slate-700 hover:text-white"
+                className="flex items-center gap-2 rounded-xl border border-slate-700/80 bg-slate-800/80 px-5 py-3.5 text-xs sm:text-sm font-bold text-slate-200 transition-colors hover:bg-slate-700 hover:text-white"
               >
                 <span>Find Verified Advocates</span>
               </Link>
@@ -149,7 +132,7 @@ const ServiceHero = ({
           {/* =========================================================
               RIGHT COLUMN: SMART LEGAL INTAKE CARD
           ========================================================= */}
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-5 flex flex-col justify-end">
             <LegalConsultationIntakeCard
               defaultCategory={categoryTitle}
               defaultServiceTitle={title}

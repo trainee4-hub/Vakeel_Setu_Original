@@ -11,11 +11,11 @@ export const chequeBounceNoticeData = {
   seoTitle: "Cheque Bounce Legal Notice under Section 138 NI Act | VakeelSetu",
   metaTitle: "Cheque Bounce Legal Notice Drafting under Section 138 NI Act",
   metaDescription: "Serve an authoritative Section 138 NI Act Cheque Bounce Notice drafted by Bar Council-verified advocates. Strict 30-day notice limitation compliance, 15-day payment demand, and criminal recovery recourse under Indian law.",
-  shortIntro: "A mandatory statutory demand under Section 138 of the Negotiable Instruments Act, 1881, drafted by Bar Council-enrolled advocates to recover dishonoured amounts within a mandatory 15-day payment window, establishing conclusive evidence before initiating formal criminal proceedings in competent courts.",
+  shortIntro: "A Cheque Bounce Legal Notice is a mandatory statutory demand under Section 138 of the Negotiable Instruments Act, 1881, drafted by Bar Council-enrolled advocates upon receiving an official bank dishonour memo. Dispatched strictly within 30 days of dishonour, it grants the defaulting drawer a 15-day statutory window to clear the outstanding cheque amount, creating indispensable documentary proof and establishing an unassailable criminal cause of action before filing a complaint before the Judicial Magistrate.",
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },
     { label: "Strict 30-Day Statutory Limitation", icon: "clock" },
-    { label: "100% Confidential & Privileged", icon: "lock" },
+    { label: "Confidential", icon: "lock" },
     { label: "Phone & Video Consultation", icon: "phone" },
   ],
   toc: [
@@ -218,39 +218,40 @@ export const chequeBounceNoticeData = {
     ],
     advocateRole: [
       "Limitation Calculation: Precise tracking of bank memo and postal cutoff dates to prevent fatal technical dismissals.",
-      "Watertight Drafting: Demand clearly segregates principal cheque amount from interest to prevent invalidation.",
+      "Drafting: Demand clearly segregates principal cheque amount from interest to prevent invalidation.",
       "Section 145 Evidence Affidavit: Filing direct affidavit evidence eliminating tedious pre-summoning oral witness examination.",
       "Section 143A Advocacy: Arguing for early 20% interim deposit to secure financial recovery upfront.",
     ],
   },
 
   // 7. Why choose VakeelSetu
-  whyVakeelSetu: [
+    whyVakeelSetu: [
     {
-      title: "Bar Council-Verified Advocates",
-      description: "Every legal notice is drafted and issued by licensed advocates enrolled with the Bar Council of India.",
+      title: "Bar Council-Enrolled Advocates",
+      description: "Guidance and drafting by advocates enrolled with the Bar Council of India.",
     },
     {
-      title: "Strict 24–48 Hr Dispatch Guarantee",
-      description: "Fast-track legal drafting and registered dispatch protecting your critical 30-day limitation window.",
+      title: "Document & Procedure Guidance",
+      description: "Help with the required forms, documents and the applicable procedure.",
     },
     {
-      title: "Pan-India Court Network",
-      description: "Seamless representation across 450+ magistrate and district court jurisdictions if court complaint is needed.",
+      title: "Phone & Video Consultation",
+      description: "Consult from anywhere; your discussion is kept confidential.",
     },
   ],
+
   whyChooseVakeelSetu: [
     {
-      title: "Bar Council-Verified Advocates",
-      description: "Every legal notice is drafted and issued by licensed advocates enrolled with the Bar Council of India.",
+      title: "Bar Council-Enrolled Advocates",
+      description: "Guidance and drafting by advocates enrolled with the Bar Council of India.",
     },
     {
-      title: "Strict 24–48 Hr Dispatch Guarantee",
-      description: "Fast-track legal drafting and registered dispatch protecting your critical 30-day limitation window.",
+      title: "Document & Procedure Guidance",
+      description: "Help with the required forms, documents and the applicable procedure.",
     },
     {
-      title: "Pan-India Court Network",
-      description: "Seamless representation across 450+ magistrate and district court jurisdictions if court complaint is needed.",
+      title: "Phone & Video Consultation",
+      description: "Consult from anywhere; your discussion is kept confidential.",
     },
   ],
 
@@ -281,7 +282,7 @@ export const chequeBounceNoticeData = {
   // 9. Consultation CTA
   consultationCta: {
     headline: "Protect Your 30-Day Window: Serve Notice with an Enrolled Advocate",
-    subheadline: "Every day counts after cheque dishonour. Our Bar Council-verified advocates draft and dispatch legally watertight Section 138 demand notices within 24 to 48 hours.",
+    subheadline: "Strict statutory limitation applies after cheque dishonour. Consult verified advocates enrolled with the Bar Council of India to evaluate bank return memos and draft Section 138 statutory demand notices within prescribed limitation.",
     primaryButtonText: "Consult a Cheque Bounce Advocate",
     secondaryButtonText: "Explore Verified Lawyers",
     points: [

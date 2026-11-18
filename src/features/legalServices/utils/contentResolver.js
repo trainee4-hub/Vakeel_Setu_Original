@@ -1,4 +1,53 @@
 import { chequeBounceNoticeData } from "../data/services/chequeBounceNoticeData.js";
+import { birthCertificateData } from "../data/services/birthCertificateData.js";
+import { apostilleCertificateData } from "../data/services/apostilleCertificateData.js";
+import { businessContractDraftingData } from "../data/services/businessContractDraftingData.js";
+import { childCareAuthorizationFormData } from "../data/services/childCareAuthorizationFormData.js";
+import { companyIncorporationData } from "../data/services/companyIncorporationData.js";
+import { consultancyAgreementData } from "../data/services/consultancyAgreementData.js";
+import { divorceSettlementAgreementData } from "../data/services/divorceSettlementAgreementData.js";
+import { evictionMatterData } from "../data/services/evictionMatterData.js";
+import { evictionNoticeData } from "../data/services/evictionNoticeData.js";
+import { fssaiLicenceRegistrationData } from "../data/services/fssaiLicenceRegistrationData.js";
+import { foundersAgreementData } from "../data/services/foundersAgreementData.js";
+import { franchiseAgreementData } from "../data/services/franchiseAgreementData.js";
+import { gstRegistrationData } from "../data/services/gstRegistrationData.js";
+import { giftDeedDraftingData } from "../data/services/giftDeedDraftingData.js";
+import { independentContractorAgreementData } from "../data/services/independentContractorAgreementData.js";
+import { jointVentureAgreementData } from "../data/services/jointVentureAgreementData.js";
+import { llcOperatingAgreementData } from "../data/services/llcOperatingAgreementData.js";
+import { landlordTenantDisputeData } from "../data/services/landlordTenantDisputeData.js";
+import { lastWillAndTestamentData } from "../data/services/lastWillAndTestamentData.js";
+import { leaseAgreementData } from "../data/services/leaseAgreementData.js";
+import { legalHeirCertificateData } from "../data/services/legalHeirCertificateData.js";
+import { legalNoticeConsumerMattersData } from "../data/services/legalNoticeConsumerMattersData.js";
+import { legalNoticeUnpaidSalaryData } from "../data/services/legalNoticeUnpaidSalaryData.js";
+import { legalNoticeWrongfulTerminationData } from "../data/services/legalNoticeWrongfulTerminationData.js";
+import { legalNoticeMoneyRecoveryData } from "../data/services/legalNoticeMoneyRecoveryData.js";
+import { letterOfIntentRealEstateData } from "../data/services/letterOfIntentRealEstateData.js";
+import { livingWillAdvanceMedicalDirectiveData } from "../data/services/livingWillAdvanceMedicalDirectiveData.js";
+import { marriageCertificateData } from "../data/services/marriageCertificateData.js";
+import { masterServicesAgreementData } from "../data/services/masterServicesAgreementData.js";
+import { medicalNegligenceMattersData } from "../data/services/medicalNegligenceMattersData.js";
+import { memorandumOfUnderstandingData } from "../data/services/memorandumOfUnderstandingData.js";
+import { ndaData } from "../data/services/ndaData.js";
+import { nameChangeGazetteData } from "../data/services/nameChangeGazetteData.js";
+import { partnershipAgreementData } from "../data/services/partnershipAgreementData.js";
+import { propertyDocumentationReviewData } from "../data/services/propertyDocumentationReviewData.js";
+import { propertyPowerOfAttorneyData } from "../data/services/propertyPowerOfAttorneyData.js";
+import { courtMarriageAssistanceData } from "../data/services/courtMarriageAssistanceData.js";
+import { quitclaimDeedData } from "../data/services/quitclaimDeedData.js";
+import { relinquishmentDeedData } from "../data/services/relinquishmentDeedData.js";
+import { rentAgreementLeaseDocumentationData } from "../data/services/rentAgreementLeaseDocumentationData.js";
+import { replyToIprNoticeData } from "../data/services/replyToIprNoticeData.js";
+import { saleDeedDraftingData } from "../data/services/saleDeedDraftingData.js";
+import { scopeOfWorkAgreementData } from "../data/services/scopeOfWorkAgreementData.js";
+import { serviceLevelAgreementData } from "../data/services/serviceLevelAgreementData.js";
+import { sharePurchaseAgreementData } from "../data/services/sharePurchaseAgreementData.js";
+import { shareholdersAgreementData } from "../data/services/shareholdersAgreementData.js";
+import { successionEstatePlanningData } from "../data/services/successionEstatePlanningData.js";
+import { vendorAgreementData } from "../data/services/vendorAgreementData.js";
+import { willDraftingRegistrationData } from "../data/services/willDraftingRegistrationData.js";
 import { findServiceBySlug, findCategoryBySlug } from "../data/legalServicesCatalogue.js";
 import { CATEGORY_RESEARCH } from "../data/categoryResearchData.js";
 
@@ -32,6 +81,397 @@ export const resolveServiceData = (categorySlug, serviceSlug) => {
   if (serviceSlug === "cheque-bounce-legal-notice") {
     return {
       ...chequeBounceNoticeData,
+      isFullyResearched: true,
+    };
+  }
+
+  // If requesting Birth Certificate, return the verified researched content
+  if (serviceSlug === "birth-certificate") {
+    return {
+      ...birthCertificateData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "apostille-certificate-document-apostille") {
+    return {
+      ...apostilleCertificateData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "business-contract-drafting") {
+    return {
+      ...businessContractDraftingData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "child-care-authorization-form") {
+    return {
+      ...childCareAuthorizationFormData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "company-incorporation") {
+    return {
+      ...companyIncorporationData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "consultancy-agreement") {
+    return {
+      ...consultancyAgreementData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "divorce-settlement-agreement") {
+    return {
+      ...divorceSettlementAgreementData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "eviction-matters") {
+    return {
+      ...evictionMatterData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "eviction-notice") {
+    return {
+      ...evictionNoticeData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "fssai-licence-registration") {
+    return {
+      ...fssaiLicenceRegistrationData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "founders-agreement") {
+    return {
+      ...foundersAgreementData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "franchise-agreement") {
+    return {
+      ...franchiseAgreementData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "gst-registration") {
+    return {
+      ...gstRegistrationData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "gift-deed-drafting") {
+    return {
+      ...giftDeedDraftingData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "independent-contractor-agreement") {
+    return {
+      ...independentContractorAgreementData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "joint-venture-agreement") {
+    return {
+      ...jointVentureAgreementData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "llc-operating-agreement-foreign-jurisdictions") {
+    return {
+      ...llcOperatingAgreementData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "landlord-tenant-disputes") {
+    return {
+      ...landlordTenantDisputeData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "last-will-and-testament" || serviceSlug === "last-will-testament") {
+    return {
+      ...lastWillAndTestamentData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "lease-agreement") {
+    return {
+      ...leaseAgreementData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "legal-heir-certificate") {
+    return {
+      ...legalHeirCertificateData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (
+    serviceSlug === "legal-notice-consumer-matters" ||
+    serviceSlug === "legal-notice-under-consumer-protection-law"
+  ) {
+    return {
+      ...legalNoticeConsumerMattersData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "legal-notice-unpaid-salary") {
+    return {
+      ...legalNoticeUnpaidSalaryData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "legal-notice-wrongful-termination") {
+    return {
+      ...legalNoticeWrongfulTerminationData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (
+    serviceSlug === "legal-notice-for-money-recovery" ||
+    serviceSlug === "legal-notice-money-recovery" ||
+    serviceSlug === "legal-notice-for-recovery-of-dues" ||
+    serviceSlug === "legal-notice-recovery-dues"
+  ) {
+    return {
+      ...legalNoticeMoneyRecoveryData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "letter-of-intent-to-purchase-real-estate") {
+    return {
+      ...letterOfIntentRealEstateData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "living-will-advance-medical-directive") {
+    return {
+      ...livingWillAdvanceMedicalDirectiveData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "marriage-certificate") {
+    return {
+      ...marriageCertificateData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (
+    serviceSlug === "master-services-agreement-msa" ||
+    serviceSlug === "msa" ||
+    serviceSlug === "master-service-agreement"
+  ) {
+    return {
+      ...masterServicesAgreementData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "medical-negligence-matters" || serviceSlug === "medical-negligence") {
+    return {
+      ...medicalNegligenceMattersData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (
+    serviceSlug === "memorandum-of-understanding-mou" ||
+    serviceSlug === "mou" ||
+    serviceSlug === "memorandum-of-understanding"
+  ) {
+    return {
+      ...memorandumOfUnderstandingData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (
+    serviceSlug === "non-disclosure-agreement-nda" ||
+    serviceSlug === "nda" ||
+    serviceSlug === "non-disclosure-agreement"
+  ) {
+    return {
+      ...ndaData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (
+    serviceSlug === "name-change-documentation" ||
+    serviceSlug === "name-change" ||
+    serviceSlug === "name-change-official-gazette"
+  ) {
+    return {
+      ...nameChangeGazetteData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "partnership-agreement") {
+    return {
+      ...partnershipAgreementData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "property-documentation-legal-review") {
+    return {
+      ...propertyDocumentationReviewData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (
+    serviceSlug === "property-power-of-attorney" ||
+    serviceSlug === "power-of-attorney-drafting"
+  ) {
+    return {
+      ...propertyPowerOfAttorneyData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "court-marriage-assistance") {
+    return {
+      ...courtMarriageAssistanceData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (
+    serviceSlug === "quitclaim-deed-where-applicable" ||
+    serviceSlug === "quitclaim-deed"
+  ) {
+    return {
+      ...quitclaimDeedData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "relinquishment-deed") {
+    return {
+      ...relinquishmentDeedData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (
+    serviceSlug === "rent-agreement-lease-documentation" ||
+    serviceSlug === "rent-agreement-and-lease-documentation"
+  ) {
+    return {
+      ...rentAgreementLeaseDocumentationData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "reply-to-ipr-notice") {
+    return {
+      ...replyToIprNoticeData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "sale-deed-drafting") {
+    return {
+      ...saleDeedDraftingData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (
+    serviceSlug === "scope-of-work-sow-agreement" ||
+    serviceSlug === "sow-agreement" ||
+    serviceSlug === "scope-of-work-agreement"
+  ) {
+    return {
+      ...scopeOfWorkAgreementData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (
+    serviceSlug === "service-level-agreement-sla" ||
+    serviceSlug === "sla" ||
+    serviceSlug === "service-level-agreement"
+  ) {
+    return {
+      ...serviceLevelAgreementData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "share-purchase-agreement") {
+    return {
+      ...sharePurchaseAgreementData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "shareholders-agreement") {
+    return {
+      ...shareholdersAgreementData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (
+    serviceSlug === "succession-and-estate-planning" ||
+    serviceSlug === "succession-estate-planning"
+  ) {
+    return {
+      ...successionEstatePlanningData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "vendor-agreement") {
+    return {
+      ...vendorAgreementData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (
+    serviceSlug === "will-drafting-registration-support" ||
+    serviceSlug === "will-drafting-and-registration"
+  ) {
+    return {
+      ...willDraftingRegistrationData,
       isFullyResearched: true,
     };
   }

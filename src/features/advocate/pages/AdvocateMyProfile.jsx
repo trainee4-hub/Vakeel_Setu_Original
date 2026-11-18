@@ -1851,6 +1851,7 @@ export default function AdvocateMyProfile() {
                             initialLatitude={Number(advocate.officeLatitude)}
                             initialLongitude={Number(advocate.officeLongitude)}
                             showSaveButton={false}
+                            showGoogleMapsLink={false}
                           />
                         </div>
                       </div>
