@@ -2,6 +2,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../features/auth";
 import { isAdvocateUser, resolveAdvocateRedirect } from "../../utils/advocateProfile";
 import { isAdminPanelAccount } from "../../features/admin/utils/adminUtils";
+import { getAuthRedirectParam } from "../../utils/redirectUtils";
 
 const AUTH_GUEST_PATHS = [
   "/login",
@@ -73,7 +74,7 @@ export default function GuestRoute({ children }) {
   const location = useLocation();
 
   if (isLoggedIn && user) {
-    const rawFrom = location.state?.from;
+    const rawFrom = getAuthRedirectParam(location.search, location.state);
     const target = resolveGuestRedirect(user, rawFrom);
 
     return (

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { getAuthToken } from "@/utils/auth";
+import { buildAuthRedirectUrl } from "@/utils/redirectUtils";
 import {
   API_BASE_URL,
   REVIEWS_PREVIEW_COUNT,
@@ -207,7 +208,7 @@ export default function useAdvocateReviews({
   const handleQuickRating = useCallback(
     async (ratingValue) => {
       if (!isLoggedIn) {
-        navigate("/login", {
+        navigate(buildAuthRedirectUrl("/login", locationPathname), {
           state: {
             from: locationPathname,
           },
@@ -310,7 +311,7 @@ export default function useAdvocateReviews({
 
   const openWriteReview = useCallback(() => {
     if (!isLoggedIn) {
-      navigate("/login", {
+      navigate(buildAuthRedirectUrl("/login", locationPathname), {
         state: {
           from: locationPathname,
         },

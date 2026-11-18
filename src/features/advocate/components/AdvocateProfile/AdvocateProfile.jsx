@@ -45,6 +45,7 @@ import { getAdvocateBookingOptions } from "../../services/advocateBookingApi";
 import { extractOfficeCoords } from "../../utils/distanceUtils";
 
 import ProfileErrorState from "./common/ProfileErrorState";
+import { buildAuthRedirectUrl } from "@/utils/redirectUtils";
 
 import {
   SECTION_LINKS,
@@ -260,9 +261,9 @@ const AdvocateProfile = ({
         console.warn("Could not save pending booking to sessionStorage", e);
       }
 
-      navigate("/login", {
+      navigate(buildAuthRedirectUrl("/login", location.pathname + location.search), {
         state: {
-          from: location.pathname,
+          from: location.pathname + location.search,
           openBookingModal: true,
           selectedMode: selectedBookingMode,
         },

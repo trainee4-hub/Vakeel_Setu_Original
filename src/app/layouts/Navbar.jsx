@@ -28,6 +28,7 @@ import {
 import { useAuth } from "../../features/auth";
 import LanguageTranslator from "./LanguageTranslator";
 import { LegalServicesMegaMenu, LEGAL_SERVICES_CATEGORIES } from "../../features/legalServices";
+import { buildAuthRedirectUrl } from "../../utils/redirectUtils";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -568,7 +569,7 @@ const Navbar = () => {
 
               <div className="flex items-center gap-2">
                 <Link
-                  to="/login"
+                  to={buildAuthRedirectUrl("/login", location.pathname + location.search)}
                   className="notranslate rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700"
                   translate="no"
                 >
@@ -576,13 +577,12 @@ const Navbar = () => {
                 </Link>
 
                 <Link
-                  to="/signup"
+                  to={buildAuthRedirectUrl("/signup", location.pathname + location.search)}
                   className="notranslate rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-2.5 text-sm font-bold text-white"
                   translate="no"
                 >
                   Sign Up
                 </Link>
-
 
               </div>
             )}
@@ -813,7 +813,7 @@ const Navbar = () => {
                   <div className="my-2 h-px bg-slate-200" />
 
                   <Link
-                    to="/login"
+                    to={buildAuthRedirectUrl("/login", location.pathname + location.search)}
                     onClick={handleMobileNavigation}
                     className="block w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-bold text-slate-700"
                   >
@@ -821,7 +821,7 @@ const Navbar = () => {
                   </Link>
 
                   <Link
-                    to="/signup"
+                    to={buildAuthRedirectUrl("/signup", location.pathname + location.search)}
                     onClick={handleMobileNavigation}
                     className="block w-full rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-3 text-center text-sm font-bold text-white cursor-poi"
                   >

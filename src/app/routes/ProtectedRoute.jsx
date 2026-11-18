@@ -15,6 +15,7 @@ import {
   getUserRole,
   isAdvocateUser,
 } from "../../utils/advocateProfile";
+import { buildAuthRedirectUrl } from "../../utils/redirectUtils";
 
 export default function ProtectedRoute({
   children,
@@ -89,14 +90,16 @@ export default function ProtectedRoute({
       !user
     )
   ) {
+    const currentTarget =
+      location.pathname +
+      location.search;
+
     return (
       <Navigate
-        to="/login"
+        to={buildAuthRedirectUrl("/login", currentTarget)}
         replace
         state={{
-          from:
-            location.pathname +
-            location.search,
+          from: currentTarget,
         }}
       />
     );

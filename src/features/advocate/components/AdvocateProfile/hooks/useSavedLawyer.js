@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { getAuthToken } from "@/utils/auth";
 import { API_BASE_URL } from "../utils/advocateProfileUtils";
+import { buildAuthRedirectUrl } from "@/utils/redirectUtils";
 
 const getSavedId = (entry) =>
   entry?.id ??
@@ -280,7 +281,7 @@ export default function useSavedLawyer({
      * Guest user → login.
      */
     if (!isLoggedIn) {
-      navigate("/login", {
+      navigate(buildAuthRedirectUrl("/login", locationPathname), {
         state: {
           from: locationPathname,
           fromAdvocateId: advocateId,

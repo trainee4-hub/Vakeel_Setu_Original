@@ -15,6 +15,7 @@ import { useAuth } from "../../auth";
 import AdvocateCardSkeleton from "./skeleton/AdvocateCardSkeleton";
 import useAppLanguage from "@/hooks/useAppLanguage";
 import { getBookLabel } from "@/utils/translationLabels";
+import { buildAuthRedirectUrl } from "@/utils/redirectUtils";
 
 const ChipIcon = () => (
   <FaGavel className="h-3 w-3 shrink-0 text-amber-600" />
@@ -208,7 +209,11 @@ const AdvocateCard = ({ advocate, onViewAdvocate }) => {
       }
 
       if (!isLoggedIn) {
-        window.location.href = "/login";
+        const currentPath =
+          typeof window !== "undefined"
+            ? window.location.pathname + window.location.search
+            : "/find-lawyers";
+        window.location.href = buildAuthRedirectUrl("/login", currentPath);
         return;
       }
 

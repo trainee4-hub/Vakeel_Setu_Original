@@ -7,9 +7,11 @@ import React, {
 } from "react";
 import {
   Link,
+  useLocation,
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
+import { getAuthRedirectParam, buildAuthRedirectUrl } from "../../../utils/redirectUtils";
 
 import {
   startUserRegistration,
@@ -1933,7 +1935,9 @@ const INDIAN_STATES = [
 
 export default function Signup() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const intendedRedirect = getAuthRedirectParam(searchParams, location.state);
   const [step, setStep] = useState(1);
 
   /* =======================================================================
@@ -2362,28 +2366,29 @@ export default function Signup() {
           }
 
           navigate(
-  isExistingAdvocate
-    ? "/login"
-    : "/login",
-  {
-    replace: true,
+            buildAuthRedirectUrl("/login", intendedRedirect),
+            {
+              replace: true,
 
-    state: {
-      googleAccountExists:
-        true,
+              state: {
+                googleAccountExists:
+                  true,
 
-      accountType:
-        isExistingAdvocate
-          ? "ADVOCATE"
-          : "USER",
+                accountType:
+                  isExistingAdvocate
+                    ? "ADVOCATE"
+                    : "USER",
 
-      role:
-        isExistingAdvocate
-          ? "advocate"
-          : "citizen",
-    },
-  },
-);
+                role:
+                  isExistingAdvocate
+                    ? "advocate"
+                    : "citizen",
+
+                from:
+                  intendedRedirect || undefined,
+              },
+            },
+          );
         }, 2200);
 
         return () => window.clearTimeout(redirectTimer);
@@ -3639,7 +3644,7 @@ restoreUserSession(
         sessionStorage.removeItem(SIGNUP_ROLE_STORAGE_KEY);
       }
 
-      navigate("/login", {
+      navigate(buildAuthRedirectUrl("/login", intendedRedirect), {
         replace: true,
         state: {
           accountCreated: true,
@@ -3647,6 +3652,7 @@ restoreUserSession(
           accountType: "ADVOCATE",
           role: "advocate",
           email: email.trim(),
+          from: intendedRedirect || undefined,
         },
       });
     } catch (error) {
@@ -3854,7 +3860,7 @@ restoreUserSession(
         sessionStorage.removeItem(SIGNUP_ROLE_STORAGE_KEY);
       }
 
-      navigate("/login", {
+      navigate(buildAuthRedirectUrl("/login", intendedRedirect), {
         replace: true,
         state: {
           accountCreated: true,
@@ -3862,6 +3868,7 @@ restoreUserSession(
           accountType: "USER",
           role: "citizen",
           email: email.trim(),
+          from: intendedRedirect || undefined,
         },
       });
     } catch (error) {
@@ -4796,7 +4803,7 @@ restoreUserSession(
               >
                 Already have an account?{" "}
                 <Link
-                  to="/login"
+                  to={buildAuthRedirectUrl("/login", intendedRedirect)}
                   className="
                   font-bold
                   text-amber-600

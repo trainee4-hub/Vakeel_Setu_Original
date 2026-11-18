@@ -6,6 +6,7 @@ import React, {
 import {
   useLocation,
   useNavigate,
+  useSearchParams,
 } from "react-router-dom";
 
 import { useAuth } from "../hooks/useAuth";
@@ -34,6 +35,7 @@ import { getAuthToken, setAuthToken } from "@/utils/auth";
 import LoginShell from "../components/login/LoginShell";
 import LoginHeroPanel from "../components/login/LoginHeroPanel";
 import LoginFormPanel from "../components/login/LoginFormPanel";
+import { getAuthRedirectParam, buildAuthRedirectUrl } from "@/utils/redirectUtils";
 
 const Login = ({
   onBack,
@@ -47,6 +49,9 @@ const Login = ({
   const location =
     useLocation();
 
+  const [searchParams] =
+    useSearchParams();
+
   const { login } =
     useAuth();
 
@@ -55,7 +60,14 @@ const Login = ({
   } =
     useAdvocateSessionBootstrap();
 
+  const intendedRedirect =
+    getAuthRedirectParam(
+      searchParams,
+      location.state,
+    );
+
   const intendedFrom =
+    intendedRedirect ||
     location.state?.from ||
     null;
 
@@ -1268,8 +1280,16 @@ const Login = ({
         return;
       }
 
-      navigate(
+      const targetSignupUrl = buildAuthRedirectUrl(
         "/signup",
+        intendedFrom,
+      );
+
+      navigate(
+        targetSignupUrl,
+        {
+          state: location.state,
+        },
       );
     };
 
