@@ -5,12 +5,7 @@ export const foundersAgreementData = {
   // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
   sections: [
       {
-          "heading": "Introduction and Legal Framework (India)",
-          "paragraphs": [],
-          "bullets": []
-      },
-      {
-          "heading": "1. Introduction",
+          "heading": "1. Introduction and Legal Framework in India",
           "paragraphs": [
               "A Founder Agreement (also called a Co-Founders Agreement) is a written contract between the individuals establishing a business. It records their mutual understanding about ownership, roles, decision-making, contributions and the handling of disagreements. While founders may begin with informal promises, a clear agreement helps avoid disputes as the business grows, raises investment or experiences a change in leadership."
           ],

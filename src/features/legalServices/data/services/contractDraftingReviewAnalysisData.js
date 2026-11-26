@@ -11,8 +11,7 @@ export const contractDraftingReviewAnalysisData = {
   metaTitle: "Contract Drafting, Review and Legal Analysis in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Contract Drafting, Review and Legal Analysis under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "A contract is a legally enforceable agreement that defines the rights, duties and expectations of its parties. Contract drafting is the process of translating commercial intentions into precise legal terms. Contract review examines whether those terms are clear, fair, complete...",
+  shortIntro: "Contract drafting, review, and legal analysis involve the meticulous examination of commercial covenants, indemnities, representations, and default terms under the Indian Contract Act, 1872 to ensure enforceable protection and eliminate contractual ambiguity.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

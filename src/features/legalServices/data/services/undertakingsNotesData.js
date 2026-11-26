@@ -11,8 +11,7 @@ export const undertakingsNotesData = {
   metaTitle: "Undertakings in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Undertakings under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "An undertaking is a written or oral assurance by which a person promises to perform an act, refrain from an act, or comply with specified conditions. In legal and administrative practice, it may be given to a court, employer, educational institution, government authority, land...",
+  shortIntro: "A legal undertaking is a solemn, binding promise or assurance submitted before courts, statutory regulators, or commercial parties, creating enforceable legal commitments backed by judicial contempt and civil liability.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

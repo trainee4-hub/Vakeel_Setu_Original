@@ -11,8 +11,7 @@ export const identityTheftDigitalFraudData = {
   metaTitle: "Identity Theft and Digital Fraud Recovery Support in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Identity Theft and Digital Fraud Recovery Support under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "Identity theft occurs when a person unlawfully obtains or uses another individual's identifying information, such as login credentials, identity numbers, financial details or digital account access, to impersonate them or obtain an improper benefit. Digital fraud may involve u...",
+  shortIntro: "Identity theft and digital fraud recovery support provides legal assistance for victims of impersonation, account takeover, SIM swap fraud, and unauthorized digital banking transactions, securing bank liability waivers and police investigation orders.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

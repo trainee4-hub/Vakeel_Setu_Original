@@ -5,12 +5,7 @@ export const memorandumOfUnderstandingData = {
   // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
   sections: [
       {
-          "heading": "Introduction and Legal Framework in India",
-          "paragraphs": [],
-          "bullets": []
-      },
-      {
-          "heading": "1. Introduction",
+          "heading": "1. Introduction and Legal Framework in India",
           "paragraphs": [
               "A Memorandum of Understanding (MoU) is a written document recording the mutual understanding, intentions, and proposed cooperation between two or more parties. It commonly describes the purpose of a relationship, expected contributions, responsibilities, timelines, and a framework for future negotiations. MoUs are used in business collaborations, joint projects, educational partnerships, government initiatives, and preliminary commercial arrangements. An MoU is not automatically a legally binding contract: its legal effect depends on the language used, the parties' intentions, and whether the essential requirements of a contract are satisfied."
           ],

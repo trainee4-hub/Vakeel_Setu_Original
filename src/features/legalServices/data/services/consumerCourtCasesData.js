@@ -11,8 +11,7 @@ export const consumerCourtCasesData = {
   metaTitle: "Consumer Court Cases and Legal Consultation in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Consumer Court Cases and Legal Consultation under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "Consumer protection law safeguards buyers of goods and users of services against unfair trade practices, defective products, deficient services, misleading advertisements and other legally recognised grievances. In India, consumer disputes are addressed through a specialised r...",
+  shortIntro: "Consumer court cases encompass formal grievance redressal petitions filed before District, State, or National Consumer Disputes Redressal Commissions under the Consumer Protection Act, 2019 against unfair trade practices, misleading advertisements, and deficiency in goods or services.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

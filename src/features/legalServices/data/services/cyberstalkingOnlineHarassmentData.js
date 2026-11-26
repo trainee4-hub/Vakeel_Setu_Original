@@ -11,8 +11,7 @@ export const cyberstalkingOnlineHarassmentData = {
   metaTitle: "Cyberstalking and Online Harassment Complaints in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Cyberstalking and Online Harassment Complaints under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "Cyber stalking and online harassment refer to repeated or harmful conduct carried out through digital communication platforms, including social media, messaging applications, email and online forums. Such conduct may involve persistent unwanted contact, threats, impersonation,...",
+  shortIntro: "Cyberstalking and online harassment complaints provide rapid legal protection against persistent digital monitoring, obscene threats, morphing, and digital bullying under Section 66E/67 of the IT Act and applicable provisions of the Bharatiya Nyaya Sanhita, 2023.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

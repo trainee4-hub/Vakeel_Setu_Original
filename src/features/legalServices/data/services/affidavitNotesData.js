@@ -11,8 +11,7 @@ export const affidavitNotesData = {
   metaTitle: "Affidavits in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Affidavits under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "An affidavit is a written statement of facts voluntarily made by a person, called the deponent , and sworn or solemnly affirmed before a person legally authorised to administer an oath or affirmation. It is used to place verified factual information before a court, public auth...",
+  shortIntro: "An affidavit is a formal sworn statement of facts executed before an authorized notary or oath commissioner under the Oaths Act, 1969 and Code of Civil Procedure, 1908, carrying strict legal accountability for evidentiary submission before courts and public authorities.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

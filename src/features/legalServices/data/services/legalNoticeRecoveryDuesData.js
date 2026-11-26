@@ -11,8 +11,7 @@ export const legalNoticeRecoveryDuesData = {
   metaTitle: "Legal Notice for Recovery of Dues in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Legal Notice for Recovery of Dues under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "A legal notice for recovery of dues is a formal written demand sent by a creditor to a debtor requesting payment of an outstanding amount arising from goods supplied, services rendered, a loan, rent, or another legally enforceable obligation. It typically identifies the partie...",
+  shortIntro: "A legal notice for recovery of dues is a formal demand served by a verified advocate specifying the exact debt, contractual default, and interest obligations, creating indispensable documentary evidence prior to civil recovery or insolvency proceedings.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

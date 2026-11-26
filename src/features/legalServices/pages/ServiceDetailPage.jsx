@@ -87,7 +87,15 @@ const ServiceDetailPage = () => {
 
     // Verbatim Content Model (Prompt 3): if data.sections exists, use PDF's exact sections!
     if (Array.isArray(data.sections) && data.sections.length > 0) {
-      const list = data.sections.map((sec, idx) => {
+      const validSections = data.sections.filter(
+        (sec) =>
+          (Array.isArray(sec.paragraphs) && sec.paragraphs.length > 0) ||
+          (Array.isArray(sec.bullets) && sec.bullets.length > 0) ||
+          (Array.isArray(sec.subsections) && sec.subsections.length > 0) ||
+          (Array.isArray(sec.items) && sec.items.length > 0)
+      );
+
+      const list = validSections.map((sec, idx) => {
         const rawHeading = sec.heading || `Section ${idx + 1}`;
         const cleanHeading = rawHeading.replace(/^\d+(\.\d+)*\.\s*/, "").trim();
         const secId =
@@ -97,25 +105,7 @@ const ServiceDetailPage = () => {
             .replace(/[^a-z0-9]+/g, "-")
             .replace(/^-+|-+$/g, "")}`;
 
-        const isDocs = /document/i.test(cleanHeading);
-        const isLaws = /law|framework|act\b/i.test(cleanHeading);
-        const isIntro = /intro/i.test(cleanHeading);
-        const isProc = /procedure|process/i.test(cleanHeading);
-        const isPurpose = /purpose|objective|why/i.test(cleanHeading);
-
-        const sub =
-          sec.subtitle ||
-          (isDocs
-            ? "Checklist & Evidence"
-            : isLaws
-            ? "Statutory Provisions"
-            : isIntro
-            ? "Overview & Legal Foundation"
-            : isProc
-            ? "Procedural Execution"
-            : isPurpose
-            ? "Key Purpose & Protection"
-            : "Statutory & Analytical Provisions");
+        const sub = sec.subtitle || "";
 
         return {
           id: secId,
@@ -407,7 +397,15 @@ const ServiceDetailPage = () => {
                 VERBATIM PDF CONTENT MODEL (Prompt 3 - 100% PDF Sections)
             ═════════════════════════════════════════════════════════════ */}
             {Array.isArray(data.sections) && data.sections.length > 0 ? (
-              data.sections.map((sec, idx) => {
+              data.sections
+                .filter(
+                  (sec) =>
+                    (Array.isArray(sec.paragraphs) && sec.paragraphs.length > 0) ||
+                    (Array.isArray(sec.bullets) && sec.bullets.length > 0) ||
+                    (Array.isArray(sec.subsections) && sec.subsections.length > 0) ||
+                    (Array.isArray(sec.items) && sec.items.length > 0)
+                )
+                .map((sec, idx) => {
                 const meta = getSectionMeta(`verbatim-sec-${idx}`);
                 if (!meta || !sec || !sec.heading) return null;
 
@@ -422,11 +420,26 @@ const ServiceDetailPage = () => {
 
                 const hasParagraphs = Array.isArray(sec.paragraphs) && sec.paragraphs.length > 0;
                 const hasBullets = Array.isArray(sec.bullets) && sec.bullets.length > 0;
-                const isDocumentsSection = /document/i.test(cleanHeading);
-                const isIntroSection = /intro/i.test(cleanHeading) || idx === 0;
-                const isJudicialSection = /judicial\s*principle/i.test(cleanHeading);
-                const isConclusionSection = /^(conclusion|advice disclaimer|practical point)/i.test(cleanHeading);
-                const isLawsSection = /law|framework|act\b|statutory/i.test(cleanHeading);
+
+                // Mutually exclusive section type determination to guarantee zero duplicate rendering
+                let sectionType = "standard";
+                if (idx === 0 || /intro/i.test(cleanHeading)) {
+                  sectionType = "intro";
+                } else if (/judicial\s*principle/i.test(cleanHeading)) {
+                  sectionType = "judicial";
+                } else if (/^(conclusion|advice disclaimer|practical point)/i.test(cleanHeading)) {
+                  sectionType = "conclusion";
+                } else if (/document/i.test(cleanHeading)) {
+                  sectionType = "document";
+                } else if (/law|framework|act\b|statutory/i.test(cleanHeading)) {
+                  sectionType = "laws";
+                }
+
+                const isIntroSection = sectionType === "intro";
+                const isJudicialSection = sectionType === "judicial";
+                const isConclusionSection = sectionType === "conclusion";
+                const isDocumentsSection = sectionType === "document";
+                const isLawsSection = sectionType === "laws";
 
                 return (
                   <section
@@ -437,20 +450,20 @@ const ServiceDetailPage = () => {
                     {/* Subtle Ambient Glow */}
                     <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-amber-500/10 blur-2xl" />
 
-                    {/* Header Badge */}
-                    <div className="flex items-center gap-2.5 text-amber-600 mb-3">
-                      <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-500 text-xs font-black text-slate-950 shadow-xs">
+                    {/* Header Badge & Title */}
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-xs font-black text-slate-950 shadow-xs">
                         {meta.badge}
                       </span>
-                      <span className="text-[11px] font-black uppercase tracking-wider text-amber-700">
-                        {meta.subtitle}
-                      </span>
+                      <h2 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
+                        {meta.title}
+                      </h2>
+                      {meta.subtitle && (
+                        <span className="text-[11px] font-black uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/60">
+                          {meta.subtitle}
+                        </span>
+                      )}
                     </div>
-
-                    {/* Clean single heading (FIX 3: No double numbering!) */}
-                    <h2 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
-                      {meta.title}
-                    </h2>
 
                     {/* ═════════════════════════════════════════════════════════════
                         SECTION 1: INTRODUCTION (Curved Amber Accent Bar)
@@ -1192,18 +1205,19 @@ const ServiceDetailPage = () => {
                     id={secId}
                     className="scroll-mt-28 relative overflow-hidden rounded-3xl border border-slate-200/90 hover:border-amber-400/80 bg-white p-6 sm:p-8 shadow-sm transition-all duration-200 hover:shadow-md"
                   >
-                    <div className="flex items-center gap-2.5 text-amber-600 mb-2">
-                      <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-500 text-xs font-black text-slate-950 shadow-xs">
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-xs font-black text-slate-950 shadow-xs">
                         {meta.badge}
                       </span>
-                      <span className="text-[11px] font-black uppercase tracking-wider text-amber-700">
-                        {meta.subtitle}
-                      </span>
+                      <h2 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
+                        {meta.title}
+                      </h2>
+                      {meta.subtitle && (
+                        <span className="text-[11px] font-black uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/60">
+                          {meta.subtitle}
+                        </span>
+                      )}
                     </div>
-
-                    <h2 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
-                      {meta.title}
-                    </h2>
 
                     {/* Bullets (e.g. Essential Clause list) */}
                     {hasBullets && (

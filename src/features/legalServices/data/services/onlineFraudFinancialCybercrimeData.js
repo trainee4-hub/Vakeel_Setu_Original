@@ -11,8 +11,7 @@ export const onlineFraudFinancialCybercrimeData = {
   metaTitle: "Online Fraud, Scams and Financial Cybercrime Cases in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Online Fraud, Scams and Financial Cybercrime Cases under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "Online fraud and financial cybercrime involve the dishonest use of digital networks, communication systems, electronic identities or payment channels to obtain money, personal information or unauthorized access. Such incidents may involve phishing links, impersonation calls, f...",
+  shortIntro: "Online fraud and financial cybercrime legal services support victims of payment gateway scams, phishing, fake investment schemes, and cryptocurrency fraud through cyber cell FIR registrations, bank account lien requests, and magistrate court remedies.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

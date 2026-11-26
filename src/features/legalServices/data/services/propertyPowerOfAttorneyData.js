@@ -5,12 +5,7 @@ export const propertyPowerOfAttorneyData = {
   // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
   sections: [
       {
-          "heading": "Introduction and Legal Framework (India)",
-          "paragraphs": [],
-          "bullets": []
-      },
-      {
-          "heading": "Introduction",
+          "heading": "1. Introduction and Legal Framework in India",
           "paragraphs": [
               "A Property Power of Attorney (PoA) is a legal instrument through which a property owner (the principal) authorises another person (the agent or attorney-holder) to perform specified acts concerning property on the principal's behalf. These may include managing a property, collecting rent, dealing with municipal authorities, executing documents or presenting instruments for registration, subject to the authority actually granted. A PoA creates an agency relationship; it does not, by itself, transfer ownership of immovable property."
           ],

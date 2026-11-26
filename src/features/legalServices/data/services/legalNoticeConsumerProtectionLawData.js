@@ -11,8 +11,7 @@ export const legalNoticeConsumerProtectionLawData = {
   metaTitle: "Legal Notice under Consumer Protection Law in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Legal Notice under Consumer Protection Law under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "A legal notice under consumer protection law is a formal written communication sent by a consumer to a seller, manufacturer, service provider or other responsible party alleging defective goods, deficient services, unfair trade practices or other violations of consumer rights....",
+  shortIntro: "A legal notice under consumer protection law is a formal statutory pre-litigation demand served on a manufacturer or service provider under the Consumer Protection Act, 2019, providing a mandatory resolution window before approaching consumer commissions.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

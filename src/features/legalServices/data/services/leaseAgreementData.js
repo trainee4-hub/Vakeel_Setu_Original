@@ -5,12 +5,7 @@ export const leaseAgreementData = {
   // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
   sections: [
       {
-          "heading": "Introduction and Legal Framework (India)",
-          "paragraphs": [],
-          "bullets": []
-      },
-      {
-          "heading": "1. Introduction",
+          "heading": "1. Introduction and Legal Framework in India",
           "paragraphs": [
               "A lease agreement is a legal arrangement under which a lessor grants a lessee the right to enjoy immovable property for a specified period, or in perpetuity, in consideration of rent, premium, or other agreed value. Unlike a sale, a lease ordinarily transfers a limited right to possess and use the property, not ownership. Lease agreements are common for residential homes, offices, retail shops, warehouses, and commercial premises."
           ],

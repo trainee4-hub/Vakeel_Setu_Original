@@ -11,8 +11,7 @@ export const powerOfAttorneyDraftingNotesData = {
   metaTitle: "Power of Attorney Drafting in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Power of Attorney Drafting under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "A Power of Attorney (POA) is a legal instrument by which one person (the principal or donor) authorizes another person (the attorney or agent) to act on the principal's behalf within specified limits. Drafting a POA means expressing that authority clearly, lawfully and precise...",
+  shortIntro: "Power of Attorney (POA) drafting creates legally sound General (GPA) or Special (SPA) authorizations under the Powers of Attorney Act, 1882, allowing an agent to manage property, financial transactions, or legal proceedings with strict fiduciary safeguards.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

@@ -11,8 +11,7 @@ export const declarationsNotesData = {
   metaTitle: "Declarations in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Declarations under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "A declaration is a formal statement by a person affirming that certain facts, information or circumstances are true to the best of their knowledge and belief. Declarations are commonly used in government applications, educational institutions, employment, business transactions...",
+  shortIntro: "A legal declaration is a formal written assertion of factual or legal status executed under applicable statutory provisions to confirm identity, address, family relationship, or non-encumbrance for administrative, judicial, or commercial verification.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

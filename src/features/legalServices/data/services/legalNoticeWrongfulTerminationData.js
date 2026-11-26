@@ -5,12 +5,7 @@ export const legalNoticeWrongfulTerminationData = {
   // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
   sections: [
       {
-          "heading": "Introduction and Legal Framework (India)",
-          "paragraphs": [],
-          "bullets": []
-      },
-      {
-          "heading": "Introduction",
+          "heading": "1. Introduction and Legal Framework in India",
           "paragraphs": [
               "Wrongful termination refers to the ending of employment in a manner that violates applicable law, binding contractual terms, standing orders, or required procedures. A dismissal may be challenged where it involves unlawful discrimination, retaliation, non-compliance with mandatory notice or retrenchment requirements, or denial of a fair hearing when legally required. Not every dismissal perceived as unfair is unlawful: the remedy depends on the employee's status, the nature of the employer, the contract, and the governing legislation."
           ],

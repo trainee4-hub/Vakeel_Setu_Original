@@ -11,8 +11,7 @@ export const drtMsmeRecoveryDisputesData = {
   metaTitle: "DRT, MSME and Recovery-Related Disputes in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for DRT, MSME and Recovery-Related Disputes under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "Debt recovery and commercial payment disputes arise when borrowers fail to repay financial obligations or purchasers delay payments owed to suppliers. In India, the Debt Recovery Tribunals (DRTs) provide a specialised forum for specified bank and financial institution debt cla...",
+  shortIntro: "DRT and MSME recovery disputes involve statutory recovery proceedings before Debt Recovery Tribunals under the SARFAESI Act, 2002 and delayed payment claims before the Micro and Small Enterprises Facilitation Council (MSEFC) under the MSMED Act, 2006.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

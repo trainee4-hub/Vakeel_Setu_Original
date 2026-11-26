@@ -6,12 +6,7 @@ export const chequeBounceNoticeData = {
   // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
   sections: [
       {
-          "heading": "Introduction and Legal Framework (India)",
-          "paragraphs": [],
-          "bullets": []
-      },
-      {
-          "heading": "1. Introduction",
+          "heading": "1. Introduction and Legal Framework in India",
           "paragraphs": [
               "A cheque bounce, also called dishonour of a cheque, occurs when a bank returns a cheque unpaid. Common reasons include insufficient funds, exceeding an agreed overdraft limit, or other banking objections. In India, dishonour of a cheque issued towards a legally enforceable debt or liability may attract consequences under Section 138 of the Negotiable Instruments Act, 1881, provided its statutory conditions are satisfied. A legal demand notice is an important prerequisite to a complaint under this provision."
           ],

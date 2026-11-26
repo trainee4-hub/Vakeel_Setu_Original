@@ -11,8 +11,7 @@ export const hackingDataTheftPrivacyData = {
   metaTitle: "Hacking, Data Theft and Privacy Breach Matters in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Hacking, Data Theft and Privacy Breach Matters under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "Hacking, data theft and privacy breaches concern unauthorized access to digital systems, unlawful acquisition or disclosure of information, and failures to protect personal data. These incidents may affect individuals, companies, financial institutions and public bodies. A com...",
+  shortIntro: "Hacking, data theft, and privacy breach legal matters encompass statutory damages claims, forensic evidence preservation, and penal complaints under Section 43/66 of the Information Technology Act, 2000 and modern digital personal data protection frameworks.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

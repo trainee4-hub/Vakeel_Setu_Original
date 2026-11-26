@@ -11,8 +11,7 @@ export const complianceChecksAdvisoryData = {
   metaTitle: "Compliance Checks and Legal Documentation Advisory in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Compliance Checks and Legal Documentation Advisory under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "Compliance check and legal documentation advisory are essential functions of legal risk management. A compliance check evaluates whether an individual, business or institution follows applicable laws, regulatory directions, contractual duties and internal policies. Legal docum...",
+  shortIntro: "Compliance checks and legal documentation advisory provide systematic regulatory due diligence, corporate secretarial audit, and statutory compliance reviews to protect businesses from statutory penalties, licensing revocations, and operational liability under Indian laws.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

@@ -2,12 +2,7 @@ export const vendorAgreementData = {
   // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
   sections: [
       {
-          "heading": "Introduction and Legal Framework in India",
-          "paragraphs": [],
-          "bullets": []
-      },
-      {
-          "heading": "1. Introduction",
+          "heading": "1. Introduction and Legal Framework in India",
           "paragraphs": [
               "A Vendor Agreement is a legally binding contract between a business or purchaser and a vendor who supplies goods, materials, software, or services. It sets out the parties' rights and obligations, commercial expectations, delivery standards, payment arrangements, and remedies for non-performance. Vendor agreements are widely used in procurement, manufacturing, retail, information technology, logistics, and professional services.",
               "The agreement helps prevent misunderstandings by recording exactly what must be supplied, when it must be delivered, how quality will be assessed, and who bears particular commercial risks. Depending on the transaction, it may operate as a purchase agreement, supply contract, or services contract. Its precise legal treatment depends on the subject matter and the terms agreed by the parties."

@@ -11,8 +11,7 @@ export const cybercrimeLitigationData = {
   metaTitle: "Cybercrime Litigation and Dispute Resolution in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Cybercrime Litigation and Dispute Resolution under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "Cyber crime litigation and dispute resolution concern the legal processes used to address unlawful conduct involving computers, digital networks, online platforms and electronic information. Such matters may involve unauthorised access, identity misuse, financial fraud, unlawf...",
+  shortIntro: "Cybercrime litigation and dispute resolution involve strategic representation and criminal legal recourse before cyber police cells, adjudication officers, and competent criminal courts for severe cyber offenses, data theft, and electronic fraud under the Information Technology Act, 2000.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

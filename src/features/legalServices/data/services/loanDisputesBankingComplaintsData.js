@@ -11,8 +11,7 @@ export const loanDisputesBankingComplaintsData = {
   metaTitle: "Loan Disputes and Banking Complaints in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Loan Disputes and Banking Complaints under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "Loan disputes and banking complaints arise when borrowers, lenders or banking customers disagree about financial obligations, account operations or the quality of banking services. Common concerns include incorrect interest calculations, unexplained charges, repayment adjustme...",
+  shortIntro: "Loan disputes and banking complaints address unfair loan recovery practices, arbitrary interest charges, incorrect CIBIL reporting, and foreclosure disputes through RBI Banking Ombudsman representations and judicial court filings.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

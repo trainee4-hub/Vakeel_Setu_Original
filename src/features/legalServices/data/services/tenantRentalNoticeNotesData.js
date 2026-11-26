@@ -11,8 +11,7 @@ export const tenantRentalNoticeNotesData = {
   metaTitle: "Tenant / Rental Notice in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Tenant / Rental Notice under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "A tenant rental notice is a formal written communication between a landlord and tenant regarding a rented property. It may concern termination of tenancy, non-payment of rent, breach of lease conditions, repairs, revision of rent, or a request to vacate. A properly drafted not...",
+  shortIntro: "A tenant/rental notice is a statutory communication served between landlord and tenant under state rent control legislation and the Transfer of Property Act, 1882 to formalize lease terminations, rent revisions, or rectification of tenancy breaches.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

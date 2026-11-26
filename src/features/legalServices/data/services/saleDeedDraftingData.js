@@ -2,12 +2,7 @@ export const saleDeedDraftingData = {
   // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
   sections: [
       {
-          "heading": "Introduction and Legal Framework (India)",
-          "paragraphs": [],
-          "bullets": []
-      },
-      {
-          "heading": "Introduction",
+          "heading": "1. Introduction and Legal Framework in India",
           "paragraphs": [
               "A sale deed is a legal instrument through which ownership of immovable property is transferred by a seller to a buyer for a price paid or promised. Drafting a sale deed requires accurate identification of the parties and property, a clear record of the consideration, and legally effective transfer language. In India, a properly executed and registered sale deed is ordinarily the principal document evidencing a completed sale of immovable property."
           ],

@@ -11,8 +11,7 @@ export const legalDocumentReviewNotesData = {
   metaTitle: "Legal Document Review in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Legal Document Review under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "Legal document review is the systematic examination of legal instruments to verify their accuracy, validity, completeness, enforceability and consistency with applicable law. It is commonly undertaken before signing a contract, filing a pleading, completing a transaction or re...",
+  shortIntro: "Legal document review entails comprehensive forensic verification of agreements, property deeds, powers of attorney, and commercial contracts to verify title, enforceability, stamp duty compliance, and operational legal risks.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

@@ -5,12 +5,7 @@ export const businessContractDraftingData = {
   // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
   sections: [
       {
-          "heading": "Introduction and Legal Framework in India",
-          "paragraphs": [],
-          "bullets": []
-      },
-      {
-          "heading": "1. Introduction",
+          "heading": "1. Introduction and Legal Framework in India",
           "paragraphs": [
               "Business contract drafting is the process of preparing written agreements that clearly define the rights, duties, responsibilities and expectations of parties engaged in commercial transactions. Contracts are used for the sale of goods, supply of services, partnerships, consultancy, distribution, licensing and many other business relationships. A well-drafted contract reduces uncertainty, allocates risks and provides a reliable framework for performance and dispute resolution."
           ],

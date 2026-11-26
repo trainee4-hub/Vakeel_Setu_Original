@@ -11,8 +11,7 @@ export const accidentClaimsTrafficChallanData = {
   metaTitle: "Accident Claims and Traffic Challan Matters in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Accident Claims and Traffic Challan Matters under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "Accidental claims and traffic challan matters are important areas of Indian motor vehicle law. An accidental claim generally concerns compensation for injury, death or property damage arising from a motor vehicle accident. Traffic challan matters, by contrast, involve alleged ...",
+  shortIntro: "Accident claims and traffic challan matters cover statutory compensation claims before Motor Accident Claims Tribunals (MACT) under the Motor Vehicles Act, 1988 as well as the legal verification and judicial dispute resolution of traffic violation notices and compounding penalties.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

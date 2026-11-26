@@ -11,8 +11,7 @@ export const defectiveProductsServiceCasesData = {
   metaTitle: "Defective Products and Deficiency in Services Cases in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Defective Products and Deficiency in Services Cases under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "Consumer disputes concerning defective products and deficiency in services arise when goods or services fail to meet legally required standards, agreed specifications or reasonable contractual expectations. A defective product may suffer from shortcomings in quality, quantity,...",
+  shortIntro: "Defective products and deficiency in services cases enable aggrieved consumers to claim product liability compensation, mandatory product replacements, and full refunds before consumer commissions under the Consumer Protection Act, 2019.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

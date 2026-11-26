@@ -5,12 +5,7 @@ export const propertyDocumentationReviewData = {
   // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
   sections: [
       {
-          "heading": "Introduction and Legal Framework (India)",
-          "paragraphs": [],
-          "bullets": []
-      },
-      {
-          "heading": "1. Introduction",
+          "heading": "1. Introduction and Legal Framework in India",
           "paragraphs": [
               "Property documentation and review is the systematic examination of legal records relating to ownership, possession, transfer, use and encumbrances of immovable property. Before purchasing, leasing, mortgaging or inheriting property, parties review documents to identify the lawful owner, verify the chain of title and detect legal or financial risks. A sound review reduces the likelihood of fraud, defective transfers and future litigation."
           ],

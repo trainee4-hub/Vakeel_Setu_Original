@@ -11,8 +11,7 @@ export const refundsCompensationConsumerClaimsData = {
   metaTitle: "Refunds, Compensation and Consumer Claims in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Refunds, Compensation and Consumer Claims under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "Refunds, compensation and consumer claims are important remedies available when goods or services fail to meet legal or contractual expectations. A refund generally means returning money paid for a product or service, while compensation addresses loss or injury caused by defec...",
+  shortIntro: "Refunds, compensation, and consumer claims assist individuals in recovering financial losses, booking amounts, and damages resulting from unfulfilled commitments, defective deliverables, or deficient commercial services before consumer forums.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

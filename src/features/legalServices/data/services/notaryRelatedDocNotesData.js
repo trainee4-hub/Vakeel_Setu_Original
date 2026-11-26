@@ -11,8 +11,7 @@ export const notaryRelatedDocNotesData = {
   metaTitle: "Notary-Related Documentation in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Notary-Related Documentation under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "Notary-related documentation refers to documents for which a legally appointed notary performs an authorized notarial act, such as attesting execution, verifying or authenticating a signature, administering an oath, or taking an affidavit. Notarization helps establish that a s...",
+  shortIntro: "Notary-related documentation involves the official verification, attestation, and administration of oaths on affidavits, powers of attorney, and commercial instruments by a certified notary public under the Notaries Act, 1952.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

@@ -5,12 +5,7 @@ export const childCareAuthorizationFormData = {
   // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
   sections: [
       {
-          "heading": "Introduction and Legal Framework (India)",
-          "paragraphs": [],
-          "bullets": []
-      },
-      {
-          "heading": "1. Introduction",
+          "heading": "1. Introduction and Legal Framework in India",
           "paragraphs": [
               "A Child Care Authorization Form is a written document by which a parent or lawful guardian permits another responsible adult, such as a relative, caregiver, or school representative, to undertake specified child-care tasks for a limited period. It may cover school pickup, routine supervision, emergency contact, travel within defined limits, or consent to obtain urgent medical assistance. It is generally an authorization for particular activities, not a transfer of parental rights or legal guardianship."
           ],

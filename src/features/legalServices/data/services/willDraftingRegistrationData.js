@@ -2,12 +2,7 @@ export const willDraftingRegistrationData = {
   // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
   sections: [
       {
-          "heading": "Introduction and Legal Framework (India)",
-          "paragraphs": [],
-          "bullets": []
-      },
-      {
-          "heading": "Introduction",
+          "heading": "1. Introduction and Legal Framework in India",
           "paragraphs": [
               "Will drafting is the process of preparing a written declaration through which a person (the testator) states how their property and other legally transferable interests should be distributed after death. A will generally takes effect only upon the testator's death and may be altered or revoked during their lifetime, provided they have legal capacity. Proper drafting helps identify beneficiaries, appoint an executor, reduce ambiguity and lower the risk of family disputes."
           ],

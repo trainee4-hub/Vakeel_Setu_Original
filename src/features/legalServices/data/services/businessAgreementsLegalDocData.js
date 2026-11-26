@@ -11,8 +11,7 @@ export const businessAgreementsLegalDocData = {
   metaTitle: "Business Agreements and Legal Documentation in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Business Agreements and Legal Documentation under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "Business agreements are legally relevant arrangements through which individuals, firms, or companies define commercial rights and responsibilities. Legal documentation records those arrangements, business decisions, compliance activities, and evidence of transactions. Clear wr...",
+  shortIntro: "Business agreements are legally binding commercial contracts executed under the Indian Contract Act, 1872 to formalize operational terms, risk allocation, confidentiality, payment milestones, and dispute resolution mechanisms between commercial entities.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

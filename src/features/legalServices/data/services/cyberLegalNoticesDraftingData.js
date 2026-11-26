@@ -11,8 +11,7 @@ export const cyberLegalNoticesDraftingData = {
   metaTitle: "Cyber Legal Notices and Complaint Drafting in India | Procedure, Laws & Advocate Guidance",
   metaDescription:
     "Comprehensive guide and advocate assistance for Cyber Legal Notices and Complaint Drafting under applicable Indian laws and regulatory frameworks.",
-  shortIntro:
-    "Cyber legal notices and complaint drafting involve preparing formal written communications to address unlawful or harmful conduct occurring through digital platforms, electronic communications, and information systems. A legal notice generally informs the recipient of alleged ...",
+  shortIntro: "Cyber legal notices and complaint drafting provide immediate legal intervention and statutory demands against online defamation, data breaches, digital fraud, and unauthorized content dissemination under the Information Technology Act, 2000 and the Bharatiya Sakshya Adhiniyam, 2023.",
 
   trustChips: [
     { label: "Bar Council-Enrolled Advocates", icon: "shield" },

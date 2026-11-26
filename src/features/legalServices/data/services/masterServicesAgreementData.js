@@ -5,12 +5,7 @@ export const masterServicesAgreementData = {
   // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
   sections: [
       {
-          "heading": "Introduction and Legal Framework in India",
-          "paragraphs": [],
-          "bullets": []
-      },
-      {
-          "heading": "1. Introduction",
+          "heading": "1. Introduction and Legal Framework in India",
           "paragraphs": [
               "A Master Service Agreement (MSA) is a foundational contract between two or more parties that establishes the general terms governing an ongoing commercial relationship. It is commonly used for information technology, consulting, outsourcing, marketing, maintenance and other professional services. Instead of negotiating the same legal provisions for every assignment, the parties sign one MSA and describe individual projects through Statements of Work (SOWs), work orders or schedules."
           ],

@@ -72,6 +72,18 @@ import { powerOfAttorneyDraftingNotesData } from "../data/services/powerOfAttorn
 import { refundsCompensationConsumerClaimsData } from "../data/services/refundsCompensationConsumerClaimsData.js";
 import { tenantRentalNoticeNotesData } from "../data/services/tenantRentalNoticeNotesData.js";
 import { undertakingsNotesData } from "../data/services/undertakingsNotesData.js";
+import { caveatPetitionData } from "../data/services/caveatPetitionData.js";
+import { childCustodyGuardianshipData } from "../data/services/childCustodyGuardianshipData.js";
+import { copyrightRegistrationData } from "../data/services/copyrightRegistrationData.js";
+import { designRegistrationData } from "../data/services/designRegistrationData.js";
+import { divorceMutualSeparationData } from "../data/services/divorceMutualSeparationData.js";
+import { domesticViolenceProtectionData } from "../data/services/domesticViolenceProtectionData.js";
+import { ipInfringementMattersData } from "../data/services/ipInfringementMattersData.js";
+import { legalHeirInheritanceDisputesData } from "../data/services/legalHeirInheritanceDisputesData.js";
+import { maintenanceAlimonySupportData } from "../data/services/maintenanceAlimonySupportData.js";
+import { patentApplicationAssistanceData } from "../data/services/patentApplicationAssistanceData.js";
+import { personalLawsFamilyMattersData } from "../data/services/personalLawsFamilyMattersData.js";
+import { trademarkRegistrationData } from "../data/services/trademarkRegistrationData.js";
 import { findServiceBySlug, findCategoryBySlug } from "../data/legalServicesCatalogue.js";
 import { CATEGORY_RESEARCH } from "../data/categoryResearchData.js";
 
@@ -100,7 +112,9 @@ const NO_DOCUMENT_SERVICES = new Set([
   "agreement-review",
 ]);
 
-export const resolveServiceData = (categorySlug, serviceSlug) => {
+export const resolveServiceData = (categorySlug, rawSlug) => {
+  const matchedService = findServiceBySlug(categorySlug, rawSlug) || findServiceBySlug("", rawSlug);
+  const serviceSlug = matchedService?.slug || rawSlug;
   // If requesting Cheque Bounce Legal Notice, return the verified researched content
   if (serviceSlug === "cheque-bounce-legal-notice") {
     return {
@@ -664,6 +678,103 @@ export const resolveServiceData = (categorySlug, serviceSlug) => {
   if (serviceSlug === "undertakings") {
     return {
       ...undertakingsNotesData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "caveat-petition") {
+    return {
+      ...caveatPetitionData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "child-custody-guardianship-and-visitation-rights") {
+    return {
+      ...childCustodyGuardianshipData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "copyright-registration") {
+    return {
+      ...copyrightRegistrationData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "design-registration") {
+    return {
+      ...designRegistrationData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "divorce-mutual-separation-and-matrimonial-disputes") {
+    return {
+      ...divorceMutualSeparationData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "domestic-violence-and-women-protection-cases") {
+    return {
+      ...domesticViolenceProtectionData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "ip-infringement-matters") {
+    return {
+      ...ipInfringementMattersData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "legal-heir-certificate-and-inheritance-disputes") {
+    return {
+      ...legalHeirInheritanceDisputesData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "maintenance-alimony-and-financial-support-matters") {
+    return {
+      ...maintenanceAlimonySupportData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "patent-application-registration-assistance") {
+    return {
+      ...patentApplicationAssistanceData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (
+    serviceSlug === "personal-law-matters-including-muslim-law-and-family-rights" ||
+    serviceSlug === "personal-laws-and-family-legal-matters"
+  ) {
+    return {
+      ...personalLawsFamilyMattersData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "trademark-registration") {
+    return {
+      ...trademarkRegistrationData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (
+    serviceSlug === "letter-of-intent-purchase-real-estate" ||
+    serviceSlug === "letter-of-intent-to-purchase-real-estate"
+  ) {
+    return {
+      ...letterOfIntentRealEstateData,
       isFullyResearched: true,
     };
   }
