@@ -339,7 +339,6 @@ export const LEGAL_SERVICES_CATEGORIES = [
       {
         title: "Cheque Bounce Legal Notice",
         slug: "cheque-bounce-legal-notice",
-        isSampleFullPage: true,
         summary: "Mandatory statutory demand notice under Section 138 of the Negotiable Instruments Act, 1881 within 30 days of dishonour memo.",
       },
       {

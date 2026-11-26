@@ -20,6 +20,7 @@ import {
 
 import { getUserRights } from "../services/userRightsApi";
 import { getBlogs, getGuides } from "../services/legalHubApi";
+import { getSmallImageUrl } from "@shared/utils/imageUtils";
 import {
   richTextExcerpt,
   richTextToPlain,
@@ -582,7 +583,7 @@ const SafeImage = ({
 
   return (
     <img
-      src={src}
+      src={getSmallImageUrl(src)}
       alt={alt}
       loading="lazy"
       onError={() => setFailed(true)}

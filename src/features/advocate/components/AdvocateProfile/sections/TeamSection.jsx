@@ -3,6 +3,7 @@ import { MdVerified } from "react-icons/md";
 import { FiArrowRight, FiMapPin, FiUsers } from "react-icons/fi";
 
 import { formatTagLabel } from "../utils/advocateProfileUtils";
+import { getSmallImageUrl } from "@shared/utils/imageUtils";
 
 /**
  * Extract clean initials for fallback avatar (e.g. "Adv. Sanjay Gupta" -> "SG")
@@ -54,11 +55,12 @@ function TeamMemberCard({ mate, onViewMember }) {
 
   const memberId = mate?.id || mate?._id || mate?.advocateId;
   const name = mate?.fullName || mate?.name || "Advocate";
-  const photo =
+  const photo = getSmallImageUrl(
     mate?.profilePhotoUrl ||
     mate?.profileImage ||
     mate?.avatar ||
-    "";
+    ""
+  );
 
   const practiceArea = getPracticeAreaText(mate);
   const experienceText = getExperienceText(mate);

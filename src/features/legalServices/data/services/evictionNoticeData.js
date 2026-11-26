@@ -45,7 +45,7 @@ export const evictionNoticeData = {
       {
           "heading": "Procedure and Remedies",
           "paragraphs": [
-              "Eviction Notice | Introduction & Legal Framework 2 First, review the lease and identify the applicable state tenancy law. Next, verify the ground for eviction and calculate the correct notice period. Serve the notice and retain documentary evidence. If the occupant does not vacate, the landlord may need to approach the competent court or rent authority for an eviction or possession order. The occupant may contest the notice or proceedings on grounds such as defective notice, lack of a lawful eviction ground, payment disputes, or statutory protection. Self-help measures such as changing locks, cutting essential utilities or using force may be unlawful."
+              "First, review the lease and identify the applicable state tenancy law. Next, verify the ground for eviction and calculate the correct notice period. Serve the notice and retain documentary evidence. If the occupant does not vacate, the landlord may need to approach the competent court or rent authority for an eviction or possession order. The occupant may contest the notice or proceedings on grounds such as defective notice, lack of a lawful eviction ground, payment disputes, or statutory protection. Self-help measures such as changing locks, cutting essential utilities or using force may be unlawful."
           ],
           "bullets": []
       },

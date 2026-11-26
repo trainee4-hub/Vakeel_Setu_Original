@@ -10,6 +10,7 @@ import {
 import API_BASE_URL from "@shared/services/apiClient";
 import RichContent from "@shared/components/ui/RichContent";
 import { richTextToPlain } from "@shared/utils/richText";
+import { getMediumImageUrl, getSmallImageUrl } from "@shared/utils/imageUtils";
 
 const BlogDetails = () => {
   const { slug } = useParams();
@@ -197,7 +198,7 @@ const BlogDetails = () => {
             {blog.image && (
               <div className="h-64 overflow-hidden sm:h-80 lg:h-96">
                 <img
-                  src={blog.image}
+                  src={getMediumImageUrl(blog.image)}
                   alt={
                     blog.title ||
                     blog.heading ||
@@ -271,7 +272,7 @@ const BlogDetails = () => {
                   <div className="flex items-center gap-2">
                     {authorImage ? (
                       <img
-                        src={authorImage}
+                        src={getSmallImageUrl(authorImage)}
                         alt={authorName}
                         className="h-8 w-8 rounded-full object-cover"
                       />
@@ -316,7 +317,7 @@ const BlogDetails = () => {
                   <div className="flex items-center gap-4">
                     {creator.image ? (
                       <img
-                        src={creator.image}
+                        src={getSmallImageUrl(creator.image)}
                         alt={
                           creator.name ||
                           "Content Creator"

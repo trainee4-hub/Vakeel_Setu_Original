@@ -17,6 +17,7 @@ import {
   formatPracticeArea,
   formatTagLabel,
 } from "../utils/advocateProfileUtils";
+import { getMediumImageUrl } from "@shared/utils/imageUtils";
 
 /**
  * Plain website-style profile header: no overlapping avatar, no dark app-style
@@ -89,7 +90,7 @@ return (
         >
           {profileImageUrl ? (
             <img
-              src={profileImageUrl}
+              src={getMediumImageUrl(profileImageUrl)}
               alt={advocateName || "Advocate"}
               className="h-full w-full object-cover"
               onError={(e) => {

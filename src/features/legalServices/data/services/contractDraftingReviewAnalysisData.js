@@ -56,9 +56,9 @@ export const contractDraftingReviewAnalysisData = {
           "bullets": [
               "Parties and definitions: Identify the contracting persons or entities accurately and define technical expressions consistently.",
               "Scope and deliverables: Describe the goods, services, standards and milestones in measurable terms.",
-              "Price and payment: State amounts, taxes, invoicing rules, due dates and consequences of delay. Duration",
-              "and termination: Specify commencement, expiry, renewal, notice and grounds for ending the agreement. Liability",
-              "and remedies: Address warranties, indemnities, limits of liability and consequences of breach.",
+              "Price and payment: State amounts, taxes, invoicing rules, due dates and consequences of delay.",
+              "Duration and termination: Specify commencement, expiry, renewal, notice and grounds for ending the agreement.",
+              "Liability and remedies: Address warranties, indemnities, limits of liability and consequences of breach.",
               "Dispute resolution: Set out applicable law, jurisdiction or an appropriately drafted arbitration mechanism. Confidentiality, data protection, intellectual property and force majeure provisions may also be necessary depending on the transaction."
           ]
       },

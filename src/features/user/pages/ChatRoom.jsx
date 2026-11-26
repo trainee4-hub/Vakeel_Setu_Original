@@ -3,6 +3,7 @@ import { getAuthToken } from '@/utils/auth';
 import {
   API_BASE_URL,
 } from "@shared/services/apiClient";
+import { getSmallImageUrl } from "@shared/utils/imageUtils";
 
 const ChatRoom = ({ consultationId, user, onBack }) => {
     const [consultation, setConsultation] = useState(null);
@@ -217,7 +218,7 @@ const ChatRoom = ({ consultationId, user, onBack }) => {
                         <div className="size-14 rounded-xl bg-slate-100 overflow-hidden border border-slate-200">
                             {otherParty?.profileUrl || otherParty?.personalDetails?.profileUrl || otherParty?.avatar?.url ? (
                                 <img
-                                    src={otherParty?.profileUrl || otherParty?.personalDetails?.profileUrl || otherParty?.avatar?.url}
+                                    src={getSmallImageUrl(otherParty?.profileUrl || otherParty?.personalDetails?.profileUrl || otherParty?.avatar?.url)}
                                     alt={otherParty.name}
                                     className="w-full h-full object-cover"
                                 />
@@ -281,7 +282,7 @@ const ChatRoom = ({ consultationId, user, onBack }) => {
                                         <div className="size-8 rounded-full overflow-hidden flex-shrink-0">
                                             {msg.sender?.profileUrl || msg.sender?.personalDetails?.profileUrl || msg.sender?.avatar?.url ? (
                                                 <img
-                                                    src={msg.sender?.profileUrl || msg.sender?.personalDetails?.profileUrl || msg.sender?.avatar?.url}
+                                                    src={getSmallImageUrl(msg.sender?.profileUrl || msg.sender?.personalDetails?.profileUrl || msg.sender?.avatar?.url)}
                                                     alt={msg.sender.name}
                                                     className="w-full h-full object-cover"
                                                 />

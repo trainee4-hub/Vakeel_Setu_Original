@@ -6,7 +6,7 @@ export const chequeBounceNoticeData = {
   // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
   sections: [
       {
-          "heading": "1. Introduction and Legal Framework in India",
+          "heading": "1. Introduction",
           "paragraphs": [
               "A cheque bounce, also called dishonour of a cheque, occurs when a bank returns a cheque unpaid. Common reasons include insufficient funds, exceeding an agreed overdraft limit, or other banking objections. In India, dishonour of a cheque issued towards a legally enforceable debt or liability may attract consequences under Section 138 of the Negotiable Instruments Act, 1881, provided its statutory conditions are satisfied. A legal demand notice is an important prerequisite to a complaint under this provision."
           ],
@@ -21,12 +21,30 @@ export const chequeBounceNoticeData = {
       },
       {
           "heading": "3. Legal Framework: Negotiable Instruments Act, 1881",
-          "paragraphs": [],
-          "bullets": [
-              "Section 138: Applies where a cheque drawn on an account maintained by the drawer for discharge, wholly or partly, of a legally enforceable debt or liability is returned unpaid for insufficient funds or because it exceeds the arrangement with the bank, subject to the section's conditions and judicial interpretation.",
-              "Section 139: Provides a rebuttable presumption in favour of the holder that the cheque was received for discharge of a debt or liability.",
-              "Section 142: Governs cognizance, limitation for filing complaints and the competent court. Sections 143-147 contain further procedural provisions."
-          ]
+          "paragraphs": [
+              "Proceedings relating to cheque dishonour in India are governed by the statutory framework under Chapter XVII of the Negotiable Instruments Act, 1881:"
+          ],
+          "subsections": [
+              {
+                  "badge": "A",
+                  "title": "Section 138 — Dishonour of Cheque for Insufficiency of Funds",
+                  "intro": "Applies where a cheque drawn on an account maintained by the drawer for discharge, wholly or partly, of a legally enforceable debt or liability is returned unpaid for insufficient funds or because it exceeds the arrangement with the bank, subject to the section's conditions and judicial interpretation.",
+                  "bullets": []
+              },
+              {
+                  "badge": "B",
+                  "title": "Section 139 — Presumption in Favour of Holder",
+                  "intro": "Provides a rebuttable presumption in favour of the holder that the cheque was received for discharge, in whole or in part, of a legally enforceable debt or liability.",
+                  "bullets": []
+              },
+              {
+                  "badge": "C",
+                  "title": "Section 142 — Cognizance of Offences, Limitation & Procedure",
+                  "intro": "Governs judicial cognizance, strict limitation for filing complaints, and the competent court having territorial jurisdiction. Sections 143–147 contain further summary trial, compounding, and procedural provisions.",
+                  "bullets": []
+              }
+          ],
+          "bullets": []
       },
       {
           "heading": "4. Statutory Timeline",

@@ -32,8 +32,7 @@ export const successionEstatePlanningData = {
       {
           "heading": "Registration, Probate and Estate Administration",
           "paragraphs": [
-              "Registration of a will is generally optional under the Registration Act, 1908; registration alone does not establish validity. Probate or letters of administration may be necessary in certain cases depending on the applicable law and circumstances. Executors or administrators must identify estate assets, address lawful debts and liabilities, and distribute the remaining estate in accordance with the will or applicable inheritance rules. Land records, mutation and title documents may require separate action.",
-              "Educational overview | Not a substitute for legal advice"
+              "Registration of a will is generally optional under the Registration Act, 1908; registration alone does not establish validity. Probate or letters of administration may be necessary in certain cases depending on the applicable law and circumstances. Executors or administrators must identify estate assets, address lawful debts and liabilities, and distribute the remaining estate in accordance with the will or applicable inheritance rules. Land records, mutation and title documents may require separate action."
           ],
           "bullets": []
       },

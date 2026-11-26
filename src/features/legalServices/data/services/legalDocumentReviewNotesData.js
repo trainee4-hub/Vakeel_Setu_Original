@@ -73,12 +73,12 @@ export const legalDocumentReviewNotesData = {
           "heading": "7. Step-by-Step Review Procedure",
           "paragraphs": [],
           "bullets": [
-              "Step 1 - Understand the purpose: Obtain instructions, the latest draft and related documents. Step 2 - Verify",
-              "facts: Check names, addresses, property descriptions, amounts, dates and authority to sign. Step 3 - Examine",
-              "legal terms: Review obligations, representations, warranties, liability, termination and dispute-resolution clauses.",
+              "Step 1 - Understand the purpose: Obtain instructions, the latest draft and related documents.",
+              "Step 2 - Verify facts: Check names, addresses, property descriptions, amounts, dates and authority to sign.",
+              "Step 3 - Examine legal terms: Review obligations, representations, warranties, liability, termination and dispute-resolution clauses.",
               "Step 4 - Check compliance: Assess mandatory provisions, stamp duty, registration, approvals and execution formalities.",
-              "Step 5 - Flag risks: Mark unclear, missing, contradictory or one-sided clauses. Step 6 - Revise and",
-              "confirm: Propose changes, resolve comments and retain a final approved version."
+              "Step 5 - Flag risks: Mark unclear, missing, contradictory or one-sided clauses.",
+              "Step 6 - Revise and confirm: Propose changes, resolve comments and retain a final approved version."
           ]
       },
       {

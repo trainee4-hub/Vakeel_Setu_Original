@@ -15,6 +15,7 @@ import {
 } from "../../../services/platform/adminAdvocatesApi";
 import { ADMIN_PATHS, daysUntil, formatDate, formatDateTime } from "../../../utils/adminUtils";
 import { AdvocateTestChip } from "../../../components/advocate/AdvocateTestStatusBadge";
+import { getSmallImageUrl } from "@shared/utils/imageUtils";
 
 function StatusBadge({ status }) {
   const s = String(status || "").toUpperCase();
@@ -446,7 +447,7 @@ export default function AdvocatesList() {
                           render: (row) =>
                             row.profilePhotoUrl ? (
                               <img
-                                src={row.profilePhotoUrl}
+                                src={getSmallImageUrl(row.profilePhotoUrl)}
                                 alt={row.fullName || row.name || "Advocate"}
                                 className="h-9 w-9 rounded-full object-cover ring-1 ring-slate-200"
                               />

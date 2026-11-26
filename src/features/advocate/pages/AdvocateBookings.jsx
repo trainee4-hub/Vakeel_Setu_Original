@@ -7,6 +7,7 @@ import {
 import { useLocation, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { formatDurationHuman } from "@/shared/utils/formatDuration";
+import { getSmallImageUrl } from "@shared/utils/imageUtils";
 
 const MotionSection = motion.section;
 import {
@@ -445,7 +446,7 @@ const ClientAvatar = ({ booking, size = "md" }) => {
     <div className="relative shrink-0">
       {image ? (
         <img
-          src={image}
+          src={getSmallImageUrl(image)}
           alt={name}
           className={`${sizeClass} rounded-2xl object-cover ring-2 ${
             mode.type === "in_person"

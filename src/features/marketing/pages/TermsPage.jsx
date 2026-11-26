@@ -1,31 +1,42 @@
-import React from "react";
-import { FiShield } from "react-icons/fi";
+import React, { useEffect } from "react";
 import TermsAndConditionsContent from "../components/TermsAndConditionsContent";
 
 const TermsPage = () => {
+  // Block copy/print/save keyboard shortcuts on page
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const isCmdOrCtrl = e.ctrlKey || e.metaKey;
+      if (
+        isCmdOrCtrl &&
+        ["c", "C", "p", "P", "s", "S", "a", "A", "u", "U"].includes(e.key)
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown, true);
+    return () => window.removeEventListener("keydown", handleKeyDown, true);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-slate-50 py-10 sm:py-14">
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8 text-center sm:mb-12">
-          <span className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-700">
-            <FiShield className="text-sm" aria-hidden="true" />
-            Legal & Compliance
-          </span>
-
-          <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
-            Terms of Service
-          </h1>
-
-          <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-slate-500 sm:text-base">
-            Please read these terms and conditions carefully before using the AdvocateConnect platform.
-          </p>
-        </div>
-
-        {/* Content Card */}
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-10 lg:p-12">
-          <TermsAndConditionsContent />
-        </div>
+    <div
+      className="min-h-screen bg-slate-100 py-8 sm:py-12 px-4 sm:px-6 select-none"
+      onContextMenu={(e) => e.preventDefault()}
+      onCopy={(e) => e.preventDefault()}
+      onCut={(e) => e.preventDefault()}
+      onDragStart={(e) => e.preventDefault()}
+      style={{
+        userSelect: "none",
+        WebkitUserSelect: "none",
+        MozUserSelect: "none",
+        msUserSelect: "none",
+        WebkitTouchCallout: "none"
+      }}
+    >
+      <div className="mx-auto max-w-4xl bg-white border border-slate-200 rounded-xl shadow-xs p-6 sm:p-14">
+        <TermsAndConditionsContent />
       </div>
     </div>
   );

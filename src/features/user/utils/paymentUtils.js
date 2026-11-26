@@ -1,4 +1,5 @@
 import { formatDurationHuman } from "@/shared/utils/formatDuration";
+import { getSmallImageUrl } from "@shared/utils/imageUtils";
 
 /**
  * Formats an amount with an EXPLICIT unit argument ('RUPEES' or 'PAISE').
@@ -398,7 +399,7 @@ export function getAdvocateAvatarData(booking) {
   const initial = cleaned ? cleaned[0].toUpperCase() : null;
 
   return {
-    photo,
+    photo: getSmallImageUrl(photo),
     name: rawName,
     initial,
   };

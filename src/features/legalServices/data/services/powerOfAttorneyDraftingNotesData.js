@@ -64,8 +64,8 @@ export const powerOfAttorneyDraftingNotesData = {
           "bullets": [
               "Indian Contract Act, 1872: principles of agency, including creation, scope and termination of authority (notably Sections 182 onward).",
               "Powers-of-Attorney Act, 1882: recognizes execution of instruments through an attorney within statutory conditions.",
-              "Registration Act, 1908: Sections 32-33 address presentation of documents for registration and recognition/authentication of powers of attorney for that purpose. Indian Stamp Act, 1899 and",
-              "applicable State stamp laws: determine stamp-duty requirements. Rules on registration, authentication and use may vary by state and transaction."
+              "Registration Act, 1908: Sections 32-33 address presentation of documents for registration and recognition/authentication of powers of attorney for that purpose.",
+              "Indian Stamp Act, 1899 and applicable State stamp laws: determine stamp-duty requirements. Rules on registration, authentication and use may vary by state and transaction."
           ]
       },
       {

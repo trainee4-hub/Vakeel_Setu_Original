@@ -29,14 +29,7 @@ const LegalConsultationCard = ({ serviceTitle = "Legal Services", className = ""
         {/* Subtle Ambient Background Glow */}
         <div className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full bg-amber-500/10 blur-2xl" />
 
-        {/* Top Badges Row */}
-        <div className="flex items-center justify-end border-b border-slate-800/80 pb-4">
-          <div className="flex items-center gap-1 text-[11px] font-black text-amber-300">
-            <FiStar className="fill-amber-400 text-amber-400 text-xs" />
-            <span>Highly Rated</span>
-          </div>
-        </div>
-
+                                                                
         {/* Title & Subtitle */}
         <div className="mt-4">
           <h3 className="text-xl font-black text-white leading-tight tracking-tight">

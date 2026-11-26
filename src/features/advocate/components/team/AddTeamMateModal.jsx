@@ -21,6 +21,7 @@ import {
 } from "react-icons/fi";
 
 import { OtpInput } from "@features/auth";
+import { getSmallImageUrl } from "@shared/utils/imageUtils";
 
 const cleanText = (value) =>
   value === null ||
@@ -452,9 +453,7 @@ export default function AddTeamMateModal({
                           <div className="flex items-start gap-3">
                             {photo ? (
                               <img
-                                src={
-                                  photo
-                                }
+                                src={getSmallImageUrl(photo)}
                                 alt={getName(
                                   advocate,
                                 )}

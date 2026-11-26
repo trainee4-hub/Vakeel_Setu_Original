@@ -9,6 +9,7 @@ import { TableSkeleton } from "@shared/components/feedback/LoadingSkeleton";
 import { Button, Icon } from "@shared/components/ui/Button";
 import { getProfileChangeRequests } from "../../../services/platform/adminAdvocatesApi";
 import { ADMIN_PATHS, formatDateTime, clearAdminCache } from "../../../utils/adminUtils";
+import { getSmallImageUrl } from "@shared/utils/imageUtils";
 
 const FIELD_LABELS = {
   experienceYears: "Experience",
@@ -217,7 +218,7 @@ function getRowAdvocateInfo(row) {
             <div className="flex items-center gap-3 min-w-0">
               {profileImage ? (
                 <img
-                  src={profileImage}
+                  src={getSmallImageUrl(profileImage)}
                   alt={fullName}
                   className="h-9 w-9 shrink-0 rounded-xl object-cover ring-1 ring-slate-200"
                 />

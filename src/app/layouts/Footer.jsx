@@ -26,11 +26,13 @@ import {
 
 import { useAuth } from "../../features/auth";
 import { FeedbackModal } from "../../features/feedback";
+import TermsModal from "../../features/marketing/components/TermsModal";
 
 const Footer = () => {
   const navigate = useNavigate();
   const { isLoggedIn, user, token } = useAuth();
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
 
   const currentYear = new Date().getFullYear();
 
@@ -477,7 +479,7 @@ const Footer = () => {
             <FooterNav ariaLabel="Legal and Support">
               <FooterLink
                 label="Terms of Service"
-                to="/terms"
+                onClick={() => setIsTermsOpen(true)}
                 icon={FiCheckSquare}
               />
 
@@ -485,6 +487,12 @@ const Footer = () => {
                 label="Feedback to Improve Us"
                 onClick={() => setIsFeedbackOpen(true)}
                 icon={FiMessageSquare}
+              />
+
+              <FooterLink
+                label="Terms & Conditions"
+                onClick={() => setIsTermsOpen(true)}
+                icon={FiShield}
               />
             </FooterNav>
 
@@ -639,6 +647,11 @@ const Footer = () => {
         isLoggedIn={isLoggedIn}
         user={user}
         token={token}
+      />
+
+      <TermsModal
+        isOpen={isTermsOpen}
+        onClose={() => setIsTermsOpen(false)}
       />
     </footer>
   );

@@ -397,6 +397,11 @@ const AppRoutes = () => {
         element={<TermsPage />}
       />
 
+      <Route
+        path="/terms-and-conditions"
+        element={<TermsPage />}
+      />
+
       {/* ================= ADVOCATE QUALIFICATION TEST ================= */}
       <Route
         path="/advocate-test"

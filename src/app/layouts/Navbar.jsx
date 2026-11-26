@@ -29,6 +29,7 @@ import { useAuth } from "../../features/auth";
 import LanguageTranslator from "./LanguageTranslator";
 import { LegalServicesMegaMenu, LEGAL_SERVICES_CATEGORIES } from "../../features/legalServices";
 import { buildAuthRedirectUrl } from "../../utils/redirectUtils";
+import { getSmallImageUrl } from "@shared/utils/imageUtils";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -461,11 +462,11 @@ const Navbar = () => {
                       user?.profilePhotoUrl ||
                       user?.avatar?.url ? (
                       <img
-                        src={
+                        src={getSmallImageUrl(
                           user?.profileUrl ||
                           user?.profilePhotoUrl ||
                           user?.avatar?.url
-                        }
+                        )}
                         alt="Profile"
                         className="h-full w-full object-cover"
                       />
@@ -757,11 +758,11 @@ const Navbar = () => {
                         user?.profilePhotoUrl ||
                         user?.avatar?.url ? (
                         <img
-                          src={
+                          src={getSmallImageUrl(
                             user?.profileUrl ||
                             user?.profilePhotoUrl ||
                             user?.avatar?.url
-                          }
+                          )}
                           alt="Profile"
                           className="h-full w-full object-cover"
                         />

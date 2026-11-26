@@ -5,6 +5,7 @@ import {
   FiMapPin,
   FiTrash2,
 } from "react-icons/fi";
+import { getSmallImageUrl } from "@shared/utils/imageUtils";
 
 const initials = (name) => {
   const parts = String(name || "")
@@ -58,7 +59,7 @@ export default function TeamMateCard({
       <div className="flex items-start gap-3">
         {photo ? (
           <img
-            src={photo}
+            src={getSmallImageUrl(photo)}
             alt={name}
             className="h-12 w-12 shrink-0 rounded-2xl object-cover ring-1 ring-slate-200"
           />

@@ -11,6 +11,7 @@ import DeleteConfirmationModal from "@shared/components/ui/DeleteConfirmationMod
 import { ListSkeleton } from "@shared/components/feedback/LoadingSkeleton";
 import { Icon, LinkButton } from "@shared/components/ui/Button";
 import { richTextToPlain } from "@shared/utils/richText";
+import { getSmallImageUrl } from "@shared/utils/imageUtils";
 
 const COLUMNS = [
   {
@@ -21,7 +22,7 @@ const COLUMNS = [
     render: (right) => (
       <div className="flex items-center gap-3">
         {right.photo ? (
-          <img src={right.photo} alt="" className="h-12 w-12 shrink-0 rounded-xl object-cover" loading="lazy" />
+          <img src={getSmallImageUrl(right.photo)} alt="" className="h-12 w-12 shrink-0 rounded-xl object-cover" loading="lazy" />
         ) : (
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-400">
             <Icon name="verified_user" className="text-[20px]" />

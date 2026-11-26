@@ -10,6 +10,7 @@ import {
   rejectProfileChange,
 } from "../../../services/platform/adminAdvocatesApi";
 import { ADMIN_PATHS, formatDateTime } from "../../../utils/adminUtils";
+import { getMediumImageUrl } from "@shared/utils/imageUtils";
 
 function StatusBadge({ status }) {
   const s = String(status || "").toUpperCase();
@@ -660,7 +661,7 @@ export default function ProfileChangeDetail() {
                   className="group relative w-full aspect-square rounded-2xl overflow-hidden border-2 border-amber-400 bg-amber-50 block shadow-sm cursor-pointer"
                 >
                   <img
-                    src={requestedProfilePhoto}
+                    src={getMediumImageUrl(requestedProfilePhoto)}
                     alt="Requested profile"
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-200"
                   />
@@ -691,7 +692,7 @@ export default function ProfileChangeDetail() {
                   className="group relative w-full aspect-video rounded-2xl overflow-hidden border-2 border-amber-400 bg-amber-50 block shadow-sm cursor-pointer"
                 >
                   <img
-                    src={requestedOfficePhoto}
+                    src={getMediumImageUrl(requestedOfficePhoto)}
                     alt="Requested office"
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-200"
                   />
@@ -817,7 +818,7 @@ export default function ProfileChangeDetail() {
         >
           <div className="relative max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-slate-900 shadow-2xl">
             <img
-              src={enlargedPhotoUrl}
+              src={getMediumImageUrl(enlargedPhotoUrl)}
               alt="Enlarged view"
               className="max-h-[85vh] w-auto object-contain"
             />

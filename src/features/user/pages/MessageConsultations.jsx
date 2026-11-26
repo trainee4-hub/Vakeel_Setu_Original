@@ -3,6 +3,7 @@ import { getAuthToken } from '@/utils/auth';
 import {
   API_BASE_URL,
 } from "@shared/services/apiClient";
+import { getSmallImageUrl } from "@shared/utils/imageUtils";
 
 const MessageConsultations = ({ user, onBack, onFindLawyer }) => {
     const [consultations, setConsultations] = useState([]);
@@ -320,7 +321,7 @@ const MessageConsultations = ({ user, onBack, onFindLawyer }) => {
                                             <div className="relative shrink-0">
                                                 <div className="size-12 rounded-xl bg-slate-100 overflow-hidden border border-slate-200">
                                                     {otherParty?.profileUrl || otherParty?.personalDetails?.profileUrl || otherParty?.avatar?.url ? (
-                                                        <img src={otherParty?.profileUrl || otherParty?.personalDetails?.profileUrl || otherParty?.avatar?.url} alt={otherName} className="w-full h-full object-cover" />
+                                                        <img src={getSmallImageUrl(otherParty?.profileUrl || otherParty?.personalDetails?.profileUrl || otherParty?.avatar?.url)} alt={otherName} className="w-full h-full object-cover" />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center text-slate-400">
                                                             <span className="material-symbols-outlined text-xl">person</span>
@@ -371,7 +372,7 @@ const MessageConsultations = ({ user, onBack, onFindLawyer }) => {
                                             <div className="size-12 rounded-xl bg-slate-100 overflow-hidden border border-slate-200 shrink-0">
                                                 {getOtherParty(selectedConsultation)?.profileUrl || getOtherParty(selectedConsultation)?.personalDetails?.profileUrl || getOtherParty(selectedConsultation)?.avatar?.url ? (
                                                     <img
-                                                        src={getOtherParty(selectedConsultation)?.profileUrl || getOtherParty(selectedConsultation)?.personalDetails?.profileUrl || getOtherParty(selectedConsultation)?.avatar?.url}
+                                                        src={getSmallImageUrl(getOtherParty(selectedConsultation)?.profileUrl || getOtherParty(selectedConsultation)?.personalDetails?.profileUrl || getOtherParty(selectedConsultation)?.avatar?.url)}
                                                         alt={getOtherParty(selectedConsultation)?.name || 'User'}
                                                         className="w-full h-full object-cover"
                                                     />

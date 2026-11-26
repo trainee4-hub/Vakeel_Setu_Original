@@ -15,6 +15,7 @@ import {
 } from "../../auth";
 import { getAuthToken } from "@/utils/auth";
 import { API_BASE_URL } from "@shared/services/apiClient";
+import { getMediumImageUrl } from "@shared/utils/imageUtils";
 
 import {
   GOOGLE_TRANSLATE_LANGUAGES,
@@ -1299,9 +1300,9 @@ const handleLanguageChange = (
                     <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200">
                       {profile.profilePhotoUrl ? (
                         <img
-                          src={
+                          src={getMediumImageUrl(
                             profile.profilePhotoUrl
-                          }
+                          )}
                           alt={
                             displayName
                           }

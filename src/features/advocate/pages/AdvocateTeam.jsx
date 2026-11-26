@@ -22,6 +22,7 @@ import {
   UserRoundPlus,
   Users,
 } from "lucide-react";
+import { getSmallImageUrl } from "@shared/utils/imageUtils";
 
 import useAdvocateTeam from "../hooks/useAdvocateTeam";
 
@@ -157,7 +158,7 @@ const TeamAvatar = ({
   if (photo) {
     return (
       <img
-        src={photo}
+        src={getSmallImageUrl(photo)}
         alt={name}
         className={`${sizeClass} shrink-0 rounded-2xl object-cover ring-1 ring-slate-200`}
       />

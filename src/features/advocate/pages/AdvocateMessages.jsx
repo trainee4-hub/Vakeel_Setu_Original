@@ -23,6 +23,7 @@ import {
   ShieldCheck,
   UserRound,
 } from "lucide-react";
+import { getSmallImageUrl } from "@shared/utils/imageUtils";
 
 import { apiRequest } from "@shared/services/apiClient";
 import { getAuthToken } from "@/utils/auth";
@@ -212,7 +213,7 @@ const ClientAvatar = ({ connection, size = "md" }) => {
   if (photo) {
     return (
       <img
-        src={photo}
+        src={getSmallImageUrl(photo)}
         alt={name}
         className={`${sizeClass} shrink-0 rounded-2xl object-cover ring-1 ring-slate-200`}
       />

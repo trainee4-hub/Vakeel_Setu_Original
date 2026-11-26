@@ -22,6 +22,7 @@ import { ADMIN_PATHS, daysUntil, formatDate, formatDateTime } from "../../../uti
 import AdvocateProfileEditDrawer from "./AdvocateProfileEditDrawer";
 import OfficeLocationPicker from "@/features/advocate/components/office/OfficeLocationPicker";
 import { AdvocateTestDetailCard } from "../../../components/advocate/AdvocateTestStatusBadge";
+import { getMediumImageUrl } from "@shared/utils/imageUtils";
 
 export default function AdvocateDetail() {
   const { id } = useParams();
@@ -424,7 +425,7 @@ export default function AdvocateDetail() {
             <div className="flex flex-col items-center text-center">
               {advocate.profilePhotoUrl ? (
                 <img
-                  src={advocate.profilePhotoUrl}
+                  src={getMediumImageUrl(advocate.profilePhotoUrl)}
                   alt={advocateName}
                   className="h-28 w-28 rounded-full object-cover shadow-sm ring-2 ring-slate-100"
                 />
@@ -649,7 +650,7 @@ export default function AdvocateDetail() {
                         title="Click to enlarge"
                       >
                         <img
-                          src={officePhoto}
+                          src={getMediumImageUrl(officePhoto)}
                           alt="Advocate office"
                           className="w-full h-full object-cover group-hover:scale-105 transition duration-200"
                         />
@@ -917,7 +918,7 @@ export default function AdvocateDetail() {
             </div>
             <div className="p-3 flex items-center justify-center max-h-[75vh] overflow-hidden">
               <img
-                src={enlargedPhotoUrl}
+                src={getMediumImageUrl(enlargedPhotoUrl)}
                 alt="Enlarged office view"
                 className="max-h-[75vh] w-auto object-contain rounded-xl shadow"
               />

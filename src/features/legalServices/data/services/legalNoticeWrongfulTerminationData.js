@@ -38,7 +38,7 @@ export const legalNoticeWrongfulTerminationData = {
       {
           "heading": "5. Conclusion",
           "paragraphs": [
-              "A legal notice for wrongful termination helps articulate the grievance, preserve a written record and seek early resolution. Its effectiveness depends on accurately identifying the applicable legal framework, employee category, Educational overview | Indian legal context contractual rights, supporting evidence and appropriate forum. This document is a general educational overview, not a case-specific legal notice or legal advice."
+              "A legal notice for wrongful termination helps articulate the grievance, preserve a written record and seek early resolution. Its effectiveness depends on accurately identifying the applicable legal framework, employee category, contractual rights, supporting evidence and appropriate forum. This document is a general educational overview, not a case-specific legal notice or legal advice."
           ],
           "bullets": []
       }

@@ -1,5 +1,7 @@
 
 
+import { getSmallImageUrl } from "@shared/utils/imageUtils";
+
 /* =========================================================
    CONSULTATION MODES
 ========================================================= */
@@ -109,7 +111,7 @@ export const getAdvocateName = (advocate) => {
 export const getProfileUrl = (person) => {
   if (!person) return "";
 
-  return (
+  const raw =
     person.profilePhotoUrl ||
     person.profileUrl ||
     person.photoUrl ||
@@ -119,8 +121,9 @@ export const getProfileUrl = (person) => {
     person.personalDetails?.profileUrl ||
     person.personalDetails?.photoUrl ||
     person.personalDetails?.photo ||
-    ""
-  );
+    "";
+
+  return getSmallImageUrl(raw);
 };
 
 /* =========================================================

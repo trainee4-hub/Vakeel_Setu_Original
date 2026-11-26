@@ -50,8 +50,8 @@ export const notaryRelatedDocNotesData = {
               "Affidavits: written statements sworn or affirmed before an authorized person.",
               "Declarations and undertakings: written statements or commitments, sometimes notarized when required.",
               "Powers of attorney: authorization documents that may require notarization, authentication, registration, or other formalities depending on use.",
-              "Agreements and indemnity bonds: documents whose signatures may be notarized when requested. Copies and",
-              "translations: certification or verification within the notary's lawful powers."
+              "Agreements and indemnity bonds: documents whose signatures may be notarized when requested.",
+              "Copies and translations: certification or verification within the notary's lawful powers."
           ]
       },
       {

@@ -12,6 +12,7 @@ import {
   FiArrowRight,
   FiRefreshCw,
 } from "react-icons/fi";
+import { getSmallImageUrl } from "@shared/utils/imageUtils";
 
 import {
   DEFAULT_PAGINATION,
@@ -244,7 +245,7 @@ const LegalHubCard = ({
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-amber-50">
         {showPhoto ? (
           <img
-            src={photo}
+            src={getSmallImageUrl(photo)}
             alt={title}
             loading="lazy"
             onError={() => setImageFailed(true)}

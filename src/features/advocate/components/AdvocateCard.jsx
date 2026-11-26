@@ -16,6 +16,7 @@ import AdvocateCardSkeleton from "./skeleton/AdvocateCardSkeleton";
 import useAppLanguage from "@/hooks/useAppLanguage";
 import { getBookLabel } from "@/utils/translationLabels";
 import { buildAuthRedirectUrl } from "@/utils/redirectUtils";
+import { getSmallImageUrl } from "@shared/utils/imageUtils";
 
 const ChipIcon = () => (
   <FaGavel className="h-3 w-3 shrink-0 text-amber-600" />
@@ -319,7 +320,7 @@ const AdvocateCard = ({ advocate, onViewAdvocate }) => {
             >
               {profilePhotoUrl ? (
                 <img
-                  src={profilePhotoUrl}
+                  src={getSmallImageUrl(profilePhotoUrl)}
                   alt={fullName || "Advocate"}
                   className="h-full w-full object-cover"
                   onError={(event) => {

@@ -12,6 +12,7 @@ import {
   FiArrowLeft,
   FiRefreshCw,
 } from "react-icons/fi";
+import { getMediumImageUrl } from "@shared/utils/imageUtils";
 
 import { getUserRightById } from "../services/userRightsApi";
 import RichContent from "@shared/components/ui/RichContent";
@@ -107,7 +108,7 @@ const RightDetails = () => {
               <div className="aspect-[16/9] w-full overflow-hidden bg-amber-50">
                 {showPhoto ? (
                   <img
-                    src={right.photo}
+                    src={getMediumImageUrl(right.photo)}
                     alt={right.title}
                     onError={() => setImageFailed(true)}
                     className="h-full w-full object-cover"

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import { getMediumImageUrl } from "@shared/utils/imageUtils";
 
 const MotionDiv = motion.div;
 import {
@@ -170,7 +171,7 @@ export default function AdvocateTeamMemberProfile() {
                 <div className="flex flex-col sm:flex-row items-start gap-5">
                   {avatar ? (
                     <img
-                      src={avatar}
+                      src={getMediumImageUrl(avatar)}
                       alt={name}
                       className="h-24 w-24 shrink-0 rounded-2xl object-cover ring-2 ring-slate-100 shadow-sm"
                     />

@@ -354,7 +354,7 @@ const LanguageTranslator = ({ mobile = false, compact = false }) => {
         </span>
 
         <span
-          className={`56${
+          className={`material-symbols-outlined text-base transition-transform duration-200 ${
             open ? "rotate-180" : ""
           }`}
         >

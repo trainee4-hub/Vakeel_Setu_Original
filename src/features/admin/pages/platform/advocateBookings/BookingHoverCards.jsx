@@ -7,6 +7,7 @@ import { API_BASE_URL } from "@shared/services/apiClient";
 import { getAuthToken } from "@/utils/auth";
 import { ADMIN_PATHS, formatDate } from "../../../utils/adminUtils";
 import { formatDurationHuman } from "@/shared/utils/formatDuration";
+import { getSmallImageUrl } from "@shared/utils/imageUtils";
 
 
 function formatAmount(amt) {
@@ -379,7 +380,7 @@ function AdvocateCardContent({ advocate, close }) {
             >
               {avatarUrl ? (
                 <img
-                  src={avatarUrl}
+                  src={getSmallImageUrl(avatarUrl)}
                   alt={name}
                   className="h-full w-full rounded-lg object-cover"
                   onError={(e) => {
@@ -692,7 +693,7 @@ export function ClientHoverCell({ item, className = "" }) {
               <div className="h-12 w-12 rounded-xl bg-white p-0.5 shadow-md shadow-slate-950/40 ring-1 ring-white/20 shrink-0 flex items-center justify-center overflow-hidden">
                 {clientAvatarUrl ? (
                   <img
-                    src={clientAvatarUrl}
+                    src={getSmallImageUrl(clientAvatarUrl)}
                     alt={name}
                     className="h-full w-full rounded-lg object-cover"
                     onError={(e) => {

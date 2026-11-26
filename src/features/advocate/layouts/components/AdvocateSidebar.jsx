@@ -11,6 +11,7 @@ import {
   UserRoundPlus,
   Wallet,
 } from "lucide-react";
+import { getSmallImageUrl } from "@shared/utils/imageUtils";
 
 const cleanText = (value) => {
   if (
@@ -63,7 +64,7 @@ const AdvocateAvatar = ({
   if (photo) {
     return (
       <img
-        src={photo}
+        src={getSmallImageUrl(photo)}
         alt={name}
         className="h-11 w-11 shrink-0 rounded-2xl object-cover ring-1 ring-white/10"
       />

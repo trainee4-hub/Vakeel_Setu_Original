@@ -37,7 +37,7 @@ export const giftDeedDraftingData = {
       {
           "heading": "Execution, Registration and Safeguards",
           "paragraphs": [
-              "Before signing, verify title documents, identity records, property details, encumbrances and applicable stamp duty. Ensure the donor signs voluntarily, two witnesses attest an immovable-property gift deed, and the donee Educational overview | Indian legal framework 2 accepts the gift. Present the instrument to the appropriate Sub-Registrar within statutory time limits, pay applicable fees and retain the registered copy. Obtain jurisdiction-specific legal and tax advice where the property, parties or gift conditions are complex."
+              "Before signing, verify title documents, identity records, property details, encumbrances and applicable stamp duty. Ensure the donor signs voluntarily, two witnesses attest an immovable-property gift deed, and the donee accepts the gift. Present the instrument to the appropriate Sub-Registrar within statutory time limits, pay applicable fees and retain the registered copy. Obtain jurisdiction-specific legal and tax advice where the property, parties or gift conditions are complex."
           ],
           "bullets": []
       },

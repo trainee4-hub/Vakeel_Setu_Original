@@ -228,11 +228,6 @@ const LegalServicesMegaMenu = ({ navItemClass, isActive }) => {
                           {svc.title}
                         </h4>
                         <div className="flex items-center gap-1.5 shrink-0">
-                          {svc.isSampleFullPage && (
-                            <span className="rounded-full bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-emerald-700">
-                              Verified
-                            </span>
-                          )}
                           <FiArrowRight
                             className={`${theme.arrowColor} text-base opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 ease-out`}
                           />

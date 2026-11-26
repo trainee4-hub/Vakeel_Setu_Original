@@ -42,6 +42,7 @@ import {
 import OfficeLocationPicker from "../components/office/OfficeLocationPicker";
 import AdvocateCredentialsCard from "../components/AdvocateProfile/sidebar/AdvocateCredentialsCard";
 import AdvocateTestNoticeModal from "../components/AdvocateProfile/modals/AdvocateTestNoticeModal";
+import { getMediumImageUrl } from "@shared/utils/imageUtils";
 
 /* =========================================================================
    HELPERS
@@ -1799,7 +1800,7 @@ export default function AdvocateMyProfile() {
                             title="Click to enlarge"
                           >
                             <img
-                              src={advocate.officePhotoUrl}
+                              src={getMediumImageUrl(advocate.officePhotoUrl)}
                               alt="Office Chamber"
                               className="h-full w-full object-cover transition duration-200 group-hover:scale-105"
                             />
@@ -2406,7 +2407,7 @@ export default function AdvocateMyProfile() {
               <X size={18} />
             </button>
             <img
-              src={enlargedOfficePhoto}
+              src={getMediumImageUrl(enlargedOfficePhoto)}
               alt="Office Chamber Full"
               className="w-full max-h-[75vh] object-contain rounded-xl"
             />

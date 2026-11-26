@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { getSmallImageUrl } from "@shared/utils/imageUtils";
 
 import {
   FiArrowRight,
@@ -103,7 +104,7 @@ const ArticleCard = ({
       >
         {image ? (
           <img
-            src={image}
+            src={getSmallImageUrl(image)}
             alt={title || "Legal Article"}
             className="
               h-full

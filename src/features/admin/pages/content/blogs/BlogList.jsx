@@ -10,6 +10,7 @@ import ResourceTable from "@shared/components/ui/ResourceTable";
 import DeleteConfirmationModal from "@shared/components/ui/DeleteConfirmationModal";
 import { ListSkeleton } from "@shared/components/feedback/LoadingSkeleton";
 import { Icon, LinkButton } from "@shared/components/ui/Button";
+import { getSmallImageUrl } from "@shared/utils/imageUtils";
 
 const blogImage = (blog) => blog.image ?? blog.imageUrl ?? null;
 
@@ -22,7 +23,7 @@ const COLUMNS = [
     render: (blog) => (
       <div className="flex items-center gap-3">
         {blogImage(blog) ? (
-          <img src={blogImage(blog)} alt="" className="h-12 w-16 shrink-0 rounded-lg object-cover" loading="lazy" />
+          <img src={getSmallImageUrl(blogImage(blog))} alt="" className="h-12 w-16 shrink-0 rounded-lg object-cover" loading="lazy" />
         ) : (
           <div className="flex h-12 w-16 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-400">
             <Icon name="image" className="text-[20px]" />

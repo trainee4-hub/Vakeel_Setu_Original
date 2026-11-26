@@ -6,6 +6,7 @@ import {
   FaUser,
 } from "react-icons/fa";
 import { MdVerified } from "react-icons/md";
+import { getMediumImageUrl } from "@shared/utils/imageUtils";
 
 const PremiumAdvocateSlide = memo(function PremiumAdvocateSlide({
   advocate,
@@ -76,7 +77,7 @@ const PremiumAdvocateSlide = memo(function PremiumAdvocateSlide({
         <div className="relative h-[155px] shrink-0 overflow-hidden bg-slate-100 sm:h-full sm:w-[40%]">
           {profileImageUrl ? (
             <img
-              src={profileImageUrl}
+              src={getMediumImageUrl(profileImageUrl)}
               alt={`Portrait of ${advocateName}`}
               className="absolute inset-0 h-full w-full object-cover object-center"
               onError={(event) => {

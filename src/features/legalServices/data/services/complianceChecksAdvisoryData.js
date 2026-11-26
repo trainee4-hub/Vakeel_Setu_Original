@@ -62,9 +62,10 @@ export const complianceChecksAdvisoryData = {
           "paragraphs": [],
           "bullets": [
               "Indian Contract Act, 1872: Provides the general principles governing agreements and enforceable contracts, including free consent, lawful consideration and lawful object.",
-              "Companies Act, 2013: Establishes corporate governance, record-keeping, filing and authorization obligations for companies. Information Technology Act,",
-              "2000: Recognizes electronic records and electronic signatures subject to statutory conditions. Registration Act, 1908 and applicable",
-              "stamp laws: Govern registration and stamp-duty requirements for relevant instruments. Digital Personal Data Protection Act, 2023 and applicable rules and commencement notifications may govern personal-data processing obligations. Sector-specific laws, labour legislation, tax laws and regulatory directions must also be considered wherever relevant."
+              "Companies Act, 2013: Establishes corporate governance, record-keeping, filing and authorization obligations for companies.",
+              "Information Technology Act, 2000: Recognizes electronic records and electronic signatures subject to statutory conditions.",
+              "Registration Act, 1908 and applicable stamp laws: Govern registration and stamp-duty requirements for relevant instruments.",
+              "Digital Personal Data Protection Act, 2023: and applicable rules and commencement notifications may govern personal-data processing obligations. Sector-specific laws, labour legislation, tax laws and regulatory directions must also be considered wherever relevant."
           ]
       },
       {

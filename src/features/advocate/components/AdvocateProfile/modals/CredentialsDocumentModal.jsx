@@ -15,6 +15,7 @@ import {
   QrCode,
   Sparkles,
 } from "lucide-react";
+import { getMediumImageUrl } from "@shared/utils/imageUtils";
 
 export default function CredentialsDocumentModal({
   advocate,
@@ -411,7 +412,7 @@ export default function CredentialsDocumentModal({
                 <div className="mt-5 flex items-start gap-4">
                   {photo ? (
                     <img
-                      src={photo}
+                      src={getMediumImageUrl(photo)}
                       alt={advocateName}
                       className="h-20 w-20 shrink-0 rounded-2xl border-2 border-amber-400/40 object-cover ring-2 ring-white/10"
                     />
