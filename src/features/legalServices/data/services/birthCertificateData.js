@@ -7,6 +7,62 @@
 //       hides those components.
 
 export const birthCertificateData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "A **Birth Certificate** is an official record issued by the competent Registrar of Births and Deaths or other authorised registration authority, recording the birth of a child. It serves as legal evidence of the date and place of birth, the child's name (where entered), and other particulars recorded in the birth register. It is an important civil-status document and is commonly required for school admission, obtaining identity and travel documents, accessing government services, and other administrative or legal purposes. Birth registration is a statutory process in India and is distinct from a hospital discharge summary or medical record of delivery."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Legal Framework",
+          "paragraphs": [
+              "The principal legislation governing registration of births and deaths in India is the **Registration of Births and Deaths Act, 1969** , as amended by the **Registration of Births and Deaths (Amendment) Act, 2023** . The Act provides for compulsory registration of births and deaths and establishes the framework of the Chief Registrar, District Registrars and Registrars appointed by the State Governments or Union Territory Administrations. The detailed procedure is supplemented by the applicable State or Union Territory Registration of Births and Deaths Rules.",
+              "Under the Act, information relating to a birth is required to be given to the prescribed Registrar within the statutory time. Section 8 identifies the persons responsible for reporting births in different circumstances, including births occurring in hospitals or other institutions and births occurring outside such institutions. Section 12 provides for issuance of a certificate after registration, while Section 17 deals with the search of birth and death registers and the issue of certified extracts. The 2023 amendment also provides for a national-level database and enables the use of the birth certificate as a date-and-place-of-birth proof for specified purposes, subject to the statutory provisions and applicable commencement requirements."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Registration and Issuing Authority",
+          "paragraphs": [
+              "Births are registered by the Registrar having jurisdiction over the place where the birth occurred, not ordinarily by reference to the permanent residence of the parents. Depending on the place and circumstances of birth, the registration authority may be the local municipal body, municipal corporation, panchayat or another authority notified by the State or Union Territory. For births in medical institutions, the institution or its authorised officer is generally responsible for reporting the event to the Registrar in accordance with the Act and applicable Rules."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "4. Details and Description of a Birth Certificate",
+          "paragraphs": [
+              "A birth certificate generally contains the registration number, date of registration, date of birth, place of birth, sex of the child, name of the child (if entered), name of the mother and father, and the name or designation of the issuing Registrar. The exact layout and fields may vary according to the State or Union Territory and the prescribed certificate format. A certificate should be checked for accuracy of names, dates and place details before it is used for official purposes."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "5. Delayed Registration of Birth",
+          "paragraphs": [
+              "Where a birth is not reported within the prescribed period, it may still be registered through the delayed-registration procedure under Section 13 of the Act, as amended. The documents, approvals, fees and authority required depend on the period of delay and the applicable State or Union Territory Rules. Applicants may be required to provide supporting records, such as hospital documents, proof of place of birth, parental identity documents or other evidence accepted by the Registrar. The applicant should approach the Registrar having jurisdiction over the place of birth for the current procedure."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "6. Legal Importance and Evidentiary Value",
+          "paragraphs": [
+              "A birth certificate is an important public record and is commonly accepted as primary documentary evidence of the particulars recorded in the register, subject to applicable law and verification. It may be used for school admission, passports, government schemes, identity-related applications, inheritance or other legal and administrative matters where proof of birth is required. However, the certificate does not by itself determine citizenship, parentage disputes, or any legal status beyond the particulars it records; such matters are governed by their respective laws and may require additional evidence."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "7. Correction or Inclusion of Particulars",
+          "paragraphs": [
+              "If an entry in the birth register contains an error, or if a child's name has not been entered, an application may be made to the concerned Registrar under Section 15 of the Act and the applicable State or Union Territory Rules. The Registrar may require documentary proof, declarations or other supporting material and must follow the prescribed procedure. A correction or inclusion is not automatic and is subject to the Registrar's scrutiny and the legal requirements applicable to the case."
+          ],
+          "bullets": [
+              "Note: This document is a general introductory overview for informational purposes and is not a substitute for case-specific legal advice. Registration procedures, forms, fees and documentary requirements may vary by State or Union Territory and may be updated from time to time. Applicants should verify the latest requirements with the local Registrar."
+          ]
+      }
+  ],
+
   serviceSlug: "birth-certificate",
   categorySlug: "government-registration-certificates",
   categoryTitle: "Government Registration & Certificates",
@@ -39,12 +95,6 @@ export const birthCertificateData = {
   introduction: {
     summary:
       "A Birth Certificate is an official record issued by the competent Registrar of Births and Deaths or other authorised registration authority, recording the birth of a child. It serves as legal evidence of the date and place of birth, the child's name (where entered), and other particulars recorded in the birth register. It is commonly required for school admission, obtaining identity and travel documents, accessing government services, and other administrative or legal purposes. Birth registration is a statutory process in India and is distinct from a hospital discharge summary or medical record of delivery.\n\nRegistration of births in India is governed by the Registration of Births and Deaths Act, 1969, as amended by the Registration of Births and Deaths (Amendment) Act, 2023, supplemented by the applicable State or Union Territory Rules. The Act provides for compulsory registration of births, requires information about a birth to be given to the prescribed Registrar within the statutory time, and provides for issuance of a certificate after registration. The 2023 amendment also provides for a national-level database and enables the birth certificate to be used as proof of date and place of birth for specified purposes, subject to the statutory provisions.",
-    highlights: [
-      "Birth registration is compulsory under the Registration of Births and Deaths Act, 1969.",
-      "Information about a birth must be given to the prescribed Registrar within the statutory time (commonly 21 days; verify State/UT Rules).",
-      "A certificate is issued after registration under Section 12; certified extracts are available under Section 17.",
-      "Births not reported in time may still be registered through delayed registration under Section 13, subject to State/UT Rules.",
-    ],
   },
 
   // 2. Applicable Laws & Sections

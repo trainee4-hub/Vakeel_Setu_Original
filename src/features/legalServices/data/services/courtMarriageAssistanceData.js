@@ -2,6 +2,65 @@
 // Primary Statute: Special Marriage Act, 1954 (Act No. 43 of 1954) & State Marriage Rules
 
 export const courtMarriageAssistanceData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "1. INTRODUCTION",
+          "paragraphs": [
+              "Marriage in India is governed by different personal laws and secular statutes. The applicable law depends on the religion or legal route chosen by the parties, the nature of the marriage and the relevant statutory conditions. Some laws govern solemnization and registration, while others deal with marital rights, divorce or related relief. A marriage certificate is issued or recorded by the competent authority under the applicable law and procedure."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. OBJECTIVES & IMPORTANCE",
+          "paragraphs": [],
+          "bullets": [
+              "Provides a legal framework for solemnization, recognition and, where applicable, registration of marriages.",
+              "Sets conditions relating to age, consent, existing spouse and prohibited relationships.",
+              "Creates official evidence of marital status and supports lawful administrative purposes.",
+              "Provides legal remedies and protections relating to matrimonial disputes and child marriage."
+]
+      },
+      {
+          "heading": "3. IMPORTANT MARRIAGE LAWS IN INDIA",
+          "paragraphs": [],
+          "bullets": [
+              "Hindu Marriage Act, 1955 :  Applies to Hindus, Buddhists, Jains and Sikhs, and persons covered by Section 2. Sections 5 and 7 deal with conditions and ceremonies of a Hindu marriage; Section 8 concerns registration. Sections 11-13 deal with void/voidable marriages and divorce; Section 13B provides for divorce by mutual consent.",
+              "Special Marriage Act, 1954 :  Provides a civil form of marriage irrespective of religion, subject to statutory conditions. Sections 4-13 cover eligibility, notice, objections, solemnization and the marriage certificate. Sections 15-18 provide for registration of certain marriages already celebrated in another form.",
+              "Muslim Personal Law (Shariat) Application Act, 1937 :  Provides for application of Muslim Personal Law (Shariat) to specified matters, including marriage and dissolution of marriage, where the Act applies. Muslim marriage is also governed by applicable principles of Muslim personal law; the 1937 Act is not a complete codified marriage procedure.",
+              "Dissolution of Muslim Marriages Act, 1939 :  Specifies grounds on which a Muslim woman may seek dissolution of her marriage through a decree of the court. It is principally a matrimonial-relief statute, rather than a general law prescribing marriage solemnization.",
+              "Indian Christian Marriage Act, 1872 :  Regulates solemnization of Christian marriages in India, including authorised persons, notices, certificates and registration-related requirements. The Divorce Act, 1869 separately deals with divorce and other matrimonial relief for persons to whom it applies.",
+              "Parsi Marriage and Divorce Act, 1936 :  Governs Parsi marriages and divorces. It prescribes conditions for a valid Parsi marriage, including the relevant ceremony, and provides for matrimonial courts and related remedies.",
+              "Anand Marriage Act, 1909 :  Recognises the validity of the Sikh marriage ceremony known as Anand Karaj. Registration provisions were added by amendment; registration does not replace the requirement that the marriage be solemnized according to the applicable ceremony.",
+              "Foreign Marriage Act, 1969 :  Provides a framework for solemnization of marriages of Indian citizens outside India before a Marriage Officer, subject to the Act's conditions and procedure.",
+              "Prohibition of Child Marriage Act, 2006 :  Provides for prevention of child marriages, remedies and penalties. For its purposes, a child is a male who has not completed 21 years and a female who has not completed 18 years. The Act applies across communities, subject to its provisions."
+]
+      },
+      {
+          "heading": "4. GENERAL LEGAL CONDITIONS & REGISTRATION",
+          "paragraphs": [],
+          "bullets": [
+              "Minimum age is generally 21 years for a male and 18 years for a female under the Hindu Marriage Act and Special Marriage Act; the Prohibition of Child Marriage Act also defines child by these ages.",
+              "Requirements concerning consent, existing spouse, prohibited relationships and ceremonies vary with the applicable statute and personal law.",
+              "Registration procedure, authority, forms, documents, witnesses, fees and timelines may vary by State/Union Territory and by the law under which the marriage is registered. Check with the competent Marriage Registrar or Marriage Officer."
+]
+      },
+      {
+          "heading": "5. DOCUMENTS GENERALLY REQUIRED",
+          "paragraphs": [
+              "Depending on the applicable law and local authority, commonly requested documents may include:"
+          ],
+          "bullets": [
+              "Identity & age: Identity proof and date-of-birth/age proof of both parties.",
+              "Address & photographs: Address/residence proof and recent photographs.",
+              "Marriage particulars: Date and place of marriage; ceremony or solemnization details; supporting photographs or invitation, if requested.",
+              "Witnesses & status: Witness identity/address proof where required; divorce decree or former spouse's death certificate, if applicable.",
+              "Note: This is a short general overview of important Indian marriage-related laws, not an exhaustive list or legal opinion. Not every law listed governs the solemnization of every marriage; some laws deal mainly with divorce or related remedies. Always verify the current statute, amendments and local registration requirements before advising or applying.",
+              "Official references: India Code (Ministry of Law and Justice): Hindu Marriage Act, 1955; Special Marriage Act, 1954; Anand Marriage Act, 1909; and other central Acts. https://www.indiacode.nic.in/"
+          ]
+      }
+  ],
+
   serviceSlug: "court-marriage-assistance",
   categorySlug: "government-registration-certificates",
   categoryTitle: "Government Registration & Certificates",
@@ -24,12 +83,6 @@ export const courtMarriageAssistanceData = {
   introduction: {
     summary:
       "Court marriage in India is primarily governed by the Special Marriage Act, 1954—a progressive, secular enactment designed to enable the solemnization and registration of marriage between any two individuals regardless of their religious beliefs, community, or nationality.\n\nUnlike traditional religious ceremonies, court marriage does not require customary rites or ceremonies. It is solemnized directly before the statutory Marriage Officer appointed by the State Government in the district where at least one of the parties has resided for a minimum period of 30 days. The legal process incorporates the submission of a statutory notice, a mandatory 30-day public objection period, formal declaration before three adult witnesses, and the recording of an official entry in the Marriage Certificate Book under Section 13 of the Act, which provides conclusive evidence of a valid marriage.",
-    highlights: [
-      "Secular civil marriage framework open to all Indian citizens and foreign nationals regardless of religion.",
-      "Mandatory statutory age: minimum 21 years for groom and 18 years for bride, with free consent.",
-      "Requires 30 days statutory public notice under Section 5 before solemnization before the Marriage Officer.",
-      "Entry in the official Marriage Certificate Book provides conclusive documentary evidence recognized globally.",
-    ],
   },
 
   applicableLaws: [

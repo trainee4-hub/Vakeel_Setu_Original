@@ -47,7 +47,7 @@ const setGoogleTranslateCookie = (language) => {
   }
 };
 
-const LanguageTranslator = ({ mobile = false }) => {
+const LanguageTranslator = ({ mobile = false, compact = false }) => {
   const wrapperRef = useRef(null);
 
   const [open, setOpen] = useState(false);
@@ -171,6 +171,16 @@ const LanguageTranslator = ({ mobile = false }) => {
 
     setGoogleTranslateCookie(code);
 
+    try {
+      window.dispatchEvent(
+        new CustomEvent("vakeel-language-change", {
+          detail: { language: code },
+        })
+      );
+    } catch {
+      // Ignore
+    }
+
     const googleSelect = document.querySelector(
       ".goog-te-combo",
     );
@@ -224,9 +234,9 @@ const LanguageTranslator = ({ mobile = false }) => {
           aria-expanded={open}
         >
           <span className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-xl text-amber-600">
+            {/* <span className="material-symbols-outlined text-xl text-amber-600">
               language
-            </span>
+            </span> */}
 
             <span>
               Language
@@ -315,31 +325,31 @@ const LanguageTranslator = ({ mobile = false }) => {
   }
 
   /* -----------------------------------------------------------------------
-     DESKTOP
+     DESKTOP / COMPACT
   ----------------------------------------------------------------------- */
 
   return (
     <div
       ref={wrapperRef}
-      className="notranslate relative hidden lg:block"
+      className={`notranslate relative ${compact ? "inline-block" : "hidden lg:block"}`}
       translate="no"
     >
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className={`flex h-10 items-center gap-2 rounded-xl border px-3 transition-all duration-200 ${
+        className={`flex ${compact ? "h-9 px-3 text-xs" : "h-10 px-3 text-xs"} items-center gap-2 rounded-xl border transition-all duration-200 cursor-pointer ${
           open
-            ? "border-amber-300 bg-amber-50 text-amber-700"
-            : "border-slate-200 bg-white text-slate-600 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700"
+            ? "border-amber-400 bg-amber-50 text-amber-700 shadow-xs"
+            : "border-slate-200 bg-white text-slate-700 hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700"
         }`}
         aria-label="Select language"
         aria-expanded={open}
       >
-        <span className="material-symbols-outlined text-xl">
+        <span className={`material-symbols-outlined ${compact ? "text-lg" : "text-xl"}`}>
           language
         </span>
 
-        <span className="max-w-[76px] truncate text-xs font-bold">
+        <span className="max-w-[80px] truncate font-bold">
           {selected.nativeName}
         </span>
 
@@ -353,7 +363,7 @@ const LanguageTranslator = ({ mobile = false }) => {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-[300] mt-3 w-[340px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/10">
+        <div className="absolute right-0 top-full z-[300] mt-2.5 w-[300px] sm:w-[340px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/10">
           <div className="border-b border-slate-100 p-4">
             <div className="mb-3 flex items-start gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">

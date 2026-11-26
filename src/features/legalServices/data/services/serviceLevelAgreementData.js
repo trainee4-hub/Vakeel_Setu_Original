@@ -1,4 +1,51 @@
 export const serviceLevelAgreementData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "A **Service Level Agreement (SLA)** is a contractual arrangement that defines the level and quality of services a provider promises to deliver to a customer. It establishes measurable standards, allocates responsibilities and specifies what happens when agreed service levels are not achieved. SLAs are widely used in information technology, cloud computing, telecommunications, logistics, maintenance and outsourced business services.",
+              "An SLA may form part of a master services agreement or operate as a separate agreement. Common performance indicators include system availability (uptime), response and resolution times, service accuracy, support hours and incident escalation procedures. For example, a cloud provider may commit to 99.9% monthly uptime, subject to clearly defined exclusions and calculation methods."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Objectives and Essential Elements",
+          "paragraphs": [
+              "The principal objective of an SLA is to convert general service promises into **clear, measurable and enforceable obligations** . A well-drafted SLA typically identifies the scope of services; performance metrics and monitoring methods; customer and provider responsibilities; reporting and review procedures; incident management and escalation; permitted downtime; service credits or other remedies; confidentiality and data security; and termination or dispute-resolution provisions.",
+              "Metrics should specify how performance is calculated, the measurement period, the source of monitoring data and any exclusions. Remedies should be proportionate and should be read alongside liability caps and other terms in the main contract."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Legal Framework in India",
+          "paragraphs": [],
+          "bullets": [
+              "Indian Contract Act, 1872: An SLA is generally governed by the principles of contract law. Section 10 addresses the essentials of a valid contract, including free consent, competent parties, lawful consideration and lawful object. Sections 73 and 74 govern compensation for breach and stipulated sums, subject to applicable legal principles. An SLA must therefore contain sufficiently definite obligations and remedies.",
+              "Information Technology Act, 2000: Where SLAs concern electronic services or electronically executed contracts, the Act may be relevant, including recognition of electronic records and electronic contracts under Section 10A. Applicable cybersecurity and electronic-record obligations must also be considered.",
+              "Digital Personal Data Protection Act, 2023: Where service delivery involves digital personal data, applicable provisions and rules, as brought into force, may affect data handling, security, breach response and contractual allocation of responsibilities. Parties should verify the provisions effective on the relevant date.",
+              "Sector-specific regulation: Depending on the service, RBI directions, telecom regulations, consumer-protection requirements, public-procurement terms or other industry-specific rules may apply. Contract terms cannot override mandatory statutory obligations."
+          ]
+      },
+      {
+          "heading": "4. Enforcement and Dispute Resolution",
+          "paragraphs": [
+              "Failure to meet an agreed service level may amount to breach of contract. Depending on the SLA and applicable law, consequences can include service credits, corrective-action plans, damages or termination. Service credits do not automatically exclude other remedies unless the contract validly provides so.",
+              "Disputes may be resolved through negotiation, mediation, arbitration under the Arbitration and Conciliation Act, 1996, or competent courts, as agreed and legally permissible."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "5. Conclusion",
+          "paragraphs": [
+              "An SLA is an important instrument of accountability and risk management. Its legal effectiveness depends on precise service standards, reliable measurement, realistic remedies and consistency with the governing contract and applicable Indian laws. Clear drafting reduces uncertainty, improves service quality and helps both parties manage expectations and disputes."
+          ],
+          "bullets": [
+              "Note: This is an educational overview of Indian law, not legal advice."
+          ]
+      }
+  ],
+
   serviceSlug: "service-level-agreement-sla",
   categorySlug: "business-contracts-agreements",
   categoryTitle: "Business Contracts & Agreements",
@@ -21,12 +68,6 @@ export const serviceLevelAgreementData = {
   introduction: {
     summary:
       "A Service Level Agreement (SLA) is a legally binding contract or contractual schedule between a service provider and a customer that defines the standard, quality, availability, responsiveness and performance metrics expected of the services delivered. In technology, telecommunications, managed services, logistics and business process outsourcing (BPO), SLAs serve as the operational benchmark against which delivery performance is measured, establishing service credits, escalation pathways and termination thresholds for persistent service failure.",
-    highlights: [
-      "Defines quantitative performance metrics including availability, uptime percentages, response times, and resolution windows.",
-      "Establishes service credit calculation formulas and sets out boundaries between reasonable liquidated damages and penalties.",
-      "Incorporates scheduled maintenance exclusions, excused downtime, force majeure, and incident escalation matrices.",
-      "Aligns with statutory data security mandates under the IT Act, 2000 and the Digital Personal Data Protection Act, 2023.",
-    ],
   },
 
   applicableLaws: [

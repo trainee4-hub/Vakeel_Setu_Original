@@ -1,4 +1,47 @@
 export const relinquishmentDeedData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction",
+          "paragraphs": [
+              "A relinquishment deed (also called a release deed in many property transactions) is a legal instrument through which a person who already holds a right or share in property gives up that interest in favour of another person, commonly a co-owner or co-heir. It is frequently used after inheritance, when one legal heir voluntarily releases an undivided share to another. The deed should clearly identify the parties, the property, the interest being relinquished, and whether consideration is paid. Its legal effect depends on the underlying title, the wording of the instrument, and compliance with applicable law."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Purpose and Essential Elements",
+          "paragraphs": [
+              "The deed helps clarify ownership, reduce disputes among co-owners, and create documentary evidence of a voluntary release. Important elements include the full names and capacity of the releasor and releasee; a precise property description and title history; the share being released; a clear declaration of voluntary relinquishment; consideration, if any; execution by competent parties; and appropriate witnesses. A person cannot relinquish a greater interest than they legally possess."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Legal Framework in India",
+          "paragraphs": [],
+          "bullets": [
+              "Transfer of Property Act, 1882: The nature and effect of a transfer must be assessed in light of general property-transfer principles. A release between persons with existing interests may operate differently from a sale or gift; the substance of the transaction matters more than its title.",
+              "Registration Act, 1908: Under section 17, an instrument that creates, declares, assigns, limits or extinguishes rights in immovable property of the prescribed value generally requires compulsory registration. Section 49 restricts the effect and evidentiary use of an unregistered document that was required to be registered, subject to statutory exceptions.",
+              "Indian Stamp Act, 1899 and applicable State stamp laws: Proper stamp duty is required, and rates or classifications for release deeds differ by State, relationship, and transaction type. Under-stamping may affect admissibility until statutory requirements are met.",
+              "Indian Contract Act, 1872: Free consent, lawful object, and competence are relevant to validity. Fraud, coercion, or misrepresentation may expose the deed to challenge."
+          ]
+      },
+      {
+          "heading": "Execution, Registration and Legal Effect",
+          "paragraphs": [
+              "For immovable property, parties generally execute the deed and present it before the jurisdictional Sub-Registrar with identity and property documents, pay applicable stamp duty and registration fees, and complete required verification. Registration does not by itself cure defective title or establish that the releasor owned the share claimed. Mutation in revenue or municipal records may follow, but mutation is primarily an administrative record and is not a substitute for title."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Important Distinction and Conclusion",
+          "paragraphs": [
+              "A relinquishment deed is not interchangeable with a gift deed, sale deed, or partition deed. In particular, a purported release in favour of someone without a pre-existing interest may require analysis as another type of transfer. The proper instrument and charges depend on the facts and State law. A carefully drafted, duly stamped and registered relinquishment deed can provide clarity and legal certainty in co-owned property arrangements, while protecting parties from future disputes.",
+              "Educational overview only; applicable stamp duty, registration rules and case-specific advice should be checked in the relevant State."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "relinquishment-deed",
   categorySlug: "business-contracts-agreements",
   categoryTitle: "Business Contracts & Agreements",
@@ -14,12 +57,6 @@ export const relinquishmentDeedData = {
   introduction: {
     summary:
       "A relinquishment deed (often referred to in Indian property practice as a deed of release) is a legal instrument through which a person gives up, extinguishes or surrenders their existing right, title, share or interest in an immovable property in favour of another person—frequently a co-owner, co-heir or joint titleholder. Relinquishment deeds are widely used in succession matters where multiple legal heirs inherit property and one or more heirs agree to release their share to simplify title or facilitate family settlement.",
-    highlights: [
-      "Operates to extinguish the releasor's existing share and enlarge the rights of co-owners or co-heirs.",
-      "Cannot be executed in respect of a mere expectancy or hope of succession (spes successionis under Section 6(a)).",
-      "Widely utilized in family settlements and succession administration following intestate devolution.",
-      "Requires mandatory registration under Section 17 of the Registration Act, 1908 when dealing with immovable property.",
-    ],
   },
 
   applicableLaws: [

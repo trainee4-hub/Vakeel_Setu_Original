@@ -2,6 +2,62 @@
 // Primary Statutes: Central Goods and Services Tax Act, 2017 & CGST Rules, 2017
 
 export const gstRegistrationData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "**Goods and Services Tax (GST) Registration** is the process through which a business or other eligible person is formally registered under India's GST law and receives a unique Goods and Services Tax Identification Number (GSTIN). GST is a destination-based indirect tax applicable to the supply of goods and services, subject to statutory provisions, exemptions and applicable notifications. Registration enables a taxable person to collect GST where authorised, discharge tax liabilities, issue tax invoices and, subject to prescribed conditions, claim input tax credit. GST registration is administered through the common GST portal by the relevant Central and State/Union Territory tax authorities."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Legal Framework",
+          "paragraphs": [
+              "The principal legislation governing GST registration in India comprises the **Central Goods and Services Tax Act, 2017 (CGST Act)** , the respective State Goods and Services Tax Acts (SGST Acts), the **Union Territory Goods and Services Tax Act, 2017 (UTGST Act)** , and the **Integrated Goods and Services Tax Act, 2017 (IGST Act)** . The procedural requirements are primarily prescribed under the **Central Goods and Services Tax Rules, 2017** , together with applicable State/UT rules, notifications, circulars and amendments.",
+              "Chapter VI of the CGST Act (Sections 22 to 30) deals with registration. Section 22 specifies the persons liable for registration on the basis of aggregate turnover and other prescribed conditions. Section 23 identifies persons who are not liable in specified circumstances, while Section 24 provides for compulsory registration for notified categories, subject to applicable exemptions. Section 25 lays down the procedure for registration, including application requirements. Sections 26 to 30 deal with deemed registration, special provisions for certain taxable persons, amendment, cancellation and revocation of cancellation."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Persons Required to Obtain Registration",
+          "paragraphs": [
+              "A person whose aggregate turnover exceeds the applicable statutory threshold is generally required to obtain GST registration in the State or Union Territory from which taxable supplies are made. Certain persons may also be required to register irrespective of turnover under Section 24, subject to exemptions and notifications issued by the Government. The applicable threshold and compulsory registration requirements depend on the nature of supply, State/UT, business activity and current notifications. Persons exclusively engaged in specified exempt or non-taxable supplies, and agriculturists to the extent covered by Section 23, are among the categories provided statutory relief."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "4. GST Registration Procedure",
+          "paragraphs": [
+              "Applications are generally submitted online through the common GST portal. The applicant provides PAN, mobile number, e-mail address, State/UT and details of the business, promoters or authorised signatory and principal place of business. The application is filed in the prescribed form, generally FORM GST REG-01, with supporting documents and verification as required. The tax officer may examine the application, seek clarification or conduct verification in accordance with the Act and Rules. Once approved, the registration certificate is issued electronically in FORM GST REG-06 and a GSTIN is allotted."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "5. Documents and Information Generally Required",
+          "paragraphs": [
+              "The documents depend on the constitution and activities of the applicant. Common requirements include PAN and identity/address proof of the proprietor, partners or directors; proof of the principal place of business, such as ownership documents, rent or lease agreement and utility bill; business constitution documents, where applicable; bank account details, photographs and details of the authorised signatory. Additional documents may be required depending on the application type and verification process. The current portal checklist should be checked before filing."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "6. Amendment, Cancellation and Revocation",
+          "paragraphs": [
+              "A registered person must apply for amendment of registration particulars when relevant details change, in the manner and within the time prescribed. Registration may be cancelled by the proper officer or on the registered person's application in circumstances specified under Section 29. Where cancellation is ordered by the officer, an eligible registered person may apply for revocation under Section 30, subject to statutory conditions and prescribed procedure. Cancellation does not automatically remove liabilities relating to periods when the registration was active."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "7. Duties and Legal Importance of GST Registration",
+          "paragraphs": [
+              "A registered person is required to comply with applicable GST obligations, including issuing valid tax invoices, charging and paying tax correctly, filing prescribed returns, maintaining records, reporting supplies accurately and updating registration particulars. Input tax credit may be claimed only when the conditions and restrictions under GST law are satisfied. Carrying on business without registration when legally required, or failing to comply with registration conditions and related obligations, may result in tax demands, interest, penalties or other proceedings under the applicable law."
+          ],
+          "bullets": [
+              "Note: This document is a general introductory overview for informational purposes and is not a substitute for case-specific legal or tax advice. GST thresholds, exemptions, forms and procedures may change through amendments and notifications. Applicants should verify the latest requirements on the official GST portal and with the appropriate tax authority before applying."
+          ]
+      }
+  ],
+
   serviceSlug: "gst-registration",
   categorySlug: "government-registration-certificates",
   categoryTitle: "Government Registration & Certificates",
@@ -24,12 +80,6 @@ export const gstRegistrationData = {
   introduction: {
     summary:
       "Goods and Services Tax (GST) Registration is the statutory process through which a business or taxable person is formally enrolled under India's indirect tax regime and allotted a unique 15-digit Goods and Services Tax Identification Number (GSTIN). Regulated under Chapter VI of the Central Goods and Services Tax Act, 2017 and State GST enactments, GST operates as a destination-based consumption tax across supply chains.\n\nObtaining registration authorizes a taxpayer to collect GST on taxable outward supplies, issue statutory tax invoices, and pass on Input Tax Credit (ITC) to downstream commercial purchasers. Operating without registration when legally liable attracts strict civil penalties and denial of credit mechanisms under Section 122 of the Act.",
-    highlights: [
-      "Allotment of unique 15-digit alphanumeric Goods and Services Tax Identification Number (GSTIN).",
-      "Statutory threshold: ₹40 Lakhs for goods (₹20 Lakhs special states) and ₹20 Lakhs for services (₹10 Lakhs special states).",
-      "Compulsory registration under Section 24 for inter-state supplies, e-commerce vendors, and RCM taxpayers.",
-      "Enables legal issuance of tax invoices, interstate transit with e-Way bills, and input tax credit claims.",
-    ],
   },
 
   applicableLaws: [

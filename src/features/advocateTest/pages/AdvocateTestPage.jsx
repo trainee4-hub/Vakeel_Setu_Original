@@ -24,6 +24,7 @@ import {
   submitAdvocateTest,
   rescheduleAdvocateTest,
 } from "../services/advocateTestApi";
+import LanguageTranslator from "../../../app/layouts/LanguageTranslator";
 
 export default function AdvocateTestPage() {
   const [searchParams] = useSearchParams();
@@ -375,8 +376,11 @@ export default function AdvocateTestPage() {
   ========================================================================= */
   if (screen === "LOGIN") {
     return (
-      <div className="min-h-screen bg-slate-50/70 pb-16 pt-12 sm:pt-20">
+      <div className="min-h-screen bg-slate-50/70 pb-16 pt-8 sm:pt-14">
         <div className="mx-auto max-w-md px-4">
+          <div className="mb-4 flex items-center justify-end">
+            <LanguageTranslator compact />
+          </div>
           <div className="text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-950 text-amber-400 shadow-md">
               <Scale className="h-7 w-7" />
@@ -479,18 +483,22 @@ export default function AdvocateTestPage() {
       <div className="min-h-screen bg-slate-50/70 pb-16 pt-12 sm:pt-20">
         <div className="mx-auto max-w-lg px-4">
           <div className="rounded-3xl border border-slate-200/90 bg-white p-6 shadow-xl sm:p-8">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-700">
-                <FileCheck2 className="h-6 w-6" />
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-700">
+                  <FileCheck2 className="h-6 w-6" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-extrabold text-slate-950">
+                    Assessment Instructions
+                  </h2>
+                  <p className="text-xs text-slate-500">
+                    Please review the examination parameters carefully
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-xl font-extrabold text-slate-950">
-                  Assessment Instructions
-                </h2>
-                <p className="text-xs text-slate-500">
-                  Please review the examination parameters carefully
-                </p>
-              </div>
+
+              <LanguageTranslator compact />
             </div>
 
             {loginError && (
@@ -587,27 +595,31 @@ export default function AdvocateTestPage() {
               </span>
             </div>
 
-            {/* Autosave Status */}
-            <div className="flex items-center gap-2 text-xs">
-              <span
-                className={`inline-flex items-center gap-1 font-semibold ${
-                  saveStatus === "SAVED"
-                    ? "text-emerald-700"
-                    : saveStatus === "SAVING"
-                    ? "text-amber-600 animate-pulse"
-                    : "text-rose-600"
-                }`}
-              >
-                {saveStatus === "SAVED" && <CheckCircle2 className="h-3 w-3" />}
-                {saveStatus === "SAVING" && <RefreshCw className="h-3 w-3 animate-spin" />}
-                <span>
-                  {saveStatus === "SAVED"
-                    ? "Autosaved"
-                    : saveStatus === "SAVING"
-                    ? "Saving..."
-                    : "Save Error"}
+            {/* Right: Language Translator & Autosave Status */}
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <LanguageTranslator compact />
+
+              <div className="flex items-center gap-1.5 text-xs">
+                <span
+                  className={`inline-flex items-center gap-1 font-semibold ${
+                    saveStatus === "SAVED"
+                      ? "text-emerald-700"
+                      : saveStatus === "SAVING"
+                      ? "text-amber-600 animate-pulse"
+                      : "text-rose-600"
+                  }`}
+                >
+                  {saveStatus === "SAVED" && <CheckCircle2 className="h-3 w-3" />}
+                  {saveStatus === "SAVING" && <RefreshCw className="h-3 w-3 animate-spin" />}
+                  <span className="hidden sm:inline">
+                    {saveStatus === "SAVED"
+                      ? "Autosaved"
+                      : saveStatus === "SAVING"
+                      ? "Saving..."
+                      : "Save Error"}
+                  </span>
                 </span>
-              </span>
+              </div>
             </div>
           </header>
 
@@ -845,8 +857,11 @@ export default function AdvocateTestPage() {
     const canReschedule = Boolean(result.canRequestReschedule);
 
     return (
-      <div className="min-h-screen bg-slate-50/70 pb-16 pt-12 sm:pt-20">
+      <div className="min-h-screen bg-slate-50/70 pb-16 pt-8 sm:pt-14">
         <div className="mx-auto max-w-lg px-4">
+          <div className="mb-4 flex items-center justify-end">
+            <LanguageTranslator compact />
+          </div>
           <div className="rounded-3xl border border-slate-200/90 bg-white p-6 text-center shadow-xl sm:p-10">
             <div
               className={`mx-auto flex h-16 w-16 items-center justify-center rounded-3xl ${

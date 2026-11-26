@@ -2,6 +2,46 @@
 // Source: NDA_Introduction_Legal_Framework_Why_Needed.pdf
 
 export const ndaData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "A Non-Disclosure Agreement (NDA) is a legally binding contract under which one or more parties agree to protect specified confidential information from unauthorized use or disclosure. NDAs are commonly used when businesses, employers, employees, consultants, investors or prospective partners exchange sensitive information. Such information may include business plans, customer lists, financial data, source code, research, designs, pricing strategies and trade secrets.",
+              "An NDA may be unilateral (only one party discloses confidential information) or mutual (both parties exchange protected information). Its purpose is not to prevent all communication, but to establish clear boundaries for how confidential material may be accessed, used, stored and shared."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Legal Framework in India",
+          "paragraphs": [
+              "Indian Contract Act, 1872: NDAs are generally assessed under the ordinary rules of contract law, including lawful offer and acceptance, consideration, free consent, competence of parties and lawful object. Sections 10 and 23 are particularly relevant. A clause must be reasonable and legally enforceable; simply calling information confidential does not guarantee protection.",
+              "Section 27 and restraint of trade: Clauses that unreasonably restrict a person from pursuing a lawful profession or business may be void. Confidentiality obligations protecting genuine proprietary information are distinguishable from broad non-compete restrictions, but enforceability depends on their wording and circumstances.",
+              "Remedies for breach: Depending on the facts, a party may seek damages or compensation under the Contract Act, and injunctions or other appropriate relief under the Specific Relief Act, 1963. Courts may consider whether the information was truly confidential, whether misuse occurred, and whether the requested restriction is proportionate.",
+              "Other applicable laws: Copyright law may protect qualifying original works, while the Information Technology Act, 2000 and the Digital Personal Data Protection Act, 2023 (as applicable and in force) may impose additional obligations in relevant digital-information or personal-data situations. India does not have a single comprehensive statute governing all trade secrets; contractual duties and judicial remedies are important."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Why an NDA Is Needed",
+          "paragraphs": [
+              "Protects commercially valuable information: It helps prevent competitors or unauthorized persons from obtaining proprietary know-how, pricing, client information and product plans.",
+              "Builds trust during collaboration: Startups, companies, investors, service providers and employees can exchange information with clearly stated expectations and responsibilities.",
+              "Clarifies permitted use: A well-drafted NDA identifies the purpose of disclosure, who may access the information, security measures, duration of confidentiality and what happens when the relationship ends.",
+              "Supports dispute resolution: Written obligations and defined remedies provide evidence of agreed duties if confidential information is misused or leaked."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "4. Essential Clauses and Conclusion",
+          "paragraphs": [
+              "An effective NDA should define confidential information; specify exclusions (such as public information or independently developed material); limit use to a stated purpose; identify permitted recipients; address legally compelled disclosure; set a reasonable duration; require return or destruction of materials; and state governing law, jurisdiction and remedies. It should not attempt to conceal unlawful activity or override statutory rights.",
+              "In conclusion, an NDA is a practical legal safeguard for sensitive business information. Its value depends on precise drafting, lawful and proportionate restrictions, and consistent information-security practices. This overview is educational and not a substitute for advice on a specific agreement."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "non-disclosure-agreement-nda",
   categorySlug: "business-contracts-agreements",
   categoryTitle: "Business Contracts & Agreements",
@@ -24,12 +64,6 @@ export const ndaData = {
   introduction: {
     summary:
       "A Non-Disclosure Agreement (NDA) is a legally binding contract under which one or more parties agree to protect specified confidential information from unauthorized use or disclosure. NDAs are commonly used when businesses, employers, employees, consultants, investors or prospective partners exchange sensitive information. Such information may include business plans, customer lists, financial data, source code, research, designs, pricing strategies and trade secrets.\n\nAn NDA may be unilateral (only one party discloses confidential information) or mutual (both parties exchange protected information). Its purpose is not to prevent all communication, but to establish clear boundaries for how confidential material may be accessed, used, stored and shared.",
-    highlights: [
-      "Protects proprietary know-how, business plans, software algorithms, financials, and customer databases.",
-      "Available as unilateral (one-way disclosure) or mutual (bilateral exchange) confidentiality contracts.",
-      "Distinguishes valid trade-secret protection from impermissible restraint of trade under Section 27 ICA.",
-      "Enforceable through damages under the Contract Act and injunctive relief under the Specific Relief Act.",
-    ],
   },
 
   applicableLaws: [

@@ -2,6 +2,83 @@
 // Source: Property_Documentation_and_Review_Introduction_Legal_Framework.pdf
 
 export const propertyDocumentationReviewData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction and Legal Framework (India)",
+          "paragraphs": [],
+          "bullets": []
+      },
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "Property documentation and review is the systematic examination of legal records relating to ownership, possession, transfer, use and encumbrances of immovable property. Before purchasing, leasing, mortgaging or inheriting property, parties review documents to identify the lawful owner, verify the chain of title and detect legal or financial risks. A sound review reduces the likelihood of fraud, defective transfers and future litigation."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Purpose and Scope",
+          "paragraphs": [
+              "The review seeks to establish clear and marketable title, confirm the identity and authority of parties, examine the property description and boundaries, and determine whether any mortgage, charge, lien, litigation, acquisition notice or third-party claim affects the property. It also checks compliance with applicable land-use, planning, building and tax requirements. The depth of due diligence depends on the property type, location and proposed transaction."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Key Documents Examined",
+          "paragraphs": [
+              "Common records include the registered sale or conveyance deed, prior title deeds forming the chain of ownership, gift or partition deeds, inheritance or succession documents, mutation and revenue records, survey and cadastral maps, encumbrance certificates or search reports, property tax receipts, approved building plans, completion or occupancy certificates where applicable, and relevant society or developer approvals. For property held by a company or through an agent, corporate authorisations and powers of attorney also require verification."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "4. Legal Framework in India",
+          "paragraphs": [],
+          "bullets": [
+              "Transfer of Property Act, 1882: Governs many transfers of immovable property, including sales, mortgages, leases and gifts; Section 54 addresses sale and the legal effect of a contract for sale.",
+              "Registration Act, 1908: Requires registration of specified instruments affecting immovable property, including many conveyances, and sets rules concerning presentation and registration.",
+              "Indian Stamp Act, 1899 and applicable State stamp laws: Govern stamp duty; rates and procedures vary by State."
+          ]
+      },
+      {
+          "heading": "5. Other Applicable Laws",
+          "paragraphs": [],
+          "bullets": [
+              "Indian Contract Act, 1872: Governs formation and enforceability of contractual obligations, including agreements to sell.",
+              "Specific Relief Act, 1963: Provides remedies such as specific performance and injunctions, subject to statutory conditions.",
+              "Real Estate (Regulation and Development) Act, 2016 (RERA): Provides regulatory protections and disclosure requirements for covered real-estate projects. State land-revenue, tenancy, municipal, planning and development laws may also apply. Succession and personal laws may be relevant where title derives from inheritance."
+          ]
+      },
+      {
+          "heading": "6. Practical Review Procedure",
+          "paragraphs": [
+              "A typical review begins with collecting originals or reliable certified copies and matching names, survey numbers, area and boundaries across records. The reviewer traces the title chain, searches Sub-Registrar records and relevant land records, checks mortgages and pending disputes where records permit, and verifies tax and regulatory compliance. Site inspection and independent survey may be necessary to reconcile documentary boundaries with physical possession. Public records alone may not reveal every unregistered interest or dispute."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "7. Common Risks and Safeguards",
+          "paragraphs": [
+              "Important red flags include missing links in the title chain, inconsistent property descriptions, unregistered or inadequately stamped documents, forged signatures, undisclosed co-owners, existing loans, restrictions on transfer, unauthorised construction and disputed possession. Parties should obtain appropriate representations and warranties, insist on discharge of encumbrances, and ensure proper stamping and registration of the final instrument. A mutation entry or tax receipt by itself is generally not conclusive proof of ownership."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "8. Disputes and Legal Remedies",
+          "paragraphs": [
+              "Depending on the facts, disputes may involve declaration of title, cancellation of instruments, injunctions, possession, damages or specific performance. Appropriate proceedings may lie before civil courts, revenue authorities, RERA authorities or other competent forums. Jurisdiction, limitation periods and available relief depend on the transaction and applicable law."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "9. Conclusion",
+          "paragraphs": [
+              "Property documentation and legal review are essential safeguards in real-estate transactions. Careful verification of title, encumbrances, approvals and statutory requirements helps parties make informed decisions and reduces avoidable disputes. Because land records, stamp duties and local rules differ across Indian States, transaction-specific review by a qualified property lawyer is advisable.",
+              "Educational overview only; not a substitute for transaction-specific legal advice."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "property-documentation-legal-review",
   categorySlug: "property-real-estate",
   categoryTitle: "Property & Real Estate",
@@ -24,12 +101,6 @@ export const propertyDocumentationReviewData = {
   introduction: {
     summary:
       "Property documentation and review is the systematic examination of legal records relating to ownership, possession, transfer, use and encumbrances of immovable property. Before purchasing, leasing, mortgaging or inheriting property, parties review documents to identify the lawful owner, verify the chain of title and detect legal or financial risks. A sound review reduces the likelihood of fraud, defective transfers and future litigation.\n\nThe review seeks to establish clear and marketable title, confirm the identity and authority of parties, examine the property description and boundaries, and determine whether any mortgage, charge, lien, litigation, acquisition notice or third-party claim affects the property. It also checks compliance with applicable land-use, planning, building and tax requirements.",
-    highlights: [
-      "Verifies clear and marketable title and unbroken 30-year ownership chain deeds.",
-      "Audits encumbrance certificates (EC), court litigation searches, mutation records, and tax receipts.",
-      "Checks RERA project registrations, approved architectural plans, and Occupancy Certificates (OC).",
-      "Identifies red flags: missing link deeds, forged powers of attorney, co-ownership disputes, and bank mortgages.",
-    ],
   },
 
   applicableLaws: [

@@ -30,15 +30,7 @@ const LegalConsultationCard = ({ serviceTitle = "Legal Services", className = ""
         <div className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full bg-amber-500/10 blur-2xl" />
 
         {/* Top Badges Row */}
-        <div className="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-4">
-          <div className="flex items-center gap-1.5 rounded-full bg-emerald-950/80 px-2.5 py-1 text-[11px] font-bold text-emerald-400 border border-emerald-500/30">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-            </span>
-            <span>180+ Advocates Online</span>
-          </div>
-
+        <div className="flex items-center justify-end border-b border-slate-800/80 pb-4">
           <div className="flex items-center gap-1 text-[11px] font-black text-amber-300">
             <FiStar className="fill-amber-400 text-amber-400 text-xs" />
             <span>Highly Rated</span>

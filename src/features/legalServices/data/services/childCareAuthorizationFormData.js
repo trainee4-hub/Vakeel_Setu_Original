@@ -2,6 +2,65 @@
 // Source: Child_Care_Authorization_Form_Introduction_Legal_Framework.pdf
 
 export const childCareAuthorizationFormData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction and Legal Framework (India)",
+          "paragraphs": [],
+          "bullets": []
+      },
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "A Child Care Authorization Form is a written document by which a parent or lawful guardian permits another responsible adult, such as a relative, caregiver, or school representative, to undertake specified child-care tasks for a limited period. It may cover school pickup, routine supervision, emergency contact, travel within defined limits, or consent to obtain urgent medical assistance. It is generally an authorization for particular activities, not a transfer of parental rights or legal guardianship."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Purpose and Essential Contents",
+          "paragraphs": [
+              "The form helps caregivers and institutions verify who may act for the child and within what limits. It should identify the child, parent or guardian, authorized caregiver, relationship, contact details, effective dates, permitted activities, medical conditions and emergency contacts. It should specify restrictions, a revocation procedure, signatures and, where useful, witnesses or identity verification. Consent for non-emergency medical treatment should be addressed separately where required."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Legal Framework in India",
+          "paragraphs": [
+              "India does not have one general statute that makes every child-care authorization form legally sufficient for all purposes. Its effect depends on the activity, the legal status of the person granting permission, institutional policies, and applicable central and state laws. The Indian Contract Act, 1872 provides general principles relevant to lawful consent and authorization, but a private form cannot override mandatory child-protection or guardianship rules."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "4. Guardianship and Welfare of the Child",
+          "paragraphs": [
+              "The Guardians and Wards Act, 1890 and applicable personal laws, including the Hindu Minority and Guardianship Act, 1956 where relevant, govern guardianship questions. The welfare of the minor is a paramount consideration in guardianship decisions. A caregiver named in an authorization form does not thereby become a court-appointed or statutory guardian. Where a formal guardianship order is necessary, the appropriate legal process must be followed."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "5. Child Protection, Health and Privacy",
+          "paragraphs": [
+              "The Juvenile Justice (Care and Protection of Children) Act, 2015 and the Protection of Children from Sexual Offences Act, 2012 establish important child-safety obligations; a consent form cannot waive them. Health-care providers may require parent or legal guardian consent for non-emergency treatment, while emergencies are assessed under applicable medical law and professional duties. Personal and health information about a child should be collected and shared only as necessary, with attention to applicable data-protection requirements."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "6. Execution, Limits and Revocation",
+          "paragraphs": [
+              "The parent or lawful guardian should sign voluntarily and provide clear, specific authority. Schools, hospitals, airlines and government authorities may insist on their own forms, additional proof, notarization or a court order. Authorization should be time-limited, and the issuer should promptly notify relevant parties if it is revoked. For cross-border travel, custody disputes, adoption or long-term care, specialized legal documents may be required."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "7. Conclusion",
+          "paragraphs": [
+              "A Child Care Authorization Form is a practical tool for everyday caregiving and emergency coordination. Its legal value depends on clear drafting, valid authority, the child's welfare, and compliance with relevant laws and institutional requirements. It should not be confused with a permanent guardianship or custody order.",
+              "Educational overview only; requirements may vary by state, institution, and circumstances."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "child-care-authorization-form",
   categorySlug: "family-personal-documents",
   categoryTitle: "Family & Personal Documents",
@@ -24,12 +83,6 @@ export const childCareAuthorizationFormData = {
   introduction: {
     summary:
       "A Child Care Authorization Form is a written document by which a parent or lawful guardian permits another responsible adult, such as a relative, caregiver, or school representative, to undertake specified child-care tasks for a limited period. It may cover school pickup, routine supervision, emergency contact, travel within defined limits, or consent to obtain urgent medical assistance. It is generally an authorization for particular activities, not a transfer of parental rights or legal guardianship.\n\nThe form helps caregivers and institutions verify who may act for the child and within what limits. It should identify the child, parent or guardian, authorized caregiver, relationship, contact details, effective dates, permitted activities, medical conditions and emergency contacts. It should specify restrictions, a revocation procedure, signatures and, where useful, witnesses or identity verification.",
-    highlights: [
-      "Permits responsible adults or relatives to handle specified child-care duties for a limited period.",
-      "Covers routine supervision, school pickups, emergency contacts, travel limits, and urgent medical care.",
-      "Does NOT constitute a transfer of parental rights or legal guardianship.",
-      "Requires explicit limits, effective dates, revocation terms, and voluntary guardian execution.",
-    ],
   },
 
   applicableLaws: [

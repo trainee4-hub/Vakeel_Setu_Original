@@ -1,4 +1,58 @@
 export const vendorAgreementData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction and Legal Framework in India",
+          "paragraphs": [],
+          "bullets": []
+      },
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "A Vendor Agreement is a legally binding contract between a business or purchaser and a vendor who supplies goods, materials, software, or services. It sets out the parties' rights and obligations, commercial expectations, delivery standards, payment arrangements, and remedies for non-performance. Vendor agreements are widely used in procurement, manufacturing, retail, information technology, logistics, and professional services.",
+              "The agreement helps prevent misunderstandings by recording exactly what must be supplied, when it must be delivered, how quality will be assessed, and who bears particular commercial risks. Depending on the transaction, it may operate as a purchase agreement, supply contract, or services contract. Its precise legal treatment depends on the subject matter and the terms agreed by the parties."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Essential Terms of a Vendor Agreement",
+          "paragraphs": [],
+          "bullets": [
+              "Scope and specifications: A clear description of goods or services, quantities, technical requirements, service standards, and acceptance criteria.",
+              "Price and payment: Rates, invoices, applicable taxes, payment deadlines, and consequences of delayed payment.",
+              "Delivery and performance: Timelines, milestones, inspection procedures, warranties, and responsibility for defects or delays.",
+              "Confidentiality and intellectual property: Protection of business information, ownership or licensing of work product, and restrictions on unauthorized use.",
+              "Risk allocation and exit: Indemnities, reasonable liability limits, insurance where appropriate, termination rights, force majeure, and dispute-resolution procedures."
+          ]
+      },
+      {
+          "heading": "3. Legal Framework in India",
+          "paragraphs": [],
+          "bullets": [
+              "Indian Contract Act, 1872: This is the principal law governing the formation and enforceability of vendor contracts. A valid agreement generally requires lawful consideration and object, free consent, competent parties, and other applicable legal requirements. The Act also provides principles relating to performance, breach, damages, and certain indemnity arrangements.",
+              "Sale of Goods Act, 1930: Where the vendor supplies movable goods, this Act may govern important issues such as transfer of property, conditions and warranties, delivery, and remedies for breach, subject to the contract and applicable law.",
+              "Goods and Services Tax laws: GST legislation may affect invoicing, tax collection, input tax credit, and compliance responsibilities. The contract should identify how applicable taxes and statutory documentation are handled.",
+              "Micro, Small and Medium Enterprises Development Act, 2006: When the vendor qualifies as an eligible micro or small enterprise, statutory provisions on delayed payments and related remedies may apply, notwithstanding inconsistent contractual payment terms.",
+              "Information Technology Act, 2000 and data-protection law: Electronic contracting and records may be relevant. Where personal data is processed, the parties must consider applicable data-protection obligations, including the Digital Personal Data Protection Act, 2023 and provisions brought into force under it."
+          ]
+      },
+      {
+          "heading": "4. Enforcement and Dispute Resolution",
+          "paragraphs": [
+              "A vendor agreement can provide for negotiation, mediation, arbitration, or court proceedings. Arbitration clauses are generally considered under the Arbitration and Conciliation Act, 1996. The parties should specify governing law, jurisdiction, notice requirements, and a workable escalation process. Contractual remedies may include damages, termination, replacement, rectification, or other relief available under applicable law."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "5. Conclusion",
+          "paragraphs": [
+              "A carefully drafted Vendor Agreement promotes transparency, reliable supply, regulatory compliance, and commercial accountability. It protects both purchaser and vendor by setting measurable obligations and a clear framework for handling change, breach, and disputes. Each agreement should be adapted to the nature, value, and legal risks of the particular transaction.",
+              "Educational overview only; not a substitute for transaction-specific legal advice."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "vendor-agreement",
   categorySlug: "business-contracts-agreements",
   categoryTitle: "Business Contracts & Agreements",
@@ -21,12 +75,6 @@ export const vendorAgreementData = {
   introduction: {
     summary:
       "A vendor agreement is a commercial contract entered into between a business (the buyer or client) and an independent supplier or service provider (the vendor) governing the purchase, supply and delivery of goods, materials, software or services. In Indian commercial practice, vendor agreements establish the baseline legal and operational rules for supply chain relationships, procurement operations and enterprise outsourcing, defining delivery standards, pricing mechanisms, risk allocation, regulatory compliance and dispute resolution procedures.",
-    highlights: [
-      "Defines procurement terms, supply schedules, purchase order mechanisms, and acceptance testing protocols.",
-      "Governs title transfer and risk allocation in accordance with the Sale of Goods Act, 1930.",
-      "Incorporates statutory payment protection and interest penalties under the MSMED Act, 2006.",
-      "Regulates tax deductions at source (TDS), GST compliance, confidentiality, and data protection.",
-    ],
   },
 
   applicableLaws: [

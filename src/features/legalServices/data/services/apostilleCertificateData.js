@@ -2,6 +2,62 @@
 // Source: Apostille_Certificate_Introduction_Legal_Framework_Revised.pdf
 
 export const apostilleCertificateData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "An **Apostille Certificate** is an official certificate that authenticates the origin of a public document intended to be used in another country that is a party to the Hague Apostille Convention, 1961. It simplifies cross-border use of public documents by replacing the traditional chain of diplomatic or consular legalisation with a single certificate issued by the competent authority of the country where the document originated. In India, the Ministry of External Affairs (MEA) is the designated authority for issuing Apostilles on eligible Indian documents."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Legal Framework",
+          "paragraphs": [
+              "The principal international instrument is the **Convention of 5 October 1961 Abolishing the Requirement of Legalisation for Foreign Public Documents** , commonly known as the Hague Apostille Convention. The Convention applies to public documents executed in the territory of one Contracting State and produced in another Contracting State. India became a party to the Convention in 2005. The Convention provides a standardised method for authenticating the signature, the capacity in which the signatory acted, and, where appropriate, the identity of the seal or stamp on the document.",
+              "Under Article 3, the Apostille is generally the only formality that may be required to establish the authenticity of the signature, the capacity of the signatory and the identity of the seal or stamp. Article 6 requires each Contracting State to designate the authorities competent to issue Apostilles. India has designated the **Ministry of External Affairs, Government of India** as its competent authority. The Apostille follows the model certificate set out in the Convention's Annex and contains ten standard numbered information fields."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Documents Commonly Covered",
+          "paragraphs": [
+              "The Convention covers public documents as classified under the law of the country where they are issued. Common examples include birth, death and marriage certificates; educational certificates and degrees; documents issued by courts or public authorities; notarial acts; affidavits and powers of attorney, subject to the applicable authentication requirements. The Convention does not generally cover documents executed by diplomatic or consular agents, or certain administrative documents relating directly to commercial or customs operations."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "4. Legal Effect and Limitations",
+          "paragraphs": [
+              "An Apostille certifies the **origin** of the public document; it does not certify the truth, accuracy or legal validity of the document's contents. It does not approve the transaction recorded in the document, nor does it make an otherwise invalid document valid. The receiving country and the authority or institution considering the document may determine its substantive legal effect under their own law. An Apostille is intended for use abroad and cannot be used to authenticate a document for use in the country in which it was issued."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "5. Apostille Procedure in India",
+          "paragraphs": [
+              "The MEA's process generally involves prior authentication of the document by the designated authority in the relevant State or Union Territory, followed by submission through the MEA's authorised channels for Apostille. The authentication route may differ depending on whether the document is personal, educational or commercial. The MEA also provides the e-Sanad facility for eligible documents. Applicants should check the current MEA instructions, document-specific requirements, authorised submission channels, fees and processing arrangements before applying."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "6. Apostille and Normal Attestation",
+          "paragraphs": [
+              "Apostille is used where the destination country is a party to the Hague Apostille Convention and the Convention applies to the document. For a country that is not a party, or where Apostille is not accepted, the document generally requires the applicable **normal attestation/legalisation** process. The destination country's current requirements should always be confirmed before documents are submitted."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "7. Recognition in India",
+          "paragraphs": [
+              "The MEA has clarified that a document apostilled by the competent authority of a country that is party to the Convention should not ordinarily require further attestation or legalisation by an Indian Mission or Post for use in India. The apostilled document is to be treated as legalised in accordance with India's obligations under the Convention. This does not prevent the receiving institution from checking the document's contents or applying other substantive requirements under Indian law."
+          ],
+          "bullets": [
+              "Note: This document is a general introductory overview for informational purposes and is not a substitute for case-specific legal advice. Requirements, procedures and fees may change; verify the latest official instructions before relying on them."
+          ]
+      }
+  ],
+
   serviceSlug: "apostille-certificate-document-apostille",
   categorySlug: "government-registration-certificates",
   categoryTitle: "Government Registration & Certificates",
@@ -24,12 +80,6 @@ export const apostilleCertificateData = {
   introduction: {
     summary:
       "An Apostille Certificate is an official certificate that authenticates the origin of a public document intended to be used in another country that is a party to the Hague Apostille Convention, 1961. It simplifies cross-border use of public documents by replacing the traditional chain of diplomatic or consular legalisation with a single certificate issued by the competent authority of the country where the document originated. In India, the Ministry of External Affairs (MEA) is the designated authority for issuing Apostilles on eligible Indian documents.\n\nAn Apostille certifies the origin of the public document; it does not certify the truth, accuracy or legal validity of the document's contents. It does not approve the transaction recorded in the document, nor does it make an otherwise invalid document valid. The receiving country and the authority or institution considering the document may determine its substantive legal effect under their own law. An Apostille is intended for use abroad and cannot be used to authenticate a document for use in the country in which it was issued.",
-    highlights: [
-      "Authenticates origin of public documents for Hague Apostille Convention member countries.",
-      "Replaces traditional diplomatic or consular legalisation with a single standardised certificate.",
-      "Ministry of External Affairs (MEA), Government of India is the designated competent authority.",
-      "Contains ten standard numbered information fields prescribed by the Convention.",
-    ],
   },
 
   applicableLaws: [

@@ -2,6 +2,72 @@
 // Source: Name_Change_Official_Gazette_India_Revised.pdf
 
 export const nameChangeGazetteData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "1. INTRODUCTION",
+          "paragraphs": [
+              "A person may wish to change, correct, add or remove a name or surname for personal, family, matrimonial or other lawful reasons. In India, there is no single central statute prescribing one uniform procedure for every name change. The process is generally governed by the applicable State/Union Territory rules and the publication requirements of the relevant Gazette authority. For a Central Government publication, an individual may apply to the Department of Publication for notification in the Gazette of India, ordinarily Part IV, subject to the applicable category-specific guidelines.",
+              "A Gazette notification is an official public record of the notified change. It is commonly used as supporting evidence when requesting updates in identity, educational, employment, banking or other records. Acceptance and the documents required for updating each record remain subject to the rules of the concerned authority; Gazette publication does not automatically amend every database or document."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. OBJECTIVES & IMPORTANCE",
+          "paragraphs": [],
+          "bullets": [
+              "Creates an official public record of the declared name change.",
+              "Provides supporting documentary evidence for updating personal and official records.",
+              "Helps establish continuity between the former name and the new name.",
+              "May be relevant for changes following marriage, divorce, adoption or other lawful personal circumstances."
+]
+      },
+      {
+          "heading": "3. LEGAL FRAMEWORK & OFFICIAL GUIDELINES",
+          "paragraphs": [
+              ""
+          ],
+          "bullets": [
+              "No single central Name Change Act: General name changes are not governed by one standalone central Act. The applicable State/UT procedure and the requirements of the Gazette authority must be checked. ",
+              "Department of Publication guidelines: The Department of Publication, Government of India, publishes category-specific instructions for Gazette of India Part IV, including separate guidance for adults, minors, adoption, change of religion, surname changes and other public notices. ",
+              "State/UT Gazettes: States and Union Territories may have their own Gazette publication systems, forms, fees and procedures. Applicants should confirm whether a State/UT Gazette or Gazette of India publication is appropriate for the purpose and the authority where records will be updated."
+          ]
+      },
+      {
+          "heading": "4. GENERAL PROCEDURE FOR AN ADULT NAME CHANGE",
+          "paragraphs": [],
+          "bullets": [
+              "Prepare the required name-change declaration/undertaking or deed, clearly stating the old name, proposed new name and relevant personal particulars.",
+              "Publish the prescribed name-change notice in a qualifying newspaper, where required by the applicable Gazette guidelines.",
+              "Complete the relevant Gazette application/proforma and arrange the supporting documents in the prescribed format.",
+              "Submit the application, request letter and applicable publication fee through the method specified by the concerned Gazette authority. The Central Department's published adult guideline describes submission requirements for Gazette of India Part IV.",
+              "After publication, obtain the Gazette notification and use it with the supporting declaration and other records to request updates from the relevant authorities."
+]
+      },
+      {
+          "heading": "5. DOCUMENTS GENERALLY REQUIRED",
+          "paragraphs": [
+              "For an adult application to the Gazette of India, the Department of Publication's published guideline lists documents including the following. The current category-specific checklist must be checked before filing:"
+          ],
+          "bullets": [
+              "Undertaking / declaration: Signed statement of old name, new name and required personal particulars.",
+              "Newspaper copy: Original newspaper carrying the name-change advertisement, where required.",
+              "Prescribed proforma: Typed application/publication matter in the required number of copies, signed as instructed; witness details may be required.",
+              "Identity & photographs: Self-attested identity proof and prescribed recent passport-size photographs.",
+              "Request & fee: Request letter and payment of the current prescribed publication fee; additional electronic or certification requirements may apply."
+          ]
+      },
+      {
+          "heading": "6. IMPORTANT POINTS",
+          "paragraphs": [],
+          "bullets": [
+              "Minor name changes, adoption-related changes, change of religion, gender-related notices and surname changes may follow separate guidelines and require additional documents or consent.",
+              "Fees, formats, newspaper requirements and submission methods can change. Do not rely on old fee amounts or generic online checklists.",
+              "After Gazette publication, separately apply to each relevant authority (such as passport, Aadhaar, PAN, educational institution or employer) with the documents it requires."
+]
+      }
+  ],
+
   serviceSlug: "name-change-documentation",
   categorySlug: "government-registration-certificates",
   categoryTitle: "Government Registration & Certificates",
@@ -24,12 +90,6 @@ export const nameChangeGazetteData = {
   introduction: {
     summary:
       "A person may wish to change, correct, add or remove a name or surname for personal, family, matrimonial or other lawful reasons. In India, there is no single central statute prescribing one uniform procedure for every name change. The process is generally governed by the applicable State/Union Territory rules and the publication requirements of the relevant Gazette authority. For a Central Government publication, an individual may apply to the Department of Publication for notification in the Gazette of India, ordinarily Part IV, subject to the applicable category-specific guidelines.\n\nA Gazette notification is an official public record of the notified change. It is commonly used as supporting evidence when requesting updates in identity, educational, employment, banking or other records. Acceptance and the documents required for updating each record remain subject to the rules of the concerned authority; Gazette publication does not automatically amend every database or document.",
-    highlights: [
-      "Official public record published in Part IV of the Gazette of India by Department of Publication.",
-      "Recognized by Passport Seva Kendras, UIDAI (Aadhaar), NSDL (PAN), banks, and universities.",
-      "Follows a 3-step legal sequence: Notary Affidavit, Newspaper Publication, and Gazette Application.",
-      "Specific guidelines apply for adults, minors, religion change, adoption, and surname modifications.",
-    ],
   },
 
   applicableLaws: [

@@ -2,6 +2,68 @@
 // Source: Living_Will_Advance_Medical_Directive_Introduction_Legal_Framework.pdf
 
 export const livingWillAdvanceMedicalDirectiveData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "A living will, also called an Advance Medical Directive (AMD), is a written statement made by a competent adult setting out preferences about future medical treatment if the person later loses the ability to make or communicate decisions. It is distinct from an ordinary property will, which concerns distribution of assets after death. An AMD generally addresses circumstances involving terminal illness or irreversible medical conditions and may express wishes regarding life-sustaining treatment."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Purpose and Importance",
+          "paragraphs": [
+              "An AMD helps preserve patient autonomy and dignity, guides doctors and family members during difficult end-of-life decisions, and reduces uncertainty or conflict. It does not authorize euthanasia by administering a lethal substance. Its operation is subject to clinical assessment, safeguards, and applicable law."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Constitutional and Judicial Framework",
+          "paragraphs": [
+              "Article 21 of the Constitution of India protects life and personal liberty. In Common Cause (A Registered Society) v. Union of India (2018), the Supreme Court recognized the right to die with dignity in the context of end-of-life care, permitted passive euthanasia under safeguards, and recognized advance directives. The Court distinguished withholding or withdrawing life-sustaining treatment from active euthanasia, which remains unlawful."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "4. Supreme Court Guidelines and 2023 Changes",
+          "paragraphs": [
+              "In January 2023, the Supreme Court modified its earlier procedural directions to make execution and implementation of advance directives more practicable. The revised framework addresses execution before witnesses, attestation, custody of the directive, medical-board review, and communication with relevant persons and authorities. The precise steps must be checked against the operative Supreme Court directions and any subsequent applicable rules."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "5. Key Elements of an Advance Medical Directive",
+          "paragraphs": [
+              "A carefully prepared directive should identify the maker; confirm adulthood, sound decision-making capacity and voluntary execution; clearly describe treatment preferences and circumstances in which they apply; identify a nominated representative or guardian where appropriate; and provide a process for communicating, updating, or revoking the directive. Ambiguous wording can complicate implementation."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "6. Medical Review and Implementation",
+          "paragraphs": [
+              "An AMD is not automatically implemented merely because a patient is seriously ill. Treating clinicians must assess the patient's condition, capacity and prognosis, and follow the required institutional and medical-board safeguards before decisions about withholding or withdrawing treatment. Palliative care and comfort measures remain important aspects of humane end-of-life treatment."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "7. Legal Limitations and Safeguards",
+          "paragraphs": [
+              "An advance directive must be voluntary and made by a person with legal capacity. It may be revoked or modified while the maker remains competent. Family preferences do not automatically override a valid directive, but disputes or uncertainty may require additional review or judicial intervention. Hospitals and practitioners should preserve medical records and document compliance with the governing procedure."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "8. Conclusion",
+          "paragraphs": [
+              "A living will provides a legally significant means of expressing end-of-life healthcare choices in advance. In India, its legal basis rests principally on Article 21 and the Supreme Court's Common Cause rulings of 2018 and 2023. Effective use requires clear drafting, informed decision-making and careful adherence to the prescribed medical safeguards."
+          ],
+          "bullets": [
+              "Note: Educational overview only; not a substitute for jurisdiction-specific legal or medical advice."
+          ]
+      }
+  ],
+
   serviceSlug: "living-will-advance-medical-directive",
   categorySlug: "family-personal-documents",
   categoryTitle: "Family & Personal Documents",
@@ -24,12 +86,6 @@ export const livingWillAdvanceMedicalDirectiveData = {
   introduction: {
     summary:
       "A living will, also called an Advance Medical Directive (AMD), is a written statement made by a competent adult setting out preferences about future medical treatment if the person later loses the ability to make or communicate decisions. It is distinct from an ordinary property will, which concerns distribution of assets after death. An AMD generally addresses circumstances involving terminal illness or irreversible medical conditions and may express wishes regarding life-sustaining treatment.\n\nAn AMD helps preserve patient autonomy and dignity, guides doctors and family members during difficult end-of-life decisions, and reduces uncertainty or conflict. It does not authorize euthanasia by administering a lethal substance. Its operation is subject to clinical assessment, safeguards, and applicable law.",
-    highlights: [
-      "Preserves patient autonomy and right to die with dignity under Article 21 of the Constitution.",
-      "Recognised by the Supreme Court in Common Cause (2018) and streamlined under January 2023 guidelines.",
-      "Addresses withholding or withdrawing life-sustaining treatment in terminal or vegetative conditions.",
-      "Appoints a nominated healthcare representative or guardian to communicate the maker's wishes.",
-    ],
   },
 
   applicableLaws: [

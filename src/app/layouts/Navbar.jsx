@@ -70,7 +70,7 @@ const Navbar = () => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("touchstart", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside, { passive: true });
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -100,6 +100,12 @@ const Navbar = () => {
       );
     });
   };
+
+  const isLoginActive = location.pathname === "/login";
+  const isSignupActive =
+    location.pathname === "/signup" ||
+    location.pathname.startsWith("/signup") ||
+    location.pathname === "/advocate/signup";
 
   /* =========================================================================
      NAV ITEM CLASS
@@ -176,7 +182,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="fixed inset-x-0 top-0 z-[100] w-full border-b border-slate-200/60 bg-white/95 shadow-sm backdrop-blur-xl">
+    <header className="fixed inset-x-0 top-0 z-[100] w-full border-b border-slate-200/80 bg-white/95 sm:backdrop-blur-md shadow-xs will-change-transform transform-gpu">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         {/* ===============================================================
             MAIN NAVBAR
@@ -564,13 +570,17 @@ const Navbar = () => {
               </div>
             ) : (
               /* =========================================================
-                  GUEST
+                  GUEST (Login & Sign Up with active states & animations)
               ========================================================= */
 
               <div className="flex items-center gap-2">
                 <Link
                   to={buildAuthRedirectUrl("/login", location.pathname + location.search)}
-                  className="notranslate rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700"
+                  className={`notranslate rounded-xl px-4 py-2.5 text-sm font-bold transition-all duration-200 transform active:scale-95 cursor-pointer ${
+                    isLoginActive
+                      ? "border-2 border-amber-500 bg-amber-50/70 text-amber-700 shadow-xs"
+                      : "border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:text-slate-900 hover:bg-slate-50"
+                  }`}
                   translate="no"
                 >
                   Login
@@ -578,12 +588,15 @@ const Navbar = () => {
 
                 <Link
                   to={buildAuthRedirectUrl("/signup", location.pathname + location.search)}
-                  className="notranslate rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-2.5 text-sm font-bold text-white"
+                  className={`notranslate rounded-xl px-5 py-2.5 text-sm font-bold text-white transition-all duration-200 transform active:scale-95 cursor-pointer ${
+                    isSignupActive
+                      ? "bg-gradient-to-r from-amber-600 to-amber-700 shadow-md shadow-amber-500/30 ring-2 ring-amber-500 ring-offset-2"
+                      : "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 hover:shadow-md hover:shadow-amber-500/20"
+                  }`}
                   translate="no"
                 >
                   Sign Up
                 </Link>
-
               </div>
             )}
 
@@ -614,8 +627,8 @@ const Navbar = () => {
         =============================================================== */}
 
         {mobileMenu && (
-          <div className="pb-4 lg:hidden">
-            <div className="space-y-1 rounded-2xl border border-slate-200 bg-slate-50 p-2">
+          <div className="pb-4 lg:hidden max-h-[calc(100vh-5.5rem)] overflow-y-auto overscroll-contain">
+            <div className="space-y-1 rounded-2xl border border-slate-200 bg-slate-50 p-2 shadow-lg">
               {/* Home */}
               <Link
                 to="/"
@@ -812,21 +825,31 @@ const Navbar = () => {
                 <>
                   <div className="my-2 h-px bg-slate-200" />
 
-                  <Link
-                    to={buildAuthRedirectUrl("/login", location.pathname + location.search)}
-                    onClick={handleMobileNavigation}
-                    className="block w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-bold text-slate-700"
-                  >
-                    Login
-                  </Link>
+                  <div className="grid grid-cols-2 gap-2 pt-1">
+                    <Link
+                      to={buildAuthRedirectUrl("/login", location.pathname + location.search)}
+                      onClick={handleMobileNavigation}
+                      className={`block w-full rounded-xl py-3 px-4 text-center text-sm font-bold transition-all duration-150 active:scale-95 cursor-pointer ${
+                        isLoginActive
+                          ? "border-2 border-amber-500 bg-amber-50 text-amber-800 shadow-xs"
+                          : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                      }`}
+                    >
+                      Login
+                    </Link>
 
-                  <Link
-                    to={buildAuthRedirectUrl("/signup", location.pathname + location.search)}
-                    onClick={handleMobileNavigation}
-                    className="block w-full rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-3 text-center text-sm font-bold text-white cursor-poi"
-                  >
-                    Sign Up
-                  </Link>
+                    <Link
+                      to={buildAuthRedirectUrl("/signup", location.pathname + location.search)}
+                      onClick={handleMobileNavigation}
+                      className={`block w-full rounded-xl py-3 px-4 text-center text-sm font-bold text-white transition-all duration-150 active:scale-95 cursor-pointer ${
+                        isSignupActive
+                          ? "bg-gradient-to-r from-amber-600 to-amber-700 shadow-md shadow-amber-500/30 ring-2 ring-amber-500 ring-offset-1"
+                          : "bg-gradient-to-r from-amber-500 to-amber-600 shadow-xs hover:from-amber-600 hover:to-amber-700"
+                      }`}
+                    >
+                      Sign Up
+                    </Link>
+                  </div>
                 </>
               )}
             </div>

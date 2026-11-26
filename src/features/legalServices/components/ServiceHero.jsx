@@ -80,10 +80,10 @@ const ServiceHero = ({
                 <span>Statutory Legal Service</span>
               </div>
 
-              {/* H1 Title with Enhanced Attractive Visual Polish */}
+              {/* H1 Title matching Menu and PDF title exactly */}
               <h1 className="text-2xl sm:text-4xl md:text-[42px] font-black tracking-tight leading-[1.2] text-white">
                 <span className="bg-gradient-to-r from-white via-slate-100 to-amber-200/90 bg-clip-text text-transparent">
-                  {h1 || title}
+                  {title}
                 </span>
               </h1>
 

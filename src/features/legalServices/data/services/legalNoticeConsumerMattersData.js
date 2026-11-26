@@ -2,6 +2,60 @@
 // Source: Legal_Notice_Consumer_Matters_Introduction_Legal_Framework.pdf
 
 export const legalNoticeConsumerMattersData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "A legal notice in a consumer matter is a formal written communication sent by a consumer to a seller, manufacturer, service provider or other concerned party alleging a defect in goods, deficiency in services, unfair trade practice or another actionable consumer grievance. It describes the transaction, explains the problem, requests a remedy and sets a reasonable deadline for response. A notice may help resolve the dispute without litigation and create a clear record of the complaint."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Purpose and Essential Contents",
+          "paragraphs": [
+              "A well-drafted notice identifies the parties; states the purchase or service date, price and relevant order or invoice details; explains the defect or deficiency; records earlier complaints and supporting evidence; and demands an appropriate remedy, such as refund, replacement, repair, removal of deficiency or compensation where legally justified. It should specify a reasonable response period and indicate that the consumer may pursue lawful remedies if the issue remains unresolved. Statements should be factual, proportionate and supported by records."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Principal Legal Framework",
+          "paragraphs": [
+              "The Consumer Protection Act, 2019 is the principal Indian statute governing consumer rights and remedies. It recognizes rights relating to safety, information, choice, being heard, redressal and consumer awareness. The Act addresses defects in goods, deficiencies in services, unfair and restrictive trade practices, misleading advertisements and product liability, subject to its definitions and conditions. Consumer disputes may be brought before the appropriate District, State or National Consumer Disputes Redressal Commission, depending on the applicable jurisdictional rules and pecuniary thresholds."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "4. Supporting Laws and Regulatory Mechanisms",
+          "paragraphs": [
+              "The Consumer Protection (E-Commerce) Rules, 2020 may apply to online transactions and impose duties on covered e-commerce entities. Depending on the facts, the Indian Contract Act, 1872, the Sale of Goods Act, 1930 and sector-specific regulations may also be relevant. The Central Consumer Protection Authority can address specified consumer-rights violations and misleading advertisements. Consumers may also seek assistance through the National Consumer Helpline; that process is distinct from filing a formal case before a Consumer Commission."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "5. Is a Legal Notice Mandatory?",
+          "paragraphs": [
+              "A prior legal notice is generally not a universal statutory prerequisite to filing a consumer complaint under the Consumer Protection Act, 2019. However, sending one is often prudent because it gives the business an opportunity to resolve the dispute, clarifies the requested relief and preserves a documentary trail. Special contractual provisions or sector-specific procedures may affect the steps required in an individual matter. A notice does not automatically extend the statutory limitation period."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "6. Procedure, Remedies and Limitation",
+          "paragraphs": [
+              "The consumer should gather invoices, warranty terms, correspondence, payment records and photographs or expert evidence where relevant; send the notice by a verifiable method; and retain proof of delivery. If unresolved, a complaint may be filed before the competent Consumer Commission, including through available electronic filing facilities. Remedies can include removal of defects, replacement, refund, compensation, discontinuance of unfair practices and other statutory directions. Ordinarily, Section 69 provides a two-year limitation period from the cause of action, subject to condonation of delay for sufficient cause."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "7. Conclusion",
+          "paragraphs": [
+              "A legal notice is a practical first step in consumer dispute resolution. It promotes transparency, gives the opposite party an opportunity to respond and prepares the groundwork for formal proceedings if necessary. Effective notices should be accurate, specific and aligned with the applicable consumer law and the facts of the transaction.",
+              "Educational overview only; not a substitute for advice on a specific dispute. Legal provisions and jurisdictional limits should be checked as applicable on the filing date."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "legal-notice-consumer-matters",
   categorySlug: "employment-consumer-legal-notices",
   categoryTitle: "Employment & Consumer Legal Notices",
@@ -24,12 +78,6 @@ export const legalNoticeConsumerMattersData = {
   introduction: {
     summary:
       "A legal notice in a consumer matter is a formal written communication sent by a consumer to a seller, manufacturer, service provider or other concerned party alleging a defect in goods, deficiency in services, unfair trade practice or another actionable consumer grievance. It describes the transaction, explains the problem, requests a remedy and sets a reasonable deadline for response. A notice may help resolve the dispute without litigation and create a clear record of the complaint.\n\nA well-drafted notice identifies the parties; states the purchase or service date, price and relevant order or invoice details; explains the defect or deficiency; records earlier complaints and supporting evidence; and demands an appropriate remedy, such as refund, replacement, repair, removal of deficiency or compensation where legally justified.",
-    highlights: [
-      "Addresses defective products, deficient services, unfair trade practices, and product liability.",
-      "Identifies transaction details, invoice/order records, previous grievances, and specific requested remedies.",
-      "Governed primarily by the Consumer Protection Act, 2019 and E-Commerce Rules, 2020.",
-      "Serves as formal pre-litigation notice before filing complaints in District, State, or National Commissions.",
-    ],
   },
 
   applicableLaws: [

@@ -188,7 +188,7 @@ return (
       <div className="flex-1 min-w-0">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
             <div className="text-center sm:text-left">
-              <div className="flex items-center justify-center sm:justify-start gap-2">
+              <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
                 <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
                   {advocateName}
                 </h1>
@@ -198,6 +198,24 @@ return (
                   className="inline-flex items-center text-[#1D9BF0] shrink-0 transition-transform duration-150 hover:scale-110 cursor-default"
                 >
                   <MdVerified className="text-[20px] sm:text-[22px]" />
+                </span>
+
+                {/* Online / Offline Status Badge */}
+                <span
+                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                    isOnline
+                      ? "border border-emerald-200 bg-emerald-50 text-emerald-700"
+                      : "border border-slate-200 bg-slate-100 text-slate-600"
+                  }`}
+                >
+                  <span
+                    className={`size-2 rounded-full ${
+                      isOnline
+                        ? "bg-emerald-500 animate-pulse"
+                        : "bg-slate-400"
+                    }`}
+                  />
+                  {isOnline ? "Online" : "Offline"}
                 </span>
               </div>
 

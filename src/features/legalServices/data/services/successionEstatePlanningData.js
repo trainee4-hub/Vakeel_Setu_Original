@@ -1,4 +1,65 @@
 export const successionEstatePlanningData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction",
+          "paragraphs": [
+              "Succession and estate planning concern the orderly transfer, management and protection of a person's property, financial interests and responsibilities during life and after death. Succession determines who legally inherits an estate, while estate planning uses instruments such as wills, nominations, trusts and lifetime gifts to express intentions and reduce uncertainty. Effective planning also considers dependants, debts, taxes, digital assets and continuity of family businesses."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Purpose and Importance",
+          "paragraphs": [
+              "The principal objectives are to identify beneficiaries, provide for minors and vulnerable dependants, minimise avoidable disputes, preserve family wealth and facilitate lawful administration. A clear inventory of assets and liabilities, appropriate documentation and periodic reviews are important, especially after marriage, divorce, births, deaths or significant asset acquisitions."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Legal Framework in India",
+          "paragraphs": [
+              "India does not have a single uniform succession code applicable to everyone. The applicable rules depend on the deceased person's personal law, the nature and location of the property, and whether a valid will exists. The Indian Succession Act, 1925 governs important aspects of wills, probate and administration, and applies to particular communities and situations subject to statutory exceptions. Hindu succession is principally governed by the Hindu Succession Act, 1956, including equal coparcenary rights for daughters under the 2005 amendment. Muslim inheritance is generally governed by applicable Muslim personal law, subject to relevant legislation and case law."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Testamentary and Intestate Succession",
+          "paragraphs": [
+              "Testamentary succession occurs when property passes under a valid will; intestate succession applies when a person dies without an effective will, wholly or partly. For wills governed by the Indian Succession Act, execution commonly requires the testator's signature or mark and attestation by two witnesses, subject to applicable exceptions. A will may generally be changed or revoked while the testator has legal capacity. Beneficiaries' rights under intestacy are determined by the governing succession law rather than by informal family understandings."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Registration, Probate and Estate Administration",
+          "paragraphs": [
+              "Registration of a will is generally optional under the Registration Act, 1908; registration alone does not establish validity. Probate or letters of administration may be necessary in certain cases depending on the applicable law and circumstances. Executors or administrators must identify estate assets, address lawful debts and liabilities, and distribute the remaining estate in accordance with the will or applicable inheritance rules. Land records, mutation and title documents may require separate action.",
+              "Educational overview | Not a substitute for legal advice"
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Other Relevant Legal Considerations",
+          "paragraphs": [
+              "The Transfer of Property Act, 1882 and applicable stamp and registration laws may affect lifetime transfers such as gifts and settlements. The Indian Trusts Act, 1882 may be relevant to certain private trusts. Nominations for bank accounts, securities or insurance facilitate dealings with institutions but do not always displace the rights of lawful heirs; the precise effect depends on the governing statute and judicial interpretation. Tax implications, including capital gains and stamp duty on particular transfers, require transaction-specific assessment."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Disputes and Safeguards",
+          "paragraphs": [
+              "Common disputes concern testamentary capacity, undue influence, forged or ambiguous wills, property ownership and competing inheritance claims. Independent witnesses, clear asset descriptions, proper custody of documents and professional legal advice help reduce risk. Families may use mediation, civil proceedings and appropriate succession or probate processes to resolve disputes."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Conclusion",
+          "paragraphs": [
+              "Succession and estate planning provide a structured approach to transferring assets and safeguarding beneficiaries. In India, careful drafting must account for personal laws, formalities governing wills and transfers, and estate administration requirements. Because rules vary with religion, property type and jurisdiction, a qualified legal professional should review individual arrangements."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "succession-and-estate-planning",
   categorySlug: "family-personal-documents",
   categoryTitle: "Family & Personal Documents",
@@ -21,12 +82,6 @@ export const successionEstatePlanningData = {
   introduction: {
     summary:
       "Succession and estate planning is the legal and financial process through which individuals arrange for the management, preservation and transfer of their wealth, property and personal affairs both during their lifetime and after death. In India, estate planning involves a diverse range of legal mechanisms—including wills, private family trusts, powers of attorney, lifetime gifts, family settlements and nomination structures—tailored to the personal law regime, family objectives, asset profile and tax considerations of the individual.",
-    highlights: [
-      "Facilitates orderly inter-generational wealth transfer and mitigates future family disputes.",
-      "Integrates testamentary wills, private family trusts (revocable and irrevocable), lifetime gifts, and family settlements.",
-      "Accounts for personal law nuances under the Hindu Succession Act, 1956, Indian Succession Act, 1925, and Muslim personal law.",
-      "Addresses incapacity planning, minor/special-needs guardianship, and statutory taxation frameworks.",
-    ],
   },
 
   applicableLaws: [

@@ -2,6 +2,54 @@
 // Source: Gift_Deed_Drafting_Introduction_Legal_Framework.pdf
 
 export const giftDeedDraftingData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction",
+          "paragraphs": [
+              "A gift deed is a legal instrument by which a donor voluntarily transfers property to a donee without monetary consideration. Gift deed drafting records the parties' intentions, identifies the property, and establishes the terms of transfer. In India, gifts of immovable property require particular statutory formalities; a properly drafted and registered deed can help prevent disputes over ownership, consent and possession."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Purpose and Essential Drafting Elements",
+          "paragraphs": [
+              "A gift deed should accurately identify the donor and donee, their relationship (if any), and the property through a complete description, address, boundaries and relevant title details. It should state that the donor owns the transferable interest, is acting voluntarily and without consideration, and intends to transfer the identified property. The donee's acceptance during the donor's lifetime and while the donor is capable of giving must be documented. Clauses may address delivery of possession, existing encumbrances, taxes, liabilities and allocation of registration expenses. The parties should avoid vague descriptions or conditions inconsistent with a completed gift."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Legal Framework in India",
+          "paragraphs": [],
+          "bullets": [
+              "Transfer of Property Act, 1882: Section 122 defines a gift as a voluntary transfer of certain existing movable or immovable property without consideration, accepted by or on behalf of the donee. Section 123 requires a gift of immovable property to be effected by a registered instrument signed by or on behalf of the donor and attested by at least two witnesses. Gifts of movable property may be made by registered instrument or delivery, as applicable. Section 126 addresses limited circumstances in which gifts may be suspended or revoked; a gift generally cannot be revoked merely at the donor's will.",
+              "Registration Act, 1908: Section 17 generally requires registration of instruments gifting immovable property. The parties must follow applicable execution, presentation, identity verification and registration procedures. An unregistered deed that is compulsorily registrable generally cannot operate to transfer the immovable property as intended.",
+              "Indian Stamp Act, 1899 and State Stamp Laws: Stamp duty and registration charges depend on the relevant state or union territory, property value and, in some jurisdictions, the relationship between donor and donee. The deed should be appropriately stamped before or at execution as required locally."
+          ]
+      },
+      {
+          "heading": "Other Legal Considerations",
+          "paragraphs": [
+              "A donor should have legal capacity and valid title to the property being gifted. Drafting must consider co-ownership, mortgages, pending litigation, applicable personal law and restrictions on transfer. Section 129 of the Transfer of Property Act preserves rules of Muslim law concerning gifts; such transactions may be governed by distinct requirements. Tax consequences also matter: under section 56(2)(x) of the Income-tax Act, 1961, certain gifts may be taxable in the recipient's hands, subject to exemptions and conditions, including specified relatives. Capital-gains and stamp-valuation rules may also be relevant."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Execution, Registration and Safeguards",
+          "paragraphs": [
+              "Before signing, verify title documents, identity records, property details, encumbrances and applicable stamp duty. Ensure the donor signs voluntarily, two witnesses attest an immovable-property gift deed, and the donee Educational overview | Indian legal framework 2 accepts the gift. Present the instrument to the appropriate Sub-Registrar within statutory time limits, pay applicable fees and retain the registered copy. Obtain jurisdiction-specific legal and tax advice where the property, parties or gift conditions are complex."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Conclusion",
+          "paragraphs": [
+              "Gift deed drafting combines clear expression of the donor's intention with compliance with property, registration and stamp laws. Precise descriptions, valid acceptance and proper registration are central to a legally effective transfer of immovable property in India."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "gift-deed-drafting",
   categorySlug: "property-real-estate",
   categoryTitle: "Property & Real Estate",
@@ -24,12 +72,6 @@ export const giftDeedDraftingData = {
   introduction: {
     summary:
       "A gift deed is a legal instrument by which a donor voluntarily transfers property to a donee without monetary consideration. Gift deed drafting records the parties’ intentions, identifies the property, and establishes the terms of transfer. In India, gifts of immovable property require particular statutory formalities; a properly drafted and registered deed can help prevent disputes over ownership, consent and possession.\n\nA gift deed should accurately identify the donor and donee, their relationship (if any), and the property through a complete description, address, boundaries and relevant title details. It should state that the donor owns the transferable interest, is acting voluntarily and without consideration, and intends to transfer the identified property. The donee’s acceptance during the donor’s lifetime and while the donor is capable of giving must be documented.",
-    highlights: [
-      "Voluntary transfer of movable or immovable property without monetary consideration.",
-      "Must document donee's acceptance during the donor's lifetime and mental capacity.",
-      "Immovable property gifts require mandatory registration and two-witness attestation (Section 123).",
-      "Stamp duty varies by state, property value, and family relationship between donor and donee.",
-    ],
   },
 
   applicableLaws: [

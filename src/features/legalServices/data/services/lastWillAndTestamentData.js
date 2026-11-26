@@ -2,6 +2,60 @@
 // Source: Last_Will_and_Testament_Introduction_Legal_Framework.pdf
 
 export const lastWillAndTestamentData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction",
+          "paragraphs": [
+              "A Last Will and Testament is a legal declaration by which a person (the testator) expresses how their property should be distributed after death. A will may appoint an executor to administer the estate, identify beneficiaries, make specific gifts, and address the residue of the estate. Unlike a lifetime transfer, a will ordinarily takes effect upon death and can generally be changed or revoked during the testator's lifetime, subject to applicable law."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Purpose and Importance",
+          "paragraphs": [
+              "A properly drafted will helps communicate the testator's intentions, reduces uncertainty among family members, provides for dependants, and can simplify estate administration. Clear descriptions of assets, beneficiaries, alternate beneficiaries and executors can reduce disputes. A will does not, however, override every statutory right or automatically transfer assets that pass by other legal arrangements."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Legal Framework in India",
+          "paragraphs": [
+              "The Indian Succession Act, 1925 is a principal statute governing wills and probate for persons to whom its provisions apply. Its application varies with the testator's personal law. For example, the Act's general rules on testamentary succession do not uniformly apply to Muslims, whose wills are generally governed by Muslim personal law, including restrictions that may depend on sect and heirs' consent. Hindu, Buddhist, Sikh and Jain testamentary succession is addressed through the relevant provisions of the Succession Act read with the Hindu Succession Act, 1956. Applicable personal law and the nature of the property must therefore be checked before drafting."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Capacity and Valid Execution",
+          "paragraphs": [
+              "Under section 59 of the Indian Succession Act, a person of sound mind who is not a minor may generally make a will. For an ordinary unprivileged will, section 63 generally requires the testator's signature or mark (or a permitted signature on their behalf) and attestation by at least two witnesses, each meeting the statutory requirements. Special rules apply to privileged wills. Registration is generally optional, not a substitute for valid execution, and does not by itself prove authenticity."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Essential Drafting Elements",
+          "paragraphs": [
+              "A sound will typically records the testator's identity and intention, revokes earlier wills, identifies beneficiaries, describes assets and liabilities, appoints an executor and substitute executor, sets out specific and residuary gifts, and includes signature and witness attestation details. Ambiguous clauses, incorrect property descriptions, coercion or undue influence may lead to litigation. Independent witnesses and careful recordkeeping can assist proof of execution."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Probate, Disputes and Revocation",
+          "paragraphs": [
+              "Probate is judicial confirmation of a will and the executor's authority; whether it is mandatory depends on the applicable statutory provisions and circumstances. Disputes may concern testamentary capacity, suspicious circumstances, forgery, undue influence or competing wills. A testator may generally revoke or alter a will in a legally recognized manner, including by a later valid will or codicil. State-specific stamp, registration and property procedures should also be reviewed."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Conclusion",
+          "paragraphs": [
+              "A Last Will and Testament is an important estate-planning instrument that enables orderly succession and reduces uncertainty. Its legal effectiveness depends on the testator's capacity, valid execution, applicable personal law and clear drafting. Individual advice is recommended where assets, family arrangements or jurisdictions are complex.",
+              "Educational overview only; not a substitute for jurisdiction-specific legal advice."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "last-will-and-testament",
   categorySlug: "wills-estate-planning",
   categoryTitle: "Wills & Estate Planning",
@@ -24,12 +78,6 @@ export const lastWillAndTestamentData = {
   introduction: {
     summary:
       "A Last Will and Testament is a legal declaration by which a person (the testator) expresses how their property should be distributed after death. A will may appoint an executor to administer the estate, identify beneficiaries, make specific gifts, and address the residue of the estate. Unlike a lifetime transfer, a will ordinarily takes effect upon death and can generally be changed or revoked during the testator’s lifetime, subject to applicable law.\n\nA properly drafted will helps communicate the testator’s intentions, reduces uncertainty among family members, provides for dependants, and can simplify estate administration. Clear descriptions of assets, beneficiaries, alternate beneficiaries and executors can reduce disputes. A will does not, however, override every statutory right or automatically transfer assets that pass by other legal arrangements.",
-    highlights: [
-      "Takes effect only upon the testator's demise and can be altered or revoked at any time during lifetime.",
-      "Requires testamentary capacity of sound mind and not a minor under Section 59, Indian Succession Act.",
-      "Mandates execution by the testator and attestation by at least two independent witnesses (Section 63).",
-      "Appoints executors for estate administration and provides for specific and residuary beneficiaries.",
-    ],
   },
 
   applicableLaws: [

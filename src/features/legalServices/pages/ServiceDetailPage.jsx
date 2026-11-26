@@ -8,6 +8,8 @@ import {
   FiCheck,
   FiCheckCircle,
   FiExternalLink,
+  FiFileText,
+  FiFolder,
   FiInfo,
   FiShield,
 } from "react-icons/fi";
@@ -82,9 +84,74 @@ const ServiceDetailPage = () => {
   // Dynamic calculation of active sections for strictly continuous numbering (01, 02, 03...)
   const activeSections = useMemo(() => {
     if (!data) return [];
+
+    // Verbatim Content Model (Prompt 3): if data.sections exists, use PDF's exact sections!
+    if (Array.isArray(data.sections) && data.sections.length > 0) {
+      const list = data.sections.map((sec, idx) => {
+        const rawHeading = sec.heading || `Section ${idx + 1}`;
+        const cleanHeading = rawHeading.replace(/^\d+(\.\d+)*\.\s*/, "").trim();
+        const secId =
+          sec.id ||
+          `section-${cleanHeading
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "")}`;
+
+        const isDocs = /document/i.test(cleanHeading);
+        const isLaws = /law|framework|act\b/i.test(cleanHeading);
+        const isIntro = /intro/i.test(cleanHeading);
+        const isProc = /procedure|process/i.test(cleanHeading);
+        const isPurpose = /purpose|objective|why/i.test(cleanHeading);
+
+        const sub =
+          sec.subtitle ||
+          (isDocs
+            ? "Checklist & Evidence"
+            : isLaws
+            ? "Statutory Provisions"
+            : isIntro
+            ? "Overview & Legal Foundation"
+            : isProc
+            ? "Procedural Execution"
+            : isPurpose
+            ? "Key Purpose & Protection"
+            : "Statutory & Analytical Provisions");
+
+        return {
+          id: secId,
+          key: `verbatim-sec-${idx}`,
+          title: cleanHeading,
+          rawTitle: rawHeading,
+          subtitle: sub,
+          secIndex: idx,
+        };
+      });
+
+      const whyItems = data.whyChooseVakeelSetu || data.whyVakeelSetu;
+      if (Array.isArray(whyItems) && whyItems.length > 0) {
+        list.push({
+          id: "why-vakeelsetu",
+          key: "why-vakeelsetu",
+          title: "Why Choose VakeelSetu",
+          subtitle: "The VakeelSetu Standard",
+        });
+      }
+
+      if (Array.isArray(data.faqs) && data.faqs.length > 0) {
+        list.push({
+          id: "faqs",
+          key: "faqs",
+          title: "Frequently Asked Questions",
+          subtitle: "Direct Answers",
+        });
+      }
+
+      return list;
+    }
+
     const list = [];
 
-    // 1. Introduction & Overview
+    // 1. Introduction & Overview (PDF Point 1)
     if (data.introduction?.summary) {
       list.push({
         id: "intro",
@@ -94,17 +161,35 @@ const ServiceDetailPage = () => {
       });
     }
 
-    // 2. Applicable Laws
-    if (Array.isArray(data.applicableLaws) && data.applicableLaws.length > 0) {
+    // 2. Objectives & Importance (PDF Point 2)
+    const hasObjectives = Boolean(
+      (Array.isArray(data.objectives) && data.objectives.length > 0) ||
+      (Array.isArray(data.introduction?.highlights) && data.introduction.highlights.length > 0)
+    );
+    if (hasObjectives) {
+      list.push({
+        id: "objectives",
+        key: "objectives",
+        title: data.objectivesTitle || "Objectives & Importance",
+        subtitle: "Key Purpose & Legal Protection",
+      });
+    }
+
+    // 3. Applicable Laws & Legal Framework (PDF Point 3 - Dynamic Title Support)
+    const hasLaws = Boolean(
+      (Array.isArray(data.legalFramework?.sections) && data.legalFramework.sections.length > 0) ||
+      (Array.isArray(data.applicableLaws) && data.applicableLaws.length > 0)
+    );
+    if (hasLaws) {
       list.push({
         id: "applicable-laws",
         key: "applicable-laws",
-        title: "Applicable Laws",
+        title: data.lawsHeading || data.applicableLawsTitle || "Applicable Laws & Legal Framework",
         subtitle: "Statutory Provisions",
       });
     }
 
-    // 3. Documents Required
+    // 4. Documents Required (PDF Point 4 - ONLY if non-empty checklist exists)
     const hasDocuments =
       Array.isArray(data.documentsRequired) &&
       data.documentsRequired.length > 0 &&
@@ -119,42 +204,32 @@ const ServiceDetailPage = () => {
       });
     }
 
-    // 4. Common Challenges / Practical Issues
-    if (Array.isArray(data.commonChallenges) && data.commonChallenges.length > 0) {
-      list.push({
-        id: "common-challenges",
-        key: "common-challenges",
-        title: "Common Challenges & Practical Solutions",
-        subtitle: "Procedural Pitfalls & Solutions",
+    // Dynamic Additional Sections (Placed before Why Choose)
+    if (Array.isArray(data.additionalSections) && data.additionalSections.length > 0) {
+      data.additionalSections.forEach((sec, idx) => {
+        if (!sec || !sec.heading) return;
+        const hasContent =
+          (Array.isArray(sec.paragraphs) && sec.paragraphs.length > 0) ||
+          (Array.isArray(sec.bullets) && sec.bullets.length > 0);
+        if (!hasContent) return;
+
+        const secId =
+          sec.id ||
+          `section-${sec.heading
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "")}`;
+
+        list.push({
+          id: secId,
+          key: `additional-${idx}`,
+          title: sec.heading,
+          subtitle: sec.subtitle || "Key Provisions & Summary",
+        });
       });
     }
 
-    // 5. Statutory Legal Remedies (ONLY if present & non-empty)
-    if (Array.isArray(data.legalRemedies) && data.legalRemedies.length > 0) {
-      list.push({
-        id: "legal-remedies",
-        key: "legal-remedies",
-        title: "Statutory Legal Remedies",
-        subtitle: "Relief & Judicial Outcomes",
-      });
-    }
-
-    // 6. Statutory Rights & Advocate Role (ONLY if present & non-empty)
-    const hasRights = Boolean(
-      data.rightsAndAdvocate &&
-        ((Array.isArray(data.rightsAndAdvocate.payeeRights) && data.rightsAndAdvocate.payeeRights.length > 0) ||
-          (Array.isArray(data.rightsAndAdvocate.advocateRole) && data.rightsAndAdvocate.advocateRole.length > 0))
-    );
-    if (hasRights) {
-      list.push({
-        id: "rights-and-advocate",
-        key: "rights-and-advocate",
-        title: "Statutory Rights & Advocate Role",
-        subtitle: "Legal Protection & Representation",
-      });
-    }
-
-    // 7. Why Choose VakeelSetu
+    // 5. Why Choose VakeelSetu
     const whyItems = data.whyChooseVakeelSetu || data.whyVakeelSetu;
     if (Array.isArray(whyItems) && whyItems.length > 0) {
       list.push({
@@ -165,33 +240,28 @@ const ServiceDetailPage = () => {
       });
     }
 
-    // 8. Frequently Asked Questions
+    // 6. Step-by-Step Legal Procedure (ONLY if authentic procedure exists)
+    const showProcedure =
+      data.hasProcedure !== false &&
+      Array.isArray(data.legalProcedure) &&
+      data.legalProcedure.length > 0;
+
+    if (showProcedure) {
+      list.push({
+        id: "legal-procedure",
+        key: "legal-procedure",
+        title: "Step-by-Step Legal Procedure",
+        subtitle: "Chronological Sequence",
+      });
+    }
+
+    // 7. Frequently Asked Questions (Below Procedure!)
     if (Array.isArray(data.faqs) && data.faqs.length > 0) {
       list.push({
         id: "faqs",
         key: "faqs",
         title: "Frequently Asked Questions",
         subtitle: "Direct Answers",
-      });
-    }
-
-    // 9. Statutory Citations & Legal Sources
-    if (Array.isArray(data.researchSources) && data.researchSources.length > 0) {
-      list.push({
-        id: "research-sources",
-        key: "research-sources",
-        title: "Statutory Citations & Legal Sources",
-        subtitle: "Official Authorities & Precedents",
-      });
-    }
-
-    // 10. Step-by-Step Legal Procedure
-    if (Array.isArray(data.legalProcedure) && data.legalProcedure.length > 0) {
-      list.push({
-        id: "legal-procedure",
-        key: "legal-procedure",
-        title: "Step-by-Step Legal Procedure",
-        subtitle: "Chronological Sequence",
       });
     }
 
@@ -202,24 +272,25 @@ const ServiceDetailPage = () => {
     const idx = activeSections.findIndex((s) => s.key === key);
     if (idx === -1) return null;
     const num = idx + 1;
+    const rawTitle = activeSections[idx].title || "";
+    // If heading already has leading number like "2. " or "2.1.", strip it from display title so badge + title is clean
+    const cleanTitle = rawTitle.replace(/^\d+(\.\d+)*\.\s*/, "").trim();
     return {
       num,
       badge: String(num).padStart(2, "0"),
-      title: `${num}. ${activeSections[idx].title}`,
+      title: cleanTitle,
+      fullTitle: `${num}. ${cleanTitle}`,
       subtitle: activeSections[idx].subtitle,
     };
   };
 
   const introMeta = getSectionMeta("intro");
+  const objectivesMeta = getSectionMeta("objectives");
   const lawsMeta = getSectionMeta("applicable-laws");
   const docsMeta = getSectionMeta("documents-required");
-  const commonMeta = getSectionMeta("common-challenges");
-  const remediesMeta = getSectionMeta("legal-remedies");
-  const rightsMeta = getSectionMeta("rights-and-advocate");
   const whyMeta = getSectionMeta("why-vakeelsetu");
-  const faqsMeta = getSectionMeta("faqs");
-  const sourcesMeta = getSectionMeta("research-sources");
   const procMeta = getSectionMeta("legal-procedure");
+  const faqsMeta = getSectionMeta("faqs");
 
   // Dynamic TOC ensuring ONLY sections actually rendered appear
   const filteredToc = useMemo(() => {
@@ -228,7 +299,10 @@ const ServiceDetailPage = () => {
     if (Array.isArray(data.toc) && data.toc.length > 0) {
       return data.toc.filter((item) => activeIds.has(item.id));
     }
-    return activeSections.map((s) => ({ id: s.id, title: s.title }));
+    return activeSections.map((s) => ({
+      id: s.id,
+      title: (s.title || "").replace(/^\d+(\.\d+)*\.\s*/, "").trim(),
+    }));
   }, [data, activeSections]);
 
   const handleOpenConsultation = useCallback(() => {
@@ -239,6 +313,39 @@ const ServiceDetailPage = () => {
       detail: eventDetail,
     });
     window.dispatchEvent(customEvent);
+  }, []);
+
+  const renderTextWithLinks = useCallback((text) => {
+    if (!text || typeof text !== "string") return text;
+    // Regex matches either http(s) URLs or **bold** text
+    const tokenRegex = /(https?:\/\/[^\s]+|\*\*[^*]+\*\*)/g;
+    const parts = text.split(tokenRegex);
+    if (parts.length === 1) return text;
+    return parts.map((part, i) => {
+      if (!part) return null;
+      if (/^https?:\/\//.test(part)) {
+        return (
+          <a
+            key={i}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-blue-700 hover:text-blue-900 underline underline-offset-2 font-medium break-all transition"
+          >
+            <span>{part}</span>
+            <FiExternalLink className="inline text-xs shrink-0 text-slate-500" />
+          </a>
+        );
+      }
+      if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
+        return (
+          <span key={i} className="font-semibold text-slate-800">
+            {part.slice(2, -2)}
+          </span>
+        );
+      }
+      return part;
+    });
   }, []);
 
   useEffect(() => {
@@ -297,8 +404,494 @@ const ServiceDetailPage = () => {
           <article className="lg:col-span-8 order-1 lg:order-2 space-y-10">
 
             {/* ═════════════════════════════════════════════════════════════
-                SECTION 1: Introduction & Overview (Attractive Executive Redesign)
+                VERBATIM PDF CONTENT MODEL (Prompt 3 - 100% PDF Sections)
             ═════════════════════════════════════════════════════════════ */}
+            {Array.isArray(data.sections) && data.sections.length > 0 ? (
+              data.sections.map((sec, idx) => {
+                const meta = getSectionMeta(`verbatim-sec-${idx}`);
+                if (!meta || !sec || !sec.heading) return null;
+
+                const rawHeading = sec.heading || `section-${idx + 1}`;
+                const cleanHeading = rawHeading.replace(/^\d+(\.\d+)*\.\s*/, "").trim();
+                const secId =
+                  sec.id ||
+                  `section-${cleanHeading
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, "-")
+                    .replace(/^-+|-+$/g, "")}`;
+
+                const hasParagraphs = Array.isArray(sec.paragraphs) && sec.paragraphs.length > 0;
+                const hasBullets = Array.isArray(sec.bullets) && sec.bullets.length > 0;
+                const isDocumentsSection = /document/i.test(cleanHeading);
+                const isIntroSection = /intro/i.test(cleanHeading) || idx === 0;
+                const isJudicialSection = /judicial\s*principle/i.test(cleanHeading);
+                const isConclusionSection = /^(conclusion|advice disclaimer|practical point)/i.test(cleanHeading);
+                const isLawsSection = /law|framework|act\b|statutory/i.test(cleanHeading);
+
+                return (
+                  <section
+                    key={idx}
+                    id={secId}
+                    className="scroll-mt-28 relative overflow-hidden rounded-3xl border border-slate-200/90 hover:border-amber-400/80 bg-white p-6 sm:p-8 shadow-sm transition-all duration-200 hover:shadow-md"
+                  >
+                    {/* Subtle Ambient Glow */}
+                    <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-amber-500/10 blur-2xl" />
+
+                    {/* Header Badge */}
+                    <div className="flex items-center gap-2.5 text-amber-600 mb-3">
+                      <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-500 text-xs font-black text-slate-950 shadow-xs">
+                        {meta.badge}
+                      </span>
+                      <span className="text-[11px] font-black uppercase tracking-wider text-amber-700">
+                        {meta.subtitle}
+                      </span>
+                    </div>
+
+                    {/* Clean single heading (FIX 3: No double numbering!) */}
+                    <h2 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
+                      {meta.title}
+                    </h2>
+
+                    {/* ═════════════════════════════════════════════════════════════
+                        SECTION 1: INTRODUCTION (Curved Amber Accent Bar)
+                    ═════════════════════════════════════════════════════════════ */}
+                    {isIntroSection && hasParagraphs && (
+                      <div className="mt-5 flex items-stretch gap-4 sm:gap-5">
+                        <div className="w-2 sm:w-2.5 shrink-0 rounded-full bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 shadow-xs ring-1 ring-amber-400/25 my-1" />
+                        <div className="space-y-5 sm:space-y-6 text-slate-700 font-normal text-sm sm:text-base leading-[1.85] tracking-normal">
+                          {(hasBullets ? [sec.paragraphs[0]] : sec.paragraphs).map((paraBlock, pIdx) => {
+                            const subParas = String(paraBlock || "")
+                              .split(/\n+/)
+                              .map((p) => p.trim())
+                              .filter(Boolean);
+                            return (
+                              <React.Fragment key={pIdx}>
+                                {subParas.map((para, spIdx) => (
+                                  <p key={spIdx} className="leading-[1.85]">
+                                    {renderTextWithLinks(para)}
+                                  </p>
+                                ))}
+                              </React.Fragment>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Introduction Sub-Points / Criteria (Single-Column Vertical Stack: Ek ke niche ek) */}
+                    {isIntroSection && hasBullets && (
+                      <div className="mt-5 space-y-2.5">
+                        {sec.bullets.map((bullet, bIdx) => {
+                          const colonIdx = bullet.indexOf(":");
+                          const hasColon = colonIdx !== -1 && colonIdx < 80;
+                          const title = hasColon ? bullet.slice(0, colonIdx).trim() : "";
+                          const desc = hasColon ? bullet.slice(colonIdx + 1).trim() : bullet;
+                          const cleanDesc = desc.replace(/^\(?\d+\)?[\.\)]?\s*/, "").replace(/;\s*(and|or)?\s*$/i, "").trim();
+
+                          return (
+                            <div
+                              key={bIdx}
+                              className="flex items-start gap-3.5 rounded-xl border border-slate-200/90 bg-slate-50/60 hover:bg-slate-50 p-3.5 sm:p-4 transition-colors"
+                            >
+                              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-500 text-slate-950 text-xs font-black shadow-xs">
+                                {bIdx + 1}
+                              </div>
+                              <div className="pt-0.5 min-w-0 flex-1">
+                                {title && (
+                                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 mb-0.5 leading-snug">
+                                    {renderTextWithLinks(title)}
+                                  </h4>
+                                )}
+                                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-medium">
+                                  {renderTextWithLinks(cleanDesc)}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Concluding Paragraphs in Intro after Bullets (if any) */}
+                    {isIntroSection && hasBullets && hasParagraphs && sec.paragraphs.length > 1 && (
+                      <div className="mt-5 space-y-4 text-slate-700 font-normal text-sm sm:text-base leading-[1.85]">
+                        {sec.paragraphs.slice(1).map((paraBlock, pIdx) => (
+                          <p key={pIdx}>{renderTextWithLinks(paraBlock)}</p>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* ═════════════════════════════════════════════════════════════
+                        JUDICIAL PRINCIPLES SECTION (Landmark Precedent Callout Box)
+                    ═════════════════════════════════════════════════════════════ */}
+                    {isJudicialSection && (
+                      <div className="mt-5 rounded-2xl border border-amber-300/80 bg-gradient-to-br from-amber-50/90 via-orange-50/40 to-white p-5 sm:p-6 shadow-xs">
+                        <div className="flex items-center gap-2.5 text-xs sm:text-sm font-black text-amber-950 mb-3">
+                          <FaScaleBalanced className="text-amber-700 text-base shrink-0" />
+                          <span>Landmark Judicial Precedent</span>
+                        </div>
+                        <div className="space-y-4 text-xs sm:text-sm text-slate-800 leading-[1.85] font-normal">
+                          {sec.paragraphs.map((paraBlock, pIdx) => (
+                            <p key={pIdx}>{renderTextWithLinks(paraBlock)}</p>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ═════════════════════════════════════════════════════════════
+                        CONCLUSION SECTION (Amber Dot Overview Card)
+                    ═════════════════════════════════════════════════════════════ */}
+                    {isConclusionSection && (
+                      <div className="mt-5 rounded-2xl border border-slate-200/90 bg-slate-50/70 p-5 sm:p-6 shadow-xs">
+                        <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-800 mb-3 flex items-center gap-2">
+                          <span className="inline-block h-2 w-2 rounded-full bg-amber-500" />
+                          Conclusion & Legal Overview
+                        </h3>
+                        <div className="space-y-4 text-xs sm:text-sm text-slate-700 leading-[1.85] font-normal">
+                          {sec.paragraphs.map((paraBlock, pIdx) => (
+                            <p key={pIdx}>{renderTextWithLinks(paraBlock)}</p>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ═════════════════════════════════════════════════════════════
+                        DOCUMENTS SECTION: CARD-GRID DESIGN (2-Column Grid)
+                    ═════════════════════════════════════════════════════════════ */}
+                    {isDocumentsSection && (() => {
+                      const noteBullets = [];
+                      const docBullets = [];
+
+                      (sec.bullets || []).forEach((b) => {
+                        if (/^(note|important|disclaimer|statutory note|please note|official references?|reference)\s*:/i.test(b.trim()) || /https?:\/\//i.test(b.trim())) {
+                          noteBullets.push(b);
+                        } else {
+                          docBullets.push(b);
+                        }
+                      });
+
+                      return (
+                        <>
+                          {hasParagraphs && (
+                            <div className="mt-5 space-y-5 sm:space-y-6">
+                              {sec.paragraphs.map((p, pIdx) => (
+                                <p key={pIdx} className="text-slate-700 text-sm sm:text-base leading-[1.85] font-normal">
+                                  {renderTextWithLinks(p)}
+                                </p>
+                              ))}
+                            </div>
+                          )}
+                          {docBullets.length > 0 && (
+                            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              {docBullets.map((bullet, bIdx) => {
+                                const colonIdx = bullet.indexOf(":");
+                                const docName = colonIdx !== -1 ? bullet.slice(0, colonIdx).trim() : bullet;
+                                const docDetail = colonIdx !== -1 ? bullet.slice(colonIdx + 1).trim() : "";
+                                return (
+                                  <div
+                                    key={bIdx}
+                                    className="group relative flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-amber-400/90 hover:shadow-lg hover:shadow-amber-500/5 h-full"
+                                  >
+                                    <div className="flex items-start gap-3.5">
+                                      <div className="relative mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 text-slate-950 font-black shadow-sm shadow-amber-500/30">
+                                        <FiCheck className="text-sm stroke-[3]" />
+                                      </div>
+                                      <div className="min-w-0 flex-1">
+                                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-amber-800 transition-colors leading-snug">
+                                          {docName}
+                                        </h4>
+                                        {docDetail && (
+                                          <p className="mt-1.5 text-[11px] sm:text-xs text-slate-500 leading-relaxed font-normal">
+                                            {docDetail}
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+                                    {/* Static Verified Tags (No link) */}
+                                    <div className="mt-4 flex items-center justify-between pt-2.5 border-t border-slate-100/80 text-[10px] text-slate-400 font-semibold">
+                                      <span className="flex items-center gap-1">
+                                        <FiFileText className="text-slate-400" />
+                                        <span>Mandatory Proof</span>
+                                      </span>
+                                      <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold">
+                                        Checklist Item
+                                      </span>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                          {/* Full-width callout for any notes/disclaimers/official references in Documents section */}
+                          {noteBullets.map((noteText, nIdx) => {
+                            const isRef = /^(official\s*reference|reference|official\s*references)/i.test(noteText.trim());
+                            const cleanText = noteText.replace(/^(note|important|disclaimer|statutory note|please note|official references|official reference)\s*:\s*/i, "");
+
+                            if (isRef) {
+                              return (
+                                <div
+                                  key={nIdx}
+                                  id="official-references"
+                                  className="mt-5 w-full rounded-xl border border-slate-200/90 bg-slate-50/70 p-4 sm:p-5 shadow-2xs text-left"
+                                >
+                                  <div className="flex items-center gap-2 mb-2 pb-2 border-b border-slate-200/80">
+                                    <FiBookOpen className="text-slate-600 text-sm shrink-0" />
+                                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
+                                      Official Statutory Reference
+                                    </span>
+                                  </div>
+                                  <p className="text-xs sm:text-[13px] text-slate-700 leading-relaxed font-normal">
+                                    {renderTextWithLinks(cleanText)}
+                                  </p>
+                                </div>
+                              );
+                            }
+
+                            return (
+                              <div
+                                key={nIdx}
+                                className="mt-5 w-full flex items-start gap-3.5 rounded-2xl border border-amber-300/80 bg-gradient-to-r from-amber-50/90 via-orange-50/30 to-white p-4 sm:p-5 shadow-xs"
+                              >
+                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-slate-950 font-black shadow-xs">
+                                  <FiInfo className="text-base font-bold" />
+                                </div>
+                                <div className="min-w-0 flex-1 pt-0.5">
+                                  <span className="inline-block text-[11px] font-black uppercase tracking-wider text-amber-800 bg-amber-100/90 px-2.5 py-0.5 rounded-md mb-2">
+                                    Important Note
+                                  </span>
+                                  <p className="text-xs sm:text-sm text-slate-800 leading-relaxed font-normal">
+                                    {renderTextWithLinks(cleanText)}
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </>
+                      );
+                    })()}
+
+                    {/* ═════════════════════════════════════════════════════════════
+                        LEGAL FRAMEWORK SECTION: EXECUTIVE STATUTE CARDS (FIX 1)
+                    ═════════════════════════════════════════════════════════════ */}
+                    {isLawsSection && (
+                      <div className="mt-6 space-y-5">
+                        {/* If data has pre-structured legalFramework sections (e.g. Legal Heir Certificate) */}
+                        {Array.isArray(data.legalFramework?.sections) && data.legalFramework.sections.length > 0 && !hasBullets ? (
+                          data.legalFramework.sections.map((part, pIdx) => (
+                            <div
+                              key={pIdx}
+                              className={`overflow-hidden rounded-2xl border ${
+                                pIdx === 0
+                                  ? "border-amber-400/80 bg-gradient-to-br from-white via-amber-50/20 to-slate-50/60 shadow-xs"
+                                  : "border-slate-200/90 bg-slate-50/40"
+                              } p-5 sm:p-6 shadow-xs transition hover:border-amber-400/60 hover:shadow-sm`}
+                            >
+                              <div className="flex items-center gap-3 pb-3 border-b border-slate-200/70">
+                                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-amber-400 text-xs font-black shadow-xs">
+                                  {part.letter || String.fromCharCode(65 + pIdx)}
+                                </span>
+                                <h3 className="text-base sm:text-lg font-black text-slate-950 tracking-tight">
+                                  {part.title}
+                                </h3>
+                              </div>
+                              {part.description && (
+                                <p className="mt-3.5 text-xs sm:text-sm text-slate-700 leading-[1.85] font-normal">
+                                  {part.description}
+                                </p>
+                              )}
+                            </div>
+                          ))
+                        ) : hasBullets ? (
+                          /* If bullets are present in the legal section (e.g. Medical Negligence) */
+                          sec.bullets.map((bullet, bIdx) => {
+                            const colonIdx = bullet.indexOf(":");
+                            const hasColon = colonIdx !== -1 && colonIdx < 80;
+                            const rawLeadTitle = hasColon ? bullet.slice(0, colonIdx).trim() : "";
+                            const leadTitle = rawLeadTitle.replace(/^\d+(\.\d+)*\.\s*/, "").trim();
+                            const leadDesc = hasColon ? bullet.slice(colonIdx + 1).trim() : bullet;
+                            const isFirst = bIdx === 0;
+
+                            return (
+                              <div
+                                key={bIdx}
+                                className={`overflow-hidden rounded-2xl border ${
+                                  isFirst
+                                    ? "border-amber-400/80 bg-gradient-to-br from-white via-amber-50/20 to-slate-50/60 shadow-xs"
+                                    : "border-slate-200/90 bg-slate-50/40"
+                                } p-5 sm:p-6 shadow-xs transition hover:border-amber-400/60 hover:shadow-sm`}
+                              >
+                                <div className="flex items-center gap-3 pb-3 border-b border-slate-200/70">
+                                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-amber-400 text-xs font-black shadow-xs">
+                                    {String.fromCharCode(65 + bIdx)}
+                                  </span>
+                                  <h3 className="text-base sm:text-lg font-black text-slate-950 tracking-tight">
+                                    {leadTitle || `Part ${String.fromCharCode(65 + bIdx)}`}
+                                  </h3>
+                                </div>
+                                {leadDesc && (
+                                  <p className="mt-3.5 text-xs sm:text-sm text-slate-700 leading-[1.85] font-normal">
+                                    {leadDesc}
+                                  </p>
+                                )}
+                              </div>
+                            );
+                          })
+                        ) : (
+                          /* If paragraphs in legal section (e.g. Birth Certificate - no fake Part A box) */
+                          <div className="space-y-5 sm:space-y-6">
+                            {sec.paragraphs.map((paraBlock, pIdx) => {
+                              const subParas = String(paraBlock || "")
+                                .split(/\n+/)
+                                .map((p) => p.trim())
+                                .filter(Boolean);
+                              return (
+                                <React.Fragment key={pIdx}>
+                                  {subParas.map((para, spIdx) => (
+                                    <p
+                                      key={spIdx}
+                                      className="text-slate-700 text-sm sm:text-base leading-[1.85] font-normal"
+                                    >
+                                      {renderTextWithLinks(para)}
+                                    </p>
+                                  ))}
+                                </React.Fragment>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* ═════════════════════════════════════════════════════════════
+                        STANDARD / OTHER SECTIONS (Why Needed, Clauses, Process)
+                    ═════════════════════════════════════════════════════════════ */}
+                    {!isIntroSection && !isJudicialSection && !isConclusionSection && !isDocumentsSection && !isLawsSection && (
+                      <>
+                        {hasParagraphs && (
+                          <div className="mt-5 space-y-5 sm:space-y-6 text-slate-700 text-sm sm:text-base leading-[1.85] font-normal">
+                            {sec.paragraphs.map((paraBlock, pIdx) => {
+                              const subParas = String(paraBlock || "")
+                                .split(/\n+/)
+                                .map((p) => p.trim())
+                                .filter(Boolean);
+                              return (
+                                <React.Fragment key={pIdx}>
+                                  {subParas.map((para, spIdx) => (
+                                    <p key={spIdx} className="leading-[1.85]">
+                                      {renderTextWithLinks(para)}
+                                    </p>
+                                  ))}
+                                </React.Fragment>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {hasBullets && (() => {
+                          const noteBullets = [];
+                          const gridBullets = [];
+
+                          sec.bullets.forEach((bullet) => {
+                            if (/^(note|important|disclaimer|statutory note|please note|official references|official reference)\s*:/i.test(bullet.trim())) {
+                              noteBullets.push(bullet);
+                            } else {
+                              gridBullets.push(bullet);
+                            }
+                          });
+
+                          return (
+                            <div className="mt-6 space-y-4">
+                              {/* Standard checklist / criteria points */}
+                              {gridBullets.length > 0 && (
+                                <div className={`grid grid-cols-1 ${gridBullets.length > 1 ? "sm:grid-cols-2" : ""} gap-4`}>
+                                  {gridBullets.map((bullet, bIdx) => {
+                                    const colonIdx = bullet.indexOf(":");
+                                    const hasColon = colonIdx !== -1 && colonIdx < 80;
+                                    const rawTitle = hasColon ? bullet.slice(0, colonIdx).trim() : "";
+                                    const title = rawTitle.replace(/^\d+(\.\d+)*\.\s*/, "").trim();
+                                    const desc = hasColon ? bullet.slice(colonIdx + 1).trim() : bullet;
+
+                                    return (
+                                      <div
+                                        key={bIdx}
+                                        className="flex items-start gap-3.5 rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-slate-50/60 to-amber-50/20 p-4 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-400/80 hover:shadow-sm"
+                                      >
+                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/70 shadow-xs">
+                                          <FiCheckCircle className="text-base font-black" />
+                                        </div>
+                                        <div className="pt-0.5 min-w-0 flex-1">
+                                          {title && (
+                                            <h4 className="text-xs sm:text-sm font-bold text-slate-900 mb-1 leading-snug">
+                                              {title}
+                                            </h4>
+                                          )}
+                                          <p className={`text-xs sm:text-sm leading-relaxed ${title ? "text-slate-700 font-normal" : "font-semibold text-slate-800"}`}>
+                                            {renderTextWithLinks(desc)}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+
+                              {/* Full-Width Executive Callout Card for Notes / Disclaimers / Official References */}
+                              {noteBullets.map((noteText, nIdx) => {
+                                const isRef = /^(official\s*reference|reference|official\s*references)/i.test(noteText.trim());
+                                const cleanText = noteText.replace(/^(note|important|disclaimer|statutory note|please note|official references|official reference)\s*:\s*/i, "");
+
+                                if (isRef) {
+                                  return (
+                                    <div
+                                      key={nIdx}
+                                      id="official-references"
+                                      className="w-full rounded-xl border border-slate-200/90 bg-slate-50/70 p-4 sm:p-5 shadow-2xs text-left"
+                                    >
+                                      <div className="flex items-center gap-2 mb-2 pb-2 border-b border-slate-200/80">
+                                        <FiBookOpen className="text-slate-600 text-sm shrink-0" />
+                                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
+                                          Official Statutory Reference
+                                        </span>
+                                      </div>
+                                      <p className="text-xs sm:text-[13px] text-slate-700 leading-relaxed font-normal">
+                                        {renderTextWithLinks(cleanText)}
+                                      </p>
+                                    </div>
+                                  );
+                                }
+
+                                return (
+                                  <div
+                                    key={nIdx}
+                                    className="w-full flex items-start gap-3.5 rounded-2xl border border-amber-300/80 bg-gradient-to-r from-amber-50/90 via-orange-50/30 to-white p-4 sm:p-5 shadow-xs"
+                                  >
+                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-slate-950 font-black shadow-xs">
+                                      <FiInfo className="text-base font-bold" />
+                                    </div>
+                                    <div className="min-w-0 flex-1 pt-0.5">
+                                      <span className="inline-block text-[11px] font-black uppercase tracking-wider text-amber-800 bg-amber-100/90 px-2.5 py-0.5 rounded-md mb-2">
+                                        Important Note
+                                      </span>
+                                      <p className="text-xs sm:text-sm text-slate-800 leading-relaxed font-normal">
+                                        {renderTextWithLinks(cleanText)}
+                                      </p>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
+                      </>
+                    )}
+                  </section>
+                );
+              })
+            ) : (
+              <>
+                {/* ═════════════════════════════════════════════════════════════
+                    SECTION 1: Introduction & Overview (Attractive Executive Redesign)
+                ═════════════════════════════════════════════════════════════ */}
             {introMeta && (
               <section
                 id="intro"
@@ -335,41 +928,68 @@ const ServiceDetailPage = () => {
                       ))}
                   </div>
                 </div>
-
-                {/* Feature Highlights Grid */}
-                {Array.isArray(data.introduction?.highlights) && data.introduction.highlights.length > 0 && (
-                  <div className="mt-6 pt-5 border-t border-slate-100">
-                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 mb-3.5 flex items-center gap-2">
-                      <FiShield className="text-amber-600 text-sm" />
-                      <span>Statutory Key Pillars & Safeguards</span>
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                      {data.introduction.highlights.map((item, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-slate-50/50 to-amber-50/20 p-3.5 shadow-xs transition hover:border-amber-400/60 hover:shadow-sm"
-                        >
-                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/60">
-                            <FiCheckCircle className="text-sm font-black" />
-                          </div>
-                          <span className="text-xs font-semibold text-slate-800 leading-snug pt-0.5">
-                            {item}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </section>
             )}
 
             {/* ═════════════════════════════════════════════════════════════
-                SECTION 2: Applicable Indian Laws (Auto-Hidden If Empty)
+                SECTION 2: Objectives & Importance (PDF Point 2)
+            ═════════════════════════════════════════════════════════════ */}
+            {objectivesMeta && (
+              <section
+                id="objectives"
+                className="scroll-mt-28 relative overflow-hidden rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm transition hover:shadow-md"
+              >
+                <div className="flex items-center gap-2.5 text-amber-600 mb-2">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-500 text-xs font-black text-slate-950 shadow-xs">
+                    {objectivesMeta.badge}
+                  </span>
+                  <span className="text-[11px] font-black uppercase tracking-wider text-amber-700">
+                    {objectivesMeta.subtitle}
+                  </span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
+                  {objectivesMeta.title}
+                </h2>
+                <p className="mt-2 text-xs sm:text-sm text-slate-600 font-medium leading-relaxed mb-6">
+                  Core statutory objectives, legal benefits, and evidentiary safeguards established under this matter:
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {(
+                    data.objectives ||
+                    data.introduction?.highlights ||
+                    []
+                  ).map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-start gap-3.5 rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-slate-50/60 to-amber-50/20 p-4 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-400/80 hover:shadow-sm"
+                    >
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/70 shadow-xs">
+                        <FiCheckCircle className="text-base font-black" />
+                      </div>
+                      <div className="pt-0.5">
+                        <span className="text-xs sm:text-sm font-semibold text-slate-800 leading-snug">
+                          {typeof item === "string" ? item : item.title || item.text}
+                        </span>
+                        {item.description && (
+                          <p className="mt-1 text-xs text-slate-500 leading-relaxed font-normal">
+                            {item.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* ═════════════════════════════════════════════════════════════
+                SECTION 3: Applicable Indian Laws (Dynamic Title & Readable Statute Layout)
             ═════════════════════════════════════════════════════════════ */}
             {lawsMeta && (
               <section
                 id="applicable-laws"
-                className="scroll-mt-28 rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm"
+                className="scroll-mt-28 rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm transition hover:shadow-md"
               >
                 <div className="flex items-center gap-2.5 text-amber-600 mb-2">
                   <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-500 text-xs font-black text-slate-950 shadow-xs">
@@ -386,65 +1006,142 @@ const ServiceDetailPage = () => {
                   Key statutory sections, regulatory provisions, and relief standards governing this legal matter:
                 </p>
 
-                {/* Grid of Cards matching Theme */}
-                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-                  {(data.applicableLaws || []).map((law, idx) => {
-                    const theme = LAW_CARD_THEMES[idx % LAW_CARD_THEMES.length];
-                    const CardIcon = theme.Icon;
-                    const stepNumber = String(idx + 1).padStart(2, "0");
+                {/* Unified Executive Statute Renderer (Marriage Certificate Layout for ALL services) */}
+                {(() => {
+                  const items =
+                    Array.isArray(data.legalFramework?.sections) &&
+                    data.legalFramework.sections.length > 0
+                      ? data.legalFramework.sections
+                      : Array.isArray(data.applicableLaws)
+                      ? data.applicableLaws.map((law, idx) => ({
+                          letter: String.fromCharCode(65 + idx),
+                          title: law.act
+                            ? law.title && law.title !== law.act
+                              ? `${law.act} (${law.title})`
+                              : law.act
+                            : law.title,
+                          section: law.section,
+                          description: law.summary,
+                          tag: law.tag,
+                          bullets: law.bullets || [],
+                          caseLaw: law.caseLaw,
+                        }))
+                      : [];
 
-                    return (
-                      <div
-                        key={idx}
-                        className={`relative flex flex-col justify-between overflow-hidden rounded-2xl border bg-white p-5 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:shadow-md ${theme.border}`}
-                      >
-                        <div>
-                          {/* Top Row: Icon Badge (left) and Watermark Number (right) */}
-                          <div className="flex items-center justify-between">
-                            <div
-                              className={`flex h-10 w-10 items-center justify-center rounded-2xl ${theme.badgeBg} ${theme.iconColor} border ${theme.badgeBorder} shadow-xs`}
-                            >
-                              <CardIcon className="text-lg" />
-                            </div>
-                            <span className="text-3xl font-black text-slate-200 select-none tracking-tight">
-                              {stepNumber}
-                            </span>
-                          </div>
-
-                          {/* Title & Section */}
-                          <div className="mt-3.5">
-                            <h3 className="text-sm sm:text-base font-black text-slate-900 leading-snug">
-                              {law.title}
+                  return (
+                    <div className="mt-6 space-y-6">
+                      {items.map((part, pIdx) => (
+                        <div
+                          key={pIdx}
+                          className="overflow-hidden rounded-2xl border border-slate-200/90 bg-slate-50/40 p-5 sm:p-6 shadow-xs transition hover:border-amber-400/60 hover:shadow-sm"
+                        >
+                          {/* Sub-header row */}
+                          <div className="flex items-center gap-3 pb-3 border-b border-slate-200/70">
+                            {part.letter && (
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-amber-400 text-xs font-black shadow-xs">
+                                {part.letter}
+                              </span>
+                            )}
+                            <h3 className="text-base sm:text-lg font-black text-slate-950 tracking-tight">
+                              {part.title}
                             </h3>
-                            {law.act && (
-                              <p className="mt-1 text-[11px] font-bold text-slate-500">
-                                {law.section} • {law.act}
-                              </p>
+                            {part.tag && (
+                              <span className="ml-auto inline-block rounded-md bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-700">
+                                {part.tag}
+                              </span>
                             )}
                           </div>
 
-                          {/* Description */}
-                          <p className="mt-2.5 text-xs text-slate-600 leading-relaxed font-normal">
-                            {law.summary}
-                          </p>
-                        </div>
+                          {/* Section / Statute reference */}
+                          {part.section && (
+                            <p className="mt-3 text-xs sm:text-sm font-bold text-amber-700">
+                              {part.section}
+                            </p>
+                          )}
 
-                        {law.tag && (
-                          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-                            <span className="inline-block rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-700">
-                              {law.tag}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+                          {/* Description paragraph if present */}
+                          {part.description && (
+                            <p className="mt-3.5 text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">
+                              {part.description}
+                            </p>
+                          )}
+
+                          {/* Statutory bullet points with bold Section labels */}
+                          {Array.isArray(part.bullets) && part.bullets.length > 0 && (
+                            <div className="mt-4 space-y-3 pl-1 sm:pl-2">
+                              {part.bullets.map((bullet, bIdx) => (
+                                <div
+                                  key={bIdx}
+                                  className="flex items-start gap-2.5 text-xs sm:text-[13px] text-slate-700 leading-relaxed"
+                                >
+                                  <span className="inline-block h-2 w-2 shrink-0 rounded-full bg-amber-500 mt-1.5 shadow-xs" />
+                                  <div>
+                                    {bullet.label && (
+                                      <strong className="text-slate-950 font-bold mr-1.5">
+                                        {bullet.label}:
+                                      </strong>
+                                    )}
+                                    <span>{bullet.text || bullet}</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Judicial Case Law / Supreme Court Precedent Callout */}
+                          {part.caseLaw && (
+                            <div className="mt-5 rounded-xl border border-amber-300/70 bg-gradient-to-br from-amber-50/80 to-orange-50/50 p-4 shadow-xs">
+                              <div className="flex items-center gap-2 text-xs font-black text-amber-900 mb-1.5">
+                                <FaScaleBalanced className="text-amber-700 text-sm" />
+                                <span>Landmark Judicial Precedent • {part.caseLaw.citation}</span>
+                              </div>
+                              <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                                {part.caseLaw.summary}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+
+                {/* Top-Level Judicial Principles (e.g. Jacob Mathew from Advocate PDF) */}
+                {data.legalFramework?.judicialPrinciples && (
+                  <div className="mt-6 rounded-2xl border border-amber-300/80 bg-gradient-to-br from-amber-50/90 via-orange-50/40 to-white p-5 sm:p-6 shadow-xs">
+                    <div className="flex items-center gap-2.5 text-xs sm:text-sm font-black text-amber-950 mb-2">
+                      <FaScaleBalanced className="text-amber-700 text-base shrink-0" />
+                      <span>
+                        Judicial Principles •{" "}
+                        {data.legalFramework.judicialPrinciples.caseName ||
+                          data.legalFramework.judicialPrinciples.citation ||
+                          "Landmark Judicial Precedent"}
+                      </span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-800 leading-relaxed font-normal">
+                      {data.legalFramework.judicialPrinciples.summary ||
+                        data.legalFramework.judicialPrinciples}
+                    </p>
+                  </div>
+                )}
+
+                {/* Statutory Conclusion / Summary from Advocate PDF */}
+                {data.conclusion && (
+                  <div className="mt-6 rounded-2xl border border-slate-200/90 bg-slate-50/70 p-5 sm:p-6 shadow-xs">
+                    <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-800 mb-2 flex items-center gap-2">
+                      <span className="inline-block h-2 w-2 rounded-full bg-amber-500" />
+                      Conclusion & Legal Overview
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">
+                      {data.conclusion}
+                    </p>
+                  </div>
+                )}
               </section>
             )}
 
             {/* ═════════════════════════════════════════════════════════════
-                SECTION 3: Documents Required (AUTO-HIDDEN IF NO DOCUMENTS)
+                SECTION 4: Documents Required (AUTO-HIDDEN IF NO DOCUMENTS)
             ═════════════════════════════════════════════════════════════ */}
             {docsMeta && (
               <section
@@ -471,175 +1168,87 @@ const ServiceDetailPage = () => {
             )}
 
             {/* ═════════════════════════════════════════════════════════════
-                SECTION 4: Common Challenges & Practical Solutions (AUTO-HIDDEN IF EMPTY)
+                CONTENT-DRIVEN ADDITIONAL SECTIONS (Placed before Why Choose)
             ═════════════════════════════════════════════════════════════ */}
-            {commonMeta && (
-              <section
-                id="common-challenges"
-                className="scroll-mt-28 rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm"
-              >
-                <div className="flex items-center gap-2.5 text-amber-600 mb-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-500 text-xs font-black text-slate-950 shadow-xs">
-                    {commonMeta.badge}
-                  </span>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-amber-700">
-                    {commonMeta.subtitle}
-                  </span>
-                </div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
-                  {commonMeta.title}
-                </h2>
-                <p className="mt-2 text-xs sm:text-sm text-slate-600 font-medium leading-relaxed mb-6">
-                  Frequent procedural pitfalls, statutory objections, and practical remedies advised by enrolled advocates:
-                </p>
+            {Array.isArray(data.additionalSections) &&
+              data.additionalSections.map((sec, idx) => {
+                const meta = getSectionMeta(`additional-${idx}`);
+                if (!meta || !sec || !sec.heading) return null;
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {(data.commonChallenges || []).map((challenge, idx) => (
-                    <div
-                      key={idx}
-                      className="flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs transition hover:border-amber-400/70 hover:shadow-sm"
-                    >
-                      <div>
-                        <div className="flex items-start gap-3">
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600 border border-amber-200/60">
-                            <FiAlertTriangle className="text-sm" />
+                const hasParagraphs = Array.isArray(sec.paragraphs) && sec.paragraphs.length > 0;
+                const hasBullets = Array.isArray(sec.bullets) && sec.bullets.length > 0;
+                if (!hasParagraphs && !hasBullets) return null;
+
+                const secId =
+                  sec.id ||
+                  `section-${sec.heading
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, "-")
+                    .replace(/^-+|-+$/g, "")}`;
+
+                return (
+                  <section
+                    key={idx}
+                    id={secId}
+                    className="scroll-mt-28 relative overflow-hidden rounded-3xl border border-slate-200/90 hover:border-amber-400/80 bg-white p-6 sm:p-8 shadow-sm transition-all duration-200 hover:shadow-md"
+                  >
+                    <div className="flex items-center gap-2.5 text-amber-600 mb-2">
+                      <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-500 text-xs font-black text-slate-950 shadow-xs">
+                        {meta.badge}
+                      </span>
+                      <span className="text-[11px] font-black uppercase tracking-wider text-amber-700">
+                        {meta.subtitle}
+                      </span>
+                    </div>
+
+                    <h2 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
+                      {meta.title}
+                    </h2>
+
+                    {/* Bullets (e.g. Essential Clause list) */}
+                    {hasBullets && (
+                      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        {sec.bullets.map((bullet, bIdx) => (
+                          <div
+                            key={bIdx}
+                            className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-slate-50/60 to-amber-50/20 p-4 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-400/80 hover:shadow-sm"
+                          >
+                            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/70 shadow-xs mt-0.5">
+                              <FiCheck className="text-sm font-black stroke-[3]" />
+                            </div>
+                            <div className="pt-0.5">
+                              <span className="text-xs sm:text-sm font-semibold text-slate-800 leading-snug">
+                                {bullet}
+                              </span>
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="text-sm font-bold text-slate-900 leading-snug">
-                              {challenge.title}
-                            </h3>
-                            <p className="mt-1.5 text-xs text-slate-600 leading-relaxed font-normal">
-                              {challenge.description}
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Paragraphs (e.g. Conclusion text) */}
+                    {hasParagraphs && (
+                      <div className="mt-6 space-y-4">
+                        {sec.paragraphs.map((para, pIdx) => (
+                          <div
+                            key={pIdx}
+                            className="rounded-2xl border border-slate-200/90 bg-slate-50/70 p-5 sm:p-6 shadow-xs"
+                          >
+                            <p className="text-xs sm:text-sm text-slate-700 leading-[1.8] font-normal">
+                              {para}
                             </p>
                           </div>
-                        </div>
-                      </div>
-
-                      {challenge.remedy && (
-                        <div className="mt-4 pt-3 border-t border-slate-100 flex items-start gap-2 rounded-xl bg-emerald-50/70 p-3 text-xs">
-                          <span className="font-extrabold text-emerald-800 shrink-0">Remedy:</span>
-                          <span className="font-medium text-emerald-950 leading-relaxed">{challenge.remedy}</span>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* ═════════════════════════════════════════════════════════════
-                SECTION 5: Statutory Legal Remedies (ONLY RENDERS IF PRESENT)
-            ═════════════════════════════════════════════════════════════ */}
-            {remediesMeta && Array.isArray(data.legalRemedies) && data.legalRemedies.length > 0 && (
-              <section
-                id="legal-remedies"
-                className="scroll-mt-28 rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm"
-              >
-                <div className="flex items-center gap-2.5 text-amber-600 mb-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-500 text-xs font-black text-slate-950 shadow-xs">
-                    {remediesMeta.badge}
-                  </span>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-amber-700">
-                    {remediesMeta.subtitle}
-                  </span>
-                </div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
-                  {remediesMeta.title}
-                </h2>
-                <p className="mt-2 text-xs sm:text-sm text-slate-600 font-medium leading-relaxed mb-6">
-                  Available judicial routes, speed of resolution, and enforceable outcomes under Indian law:
-                </p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {data.legalRemedies.map((remedy, idx) => (
-                    <div
-                      key={idx}
-                      className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200/60">
-                          {remedy.type || "Statutory Remedy"}
-                        </span>
-                        {remedy.speed && (
-                          <span className="text-[10px] font-bold text-slate-500">
-                            ⏱ {remedy.speed}
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="mt-3 text-sm sm:text-base font-black text-slate-900 leading-snug">
-                        {remedy.title}
-                      </h3>
-                      {remedy.outcome && (
-                        <p className="mt-2 text-xs text-slate-600 leading-relaxed font-normal">
-                          {remedy.outcome}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* ═════════════════════════════════════════════════════════════
-                SECTION 6: Statutory Rights & Advocate Role (ONLY RENDERS IF PRESENT)
-            ═════════════════════════════════════════════════════════════ */}
-            {rightsMeta && (
-              <section
-                id="rights-and-advocate"
-                className="scroll-mt-28 rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm"
-              >
-                <div className="flex items-center gap-2.5 text-amber-600 mb-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-500 text-xs font-black text-slate-950 shadow-xs">
-                    {rightsMeta.badge}
-                  </span>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-amber-700">
-                    {rightsMeta.subtitle}
-                  </span>
-                </div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
-                  {rightsMeta.title}
-                </h2>
-
-                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-5">
-                  {Array.isArray(data.rightsAndAdvocate?.payeeRights) && data.rightsAndAdvocate.payeeRights.length > 0 && (
-                    <div className="rounded-2xl border border-slate-200/80 bg-slate-50/60 p-5">
-                      <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 mb-3 flex items-center gap-2">
-                        <FiShield className="text-emerald-600" />
-                        <span>Statutory Rights of the Applicant / Client</span>
-                      </h3>
-                      <ul className="space-y-2 text-xs text-slate-700">
-                        {data.rightsAndAdvocate.payeeRights.map((right, rIdx) => (
-                          <li key={rIdx} className="flex items-start gap-2">
-                            <FiCheckCircle className="text-emerald-600 shrink-0 mt-0.5 text-sm" />
-                            <span>{right}</span>
-                          </li>
                         ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {Array.isArray(data.rightsAndAdvocate?.advocateRole) && data.rightsAndAdvocate.advocateRole.length > 0 && (
-                    <div className="rounded-2xl border border-slate-200/80 bg-slate-50/60 p-5">
-                      <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 mb-3 flex items-center gap-2">
-                        <MdGavel className="text-amber-600" />
-                        <span>Critical Role of Enrolled Advocate</span>
-                      </h3>
-                      <ul className="space-y-2 text-xs text-slate-700">
-                        {data.rightsAndAdvocate.advocateRole.map((role, roIdx) => (
-                          <li key={roIdx} className="flex items-start gap-2">
-                            <FiCheckCircle className="text-amber-600 shrink-0 mt-0.5 text-sm" />
-                            <span>{role}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </section>
+                      </div>
+                    )}
+                  </section>
+                );
+              })}
+              </>
             )}
 
             {/* ═════════════════════════════════════════════════════════════
-                SECTION 7: Why Choose VakeelSetu
+                SECTION 5: Why Choose VakeelSetu
             ═════════════════════════════════════════════════════════════ */}
             {whyMeta && (
               <section
@@ -698,34 +1307,7 @@ const ServiceDetailPage = () => {
             )}
 
             {/* ═════════════════════════════════════════════════════════════
-                SECTION 8: Frequently Asked Questions (FAQ Accordions)
-            ═════════════════════════════════════════════════════════════ */}
-            {faqsMeta && (
-              <section
-                id="faqs"
-                className="scroll-mt-28 rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm"
-              >
-                <div className="flex items-center gap-2.5 text-amber-600 mb-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-500 text-xs font-black text-slate-950 shadow-xs">
-                    {faqsMeta.badge}
-                  </span>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-amber-700">
-                    {faqsMeta.subtitle}
-                  </span>
-                </div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
-                  {faqsMeta.title}
-                </h2>
-                <p className="mt-2 text-xs sm:text-sm text-slate-600 font-medium leading-relaxed mb-6">
-                  Clear answers regarding legal requirements, limitation periods, territorial jurisdiction, and advocate assistance:
-                </p>
-
-                <ServiceFaqAccordion faqs={data.faqs || []} />
-              </section>
-            )}
-
-            {/* ═════════════════════════════════════════════════════════════
-                SECTION 9: Consultation CTA Banner (AUTO-HIDDEN IF NO CTA DATA)
+                CONSULTATION CTA BANNER (AUTO-HIDDEN IF NO CTA DATA)
             ═════════════════════════════════════════════════════════════ */}
             {data.consultationCta && data.consultationCta.headline && (
               <section className="relative overflow-hidden rounded-3xl border border-slate-800 bg-gradient-to-br from-[#070b14] via-[#0d1424] to-[#121b33] p-6 sm:p-8 text-white shadow-xl">
@@ -769,64 +1351,7 @@ const ServiceDetailPage = () => {
             )}
 
             {/* ═════════════════════════════════════════════════════════════
-                SECTION 10: Research Sources & Statutory References (AUTO-HIDDEN IF EMPTY)
-            ═════════════════════════════════════════════════════════════ */}
-            {sourcesMeta && Array.isArray(data.researchSources) && data.researchSources.length > 0 && (
-              <section
-                id="research-sources"
-                className="scroll-mt-28 rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm"
-              >
-                <div className="flex items-center gap-2.5 text-amber-600 mb-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-500 text-xs font-black text-slate-950 shadow-xs">
-                    {sourcesMeta.badge}
-                  </span>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-amber-700">
-                    {sourcesMeta.subtitle}
-                  </span>
-                </div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
-                  {sourcesMeta.title}
-                </h2>
-                <p className="mt-2 text-xs sm:text-sm text-slate-600 font-medium leading-relaxed mb-5">
-                  Statutory Bare Acts, official government gazettes, and binding legal authorities referenced in this procedure:
-                </p>
-
-                <div className="space-y-3">
-                  {data.researchSources.map((source, sIdx) => (
-                    <div
-                      key={sIdx}
-                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-2xl border border-slate-100 bg-slate-50/70 p-3.5 text-xs"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <FiBookOpen className="text-amber-600 shrink-0 text-sm" />
-                          <h3 className="font-bold text-slate-900 truncate">
-                            {source.title}
-                          </h3>
-                        </div>
-                        <p className="mt-1 text-[11px] text-slate-500 pl-5">
-                          {source.source} {source.citation ? `• ${source.citation}` : ""}
-                        </p>
-                      </div>
-                      {source.link && (
-                        <a
-                          href={source.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-amber-700 font-bold hover:text-amber-800 text-[11px] shrink-0 pl-5 sm:pl-0"
-                        >
-                          <span>View Official Portal</span>
-                          <FiExternalLink className="text-xs" />
-                        </a>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* ═════════════════════════════════════════════════════════════
-                SECTION 11: Statutory Legal Disclaimer (AUTO-HIDDEN IF ABSENT)
+                STATUTORY LEGAL DISCLAIMER (AUTO-HIDDEN IF ABSENT)
             ═════════════════════════════════════════════════════════════ */}
             {data.disclaimer && (
               <div className="rounded-2xl border border-slate-200/70 bg-slate-100/60 p-4 sm:p-5 text-xs text-slate-600 leading-relaxed flex items-start gap-3">
@@ -849,8 +1374,6 @@ const ServiceDetailPage = () => {
 
       {/* ═════════════════════════════════════════════════════════════
           FULL-PAGE WIDTH SECTION: STEP-BY-STEP LEGAL PROCEDURE
-          Placed directly above the Intake Section so it spans 100% of page width
-          with ZERO horizontal scrollbar!
       ═════════════════════════════════════════════════════════════ */}
       {procMeta && (
         <section
@@ -877,6 +1400,38 @@ const ServiceDetailPage = () => {
 
             {/* Full-Page Width Pillar Chevron Infographic */}
             <ProcessZigZagFlow steps={data.legalProcedure || []} />
+          </div>
+        </section>
+      )}
+
+      {/* ═════════════════════════════════════════════════════════════
+          FULL-PAGE WIDTH SECTION: FREQUENTLY ASKED QUESTIONS
+          Placed directly below the Step-by-Step Legal Procedure!
+      ═════════════════════════════════════════════════════════════ */}
+      {faqsMeta && Array.isArray(data.faqs) && data.faqs.length > 0 && (
+        <section
+          id="faqs"
+          className="scroll-mt-28 border-t border-slate-200/90 bg-slate-50/70 py-14 sm:py-16 shadow-xs"
+        >
+          <div className="mx-auto max-w-5xl px-4 sm:px-6">
+            <div className="text-center max-w-2xl mx-auto mb-10">
+              <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-50 px-3.5 py-1 text-xs font-bold text-amber-800 mb-3">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 text-[10px] font-black text-slate-950">
+                  {faqsMeta.badge}
+                </span>
+                <span>{faqsMeta.subtitle}</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
+                {faqsMeta.title}
+              </h2>
+              <p className="mt-2 text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
+                Clear answers regarding legal requirements, timelines, documentation, and advocate representation:
+              </p>
+            </div>
+
+            <div className="rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm">
+              <ServiceFaqAccordion faqs={data.faqs || []} />
+            </div>
           </div>
         </section>
       )}

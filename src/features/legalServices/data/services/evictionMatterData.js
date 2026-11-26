@@ -2,6 +2,67 @@
 // Source: Eviction_Matter_Introduction_Legal_Framework.pdf
 
 export const evictionMatterData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction",
+          "paragraphs": [
+              "An eviction matter concerns the legal process by which a landlord or other person entitled to possession seeks recovery of premises from an occupant, usually a tenant. Disputes commonly arise from non-payment of rent, breach of tenancy conditions, expiry or lawful termination of tenancy, unauthorised subletting, or grounds recognised under applicable rent-control legislation. Eviction must follow the governing law and appropriate judicial procedure; a landlord generally cannot remove a tenant by force or disconnect essential services to compel departure."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Legal Framework in India",
+          "paragraphs": [
+              "Eviction disputes in India are governed by a combination of central property law, state-specific rent or tenancy statutes, contractual terms and procedural rules. The correct legal route depends on the state, nature of the premises, tenancy status and whether a special rent statute applies."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Transfer of Property Act, 1882",
+          "paragraphs": [
+              "Sections 105-117 regulate leases of immovable property. Section 106 provides default rules for duration and notice of termination where applicable, subject to contract and local law; Section 111 describes modes by which a lease determines. A notice must be assessed against the actual lease and statutory protections. Termination of a lease does not, by itself, authorise forcible eviction."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "State Rent Control and Tenancy Laws",
+          "paragraphs": [
+              "Many states have special statutes governing protected tenancies, permissible eviction grounds, rent, deposits and the competent forum. In Uttar Pradesh, for example, the Uttar Pradesh Regulation of Urban Premises Tenancy Act, 2021 may apply to covered premises, while other tenancy arrangements may be governed by different rules. The Model Tenancy Act, 2021 is a model for state adoption, not a uniformly applicable nationwide eviction code."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Contract, Registration and Procedure",
+          "paragraphs": [
+              "The Indian Contract Act, 1872 informs enforceability of contractual obligations. The Registration Act, 1908 and relevant stamp laws may affect documentation and evidentiary use of leases. Where a civil suit is the proper remedy, the Code of Civil Procedure, 1908 governs proceedings and execution of decrees. Special tenancy laws may instead prescribe a Rent Authority, Rent Court or other designated forum."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Typical Steps in an Eviction Matter",
+          "paragraphs": [
+              "A party should first verify ownership or entitlement to possession, the tenancy agreement, rent-payment records, communications and the applicable statute. Next, identify a valid ground, serve a legally compliant notice where required, and allow the statutory or contractual period. If possession is not surrendered, file the appropriate proceeding before the competent forum. Both parties may submit evidence and raise available defences; recovery of possession follows a lawful order and its execution."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Rights, Remedies and Safeguards",
+          "paragraphs": [
+              "Landlords may seek possession, unpaid rent, permitted compensation or other relief subject to law. Tenants may contest invalid notices, disputed arrears, unlawful grounds, procedural defects and prohibited self-help measures. Mediation or settlement may resolve disputes more quickly. The burden of proof, available appeals and timelines vary with the applicable legislation and forum."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Conclusion",
+          "paragraphs": [
+              "Eviction is a regulated legal remedy, not an automatic consequence of a landlord's demand. Effective handling requires identifying the correct governing statute, establishing lawful grounds, complying with notice and procedural requirements, and respecting both landlord and tenant rights.",
+              "Educational overview only; local law and case-specific facts should be verified before taking legal action."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "eviction-matters",
   categorySlug: "real-estate-property-matters",
   categoryTitle: "Real Estate & Property Matters",
@@ -24,12 +85,6 @@ export const evictionMatterData = {
   introduction: {
     summary:
       "An eviction matter concerns the legal process by which a landlord or other person entitled to possession seeks recovery of premises from an occupant, usually a tenant. Disputes commonly arise from non-payment of rent, breach of tenancy conditions, expiry or lawful termination of tenancy, unauthorised subletting, or grounds recognised under applicable rent-control legislation. Eviction must follow the governing law and appropriate judicial procedure; a landlord generally cannot remove a tenant by force or disconnect essential services to compel departure.\n\nEviction disputes in India are governed by a combination of central property law, state-specific rent or tenancy statutes, contractual terms and procedural rules. The correct legal route depends on the state, nature of the premises, tenancy status and whether a special rent statute applies.",
-    highlights: [
-      "Regulates lawful possession recovery on grounds of rent default, lease expiry, subletting, or breach.",
-      "Strict prohibition against self-help measures such as disconnecting utilities or using force.",
-      "Governed by Transfer of Property Act, 1882 or State Rent Control / Tenancy legislation.",
-      "Requires serving statutory notice, filing petition before Rent Authority/Court, and decree execution.",
-    ],
   },
 
   applicableLaws: [

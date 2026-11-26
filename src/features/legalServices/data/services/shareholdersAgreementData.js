@@ -1,4 +1,44 @@
 export const shareholdersAgreementData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction",
+          "paragraphs": [
+              "A Shareholders Agreement (SHA) is a private contractual arrangement among some or all shareholders of a company and, often, the company itself. It sets out how shareholders will exercise their rights, manage their relationship, make important decisions and protect their investment. While a company's Articles of Association (AoA) establish its internal governance rules, an SHA can address more detailed commercial expectations, including voting arrangements, board representation, funding obligations, transfer restrictions and exit mechanisms."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Purpose and Importance",
+          "paragraphs": [
+              "An SHA helps prevent disputes by clearly allocating responsibilities and setting procedures for sensitive matters. It is especially useful in start-ups, family-owned businesses, joint ventures and companies with minority investors. Common provisions include reserved matters requiring special approval, pre-emptive rights, rights of first refusal, tag-along and drag-along rights, confidentiality, non-compete obligations (subject to enforceability), deadlock resolution and valuation methods. A well-drafted SHA balances majority control with minority protection and supports continuity of operations."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Legal Framework in India",
+          "paragraphs": [
+              "Indian Contract Act, 1872: An SHA is principally governed by general contract law. Its terms must satisfy the requirements of a valid contract, including free consent, lawful consideration and lawful object. Provisions that violate statutory law or public policy may be unenforceable. Companies Act, 2013: Corporate governance, shareholder rights, share issuance, meetings, directors' duties and transfer-related matters must comply with the Act. The SHA should be coordinated with the company's Memorandum and Articles of Association. Where a contractual provision conflicts with mandatory company law or the AoA, enforceability against the company may be limited; appropriate AoA amendments are often advisable. SEBI regulations: Where listed companies or regulated securities transactions are involved, applicable SEBI rules, disclosure requirements and securities laws may affect contractual rights and their implementation. Foreign exchange laws: If a shareholder is a non-resident, the Foreign Exchange Management Act, 1999 and applicable foreign investment rules may govern pricing, transfers, reporting and exit arrangements."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Enforcement and Dispute Resolution",
+          "paragraphs": [
+              "Parties commonly include governing-law, jurisdiction and arbitration clauses. The Arbitration and Conciliation Act, 1996 provides a framework for arbitration where the dispute is arbitrable. Remedies may include damages, injunctions or specific performance where legally available. However, a contractual right does not automatically override statutory restrictions or bind persons who are not parties to the agreement."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Conclusion",
+          "paragraphs": [
+              "A Shareholders Agreement is an important tool for defining ownership-related expectations and reducing uncertainty in company management. In India, it works best when drafted consistently with the Companies Act, 2013, the company's Articles of Association and other applicable regulations. Its provisions should be tailored to the company's shareholding structure and business objectives.",
+              "Educational overview only; not a substitute for transaction-specific legal advice."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "shareholders-agreement",
   categorySlug: "business-contracts-agreements",
   categoryTitle: "Business Contracts & Agreements",
@@ -21,12 +61,6 @@ export const shareholdersAgreementData = {
   introduction: {
     summary:
       "A Shareholders’ Agreement (SHA) is a legal contract entered into between some or all of the shareholders of a company (and often the company itself) to regulate their relationship, the management of the company, the ownership and transfer of shares, voting rights, decision-making thresholds and the resolution of shareholder disputes. In Indian corporate practice, an SHA functions alongside the company’s statutory charter documents—the Memorandum of Association (MoA) and Articles of Association (AoA)—to establish clear governance rules and protect investor and minority rights.",
-    highlights: [
-      "Regulates board composition, quorum requirements, and reserved matter affirmative voting rights.",
-      "Defines share transfer restrictions including Right of First Refusal (ROFR), tag-along, drag-along, and lock-in covenants.",
-      "Mandates incorporation into the Articles of Association (AoA) for enforceability against the company per established judicial precedent.",
-      "Establishes deadlock resolution mechanisms, put/call option protocols, and strategic exit pathways.",
-    ],
   },
 
   applicableLaws: [

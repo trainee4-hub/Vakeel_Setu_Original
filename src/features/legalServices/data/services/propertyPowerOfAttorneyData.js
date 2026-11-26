@@ -2,6 +2,71 @@
 // Source: Property_Power_of_Attorney_Introduction_Legal_Framework.pdf
 
 export const propertyPowerOfAttorneyData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction and Legal Framework (India)",
+          "paragraphs": [],
+          "bullets": []
+      },
+      {
+          "heading": "Introduction",
+          "paragraphs": [
+              "A Property Power of Attorney (PoA) is a legal instrument through which a property owner (the principal) authorises another person (the agent or attorney-holder) to perform specified acts concerning property on the principal's behalf. These may include managing a property, collecting rent, dealing with municipal authorities, executing documents or presenting instruments for registration, subject to the authority actually granted. A PoA creates an agency relationship; it does not, by itself, transfer ownership of immovable property."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Purpose and Types",
+          "paragraphs": [
+              "A Special Power of Attorney grants authority for particular acts or a particular property transaction. A General Power of Attorney may confer broader powers, but should still clearly identify permitted acts and limitations. Property owners use PoAs when they cannot attend to transactions personally, including when living abroad. Drafting should avoid vague or unrestricted authority."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Legal Framework in India",
+          "paragraphs": [
+              "The Powers-of-Attorney Act, 1882 recognises acts performed under an authorised power of attorney. The Indian Contract Act, 1872 governs agency principles, including the agent's authority and duties and the principal's responsibility for authorised acts. The Registration Act, 1908 regulates registration of instruments and the recognition/authentication of agents presenting documents, particularly under sections 32 and 33. The Transfer of Property Act, 1882 and applicable state stamp laws are relevant to underlying property transactions. Requirements depend on the document, the act authorised, and the state concerned."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Ownership and Judicial Position",
+          "paragraphs": [
+              "In Suraj Lamp & Industries Pvt. Ltd. v. State of Haryana (2011), the Supreme Court clarified that a sale agreement, General Power of Attorney and will arrangement does not itself convey title to immovable property. A valid transfer ordinarily requires a duly executed and registered conveyance where the law mandates it. A PoA can authorise an agent to execute a proper sale deed on behalf of the owner, but is not a substitute for the sale deed."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Essential Drafting Clauses",
+          "paragraphs": [
+              "A carefully drafted property PoA identifies the principal, agent and property; describes the exact powers granted; sets limits on sale, mortgage, lease, receipt of consideration and delegation; addresses duration, revocation and accountability; and includes execution details, witnesses and identification documents as required. Where the principal intends to authorise sale, the authority should be express and unambiguous."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Stamping, Authentication and Registration",
+          "paragraphs": [
+              "Stamp duty and registration requirements vary across states and according to the powers conferred. A PoA used for presenting documents for registration may need authentication in the manner prescribed by the Registration Act. A PoA executed abroad may require consular/notarial authentication and applicable stamping or adjudication in India. Parties should check the local Sub-Registrar's requirements before execution or use."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Revocation, Risks and Safeguards",
+          "paragraphs": [
+              "Agency generally may be revoked subject to contractual and statutory limitations, including cases involving an agency coupled with an interest. Third parties should be informed of revocation where relevant. Risks include misuse of authority, forged signatures, unauthorised transfers and disputes about the scope of powers. Owners should verify identity, retain copies, limit powers, and seek legal advice before authorising disposition of valuable property."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Conclusion",
+          "paragraphs": [
+              "A Property Power of Attorney is a practical tool for delegating property-related responsibilities, but it must be carefully drafted and executed in accordance with applicable law. It should not be confused with a conveyance of ownership. Local stamp, registration and authentication rules should always be verified for the specific transaction. Educational overview only; not a substitute for jurisdiction-specific legal advice."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "property-power-of-attorney",
   categorySlug: "property-real-estate",
   categoryTitle: "Property & Real Estate",
@@ -24,12 +89,6 @@ export const propertyPowerOfAttorneyData = {
   introduction: {
     summary:
       "A Property Power of Attorney (PoA) is a legal instrument through which a property owner (the principal) authorises another person (the agent or attorney-holder) to perform specified acts concerning property on the principal’s behalf. These may include managing a property, collecting rent, dealing with municipal authorities, executing documents or presenting instruments for registration, subject to the authority actually granted. A PoA creates an agency relationship; it does not, by itself, transfer ownership of immovable property.\n\nA Special Power of Attorney grants authority for particular acts or a particular property transaction. A General Power of Attorney may confer broader powers, but should still clearly identify permitted acts and limitations. Property owners use PoAs when they cannot attend to transactions personally, including when living abroad. Drafting should avoid vague or unrestricted authority.",
-    highlights: [
-      "Authorises an agent (attorney-holder) to manage, lease, represent, or execute documents for the principal.",
-      "Available as Special Power of Attorney (SPA for specific acts) or General Power of Attorney (GPA).",
-      "Supreme Court in Suraj Lamp (2011) clarified that GPA/Sale Agreement transactions do NOT convey title.",
-      "Requires mandatory registration under Registration Act (Sections 32 & 33) when authorizing property conveyance.",
-    ],
   },
 
   applicableLaws: [

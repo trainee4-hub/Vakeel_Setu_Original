@@ -2,6 +2,53 @@
 // Source: Founder_Agreement_Introduction_Legal_Framework.pdf
 
 export const foundersAgreementData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction and Legal Framework (India)",
+          "paragraphs": [],
+          "bullets": []
+      },
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "A Founder Agreement (also called a Co-Founders Agreement) is a written contract between the individuals establishing a business. It records their mutual understanding about ownership, roles, decision-making, contributions and the handling of disagreements. While founders may begin with informal promises, a clear agreement helps avoid disputes as the business grows, raises investment or experiences a change in leadership."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Purpose and Key Provisions",
+          "paragraphs": [
+              "A well-drafted agreement generally identifies each founder and the proposed business; describes capital, intellectual-property and other contributions; specifies equity allocation and any vesting or reverse-vesting arrangements; and assigns management duties and decision-making powers. It may address remuneration, confidentiality, conflicts of interest, transfer restrictions, founder exits, valuation and buyout procedures, deadlocks, dispute resolution and dissolution. Restrictions on competition or future employment require particular care under Indian law."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Legal Framework in India",
+          "paragraphs": [],
+          "bullets": [
+              "Indian Contract Act, 1872: The agreement is principally governed by general contract law. Section 10 addresses the essentials of an enforceable contract, including free consent, competent parties, lawful consideration and lawful object. Provisions must also comply with other applicable rules; for example, Section 27 generally makes agreements restraining lawful trade void, subject to limited statutory exceptions.",
+              "Companies Act, 2013: Where the venture is incorporated as a company, share issuance, transfers, governance, directors' duties and statutory filings must comply with company law. Contractual arrangements should be aligned with the company's memorandum and articles of association; a private agreement cannot override mandatory company-law requirements.",
+              "Intellectual property and confidentiality: Ownership and assignment of inventions, software, designs, trademarks and other creations should be expressly documented, subject to applicable intellectual-property statutes. Confidentiality clauses can protect business plans, customer information and trade secrets, provided they are appropriately drafted.",
+              "Other relevant laws: Depending on the business structure and transactions, the Limited Liability Partnership Act, 2008; Indian Partnership Act, 1932; applicable stamp laws; tax laws; and foreign-exchange rules (including FEMA) may also apply."
+          ]
+      },
+      {
+          "heading": "4. Enforceability and Dispute Resolution",
+          "paragraphs": [
+              "A Founder Agreement is not a standalone statutory document required for every startup, but properly drafted contractual obligations may be enforceable. Parties commonly choose negotiation or mediation first, followed by arbitration under the Arbitration and Conciliation Act, 1996, or proceedings before a competent court. The agreement should clearly state governing law, jurisdiction, dispute procedure and exit mechanisms. Appropriate stamping and execution formalities should be checked for the relevant state and transaction."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "5. Conclusion",
+          "paragraphs": [
+              "A Founder Agreement provides an early legal foundation for cooperation, accountability and continuity. By clarifying expectations before major investments or disputes arise, it can reduce uncertainty and protect both the founders and the venture. The terms should be tailored to the business structure and reviewed alongside its constitutional documents and applicable Indian laws. Educational overview only; not a substitute for advice on a specific transaction."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "founders-agreement",
   categorySlug: "business-contracts-agreements",
   categoryTitle: "Business Contracts & Agreements",
@@ -24,12 +71,6 @@ export const foundersAgreementData = {
   introduction: {
     summary:
       "A Founder Agreement (also called a Co-Founders Agreement) is a written contract between the individuals establishing a business. It records their mutual understanding about ownership, roles, decision-making, contributions and the handling of disagreements. While founders may begin with informal promises, a clear agreement helps avoid disputes as the business grows, raises investment or experiences a change in leadership.\n\nA well-drafted agreement generally identifies each founder and the proposed business; describes capital, intellectual-property and other contributions; specifies equity allocation and any vesting or reverse-vesting arrangements; and assigns management duties and decision-making powers. It may address remuneration, confidentiality, conflicts of interest, transfer restrictions, founder exits, valuation and buyout procedures, deadlocks, dispute resolution and dissolution.",
-    highlights: [
-      "Records equity split, share vesting schedules, and reverse-vesting cliffs.",
-      "Assigns clear operational roles, management authority, and voting thresholds.",
-      "Secures complete assignment of proprietary code, designs, and IP to the venture.",
-      "Defines founder exit mechanisms, share transfer restrictions, and deadlock resolution.",
-    ],
   },
 
   applicableLaws: [

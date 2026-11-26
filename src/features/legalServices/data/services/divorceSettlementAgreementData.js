@@ -2,6 +2,53 @@
 // Source: Divorce_Settlement_Agreement_Introduction_Legal_Framework.pdf
 
 export const divorceSettlementAgreementData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction",
+          "paragraphs": [
+              "A Divorce Settlement Agreement is a written arrangement between spouses setting out the terms on which they intend to resolve financial, parental, and other issues arising from marital separation or divorce. It commonly addresses maintenance or alimony, division of assets and liabilities, return of personal belongings, child custody and visitation, and the handling of pending legal proceedings. A carefully drafted agreement can reduce uncertainty and disputes, but it does not itself dissolve a marriage: a competent court must grant a divorce decree under the applicable law."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Purpose and Essential Provisions",
+          "paragraphs": [
+              "The agreement should accurately identify both parties, record voluntary consent, disclose relevant assets and income, and specify the amount, timing and method of any payments. Where children are involved, provisions on residence, education, medical expenses, parenting time and support should prioritise their welfare. Terms concerning property transfers, joint loans, tax consequences, withdrawal of cases and default remedies should be clear, realistic and legally permissible."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Legal Framework in India",
+          "paragraphs": [
+              "Personal and matrimonial laws: The governing divorce law depends on the parties and their marriage. Examples include the Hindu Marriage Act, 1955 (including section 13B on divorce by mutual consent), the Special Marriage Act, 1954 (section 28), and other applicable personal laws. A settlement cannot override mandatory statutory requirements or the court's independent role. Indian Contract Act, 1872: General principles of free consent, lawful consideration and lawful object are relevant when evaluating settlement terms. Coercion, fraud, misrepresentation or unlawful provisions may undermine enforceability. Family Courts Act, 1984: Family Courts are intended to facilitate settlement and adjudicate family disputes within their jurisdiction. Courts may examine the fairness and legality of the terms before recording them."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Maintenance, Children and Property",
+          "paragraphs": [
+              "Maintenance and alimony may be considered under the applicable matrimonial statutes and other relevant law. Child custody, access and support remain subject to the child's best interests; parents cannot conclusively bind a court on these matters merely by agreement. Immovable-property transfers may require separate duly stamped and registered instruments under the Registration Act, 1908 and applicable stamp laws. A settlement clause alone should not be assumed to transfer title."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Court Approval and Enforcement",
+          "paragraphs": [
+              "In a mutual-consent divorce, parties typically present their settlement to the competent court as part of the proceedings. The court considers statutory conditions and whether consent is genuine; a private agreement is not a substitute for the decree. Depending on how terms are incorporated into a court order or decree, enforcement may proceed through appropriate judicial remedies. Disputes about validity, non-payment or implementation may require further proceedings."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Conclusion",
+          "paragraphs": [
+              "A Divorce Settlement Agreement is an important tool for resolving the practical consequences of marital breakdown with clarity and dignity. Effective drafting requires informed consent, full and accurate disclosures, precise obligations, compliance with the applicable personal law and attention to children's welfare. Because procedures and rights vary with the facts and jurisdiction, parties should obtain independent legal advice before signing.",
+              "Educational overview only; not a substitute for advice on a specific case."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "divorce-settlement-agreement",
   categorySlug: "family-personal-documents",
   categoryTitle: "Family & Personal Documents",
@@ -24,12 +71,6 @@ export const divorceSettlementAgreementData = {
   introduction: {
     summary:
       "A Divorce Settlement Agreement is a written arrangement between spouses setting out the terms on which they intend to resolve financial, parental, and other issues arising from marital separation or divorce. It commonly addresses maintenance or alimony, division of assets and liabilities, return of personal belongings, child custody and visitation, and the handling of pending legal proceedings. A carefully drafted agreement can reduce uncertainty and disputes, but it does not itself dissolve a marriage: a competent court must grant a divorce decree under the applicable law.\n\nThe agreement should accurately identify both parties, record voluntary consent, disclose relevant assets and income, and specify the amount, timing and method of any payments. Where children are involved, provisions on residence, education, medical expenses, parenting time and support should prioritise their welfare. Terms concerning property transfers, joint loans, tax consequences, withdrawal of cases and default remedies should be clear, realistic and legally permissible.",
-    highlights: [
-      "Records mutual agreement on permanent alimony, maintenance, and return of streedhan/belongings.",
-      "Sets binding arrangements for child custody, visitation rights, education, and medical expenses.",
-      "Structures coordinated withdrawal of civil and criminal matrimonial proceedings.",
-      "Submitted before the competent Family Court to facilitate mutual consent divorce decree.",
-    ],
   },
 
   applicableLaws: [

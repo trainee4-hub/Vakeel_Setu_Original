@@ -2,6 +2,57 @@
 // Source: Joint_Venture_Agreement_Introduction_Legal_Framework.pdf
 
 export const jointVentureAgreementData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction",
+          "paragraphs": [
+              "A Joint Venture Agreement (JVA) is a contractual arrangement under which two or more parties collaborate to carry out a defined business activity, project, or commercial objective. The parties may contribute capital, technology, intellectual property, personnel, market access, or other resources and agree how responsibilities, control, risks, and returns will be shared. A joint venture may be structured as a separate incorporated entity (an equity joint venture) or as a contractual collaboration without forming a new company."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Purpose and Key Features",
+          "paragraphs": [
+              "A well-drafted JVA sets out the venture's objectives, scope, duration, contributions, ownership interests (where applicable), management and voting rights, profit and loss sharing, funding obligations, confidentiality, intellectual property rights, restrictions on transfer, exit arrangements, deadlock resolution, termination, and dispute resolution. Clear provisions help prevent disagreements and protect the commercial expectations of all participants."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Legal Framework in India",
+          "paragraphs": [],
+          "bullets": [
+              "Indian Contract Act, 1872: The JVA is generally governed by principles of valid contracts, including free consent, lawful consideration, lawful object, competent parties, performance, breach, and remedies. Its enforceability depends on the terms and applicable law.",
+              "Companies Act, 2013: If the venture operates through an Indian company, incorporation, corporate governance, directors' duties, shareholder rights, filings, and other compliance obligations are governed by company law. The JVA should be consistent with the company's constitutional documents and mandatory statutory requirements.",
+              "Limited Liability Partnership Act, 2008: If parties choose an LLP structure, its formation, partners' rights and duties, and compliance are governed by this Act and the LLP agreement.",
+              "Competition Act, 2002: Certain joint ventures may raise competition-law issues, including anti-competitive coordination or notifiable combinations. The arrangement should be assessed for competition compliance.",
+              "Foreign Exchange Management Act, 1999 and FDI rules: Cross-border ventures involving foreign investment must comply with applicable foreign investment policy, sectoral caps, entry routes, pricing, reporting, and related FEMA requirements."
+          ]
+      },
+      {
+          "heading": "Other Applicable Laws",
+          "paragraphs": [
+              "Depending on the venture, the parties may also need to comply with the Income-tax Act, 1961, GST legislation, labour and employment laws, intellectual property laws, sector-specific licensing requirements, and applicable stamp-duty and registration rules. Regulatory approvals may be necessary before commencing operations."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Dispute Resolution and Enforcement",
+          "paragraphs": [
+              "JVAs commonly provide for negotiation, mediation, arbitration, or court proceedings. Arbitration clauses may be governed by the Arbitration and Conciliation Act, 1996. Parties should specify the governing law, seat and venue of arbitration (if used), jurisdiction, remedies for breach, and mechanisms to address management deadlock or an early exit."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Conclusion",
+          "paragraphs": [
+              "A Joint Venture Agreement is a central legal and commercial document for collaborative business activity. By defining rights, obligations, governance, risk allocation, and exit procedures, it creates accountability and reduces uncertainty. In India, the precise legal framework depends on the venture's structure, sector, participants, and cross-border elements. Professional legal review is advisable before execution.",
+              "Educational overview only; not a substitute for transaction-specific legal advice."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "joint-venture-agreement",
   categorySlug: "corporate-commercial",
   categoryTitle: "Corporate & Commercial",
@@ -24,12 +75,6 @@ export const jointVentureAgreementData = {
   introduction: {
     summary:
       "A Joint Venture Agreement (JVA) is a contractual arrangement under which two or more parties collaborate to carry out a defined business activity, project, or commercial objective. The parties may contribute capital, technology, intellectual property, personnel, market access, or other resources and agree how responsibilities, control, risks, and returns will be shared. A joint venture may be structured as a separate incorporated entity (an equity joint venture) or as a contractual collaboration without forming a new company.\n\nA well-drafted JVA sets out the venture’s objectives, scope, duration, contributions, ownership interests (where applicable), management and voting rights, profit and loss sharing, funding obligations, confidentiality, intellectual property rights, restrictions on transfer, exit arrangements, deadlock resolution, termination, and dispute resolution. Clear provisions help prevent disagreements and protect the commercial expectations of all participants.",
-    highlights: [
-      "Structures equity joint ventures (separate incorporated company/LLP) or contractual collaborations.",
-      "Defines capital contributions, technology transfer, IP licensing, and resource allocation.",
-      "Establishes board representation, veto rights, reserved matters, and deadlock resolution mechanisms.",
-      "Complies with the Companies Act, 2013, LLP Act, 2008, Competition Act, 2002, and FEMA/FDI regulations.",
-    ],
   },
 
   applicableLaws: [

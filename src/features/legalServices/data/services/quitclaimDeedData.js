@@ -1,4 +1,65 @@
 export const quitclaimDeedData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "A quitclaim deed is a legal instrument commonly used in the United States to transfer whatever ownership interest, if any, a person (the grantor) holds in real property to another person (the grantee). Unlike a warranty deed, it generally makes no promise that the grantor has valid title or that the property is free of liens, competing claims, or other defects. The grantee therefore receives only the interest the grantor actually possesses, which may be limited or nonexistent."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Purpose and Common Uses",
+          "paragraphs": [
+              "Quitclaim deeds are often used for transfers between family members, adding or removing a spouse from title, transferring property into a trust or business entity, and resolving certain title discrepancies. They can be convenient where the parties know each other and understand the title history. They are usually less suitable for an arm's-length purchase where the buyer expects assurances about ownership."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Legal Framework in the United States",
+          "paragraphs": [
+              "Real-property conveyances are primarily governed by the law of the state where the property is located. State statutes and case law determine the required deed language, capacity of the parties, signing formalities, acknowledgement or notarization, delivery and acceptance, and the effect of recording. Many states require an adequate legal description of the property, identification of the grantor and grantee, and compliance with county recording-office rules. Requirements and tax consequences vary substantially by state and county."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "4. Legal Effect and Limitations",
+          "paragraphs": [
+              "A properly executed and delivered quitclaim deed can transfer the grantor's present interest, but it ordinarily does not provide covenants of title. It does not itself eliminate a mortgage, release a borrower from loan liability, discharge liens, or guarantee possession. A deed may also be ineffective if the grantor lacks an interest, legal capacity, or authority to convey. Title insurance and an independent title search may still be appropriate, especially where valuable property is involved."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "5. Execution, Recording and Taxes",
+          "paragraphs": [
+              "Parties should confirm the exact legal description and ownership records, prepare the deed in the form required by the relevant state, sign it with any required witnesses or notarization, and deliver it to the grantee. Recording with the appropriate county office generally protects against certain later claims and provides public notice, but the consequences of non-recording depend on state law. Transfer taxes, recording fees, property-tax reassessment, gift-tax reporting, and lender consent issues may arise."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "6. Indian Legal Perspective",
+          "paragraphs": [
+              "Quitclaim deed is principally a US conveyancing term and should not be assumed to have the same legal effect in India. Depending on the facts, Indian transactions involving the release or transfer of property interests may instead use a release/relinquishment deed, gift deed, sale deed, or another appropriate instrument. Relevant Indian law may include the Transfer of Property Act, 1882; Registration Act, 1908; Indian Stamp Act, 1899 and applicable state stamp laws. Classification, stamp duty, and registration depend on the substance of the transaction and local law."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "7. Risk Management and Disputes",
+          "paragraphs": [
+              "Before accepting a quitclaim deed, the grantee should check the chain of title, mortgages, easements, judgments, taxes, and any co-owner or marital rights. Fraud, undue influence, defective execution, and disputes over delivery can lead to litigation. Remedies may involve quiet-title proceedings, cancellation, or other relief available under the governing jurisdiction's law."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "8. Conclusion",
+          "paragraphs": [
+              "A quitclaim deed offers a relatively simple method of conveying an existing real-property interest without title warranties. Its usefulness depends on the parties' relationship, the quality of the title, and compliance with local legal requirements. Because a quitclaim deed does not assure ownership, professional review and title verification are important before relying on it.",
+              "Educational overview only; not a jurisdiction-specific deed template or legal advice."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "quitclaim-deed-where-applicable",
   categorySlug: "real-estate-property-matters",
   categoryTitle: "Real Estate & Property Matters",
@@ -14,12 +75,6 @@ export const quitclaimDeedData = {
   introduction: {
     summary:
       "A quitclaim deed is a legal instrument used to transfer whatever right, title or interest the grantor may hold in a property to a grantee, without covenants or warranties of title. Unlike full-warranty conveyances, the transferor does not warrant that they hold marketable title or that the property is unencumbered; the instrument simply conveys such interest as the grantor possesses at the time of execution. While the expression 'quitclaim deed' is characteristic of Anglo-American conveyancing, analogous concepts in Indian property practice include releases, relinquishments and non-warranty transfer instruments.",
-    highlights: [
-      "Transfers whatever interest the transferor holds without warranty of title or freedom from encumbrances.",
-      "Used for relinquishing disputed or uncertain interests, clearing clouds on title, and family settlements.",
-      "Analogous in Indian property practice to deeds of release, relinquishment, or disclaimer of rights.",
-      "Subject to state stamp duty laws and mandatory registration requirements under Section 17 of the Registration Act, 1908.",
-    ],
   },
 
   applicableLaws: [

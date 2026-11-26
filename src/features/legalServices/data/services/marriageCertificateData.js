@@ -2,6 +2,54 @@
 // Source: Marriage_Certificate_Introduction_General_India.pdf
 
 export const marriageCertificateData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "1. INTRODUCTION",
+          "paragraphs": [
+              "A Marriage Certificate is an official document issued by the competent marriage registration authority recording the particulars of a marriage in the prescribed register. It generally contains the names and personal particulars of the spouses, the date and place of marriage, registration details and the prescribed authentication of the authority. It serves as formal documentary evidence of the marriage and may be required for passports, visas, immigration, banking, insurance, employment records, family-related claims and other official purposes, subject to the requirements of the concerned authority.",
+              "Marriage registration and solemnization are related but distinct legal steps. Depending on the applicable personal law and statute, a marriage may first be solemnized through a legally recognised ceremony or may be solemnized before a Marriage Officer under the Special Marriage Act, 1954. Registration records the marriage in the manner prescribed by law; a certificate should not be treated as a substitute for compliance with the legal conditions for a valid marriage."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. OBJECTIVES & IMPORTANCE",
+          "paragraphs": [],
+          "bullets": [
+              "Provides reliable official evidence of the date and fact of marriage.",
+              "Helps protect spouses against denial or disputes regarding marital status.",
+              "Supports administrative and legal processes, including passport, visa and immigration applications, insurance and nomination updates, and certain family-law proceedings.",
+              "Creates an official record that can assist authorities in addressing fraudulent or child marriages and disputes relating to identity or marital status."
+]
+      },
+      {
+          "heading": "3. PRINCIPAL LAWS RELATING TO MARRIAGE REGISTRATION IN INDIA",
+          "paragraphs": [
+              "A. Hindu Marriage Act, 1955 The Act applies to Hindus, Buddhists, Jains and Sikhs, and to other persons covered by Section 2, subject to statutory exclusions. Key provisions include: "
+          ],
+          "bullets": [
+              "Section 5: Prescribes conditions for a Hindu marriage, including that neither party has a living spouse, the parties meet the statutory age requirements, and the marriage is not within prohibited degrees or a sapinda relationship unless a recognised custom permits it. ",
+              "Section 7: Recognises solemnization according to the customary rites and ceremonies of either party. Where the rites include saptapadi, the marriage becomes complete and binding upon the seventh step, subject to the applicable custom. ",
+              "Section 8: Empowers State Governments to make rules for registration of Hindu marriages and maintenance of the Hindu Marriage Register. Under Section 8(5), omission to make an entry does not by itself affect the validity of an otherwise valid Hindu marriage. B. Special Marriage Act, 1954 This Act provides a civil form of marriage irrespective of the religion of the parties, subject to its conditions. It also provides a procedure for registration of certain marriages celebrated in other forms. Important provisions include: ",
+              "Sections 4-13: Deal with conditions for solemnization, notice, objections, declarations, solemnization and the Marriage Certificate Book. The certificate entry, signed by the parties and three witnesses, is statutory evidence of solemnization under the Act. ",
+              "Sections 15-18: Provide for registration of marriages celebrated in other forms, subject to statutory eligibility and procedure, and specify the legal effect of registration. C. State Marriage Registration Laws and Rules Marriage Certificate  —  Introduction & Related Laws Marriage registration procedures in India are administered under the applicable central legislation and the rules or procedures framed by the respective State or Union Territory. Requirements such as the registration authority, application process, documents, witnesses, fees and timelines may therefore differ from one State or Union Territory to another. Applicants should verify the current requirements with the competent local Marriage Registrar or Marriage Officer. D. Supreme Court directions  —  Seema v. Ashwani Kumar In Seema v. Ashwani Kumar , the Supreme Court directed States and Union Territories to put in place rules for compulsory registration of marriages across religious communities. The judgment emphasised the importance of maintaining reliable marriage records. The applicable State or Union Territory framework governs the procedure and implementation."
+          ]
+      },
+      {
+          "heading": "4. DOCUMENTS GENERALLY REQUIRED",
+          "paragraphs": [
+              "The exact checklist, file size, format, affidavit and witness requirements may vary according to the State or Union Territory, applicable statute and current instructions of the registration authority. The following is a general preparatory checklist, not an exhaustive or universally applicable statutory list:"
+          ],
+          "bullets": [
+              "Both spouses: Recent photographs; identity proof; age/date-of-birth proof; address/residence proof; full names and personal particulars.",
+              "Marriage details: Date and place of marriage; proof or particulars of solemnization; invitation card, ceremony photographs or other supporting evidence, where requested.",
+              "Witnesses: Identity, age and address proof of the prescribed number of witnesses; witness attendance/signatures where required.",
+              "Additional documents, if applicable: Affidavit/declaration; divorce decree or death certificate of former spouse; conversion or other supporting records; details of the person/authority who solemnized the marriage, if required.",
+              "Note: Prepared for educational and preliminary reference purposes. This document is a general overview and should not be treated as a legal opinion. Verify the current requirements with the competent Marriage Registrar / Marriage Officer in the relevant State or Union Territory."
+          ]
+      }
+  ],
+
   serviceSlug: "marriage-certificate",
   categorySlug: "government-registration-certificates",
   categoryTitle: "Government Registration & Certificates",
@@ -24,12 +72,6 @@ export const marriageCertificateData = {
   introduction: {
     summary:
       "A Marriage Certificate is an official statutory record issued by the competent Marriage Registrar under the applicable law—such as Section 8 of the Hindu Marriage Act, 1955 or Section 13 of the Special Marriage Act, 1954. It certifies the solemnization of marriage with formal particulars including spouse identities, date, jurisdiction, and official registrar seals.\n\nUnder Indian law and landmark Supreme Court mandates (Seema v. Ashwani Kumar), registration of marriage is legally required across all communities. This certificate serves as undisputed prima-facie proof of legal marriage, indispensable for obtaining spouse visas, updating passports, joint property ownership, claiming insurance or pension benefits, and securing statutory inheritance rights.",
-    highlights: [
-      "Provides reliable official evidence of the date and fact of marriage across authorities.",
-      "Required for passports, spouse visas, joint property registration, insurance, and banking.",
-      "Governed by the Hindu Marriage Act, 1955 (Section 8) or Special Marriage Act, 1954 (Sections 4–18).",
-      "Compulsory across all religious communities pursuant to Supreme Court ruling in Seema v. Ashwani Kumar.",
-    ],
   },
 
   applicableLaws: [

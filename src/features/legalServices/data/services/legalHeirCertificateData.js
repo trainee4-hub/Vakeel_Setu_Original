@@ -2,6 +2,48 @@
 // Primary Statutory Context: State Revenue Rules, Hindu Succession Act, 1956 & Indian Succession Act, 1925
 
 export const legalHeirCertificateData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "A Legal Heir Certificate is an administrative document issued by the competent State/Union Territory authority, generally through the Revenue Department or the designated local authority, to identify the surviving legal heirs of a deceased person. It records the relationship of the persons named in the certificate with the deceased and is commonly used to support claims relating to family pension, service benefits, provident fund, gratuity, insurance, and certain transfers or claims involving public authorities and financial institutions. The precise name, issuing authority, eligibility and permitted use of the certificate may differ from State to State."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Legal Framework",
+          "paragraphs": [
+              "There is no single, uniform central enactment that prescribes one identical procedure for issuing a Legal Heir Certificate throughout India. Its issuance is primarily governed by the applicable State/UT revenue rules, government orders, administrative instructions and prescribed service procedures. For example, Odisha provides for the certificate under the Odisha Miscellaneous Certificate Rules, 1984, while other States publish their own procedures through district or e-governance portals.",
+              "The question of who legally succeeds to the deceased person's estate, and in what share, is determined by the applicable law of succession. Depending on the person's religion and circumstances, this may include the Hindu Succession Act, 1956, the Indian Succession Act, 1925, or the applicable Muslim personal law and other relevant personal laws. A certificate issued by a revenue authority should not, by itself, be treated as a final judicial determination of ownership, title or each heir's precise share in disputed property.",
+              "A Legal Heir Certificate must also be distinguished from a Succession Certificate under Part X of the Indian Succession Act, 1925. A Succession Certificate is granted by a competent civil court, principally in relation to specified debts and securities. Banks or other institutions may require a succession certificate, probate, letters of administration, indemnity or other documents depending on the asset, applicable law and their governing procedures. Therefore, the two certificates are not interchangeable."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Documents Generally Required",
+          "paragraphs": [
+              "The exact checklist must be confirmed with the relevant Tehsil/Taluk, Revenue Office, District Administration or official State service portal. Commonly requested documents include: "
+          ],
+          "bullets": [
+              "Death Certificate: Official proof of death of the deceased person. ",
+              "Applicant's identity and address proof: Aadhaar, voter identity card, passport, driving licence or other accepted proof. ",
+              "Proof of relationship: Birth certificate, marriage certificate, family/ration card, school record or other documents establishing the relationship. ",
+              "Details of all surviving family members: Names, ages, addresses and relationship with the deceased. ",
+              "Application form and affidavit/declaration: In the prescribed format, where required by the local authority. ",
+              "Additional records, if applicable: Deceased person's residence proof, service book/pension details, photographs, NOC or other documents required under local rules."
+          ]
+      },
+      {
+          "heading": "4. Application Process and Practical Points",
+          "paragraphs": [
+              "The applicant generally submits the prescribed application to the authority having jurisdiction over the deceased person's ordinary or last place of residence, as specified by local rules. Applications may be accepted online, at a Tehsil/Taluk or Revenue Office, or through an authorised service centre. The authority may verify the death, residence and family particulars through revenue officials, local enquiry or supporting records. After scrutiny and completion of any required enquiry, the certificate may be issued in the prescribed form.",
+              "Applicants should disclose every person who may qualify as an heir under the applicable law and should not omit a family member merely because that person has not joined the application. If there is a dispute about heirship, a Will, competing claims or ownership of property, the matter may require separate legal proceedings or a determination by a competent court. The certificate's evidentiary and administrative effect is subject to the law and rules applicable in the relevant State/UT."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "legal-heir-certificate",
   categorySlug: "government-registration-certificates",
   categoryTitle: "Government Registration & Certificates",
@@ -24,12 +66,6 @@ export const legalHeirCertificateData = {
   introduction: {
     summary:
       "A Legal Heir Certificate (referred to in several states as a Surviving Member Certificate or Varisu Certificate) is an administrative document issued by the competent State Revenue Department, typically under the seal of the Tehsildar, Taluk Magistrate, or Sub-Divisional Magistrate (SDM).\n\nIts legal objective is to officially record the names, ages, and relationship particulars of the surviving legal heirs of a deceased person. It serves as essential documentary evidence required by government departments, public sector undertakings, banks, and life insurance corporations to process terminal service benefits, family pensions, statutory gratuity, provident fund payouts, and mutual fund transmissions.\n\nCritically, a Legal Heir Certificate is an administrative revenue instrument and not a conclusive title document. For administering bank deposits and securities without nominations or for disputed ancestral assets, a civil court Succession Certificate under Part X of the Indian Succession Act, 1925 is mandated.",
-    highlights: [
-      "Issued by the local Revenue Authority (Tehsildar / Taluk / SDM) to establish surviving family members.",
-      "Mandatory for claiming deceased family pensions, gratuity, provident fund, insurance, and service terminal benefits.",
-      "Clear distinction: Revenue certificate is administrative; Court Succession Certificate under Indian Succession Act, 1925 is judicial.",
-      "Requires full disclosure of all surviving heirs supported by sworn notarized affidavits and field enquiry verification.",
-    ],
   },
 
   applicableLaws: [

@@ -2,6 +2,64 @@
 // Source: Legal_Notice_Wrongful_Termination_Introduction_Legal_Framework.pdf
 
 export const legalNoticeWrongfulTerminationData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction and Legal Framework (India)",
+          "paragraphs": [],
+          "bullets": []
+      },
+      {
+          "heading": "Introduction",
+          "paragraphs": [
+              "Wrongful termination refers to the ending of employment in a manner that violates applicable law, binding contractual terms, standing orders, or required procedures. A dismissal may be challenged where it involves unlawful discrimination, retaliation, non-compliance with mandatory notice or retrenchment requirements, or denial of a fair hearing when legally required. Not every dismissal perceived as unfair is unlawful: the remedy depends on the employee's status, the nature of the employer, the contract, and the governing legislation."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Purpose of a Legal Notice",
+          "paragraphs": [
+              "A legal notice is a formal written communication to the employer identifying the employment relationship, date and circumstances of termination, alleged legal or contractual breaches, and relief sought. It may demand unpaid wages, notice pay, statutory dues, reinstatement where legally available, compensation, or correction of employment records. It also provides an opportunity to resolve the dispute before litigation. A legal notice is not universally mandatory before every employment claim."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Legal Framework in India",
+          "paragraphs": [
+              "The Indian Contract Act, 1872 governs contractual obligations, including agreed notice periods and consequences of breach. Industrial relations legislation, including the Industrial Disputes Act, 1947 and the Industrial Relations Code, 2020 where brought into force and applicable, may provide protections and remedies for qualifying workers. State Shops and Establishments laws, applicable standing orders, and sector-specific rules may also regulate termination. The precise law depends on the jurisdiction, commencement notifications, employee classification and employment facts."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Employment Rights and Protections",
+          "paragraphs": [
+              "Relevant issues include compliance with termination clauses, payment of earned salary and statutory benefits, lawful disciplinary process, and statutory requirements for retrenchment or dismissal. Employees covered by industrial relations protections may have access to conciliation and labour adjudication. Managerial or senior employees may instead primarily rely on contractual and civil remedies, subject to applicable exceptions. Public employment may additionally engage constitutional and service-law safeguards."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Procedure for Sending the Notice",
+          "paragraphs": [
+              "The employee should preserve the appointment letter, salary slips, communications, termination letter, attendance records, and relevant policies. The notice should state facts chronologically, cite applicable provisions accurately, identify the demanded relief, and specify a reasonable response period. It should be sent to the employer through a traceable channel and proof of delivery retained. Limitation periods and procedural requirements should be checked promptly; sending a notice does not necessarily suspend them."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Remedies and Dispute Resolution",
+          "paragraphs": [
+              "Depending on the governing law and facts, relief may include unpaid salary, contractual damages, notice pay, statutory compensation, reinstatement or back wages in eligible labour disputes. Conciliation, labour authorities, tribunals, civil courts or other competent forums may be available. Reinstatement is not an automatic remedy for every private employment contract; ordinary personal-service contracts are generally not specifically enforced, subject to recognised exceptions."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Conclusion",
+          "paragraphs": [
+              "A legal notice for wrongful termination helps articulate the grievance, preserve a written record and seek early resolution. Its effectiveness depends on accurately identifying the applicable legal framework, employee category, Educational overview | Indian legal context contractual rights, supporting evidence and appropriate forum. This document is a general educational overview, not a case-specific legal notice or legal advice."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "legal-notice-wrongful-termination",
   categorySlug: "employment-consumer-legal-notices",
   categoryTitle: "Employment & Consumer Legal Notices",
@@ -24,12 +82,6 @@ export const legalNoticeWrongfulTerminationData = {
   introduction: {
     summary:
       "Wrongful termination refers to the ending of employment in a manner that violates applicable law, binding contractual terms, standing orders, or required procedures. A dismissal may be challenged where it involves unlawful discrimination, retaliation, non-compliance with mandatory notice or retrenchment requirements, or denial of a fair hearing when legally required. Not every dismissal perceived as unfair is unlawful: the remedy depends on the employee’s status, the nature of the employer, the contract, and the governing legislation.\n\nA legal notice is a formal written communication to the employer identifying the employment relationship, date and circumstances of termination, alleged legal or contractual breaches, and relief sought. It may demand unpaid wages, notice pay, statutory dues, reinstatement where legally available, compensation, or correction of employment records.",
-    highlights: [
-      "Challenges dismissals involving discrimination, lack of due inquiry, or failure to give contractual notice.",
-      "Demands notice pay in lieu of notice, severance compensation, FnF settlement, and service certificates.",
-      "Governed by the Indian Contract Act, 1872, the Industrial Disputes Act, 1947, and State Shops Acts.",
-      "Serves as mandatory pre-litigation documentation before labour conciliation or civil court damages claims.",
-    ],
   },
 
   applicableLaws: [

@@ -1,4 +1,63 @@
 export const willDraftingRegistrationData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction and Legal Framework (India)",
+          "paragraphs": [],
+          "bullets": []
+      },
+      {
+          "heading": "Introduction",
+          "paragraphs": [
+              "Will drafting is the process of preparing a written declaration through which a person (the testator) states how their property and other legally transferable interests should be distributed after death. A will generally takes effect only upon the testator's death and may be altered or revoked during their lifetime, provided they have legal capacity. Proper drafting helps identify beneficiaries, appoint an executor, reduce ambiguity and lower the risk of family disputes."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Purpose and Essential Contents",
+          "paragraphs": [
+              "A carefully drafted will usually identifies the testator, declares that it is made voluntarily, revokes earlier wills where appropriate, describes assets and beneficiaries, states specific and residuary gifts, and names an executor. Where relevant, it may address guardianship wishes for minor children. Clear descriptions, consistent names and contingency provisions (for example, if a beneficiary dies first) help prevent uncertainty. A will should not purport to transfer property the testator does not own."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Legal Framework in India",
+          "paragraphs": [
+              "The Indian Succession Act, 1925 is a principal statute governing wills and succession for persons to whom its provisions apply. Section 59 addresses testamentary capacity, while Section 63 sets out execution requirements for ordinary unprivileged wills, including the testator's signature or mark and attestation by at least two witnesses. Special rules apply to privileged wills and certain communities; personal-law rules can materially affect testamentary freedom, including under Muslim law. Accordingly, the applicable succession regime must be identified before drafting."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Execution and Witnesses",
+          "paragraphs": [
+              "For an ordinary unprivileged will governed by Section 63, the testator must sign or affix a mark (or have another person sign in the testator's presence and by their direction), intending to give effect to the will. At least two witnesses must attest in the legally prescribed manner. Independent adult witnesses who are not beneficiaries are generally preferable to avoid evidentiary complications. Sound mind, freedom from coercion and accurate documentation of the signing process are important."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Registration of a Will",
+          "paragraphs": [
+              "Under the Registration Act, 1908, registration of a will is generally optional rather than mandatory (Section 18). A will may be presented for registration under the Act's special provisions relating to wills. Registration can help preserve evidence of execution, but it does not by itself prove validity, cure defects in capacity or attestation, or prevent a challenge. An unregistered will may still be valid if it satisfies the applicable law."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Proof, Probate and Disputes",
+          "paragraphs": [
+              "When a will is contested, courts examine due execution, testamentary capacity and any suspicious circumstances. The Bharatiya Sakshya Adhiniyam, 2023 contains rules concerning proof of attested documents. Probate or letters of administration may be necessary in situations governed by the Indian Succession Act; the requirement depends on the applicable law and jurisdiction. Challenges may involve allegations of forgery, undue influence, later revocation or conflicting wills."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Conclusion",
+          "paragraphs": [
+              "Will drafting and registration are distinct legal steps. A well-drafted, properly executed will provides clarity about the testator's wishes; optional registration may provide additional evidentiary support. Because succession rules and probate requirements vary, the document should be reviewed in light of the testator's personal law, assets and location.",
+              "Educational overview only; not a substitute for advice on a particular estate or jurisdiction."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "will-drafting-registration-support",
   categorySlug: "family-personal-documents",
   categoryTitle: "Family & Personal Documents",
@@ -21,12 +80,6 @@ export const willDraftingRegistrationData = {
   introduction: {
     summary:
       "Will drafting is the process of preparing a written declaration through which a person (the testator) states how their property and other legally transferable interests should be distributed after death. A will generally takes effect only upon the testator’s death and may be altered or revoked during their lifetime, provided they have legal capacity. Proper drafting helps identify beneficiaries, appoint an executor, reduce ambiguity and lower the risk of family disputes.",
-    highlights: [
-      "Takes effect only upon the death of the testator and remains revocable during their lifetime.",
-      "Governed primarily by the Indian Succession Act, 1925, subject to personal law restrictions (such as Muslim law).",
-      "Requires execution by the testator and mandatory attestation by at least two independent adult witnesses under Section 63.",
-      "Registration under the Registration Act, 1908 is generally optional under Section 18, providing evidentiary support.",
-    ],
   },
 
   applicableLaws: [

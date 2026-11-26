@@ -1,4 +1,65 @@
 export const scopeOfWorkAgreementData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction",
+          "paragraphs": [
+              "A Scope of Work (SOW) Agreement is a written document that defines the services, deliverables, responsibilities, schedule and acceptance criteria agreed between a client and a service provider. It may operate as a standalone contract or as an attachment to a Master Service Agreement. By describing what is included and excluded from a project, it provides a practical reference for performance, payment and accountability."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Purpose and Importance",
+          "paragraphs": [
+              "The principal purpose of an SOW is to prevent uncertainty about the work to be performed. It identifies the project objectives, expected outputs, milestones, resources and timelines. A clear SOW helps parties manage changes, measure performance, approve deliverables and resolve disagreements over additional work or delayed completion. It is commonly used in consulting, software development, construction, marketing and outsourced services."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Essential Terms of an SOW Agreement",
+          "paragraphs": [
+              "An effective SOW normally identifies the parties; project background and objectives; detailed services and exclusions; deliverables and technical specifications; milestones and completion dates; client dependencies; fees, invoices and payment terms; review and acceptance procedures; change-control process; confidentiality and intellectual property arrangements; warranties and liability limits; termination rights; and dispute-resolution mechanisms. The precise clauses should reflect the project and its risks."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Legal Framework in India",
+          "paragraphs": [
+              "India does not have a single statute exclusively governing SOW agreements. Their validity and enforcement generally depend on ordinary contract law and on any sector-specific legislation applicable to the underlying services. The title of the document is not decisive: courts assess the actual terms, intention of the parties and surrounding circumstances to determine whether binding obligations exist."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Indian Contract Act, 1872",
+          "paragraphs": [
+              "The Indian Contract Act, 1872 is the primary legal foundation. Section 10 sets out the broad requirements for an enforceable agreement, including lawful consideration, lawful object and free consent of competent parties. Sections 73 and 74 address compensation for breach and contractual sums stipulated for breach, subject to legal limits. Accordingly, an SOW should state obligations precisely and avoid ambiguous promises, unlawful terms or unrealistic penalty provisions."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Specific Relief Act, 1963",
+          "paragraphs": [
+              "The Specific Relief Act, 1963 may provide remedies such as specific performance or injunctions where statutory conditions are satisfied. However, certain contracts, including those involving continuous duties that courts cannot supervise or contracts dependent on personal qualifications, may not be specifically enforceable. Damages or other contractual remedies may therefore be more appropriate in many service disputes."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Other Applicable Laws and Dispute Resolution",
+          "paragraphs": [
+              "Depending on the transaction, the Information Technology Act, 2000 and applicable electronic-signature rules may be relevant to electronic execution. Intellectual property laws, tax rules, data protection obligations and industry regulations may also apply. Parties commonly specify negotiation, mediation, arbitration under the Arbitration and Conciliation Act, 1996, or litigation before courts with appropriate jurisdiction. Arbitration clauses should be drafted clearly and separately considered."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Conclusion",
+          "paragraphs": [
+              "A well-drafted Scope of Work Agreement converts business expectations into clear contractual commitments. In India, its enforceability primarily rests on contract-law principles, supplemented by relevant remedial and sector-specific laws. Clearly defining deliverables, change requests, payment and remedies reduces operational uncertainty and helps protect both client and service provider.",
+              "Educational overview only; legal outcomes depend on the agreement and facts."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "scope-of-work-sow-agreement",
   categorySlug: "business-contracts-agreements",
   categoryTitle: "Business Contracts & Agreements",
@@ -21,12 +82,6 @@ export const scopeOfWorkAgreementData = {
   introduction: {
     summary:
       "A Scope of Work (SOW) agreement is a legal and operational document that defines the specific tasks, deliverables, timelines, milestones, acceptance criteria and pricing associated with a project or engagement between a client and a service provider. In commercial and technology transactions, an SOW typically sits beneath a Master Services Agreement (MSA) or standard commercial terms, translating broad contractual principles into granular project execution details while establishing clear legal boundaries.",
-    highlights: [
-      "Defines project deliverables, milestones, acceptance testing protocols, and payment triggers.",
-      "Establishes change-order management processes to mitigate scope creep and timeline disputes.",
-      "Sets out explicit order-of-precedence rules governing conflicts with Master Services Agreements.",
-      "Enforceable under the Indian Contract Act, 1872 and the Information Technology Act, 2000.",
-    ],
   },
 
   applicableLaws: [

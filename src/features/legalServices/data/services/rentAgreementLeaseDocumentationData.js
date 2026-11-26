@@ -1,4 +1,57 @@
 export const rentAgreementLeaseDocumentationData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction",
+          "paragraphs": [
+              "A rent agreement or lease deed records the terms on which an owner (landlord or lessor) permits another person (tenant or lessee) to occupy or use immovable property. It identifies the premises, duration, rent, security deposit, permitted use, maintenance duties, and conditions for renewal or termination. Clear documentation protects both parties by reducing uncertainty about possession, payment obligations, and remedies."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Rent Agreement and Lease: Key Distinctions",
+          "paragraphs": [
+              "In everyday Indian practice, rent agreement often refers to a shorter tenancy arrangement, while lease deed commonly describes a longer grant of the right to enjoy property. However, the legal effect depends on the substance and duration of the arrangement, not merely its title. A lease transfers a right to enjoy property for an agreed period or consideration; a licence ordinarily gives permission to use property without creating an interest in it."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Legal Framework in India",
+          "paragraphs": [
+              "The Transfer of Property Act, 1882, particularly sections 105-117, provides the general law governing leases of immovable property, including their creation, rights and liabilities, and determination. Section 106 addresses termination by notice where applicable, subject to contract and local law. The Indian Contract Act, 1872 governs contractual validity, consent, lawful consideration, and enforceable obligations. State rent-control or tenancy laws may override or supplement general principles for covered premises."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Registration and Stamp Duty",
+          "paragraphs": [
+              "Under section 107 of the Transfer of Property Act and section 17(1)(d) of the Registration Act, 1908, leases from year to year, for a term exceeding one year, or reserving yearly rent generally require a registered instrument. Shorter arrangements may still be subject to state-specific requirements. Stamp duty and registration charges vary by state, duration, rent, and deposit. An insufficiently stamped or compulsorily registrable but unregistered document can face evidentiary and enforceability limitations; the applicable rules should be checked before execution."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Essential Documentation and Clauses",
+          "paragraphs": [
+              "A carefully drafted agreement should state: (i) full identity and addresses of the parties; (ii) complete property description; (iii) commencement date, term, rent, escalation, deposit, and refund conditions; (iv) payment mode and due date; (v) utilities, repairs, and maintenance allocation; (vi) permitted use, subletting, alterations, and inspection rules; (vii) lock-in period, renewal, notice, default, and termination; and (viii) handover, inventory, dispute-resolution forum, and signatures of parties and witnesses. Supporting documents commonly include identity proofs, ownership or authority evidence, and a possession/inventory record."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Execution, Compliance and Disputes",
+          "paragraphs": [
+              "The parties should verify ownership or lawful authority, inspect the property, negotiate fair terms, pay applicable stamp duty, and complete registration where required. Police tenant verification or local filings may apply depending on jurisdiction. Disputes over arrears, deposits, eviction, or repairs may be governed by the relevant rent authority, tribunal, or civil court. Eviction must follow lawful procedures; a landlord should not resort to forcible dispossession or utility disconnection."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Conclusion",
+          "paragraphs": [
+              "Rent agreements and lease documentation create a transparent record of the parties' rights and duties. Proper drafting, stamping, registration, and compliance with local tenancy law help prevent disputes and support lawful enforcement. This overview is educational; requirements differ across Indian states and according to the property and transaction."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "rent-agreement-lease-documentation",
   categorySlug: "real-estate-property-matters",
   categoryTitle: "Real Estate & Property Matters",
@@ -14,12 +67,6 @@ export const rentAgreementLeaseDocumentationData = {
   introduction: {
     summary:
       "Rent agreements and lease deeds are legal instruments that define the terms on which an owner or lawful occupier of immovable property grants possession and use of the premises to another person for residential, commercial or industrial purposes. In Indian property practice, documents range from short-term leave-and-licence agreements to formal, registered long-term leases. The legal character of the arrangement—whether a lease creating an interest in land or a licence conferring personal permission to occupy—has significant implications for security of tenure, transferability, registration and remedies.",
-    highlights: [
-      "Distinguishes between a lease (creating an interest in immovable property) and a licence (granting personal permission to occupy).",
-      "Addresses rent escalation, security deposit, maintenance, subletting, forfeiture, and handover protocols.",
-      "Requires mandatory registration under Section 17(1)(d) of the Registration Act, 1908 for leases exceeding eleven months.",
-      "Subject to state-specific stamp duty schedules and state tenancy or rent control enactments.",
-    ],
   },
 
   applicableLaws: [

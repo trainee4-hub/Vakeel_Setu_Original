@@ -1,4 +1,58 @@
 export const replyToIprNoticeData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "A reply to an Intellectual Property Rights (IPR) notice is a formal response to an allegation that a person or business has infringed another party's copyright, trademark, patent, design, or other protected right. Such notices may demand that the recipient stop an activity, remove content, disclose information, pay compensation, or provide an undertaking. A careful reply identifies the allegations, states the recipient's position, preserves available defences, and may propose a practical resolution. Receipt of a notice does not by itself establish infringement."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Purpose and Importance",
+          "paragraphs": [
+              "An appropriate response helps clarify the disputed intellectual property, the allegedly infringing conduct, and the evidence supporting each side. It can prevent misunderstandings, demonstrate good-faith engagement, preserve business relationships, and reduce the risk of litigation. The recipient should avoid unsupported admissions or broad undertakings before reviewing the notice and relevant records."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Legal Framework in India",
+          "paragraphs": [
+              "India protects intellectual property through several statutes. The **Copyright Act, 1957** governs copyright in original protected works and provides civil and certain criminal remedies, subject to statutory exceptions. The **Trade Marks Act, 1999** addresses registered trademark infringement and passing off; relevant questions include similarity, use in trade, confusion, and statutory defences. The **Patents Act, 1970** governs patent rights, infringement claims and statutory limitations. The **Designs Act, 2000** protects qualifying registered industrial designs. The **Geographical Indications of Goods (Registration and Protection) Act, 1999** may apply where a protected geographical indication is involved."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "4. Related Procedural and Contractual Rules",
+          "paragraphs": [
+              "IPR disputes may also involve the **Code of Civil Procedure, 1908** , the **Commercial Courts Act, 2015** (where applicable), and contractual provisions such as licence terms, assignments, confidentiality obligations, or settlement clauses. Online infringement complaints can additionally engage applicable intermediary rules and platform procedures. The proper forum, limitation issues, interim injunction standards, and remedies depend on the right and facts concerned."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "5. Essential Contents of a Reply",
+          "paragraphs": [
+              "A well-structured reply ordinarily includes: identification of the notice and parties; a concise factual chronology; a point-by-point response to allegations; the ownership, registration, licence or authorisation position; any relevant statutory exceptions or defences; a request for missing evidence; a clear statement of the recipient's position; and a measured closing proposal. Supporting documents may include registrations, contracts, invoices, design records, publication dates, communications, and screenshots. The response should be accurate, professional, and sent through a verifiable channel."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "6. Practical Review and Legal Remedies",
+          "paragraphs": [
+              "Before responding, verify the sender's authority, the intellectual property claimed, its territorial scope and status, and the specific acts alleged. Preserve documents and electronic evidence; do not destroy or alter relevant material. Consider whether the disputed use should be paused while advice is obtained, without assuming that every demand is legally justified. Depending on the circumstances, parties may negotiate, seek mediation, respond through counsel, or defend proceedings. Courts may grant injunctions, damages, accounts of profits or other statutory relief where legally warranted."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "7. Conclusion",
+          "paragraphs": [
+              "A reply to an IPR notice is both a legal and a commercial risk-management step. Its strength depends on the applicable statute, evidence, contractual rights and a proportionate response to each allegation. Because a poorly worded reply may affect later proceedings, fact-specific legal review is advisable before sending it.",
+              "Educational overview of Indian law; not a substitute for advice on a particular notice."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "reply-to-ipr-notice",
   categorySlug: "legal-notices-responses",
   categoryTitle: "Legal Notices & Responses",
@@ -21,12 +75,6 @@ export const replyToIprNoticeData = {
   introduction: {
     summary:
       "A reply to an intellectual property rights (IPR) notice is a formal legal response sent by or on behalf of a recipient who has received a cease-and-desist letter, legal notice or infringement claim concerning trademarks, copyright, patents, designs or related rights. In Indian commercial and IP practice, a well-structured reply enables the recipient to state their defence, correct factual misstatements, dispute allegations of infringement or passing off, put forth statutory defences and, where appropriate, invite amicable resolution while reserving all legal rights and remedies.",
-    highlights: [
-      "Provides formal rebuttal against allegations of trademark, copyright, or patent infringement and passing off.",
-      "Asserts statutory defences such as prior user rights (Section 34) and fair use / limitations (Section 30).",
-      "Addresses statutory protection against groundless threats of legal proceedings under Section 142 of Trade Marks Act and Section 60 of Copyright Act.",
-      "Facilitates pre-litigation settlement or mediation compliant with Section 12A of the Commercial Courts Act, 2015.",
-    ],
   },
 
   applicableLaws: [

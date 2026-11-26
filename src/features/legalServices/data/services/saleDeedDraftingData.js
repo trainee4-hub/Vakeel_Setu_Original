@@ -1,4 +1,59 @@
 export const saleDeedDraftingData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction and Legal Framework (India)",
+          "paragraphs": [],
+          "bullets": []
+      },
+      {
+          "heading": "Introduction",
+          "paragraphs": [
+              "A sale deed is a legal instrument through which ownership of immovable property is transferred by a seller to a buyer for a price paid or promised. Drafting a sale deed requires accurate identification of the parties and property, a clear record of the consideration, and legally effective transfer language. In India, a properly executed and registered sale deed is ordinarily the principal document evidencing a completed sale of immovable property."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Purpose and Essential Drafting Elements",
+          "paragraphs": [
+              "A well-drafted sale deed records the names and capacities of the parties, the seller's source of title, a complete property description (including boundaries and identifiers), agreed sale price and payment details, delivery of possession, and the allocation of taxes and registration costs. It should address encumbrances, pending litigation, existing tenancies, representations about title, indemnities, handover of original documents, and obligations to cooperate with mutation of records. Property schedules and annexures must be consistent with official records."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Legal Framework in India",
+          "paragraphs": [],
+          "bullets": [
+              "Transfer of Property Act, 1882: Section 54 defines sale and generally requires a registered instrument to transfer tangible immovable property valued at Rs. 100 or more; a mere contract for sale does not itself create an interest in the property. Sections 55 and related provisions address rights and liabilities of buyer and seller, subject to the contract and applicable law.",
+              "Registration Act, 1908: Section 17 provides for compulsory registration of relevant instruments, while Sections 23 and 49 concern presentation timelines and consequences of non-registration. Registration is carried out before the competent Sub-Registrar.",
+              "Indian Stamp Act, 1899 and State Stamp Laws: Applicable stamp duty and registration fees depend on the state, property, valuation rules, and transaction particulars. Under-stamping can lead to penalties and evidentiary difficulties.",
+              "Indian Contract Act, 1872: General principles of free consent, lawful consideration, capacity, and enforceability apply to the transaction."
+          ]
+      },
+      {
+          "heading": "Drafting, Verification and Execution",
+          "paragraphs": [
+              "Before signing, the buyer should undertake due diligence on the chain of title, identity and authority of the seller, encumbrance certificates, revenue or municipal records, approvals, and any mortgages or disputes. The deed should reflect the actual transaction and identify any conditions already satisfied. Parties should comply with applicable identity, witness, stamp, registration, tax withholding and local procedural requirements. Registration and subsequent mutation serve different functions: mutation updates administrative records and does not by itself confer title."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Legal Risks and Dispute Resolution",
+          "paragraphs": [
+              "Ambiguous property descriptions, undisclosed charges, defective authority, inaccurate consideration records, or improper execution can lead to litigation. Depending on the facts, remedies may include damages, cancellation, declarations, or other relief under the Specific Relief Act, 1963 and applicable procedural law. Parties may specify jurisdiction and lawful dispute-resolution mechanisms, but cannot contract out of mandatory registration or statutory protections."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Conclusion",
+          "paragraphs": [
+              "Sale deed drafting is a critical part of a secure real-estate transfer. Clear terms, thorough title verification, correct stamping, and registration reduce uncertainty and protect both parties. State-specific property, land-use, and registration rules should be checked before execution.",
+              "Educational overview only; not a substitute for jurisdiction-specific legal advice."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "sale-deed-drafting",
   categorySlug: "real-estate-property-matters",
   categoryTitle: "Real Estate & Property Matters",
@@ -14,12 +69,6 @@ export const saleDeedDraftingData = {
   introduction: {
     summary:
       "A sale deed is a primary legal instrument through which ownership and title of an immovable property (such as land, a house, an apartment or commercial premises) are permanently transferred by a seller (vendor) to a buyer (vendee) in exchange for a specified price or consideration paid or promised. In Indian property practice, the sale deed serves as conclusive evidence of conveyance once duly executed, stamped and registered under the applicable statutory regime.",
-    highlights: [
-      "Operates as the primary conveyance deed transferring absolute ownership and title in immovable property.",
-      "Requires explicit recitals verifying vendor's root of title and covenants of freedom from encumbrances.",
-      "Mandatory registration under Section 17(1)(b) of the Registration Act, 1908 for transfer to be legally effective.",
-      "Subject to state ad valorem stamp duty calculated on market value or government circle rates.",
-    ],
   },
 
   applicableLaws: [

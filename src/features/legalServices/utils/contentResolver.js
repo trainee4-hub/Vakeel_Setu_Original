@@ -48,6 +48,30 @@ import { shareholdersAgreementData } from "../data/services/shareholdersAgreemen
 import { successionEstatePlanningData } from "../data/services/successionEstatePlanningData.js";
 import { vendorAgreementData } from "../data/services/vendorAgreementData.js";
 import { willDraftingRegistrationData } from "../data/services/willDraftingRegistrationData.js";
+import { accidentClaimsTrafficChallanData } from "../data/services/accidentClaimsTrafficChallanData.js";
+import { affidavitNotesData } from "../data/services/affidavitNotesData.js";
+import { businessAgreementsLegalDocData } from "../data/services/businessAgreementsLegalDocData.js";
+import { complianceChecksAdvisoryData } from "../data/services/complianceChecksAdvisoryData.js";
+import { consumerCourtCasesData } from "../data/services/consumerCourtCasesData.js";
+import { contractDraftingReviewAnalysisData } from "../data/services/contractDraftingReviewAnalysisData.js";
+import { cybercrimeLitigationData } from "../data/services/cybercrimeLitigationData.js";
+import { cyberLegalNoticesDraftingData } from "../data/services/cyberLegalNoticesDraftingData.js";
+import { cyberstalkingOnlineHarassmentData } from "../data/services/cyberstalkingOnlineHarassmentData.js";
+import { drtMsmeRecoveryDisputesData } from "../data/services/drtMsmeRecoveryDisputesData.js";
+import { declarationsNotesData } from "../data/services/declarationsNotesData.js";
+import { defectiveProductsServiceCasesData } from "../data/services/defectiveProductsServiceCasesData.js";
+import { hackingDataTheftPrivacyData } from "../data/services/hackingDataTheftPrivacyData.js";
+import { identityTheftDigitalFraudData } from "../data/services/identityTheftDigitalFraudData.js";
+import { legalDocumentReviewNotesData } from "../data/services/legalDocumentReviewNotesData.js";
+import { legalNoticeConsumerProtectionLawData } from "../data/services/legalNoticeConsumerProtectionLawData.js";
+import { legalNoticeRecoveryDuesData } from "../data/services/legalNoticeRecoveryDuesData.js";
+import { loanDisputesBankingComplaintsData } from "../data/services/loanDisputesBankingComplaintsData.js";
+import { notaryRelatedDocNotesData } from "../data/services/notaryRelatedDocNotesData.js";
+import { onlineFraudFinancialCybercrimeData } from "../data/services/onlineFraudFinancialCybercrimeData.js";
+import { powerOfAttorneyDraftingNotesData } from "../data/services/powerOfAttorneyDraftingNotesData.js";
+import { refundsCompensationConsumerClaimsData } from "../data/services/refundsCompensationConsumerClaimsData.js";
+import { tenantRentalNoticeNotesData } from "../data/services/tenantRentalNoticeNotesData.js";
+import { undertakingsNotesData } from "../data/services/undertakingsNotesData.js";
 import { findServiceBySlug, findCategoryBySlug } from "../data/legalServicesCatalogue.js";
 import { CATEGORY_RESEARCH } from "../data/categoryResearchData.js";
 
@@ -472,6 +496,174 @@ export const resolveServiceData = (categorySlug, serviceSlug) => {
   ) {
     return {
       ...willDraftingRegistrationData,
+      isFullyResearched: true,
+    };
+  }
+
+    if (serviceSlug === "accident-claims-and-traffic-challan-matters") {
+    return {
+      ...accidentClaimsTrafficChallanData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "affidavits") {
+    return {
+      ...affidavitNotesData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "business-agreements-and-legal-documentation") {
+    return {
+      ...businessAgreementsLegalDocData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "compliance-checks-and-legal-documentation-advisory") {
+    return {
+      ...complianceChecksAdvisoryData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "consumer-court-cases-and-legal-consultation") {
+    return {
+      ...consumerCourtCasesData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "contract-drafting-review-and-legal-analysis") {
+    return {
+      ...contractDraftingReviewAnalysisData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "cybercrime-litigation-and-dispute-resolution") {
+    return {
+      ...cybercrimeLitigationData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "cyber-legal-notices-and-complaint-drafting") {
+    return {
+      ...cyberLegalNoticesDraftingData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "cyberstalking-and-online-harassment-complaints") {
+    return {
+      ...cyberstalkingOnlineHarassmentData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "drt-msme-and-recovery-related-disputes") {
+    return {
+      ...drtMsmeRecoveryDisputesData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "declarations") {
+    return {
+      ...declarationsNotesData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "defective-products-and-deficiency-in-services-cases") {
+    return {
+      ...defectiveProductsServiceCasesData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "hacking-data-theft-and-privacy-breach-matters") {
+    return {
+      ...hackingDataTheftPrivacyData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "identity-theft-and-digital-fraud-recovery-support") {
+    return {
+      ...identityTheftDigitalFraudData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "legal-document-review") {
+    return {
+      ...legalDocumentReviewNotesData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "legal-notice-under-consumer-protection-law") {
+    return {
+      ...legalNoticeConsumerProtectionLawData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "legal-notice-for-recovery-of-dues") {
+    return {
+      ...legalNoticeRecoveryDuesData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "loan-disputes-and-banking-complaints") {
+    return {
+      ...loanDisputesBankingComplaintsData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "notary-related-documentation") {
+    return {
+      ...notaryRelatedDocNotesData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "online-fraud-scams-and-financial-cybercrime-cases") {
+    return {
+      ...onlineFraudFinancialCybercrimeData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "power-of-attorney-drafting") {
+    return {
+      ...powerOfAttorneyDraftingNotesData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "refunds-compensation-and-consumer-claims") {
+    return {
+      ...refundsCompensationConsumerClaimsData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "tenant-rental-notice") {
+    return {
+      ...tenantRentalNoticeNotesData,
+      isFullyResearched: true,
+    };
+  }
+
+  if (serviceSlug === "undertakings") {
+    return {
+      ...undertakingsNotesData,
       isFullyResearched: true,
     };
   }

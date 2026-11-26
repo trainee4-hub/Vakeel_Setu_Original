@@ -2,6 +2,75 @@
 // Source: Landlord_Tenant_Dispute_Introduction_Legal_Framework.pdf
 
 export const landlordTenantDisputeData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction",
+          "paragraphs": [
+              "A landlord-tenant dispute arises when a property owner (landlord) and an occupier (tenant) disagree over rights or obligations relating to rented premises. Common issues include unpaid rent, security-deposit refunds, repairs, maintenance, unlawful eviction, possession, rent increases, and breach of lease terms. A written rent or lease agreement is an important starting point, but statutory protections may apply regardless of what the parties have agreed."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Purpose of the Legal Framework",
+          "paragraphs": [
+              "The legal framework seeks to balance the landlord's interest in receiving rent and recovering possession lawfully with the tenant's interest in peaceful occupation, fair treatment, and protection against arbitrary dispossession. The appropriate forum and procedure depend on the location of the property, its use, the tenancy terms, and the law applicable in that state."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Transfer of Property Act, 1882",
+          "paragraphs": [
+              "Sections 105-117 provide general rules governing leases of immovable property. Section 106 sets out default rules on duration and notice for certain leases where there is no contract or local law to the contrary. Section 108 addresses rights and liabilities of lessors and lessees. These provisions operate subject to applicable special tenancy legislation."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "State Rent and Tenancy Laws",
+          "paragraphs": [
+              "Rent regulation in India is substantially state-specific. State laws may prescribe permitted grounds for eviction, rent revision, essential services, deposit-related duties, and dedicated authorities or tribunals. For example, Uttar Pradesh has the Uttar Pradesh Regulation of Urban Premises Tenancy Act, 2021, with its own framework for covered urban tenancies. The Model Tenancy Act, 2021 is a model for states and is not automatically binding throughout India."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Indian Contract Act, 1872",
+          "paragraphs": [
+              "A rent agreement is also a contract. General principles concerning consent, lawful consideration, performance, breach, and compensation may apply where not displaced by specific property or tenancy legislation. Clauses on rent, security deposit, notice, maintenance, and permitted use should be clear and consistent with mandatory law."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Registration Act, 1908 and Stamp Laws",
+          "paragraphs": [
+              "Certain leases, including leases from year to year or for a term exceeding one year, generally require registration under Section 17 of the Registration Act, 1908. Section 107 of the Transfer of Property Act is also relevant. Stamp duty varies by state and document type; inadequate stamping or non-registration can affect admissibility and enforcement."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Typical Disputes and Available Remedies",
+          "paragraphs": [
+              "Disputes commonly concern arrears of rent, withholding of deposits, property damage, repairs, interference with essential services, unauthorized subletting, or eviction. Depending on applicable law, remedies may include recovery of rent, damages, deposit refund, injunctions, or an order for possession.",
+              "A landlord should use the legally prescribed process rather than force, threats, or unilateral lockouts."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Procedure and Dispute Resolution",
+          "paragraphs": [
+              "The parties should first review the agreement, payment records, notices, photographs, correspondence, and relevant statutory requirements. A written notice stating the breach and requested remedy may help resolve the matter. If settlement fails, proceedings may lie before a rent authority, rent court or tribunal, or competent civil court, as the governing law provides. Mediation may also be appropriate. Notice periods and limitation rules must be checked for the particular case."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Conclusion",
+          "paragraphs": [
+              "Landlord-tenant disputes require careful consideration of contractual terms and the applicable state-specific tenancy law. Clear documentation, timely communication, proper notice, and recourse to the competent legal forum reduce uncertainty and protect both parties' rights.",
+              "Educational overview only. Specific legal advice depends on the state, property, agreement, and facts."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "landlord-tenant-disputes",
   categorySlug: "property-real-estate",
   categoryTitle: "Property & Real Estate",
@@ -24,12 +93,6 @@ export const landlordTenantDisputeData = {
   introduction: {
     summary:
       "A landlord–tenant dispute arises when a property owner (landlord) and an occupier (tenant) disagree over rights or obligations relating to rented premises. Common issues include unpaid rent, security-deposit refunds, repairs, maintenance, unlawful eviction, possession, rent increases, and breach of lease terms. A written rent or lease agreement is an important starting point, but statutory protections may apply regardless of what the parties have agreed.\n\nThe legal framework seeks to balance the landlord’s interest in receiving rent and recovering possession lawfully with the tenant’s interest in peaceful occupation, fair treatment, and protection against arbitrary dispossession. The appropriate forum and procedure depend on the location of the property, its use, the tenancy terms, and the law applicable in that state.",
-    highlights: [
-      "Covers rent arrears, deposit withholding, property damage, maintenance, and unauthorized eviction.",
-      "Governed by the Transfer of Property Act, 1882 (Sections 105–117) and state-specific Rent Control Acts.",
-      "Requires lawful statutory process for possession recovery, strictly barring force or unilateral lockouts.",
-      "Proceedings lie before the designated Rent Authority, Rent Tribunal, or competent Civil Court.",
-    ],
   },
 
   applicableLaws: [

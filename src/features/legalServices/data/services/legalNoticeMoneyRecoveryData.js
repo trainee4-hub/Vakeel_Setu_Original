@@ -2,6 +2,66 @@
 // Source: Legal_Notice_for_Money_Recovery_Introduction_Legal_Framework.pdf
 
 export const legalNoticeMoneyRecoveryData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "A legal notice for money recovery is a formal written demand sent by a creditor to a debtor requesting repayment of an outstanding sum. It commonly arises from unpaid loans, invoices, services, commercial transactions, or dishonoured cheques. The notice records the claim, explains the basis of liability, and gives the recipient an opportunity to resolve the dispute before litigation. A notice does not itself establish that the money is legally owed."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Purpose and Importance",
+          "paragraphs": [
+              "The notice identifies the parties, the amount claimed, relevant transaction dates, supporting documents, the repayment deadline, and possible legal consequences of non-payment. It can encourage negotiation, create a documented record of demand, and help clarify disputed facts. The notice should avoid threats, exaggerated claims, and unsupported allegations."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Legal Framework in India",
+          "paragraphs": [
+              "Money recovery is governed by several laws depending on the nature of the debt, the agreement, the parties, and the chosen remedy. There is no single statute that makes a legal notice mandatory for every private money-recovery claim. Specific statutory or contractual notice requirements must be checked in each case."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "4. Indian Contract Act, 1872",
+          "paragraphs": [
+              "The Indian Contract Act, 1872 provides general rules for valid agreements, contractual obligations, breach, and compensation. Sections 73 and 74 address compensation for breach and stipulated sums, subject to legal conditions. The claimant must ordinarily demonstrate the obligation, breach, and recoverable amount."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "5. Code of Civil Procedure, 1908",
+          "paragraphs": [
+              "A creditor may institute a civil suit for recovery before a competent court. Order XXXVII provides a summary procedure for certain eligible claims, including specified written-contract and negotiable-instrument claims. Jurisdiction, court fees, documentary evidence, and procedural requirements matter. Section 80 may require prior notice in certain suits against the Government or public officers."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "6. Negotiable Instruments Act, 1881",
+          "paragraphs": [
+              "Where a cheque is dishonoured, Section 138 may apply if its statutory conditions are satisfied. The payee must generally issue a written demand within 30 days of receiving information of dishonour; the drawer then has 15 days from receipt to pay. Criminal proceedings under this provision are distinct from ordinary civil recovery, and further filing deadlines apply."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "7. Limitation Act, 1963",
+          "paragraphs": [
+              "Limitation periods depend on the type of claim and when the cause of action accrues; many contractual money claims have a three-year limitation period, but exceptions and special rules exist. Sending an ordinary legal notice does not automatically extend limitation. A legally valid acknowledgment or part-payment may affect computation in circumstances prescribed by law."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "8. Legal Remedies and Conclusion",
+          "paragraphs": [
+              "Depending on the facts, available options include negotiated settlement, mediation, arbitration where agreed, a civil recovery suit, or a statutory cheque-dishonour complaint. Before sending a notice, verify the debt ledger, agreements, bank records, correspondence, applicable limitation period, and correct service address. A carefully drafted notice helps communicate a lawful demand and may prevent unnecessary litigation. This is general educational information, not a substitute for advice on a particular case."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "legal-notice-for-money-recovery",
   categorySlug: "legal-notices-responses",
   categoryTitle: "Legal Notices & Demands",
@@ -24,12 +84,6 @@ export const legalNoticeMoneyRecoveryData = {
   introduction: {
     summary:
       "A legal notice for money recovery is a formal written demand sent by a creditor to a debtor requesting repayment of an outstanding sum. It commonly arises from unpaid loans, invoices, services, commercial transactions, or dishonoured cheques. The notice records the claim, explains the basis of liability, and gives the recipient an opportunity to resolve the dispute before litigation. A notice does not itself establish that the money is legally owed.\n\nThe notice identifies the parties, the amount claimed, relevant transaction dates, supporting documents, the repayment deadline, and possible legal consequences of non-payment. It can encourage negotiation, create a documented record of demand, and help clarify disputed facts. The notice should avoid threats, exaggerated claims, and unsupported allegations.",
-    highlights: [
-      "Arises from unpaid business invoices, personal/commercial loans, service contracts, and bounced cheques.",
-      "Records the debt amount, transaction dates, underlying contracts, and a strict 15-day repayment deadline.",
-      "Governed by the Indian Contract Act, 1872, the Code of Civil Procedure, 1908, and the Limitation Act, 1963.",
-      "Mandatory pre-litigation step before filing summary suits (Order XXXVII CPC) or Section 138 NI Act complaints.",
-    ],
   },
 
   applicableLaws: [

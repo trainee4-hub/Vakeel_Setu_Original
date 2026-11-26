@@ -3,6 +3,76 @@
 // Strictly calibrated to ~750-850 words of precise, authoritative legal information.
 
 export const chequeBounceNoticeData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction and Legal Framework (India)",
+          "paragraphs": [],
+          "bullets": []
+      },
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "A cheque bounce, also called dishonour of a cheque, occurs when a bank returns a cheque unpaid. Common reasons include insufficient funds, exceeding an agreed overdraft limit, or other banking objections. In India, dishonour of a cheque issued towards a legally enforceable debt or liability may attract consequences under Section 138 of the Negotiable Instruments Act, 1881, provided its statutory conditions are satisfied. A legal demand notice is an important prerequisite to a complaint under this provision."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Purpose of a Cheque Bounce Legal Notice",
+          "paragraphs": [
+              "The notice formally informs the drawer (the person who issued the cheque) that the cheque has been dishonoured and demands payment of the cheque amount. It gives the drawer the statutory opportunity to pay before criminal proceedings are initiated. The notice also creates a written record of the demand and relevant dates."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Legal Framework: Negotiable Instruments Act, 1881",
+          "paragraphs": [],
+          "bullets": [
+              "Section 138: Applies where a cheque drawn on an account maintained by the drawer for discharge, wholly or partly, of a legally enforceable debt or liability is returned unpaid for insufficient funds or because it exceeds the arrangement with the bank, subject to the section's conditions and judicial interpretation.",
+              "Section 139: Provides a rebuttable presumption in favour of the holder that the cheque was received for discharge of a debt or liability.",
+              "Section 142: Governs cognizance, limitation for filing complaints and the competent court. Sections 143-147 contain further procedural provisions."
+          ]
+      },
+      {
+          "heading": "4. Statutory Timeline",
+          "paragraphs": [],
+          "bullets": [
+              "Presentation: The cheque must be presented within its validity period; in practice, RBI directions generally limit cheque validity to three months from its date.",
+              "Demand notice: The payee or holder in due course must issue a written demand for the cheque amount within **30 days** of receiving information from the bank that the cheque was returned unpaid.",
+              "Payment opportunity: The drawer has **15 days from receipt of the notice** to make payment.",
+              "Complaint: If payment is not made, the cause of action arises after those 15 days. Ordinarily, the complaint must be filed within **one month** from that date, subject to the court's power to condone delay under Section 142."
+          ]
+      },
+      {
+          "heading": "5. Essential Contents of the Notice",
+          "paragraphs": [
+              "A well-drafted notice identifies the payee and drawer; the cheque number, date, amount and drawee bank; the underlying transaction or legally enforceable liability; the date and reason for dishonour as shown in the return memo; and a clear demand for payment of the cheque amount within 15 days of receipt. It should state the sender's address, date, and signature, and may explain the consequences of non-payment. The demand should be precise and supported by records."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "6. Procedure and Remedies",
+          "paragraphs": [
+              "The payee should preserve the original cheque, bank return memo, invoices or agreements, correspondence, a copy of the notice, and reliable evidence of dispatch and delivery. A notice is commonly sent by registered or speed post, with other appropriate delivery methods used where evidentially reliable. If statutory conditions are met and payment is not received, a complaint may be filed before the court having jurisdiction. Section 138 provides for imprisonment up to two years, a fine up to twice the cheque amount, or both. Civil recovery remedies may also be available, depending on the facts."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "7. Important Legal Considerations",
+          "paragraphs": [
+              "Not every returned cheque automatically constitutes an offence under Section 138. The existence of a legally enforceable debt, the nature of the dishonour, compliance with notice requirements, service, limitation and relevant defences must be assessed. The Supreme Court has addressed these issues in cases including Rangappa v. Sri Mohan (2010) and Dashrath Rupsingh Rathod (2014); the latter's jurisdiction position was subsequently affected by statutory amendments. Current statutory provisions and later case law should be checked."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "8. Conclusion",
+          "paragraphs": [
+              "A cheque bounce legal notice is a time-sensitive statutory demand and a key step in proceedings under Section 138 of the Negotiable Instruments Act, 1881. Accurate facts, a clear demand, proof of service and careful compliance with the statutory timeline are essential. This overview is educational and is not a substitute for advice on a specific dispute."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "cheque-bounce-legal-notice",
   categorySlug: "legal-notices-responses",
   categoryTitle: "Legal Notices & Responses",
@@ -30,12 +100,6 @@ export const chequeBounceNoticeData = {
   // 1. Introduction & Overview
   introduction: {
     summary: "Under Section 138 of the Negotiable Instruments Act, 1881, a bounced cheque is not merely a failed financial transaction — it is a serious criminal offence in India punishable with imprisonment up to 2 years, a monetary fine up to twice the cheque amount, or both. When a bank returns a cheque with an official 'Dishonour Memo' citing reasons like 'Funds Insufficient', 'Account Closed', or 'Stop Payment', the payee cannot approach the magistrate directly. Indian law establishes a mandatory pre-litigation step: you must serve a formal written Legal Demand Notice through a Bar Council-enrolled advocate within exactly 30 calendar days of receiving the memo.\n\nThis statutory notice gives the defaulting party a 15-day grace period from the date of postal delivery to clear the outstanding payment. If they fail to pay within these 15 days, a criminal cause of action officially arises on the 16th day, giving you a 30-day window to file a formal complaint before the Judicial Magistrate or Metropolitan Magistrate to secure full recovery and up to 20% interim relief under Section 143A.",
-    highlights: [
-      "Strict 30-day statutory limitation from receipt of the bank return memo to dispatch notice.",
-      "Gives the defaulting drawer 15 clear days from delivery to settle payment.",
-      "Cause of action formally accrues on the 16th day, opening a 30-day window to file a court complaint.",
-      "Notice served on advocate letterhead establishes prima facie evidentiary proof.",
-    ],
   },
 
   // 2. Applicable Indian laws & sections (Cards)

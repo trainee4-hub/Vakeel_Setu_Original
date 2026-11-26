@@ -473,15 +473,15 @@ const AdvocateCard = ({ advocate, onViewAdvocate }) => {
             sm:text-left
           "
         >
-          {/* NAME */}
+          {/* NAME & STATUS */}
 
-          <div className="flex w-full min-w-0 items-center justify-start gap-1.5">
+          <div className="flex w-full min-w-0 flex-wrap items-center justify-center gap-2 sm:justify-start">
             <h4
               className="
                 min-w-0
-                max-w-[calc(100%-24px)]
                 truncate
-                text-[22px]
+                text-[20px]
+                sm:text-[22px]
                 font-bold
                 leading-tight
                 tracking-tight
@@ -493,6 +493,23 @@ const AdvocateCard = ({ advocate, onViewAdvocate }) => {
             </h4>
 
             <MdVerified className="inline-block shrink-0 text-[18px] text-[#1D9BF0]" />
+
+            <span
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                isOnline
+                  ? "border border-emerald-200 bg-emerald-50 text-emerald-700"
+                  : "border border-slate-200 bg-slate-100 text-slate-600"
+              }`}
+            >
+              <span
+                className={`size-2 rounded-full ${
+                  isOnline
+                    ? "bg-emerald-500 animate-pulse"
+                    : "bg-slate-400"
+                }`}
+              />
+              {isOnline ? "Online" : "Offline"}
+            </span>
           </div>
 
           {/* COURT */}

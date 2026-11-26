@@ -2,6 +2,59 @@
 // Source: Partnership_Agreement_Introduction_Legal_Framework.pdf
 
 export const partnershipAgreementData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "A Partnership Agreement, commonly recorded in a partnership deed, is a written contract between two or more persons who agree to carry on a business and share its profits. It establishes the rights, responsibilities and expectations of the partners. Although an ordinary partnership may arise through an oral agreement or conduct, a written agreement provides stronger evidence of the parties' understanding and helps prevent disputes."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Purpose and Important Clauses",
+          "paragraphs": [
+              "A well-drafted agreement typically states the firm name and principal place of business, the nature and duration of business, capital contributions, profit-and-loss sharing ratios, partner remuneration and drawings, banking authority, decision-making procedures, accounting and audit arrangements, admission or retirement of partners, confidentiality, dispute resolution and dissolution. It should also address the treatment of goodwill, liabilities and assets when a partner leaves."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Legal Framework in India",
+          "paragraphs": [
+              "The Indian Partnership Act, 1932 is the principal law governing ordinary partnership firms. Section 4 defines partnership as the relation between persons who have agreed to share the profits of a business carried on by all or any of them acting for all. This concept of mutual agency is a defining feature. Sections 11-13 broadly permit partners to determine their mutual rights and duties by contract, subject to law, and provide default rules where the agreement is silent. Under Section 25, every partner is jointly and severally liable for acts of the firm done while that person is a partner."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "4. Formation, Registration and Contract Law",
+          "paragraphs": [
+              "A partnership is created by agreement rather than by registration alone. The Indian Contract Act, 1872 governs general requirements of a valid contract, including free consent, lawful consideration and lawful object. Registration of an ordinary partnership firm under the Partnership Act is generally optional, but Section 69 restricts certain suits to enforce contractual rights by or on behalf of an unregistered firm. Applicable state rules may govern registration procedures and stamp duty on the deed."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "5. Other Relevant Laws",
+          "paragraphs": [
+              "Depending on the business, the firm may need PAN, tax registrations, GST registration where applicable, licences and compliance with labour and sector-specific laws. The Income-tax Act, 1961 governs taxation of partnership firms and related deductions, subject to statutory conditions. A Limited Liability Partnership (LLP) is a different legal structure governed by the Limited Liability Partnership Act, 2008, and should not be confused with an ordinary partnership."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "6. Disputes and Dissolution",
+          "paragraphs": [
+              "The deed may specify negotiation, mediation, arbitration or court proceedings for disputes. The Arbitration and Conciliation Act, 1996 applies where the parties have a valid arbitration agreement. Dissolution may occur by agreement, under specified events, or through legal processes under the Partnership Act. Clear provisions for settlement of accounts, outstanding debts and distribution of remaining assets are especially important."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Conclusion",
+          "paragraphs": [
+              "A Partnership Agreement provides a practical legal foundation for business cooperation. By defining contributions, management authority, profit sharing, liabilities and exit procedures in advance, it reduces uncertainty and protects the interests of all partners. The deed should be tailored to the firm's circumstances and reviewed for applicable state and sector requirements."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "partnership-agreement",
   categorySlug: "business-contracts-agreements",
   categoryTitle: "Business Contracts & Agreements",
@@ -24,12 +77,6 @@ export const partnershipAgreementData = {
   introduction: {
     summary:
       "A Partnership Agreement, commonly recorded in a partnership deed, is a written contract between two or more persons who agree to carry on a business and share its profits. It establishes the rights, responsibilities and expectations of the partners. Although an ordinary partnership may arise through an oral agreement or conduct, a written agreement provides stronger evidence of the parties’ understanding and helps prevent disputes.\n\nA well-drafted agreement typically states the firm name and principal place of business, the nature and duration of business, capital contributions, profit-and-loss sharing ratios, partner remuneration and drawings, banking authority, decision-making procedures, accounting and audit arrangements, admission or retirement of partners, confidentiality, dispute resolution and dissolution. It should also address the treatment of goodwill, liabilities and assets when a partner leaves.",
-    highlights: [
-      "Defines business objectives, capital contributions, profit/loss sharing ratios, and partner salaries.",
-      "Regulates mutual agency where each partner acts as an agent of the firm and of the other partners (Section 4).",
-      "Establishes joint and several liability of partners for acts of the firm under Section 25.",
-      "Provides procedures for admission, retirement, expulsion of partners, and firm dissolution.",
-    ],
   },
 
   applicableLaws: [

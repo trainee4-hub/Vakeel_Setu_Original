@@ -2,6 +2,49 @@
 // Source: Medical_Negligence_Introduction_Legal_Framework.pdf
 
 export const medicalNegligenceMattersData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction",
+          "paragraphs": [
+              "Medical negligence arises when a healthcare professional fails to exercise the reasonable degree of skill, care and diligence expected of a competent practitioner in similar circumstances, and that failure causes injury to a patient. It may involve errors in diagnosis, treatment, surgery, medication, monitoring, or obtaining legally valid informed consent. However, an unsuccessful treatment, an adverse outcome, or a mere difference in professional opinion does not automatically establish negligence.",
+              "A claim ordinarily examines four elements:",
+              "Medical records, expert opinions, clinical guidelines, and the circumstances of treatment may be relevant in determining liability."
+          ],
+          "bullets": [
+              "Duty of care owed by the healthcare provider",
+              "Breach of the applicable standard of care",
+              "Causation linking the breach to the injury",
+              "Legally recognizable damage"
+          ]
+      },
+      {
+          "heading": "Legal Framework in India",
+          "paragraphs": [],
+          "bullets": [
+              "1. Civil and consumer remedies: A patient may seek compensation through a civil action or, where the statutory requirements are met, a consumer complaint under the **Consumer Protection Act, 2019** . Medical services rendered for consideration generally fall within consumer law, subject to the statutory definition and recognized exclusions. The Supreme Court in Indian Medical Association v. V.P. Shantha (1995) established the important consumer-law treatment of medical services.",
+              "2. Criminal liability: Criminal proceedings require a higher threshold than ordinary civil negligence. Under the **Bharatiya Nyaya Sanhita, 2023** , section 106(1) addresses causing death by a rash or negligent act and contains a specific provision concerning registered medical practitioners performing medical procedures. Criminal negligence is not established merely because treatment failed; the conduct and statutory ingredients must be proved to the required criminal standard.",
+              "3. Professional and regulatory accountability: Doctors are also subject to professional ethical obligations and disciplinary oversight under the applicable medical regulatory framework, including the **National Medical Commission Act, 2019** and relevant regulations or continuing rules. Complaints about professional misconduct may be considered by the appropriate medical regulatory authority. Such proceedings are distinct from claims for compensation or criminal prosecution.",
+              "4. Consent and patient rights: Valid informed consent is an important part of lawful medical practice. A patient should ordinarily receive material information about the proposed procedure, relevant risks, and reasonable alternatives, subject to recognized exceptions such as emergencies. In Samira Kohli v. Dr. Prabha Manchanda (2008), the Supreme Court discussed the legal requirements of consent to medical treatment."
+          ]
+      },
+      {
+          "heading": "Judicial Principles",
+          "paragraphs": [
+              "In Jacob Mathew v. State of Punjab (2005), the Supreme Court emphasized that a medical professional is not negligent merely because another course of treatment was possible, and it distinguished civil negligence from the greater degree of negligence necessary for criminal prosecution. The court also discussed safeguards against unjustified criminal action against doctors. Courts evaluate professional conduct in context rather than judging a medical decision solely by its outcome."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Conclusion",
+          "paragraphs": [
+              "Medical negligence law seeks to balance patient safety and access to remedies with the need to protect healthcare professionals from liability for unavoidable complications or reasonable clinical judgments. Each matter turns on its own evidence, particularly the standard of care, the nature of the alleged breach, causation, and the resulting harm. Proper documentation, transparent communication, and informed consent are central to both patient protection and responsible medical practice.",
+              "Academic overview of Indian law; not a substitute for case-specific legal advice."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "medical-negligence-matters",
   categorySlug: "government-registration-certificates",
   categoryTitle: "Government Registration & Certificates",
@@ -24,12 +67,6 @@ export const medicalNegligenceMattersData = {
   introduction: {
     summary:
       "Medical negligence arises when a healthcare professional fails to exercise the reasonable degree of skill, care and diligence expected of a competent practitioner in similar circumstances, and that failure causes injury to a patient. It may involve errors in diagnosis, treatment, surgery, medication, monitoring, or obtaining legally valid informed consent. However, an unsuccessful treatment, an adverse outcome, or a mere difference in professional opinion does not automatically establish negligence.\n\nA claim ordinarily examines four elements: (1) duty of care owed by the healthcare provider; (2) breach of the applicable standard of care; (3) causation linking the breach to the injury; and (4) legally recognizable damage. Medical records, expert opinions, clinical guidelines, and the circumstances of treatment may be relevant in determining liability.",
-    highlights: [
-      "Requires establishing duty of care, breach of professional standard, causation, and recognizable harm.",
-      "Consumer remedies available under Consumer Protection Act, 2019 (IMA v. V.P. Shantha precedent).",
-      "Criminal threshold under Bharatiya Nyaya Sanhita, 2023 (Section 106(1)) requires proving gross rashness.",
-      "Informed consent governed by Supreme Court ruling in Samira Kohli v. Dr. Prabha Manchanda.",
-    ],
   },
 
   applicableLaws: [

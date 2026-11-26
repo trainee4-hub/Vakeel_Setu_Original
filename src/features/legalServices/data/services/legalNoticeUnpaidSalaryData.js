@@ -2,6 +2,48 @@
 // Source: Legal_Notice_Unpaid_Salary_Introduction_Legal_Framework.pdf
 
 export const legalNoticeUnpaidSalaryData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "A legal notice for unpaid salary is a formal written demand sent by an employee or an authorised legal representative to an employer seeking payment of wages, salary, incentives, or other employment dues that are legally payable but remain outstanding. It identifies the employment relationship, the unpaid amount, the relevant period, and a reasonable deadline for payment. Such a notice commonly serves as a first step before initiating proceedings before an appropriate labour authority, court, or other forum. It can help resolve disputes without litigation and creates a written record of the employee's demand. A legal notice is not, by itself, a court order or a guarantee of recovery."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Purpose and Key Contents",
+          "paragraphs": [
+              "A well-drafted notice ordinarily states the employee's name and designation, employer's details, dates of employment, agreed remuneration, months for which payment is due, amounts already received, and the balance outstanding. It may refer to the appointment letter, payslips, bank statements, attendance records, emails, and prior payment requests. The notice should clearly request payment within a specified reasonable period, provide a method for settlement, and state that appropriate legal remedies may be pursued if the dues are not cleared. Claims for interest, compensation, or legal costs should be made only where supported by applicable law or contract."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Legal Framework in India",
+          "paragraphs": [],
+          "bullets": [
+              "Contractual rights: The Indian Contract Act, 1872 provides the general legal framework for enforceable agreements. Salary terms in an appointment letter, employment contract, or established employment arrangement may support a claim for unpaid contractual remuneration and damages where legally available.",
+              "Wage-protection legislation: The Code on Wages, 2019 consolidates important wage-related laws and addresses payment of wages, deductions, and claims. Its application depends on commencement notifications, applicable rules, and the facts of employment. For periods or matters governed by earlier legislation, the Payment of Wages Act, 1936 and other applicable wage laws may remain relevant.",
+              "Industrial and employment remedies: Depending on the employee's legal classification, nature of the dispute, and applicable law, remedies may arise through labour authorities, statutory claims mechanisms, industrial dispute processes, or civil proceedings. Not every employee has access to the same forum or procedure."
+          ]
+      },
+      {
+          "heading": "4. Procedure and Available Remedies",
+          "paragraphs": [
+              "The employee should first calculate outstanding dues accurately and preserve supporting records. A written demand may then be sent through a verifiable channel, such as registered post or an acknowledged email. If the employer does not pay, the employee may approach the competent labour department or statutory authority, pursue a contractual civil claim, or use another legally available dispute-resolution mechanism. Applicable limitation periods, jurisdiction, eligibility, and procedural requirements differ across remedies and states. Insolvency or closure of the employer may affect recovery and priority of claims. Employees should avoid unsupported allegations and ensure that the notice is factual and professional."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "5. Conclusion",
+          "paragraphs": [
+              "A legal notice for unpaid salary is an important tool for asserting employment rights and encouraging timely settlement. Its effectiveness depends on a clear factual account, accurate computation of dues, reliable evidence, and selection of the correct legal remedy. Because Indian wage-law implementation and employee classifications can vary, the current statutory position and local rules should be checked before initiating proceedings.",
+              "Educational overview only; not a substitute for case-specific legal advice."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "legal-notice-unpaid-salary",
   categorySlug: "employment-consumer-legal-notices",
   categoryTitle: "Employment & Consumer Legal Notices",
@@ -24,12 +66,6 @@ export const legalNoticeUnpaidSalaryData = {
   introduction: {
     summary:
       "A legal notice for unpaid salary is a formal written demand sent by an employee or an authorised legal representative to an employer seeking payment of wages, salary, incentives, or other employment dues that are legally payable but remain outstanding. It identifies the employment relationship, the unpaid amount, the relevant period, and a reasonable deadline for payment.\n\nSuch a notice commonly serves as a first step before initiating proceedings before an appropriate labour authority, court, or other forum. It can help resolve disputes without litigation and creates a written record of the employee’s demand. A legal notice is not, by itself, a court order or a guarantee of recovery.",
-    highlights: [
-      "Demands payment of salary arrears, incentives, notice pay, and Full & Final (FnF) settlement dues.",
-      "Identifies employment period, agreed remuneration, unpaid months, and exact outstanding balance.",
-      "Backed by the Indian Contract Act, 1872, the Code on Wages, 2019, and the Payment of Wages Act, 1936.",
-      "Prerequisite step before initiating proceedings before Labour Commissioners, tribunals, or civil courts.",
-    ],
   },
 
   applicableLaws: [

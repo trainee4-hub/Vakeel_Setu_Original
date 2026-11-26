@@ -11,7 +11,6 @@ import {
 } from "react-router-dom";
 
 import { useAuth } from "../../auth";
-import Navbar from "@app/layouts/Navbar";
 import { FindLawyer, AdvocateProfile } from "../../advocate";
 
 import IpcWiki from "../components/LegalAssistant";
@@ -126,8 +125,6 @@ const UserDashboard = () => {
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-slate-50 font-sans text-slate-600 antialiased selection:bg-amber-500/30">
       <DashboardStyles />
-
-      <Navbar />
 
       <div className="pt-20">
         <div key={activePage} className="animate-enter">

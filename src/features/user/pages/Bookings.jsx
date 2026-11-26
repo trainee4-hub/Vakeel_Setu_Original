@@ -2,6 +2,7 @@ import {
   useState,
   useEffect,
   useCallback,
+  useMemo,
 } from "react";
 import { useNavigate, useParams, useSearchParams, Link } from "react-router-dom";
 import {
@@ -16,6 +17,7 @@ import {
   FiMail,
   FiPhone,
   FiPrinter,
+  FiDownload,
   FiRefreshCw,
   FiVideo,
   FiX,
@@ -40,6 +42,12 @@ import {
   getBookingDisplayTitle,
   getAdvocateAvatarData,
 } from "../utils/paymentUtils";
+import {
+  buildReceiptData,
+  buildReceiptHtml,
+  printReceiptWeb,
+  downloadReceiptHtml,
+} from "../utils/receiptGenerator";
 
 /* =========================================================================
    STATUS TABS CONFIGURATION
@@ -337,6 +345,7 @@ export default function Bookings() {
         {receiptBooking && (
           <PrintableReceiptModal
             booking={receiptBooking}
+            user={user}
             onClose={() => setReceiptBooking(null)}
           />
         )}
@@ -516,6 +525,7 @@ export default function Bookings() {
       {receiptBooking && (
         <PrintableReceiptModal
           booking={receiptBooking}
+          user={user}
           onClose={() => setReceiptBooking(null)}
         />
       )}
@@ -1272,177 +1282,101 @@ function AdvocateBookingDetailView({ booking, onOpenReceipt }) {
 }
 
 /* =========================================================================
-   PRINTABLE RECEIPT MODAL (Zero PDF libraries, uses clean window.print)
+   TAX INVOICE & RECEIPT MODAL (Official Goibibo-style A4 Layout)
 ========================================================================= */
 
-function PrintableReceiptModal({ booking, onClose }) {
-  const isVideo = booking.callType === "VIDEO_CALL";
-  const amountFormatted = formatBookingAmount(booking.payment?.amount || booking.price);
+function PrintableReceiptModal({ booking, user: userProp, onClose }) {
+  const { user: authUser } = useAuth();
+  const currentUser = userProp || authUser || {};
+
+  const receiptData = useMemo(() => {
+    return buildReceiptData(booking, currentUser);
+  }, [booking, currentUser]);
+
+  const receiptHtml = useMemo(() => {
+    if (!receiptData) return null;
+    return buildReceiptHtml(receiptData);
+  }, [receiptData]);
 
   const handlePrint = () => {
-    window.print();
+    if (receiptData) {
+      printReceiptWeb(receiptData);
+    } else {
+      window.print();
+    }
   };
 
+  const handleDownload = () => {
+    if (receiptData) {
+      downloadReceiptHtml(receiptData);
+    }
+  };
+
+  if (!booking) return null;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm print:static print:bg-white print:p-0">
-      <div className="relative w-full max-w-xl rounded-3xl border border-slate-200 bg-white shadow-2xl print:w-full print:max-w-none print:border-none print:shadow-none">
-        {/* Modal Top Bar - Hidden on print */}
-        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 print:hidden">
-          <div className="flex items-center gap-2">
-            <FiFileText className="text-amber-500 text-lg" />
-            <h3 className="text-sm font-bold text-slate-900">
-              Consultancy Booking Receipt
-            </h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-2 sm:p-4 backdrop-blur-sm">
+      <div className="relative flex flex-col w-full max-w-3xl max-h-[92vh] rounded-3xl border border-slate-200 bg-white shadow-2xl overflow-hidden">
+        {/* Modal Top Bar */}
+        <div className="flex items-center justify-between border-b border-slate-200/80 px-5 sm:px-6 py-4 bg-slate-50/80">
+          <div className="flex items-center gap-2.5">
+            <div className="flex size-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 font-bold border border-amber-500/20">
+              <FiFileText className="text-lg" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900">
+                Official Tax Invoice / Receipt
+              </h3>
+              <p className="text-[11px] text-slate-500">
+                Invoice Ref: {receiptData?.receiptNo || `RC-${booking.bookingId || booking.id}`}
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handlePrint}
-              className="flex items-center gap-1.5 rounded-xl bg-slate-950 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-amber-500"
+              className="flex items-center gap-1.5 rounded-xl bg-slate-950 px-3.5 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-amber-600 cursor-pointer"
+              title="Print or Save as PDF"
             >
               <FiPrinter className="text-sm" />
-              <span>Print</span>
+              <span className="hidden sm:inline">Print / Save PDF</span>
+              <span className="sm:hidden">Print</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleDownload}
+              className="hidden sm:flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 cursor-pointer"
+              title="Download HTML receipt"
+            >
+              <FiDownload className="text-sm" />
+              <span>Download</span>
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition hover:bg-slate-200"
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-200/70 text-slate-600 transition hover:bg-slate-200 hover:text-slate-900 cursor-pointer"
             >
-              <FiX className="text-base" />
+              <FiX className="text-lg" />
             </button>
           </div>
         </div>
 
-        {/* Printable Sheet Body */}
-        <div className="p-6 sm:p-8 print:p-8 text-slate-800">
-          {/* Receipt Header */}
-          <div className="flex items-start justify-between border-b border-slate-200 pb-6">
-            <div>
-              <h2
-                className="notranslate text-2xl font-black text-slate-950"
-                translate="no"
-              >
-                Vakeel<span className="text-amber-500">Setu</span>
-              </h2>
-              <p className="mt-1 text-xs text-slate-500">
-                Verified Legal Consultation Service
-              </p>
+        {/* Invoice Preview Container */}
+        <div className="flex-1 overflow-y-auto bg-slate-100/70 p-3 sm:p-6 flex justify-center">
+          {receiptHtml ? (
+            <div className="w-full max-w-[680px] bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
+              <iframe
+                title="Tax Invoice"
+                srcDoc={receiptHtml}
+                className="w-full h-[620px] sm:h-[720px] border-0"
+              />
             </div>
-            <div className="text-right">
-              <span className="inline-block rounded-md bg-slate-100 px-2.5 py-1 text-[11px] font-black uppercase tracking-wider text-slate-600">
-                RECEIPT
-              </span>
-              <p className="mt-1.5 text-xs text-slate-500">
-                Date: {formatPaymentDateTime(booking.payment?.paidAt || booking.createdAt)}
-              </p>
+          ) : (
+            <div className="p-8 text-center text-slate-500">
+              Receipt data could not be generated.
             </div>
-          </div>
-
-          {/* Reference Data */}
-          <div className="mt-6 grid grid-cols-2 gap-4 text-xs">
-            <div>
-              <p className="font-bold text-slate-400 uppercase tracking-wider text-[10px]">
-                Booking Reference
-              </p>
-              <p className="mt-1 font-mono font-semibold text-slate-900">
-                {booking.bookingId || booking.id}
-              </p>
-            </div>
-            <div>
-              <p className="font-bold text-slate-400 uppercase tracking-wider text-[10px]">
-                Payment Status
-              </p>
-              <p className="mt-1 font-bold text-emerald-700">
-                {getPaymentStatusLabel(booking.payment?.status || "PAID")}
-              </p>
-            </div>
-
-            {booking.payment?.razorpayPaymentId && (
-              <div>
-                <p className="font-bold text-slate-400 uppercase tracking-wider text-[10px]">
-                  Payment ID
-                </p>
-                <p className="mt-1 font-mono text-slate-800">
-                  {booking.payment.razorpayPaymentId}
-                </p>
-              </div>
-            )}
-            {booking.payment?.razorpayOrderId && (
-              <div>
-                <p className="font-bold text-slate-400 uppercase tracking-wider text-[10px]">
-                  Order ID
-                </p>
-                <p className="mt-1 font-mono text-slate-800">
-                  {booking.payment.razorpayOrderId}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Consultation Item */}
-          <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50/50 p-4">
-            <div className="flex items-center justify-between border-b border-slate-200/60 pb-3 text-xs font-black uppercase tracking-wider text-slate-400">
-              <span>Service Description</span>
-              <span>Amount</span>
-            </div>
-            <div className="flex items-center justify-between pt-3">
-              <div>
-                <p className="text-sm font-bold text-slate-950">
-                  {getBookingDisplayTitle(booking)}
-                </p>
-                <p className="mt-0.5 text-xs text-slate-500">
-                  {booking.bookingType === "ADVOCATE"
-                    ? `Mode: ${
-                        booking.mode === "VIDEO_CALL"
-                          ? "Video Call"
-                          : booking.mode === "IN_PERSON"
-                          ? "In-Person Meeting"
-                          : "Voice Call"
-                      }${booking.subject ? ` • ${booking.subject}` : ""}${
-                        booking.durationMinutes ? ` • ${formatDurationHuman(booking.durationMinutes, { subHourUnit: "min" })}` : ""
-                      }`
-                    : `Expert Consultation • Mode: ${isVideo ? "Video Call" : "Voice Call"} • Duration: ${formatDurationHuman(booking.durationMinutes || 15, { subHourUnit: "min" })}`}
-                </p>
-              </div>
-              <p className="text-base font-black text-slate-950">
-                {amountFormatted}
-              </p>
-            </div>
-          </div>
-
-          {/* Contact Details */}
-          <div className="mt-6 border-t border-slate-200 pt-4 text-xs text-slate-600">
-            <p className="font-bold text-slate-400 uppercase tracking-wider text-[10px]">
-              Client Details
-            </p>
-            <div className="mt-1 flex flex-wrap gap-x-6 gap-y-1">
-              {booking.contact?.phoneNumber && (
-                <span>Phone: {booking.contact.phoneNumber}</span>
-              )}
-              {booking.contact?.email && (
-                <span>Email: {booking.contact.email}</span>
-              )}
-            </div>
-          </div>
-
-          {/* Total */}
-          <div className="mt-6 flex items-center justify-between border-t-2 border-slate-900 pt-4">
-            <span className="text-sm font-black text-slate-950">
-              Total Amount Paid
-            </span>
-            <span className="text-xl font-black text-slate-950">
-              {amountFormatted}
-            </span>
-          </div>
-
-          {/* Footer note */}
-          <p className="mt-8 text-center text-[11px] text-slate-400">
-            This is a computer-generated receipt for consultation services booked on{" "}
-            <span className="notranslate font-semibold" translate="no">
-              VakeelSetu
-            </span>
-            .
-          </p>
+          )}
         </div>
       </div>
     </div>

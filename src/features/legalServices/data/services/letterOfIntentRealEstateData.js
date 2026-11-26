@@ -2,6 +2,63 @@
 // Source: Letter_of_Intent_to_Purchase_Real_Estate_Introduction_Legal_Framework.pdf
 
 export const letterOfIntentRealEstateData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction",
+          "paragraphs": [
+              "A Letter of Intent (LOI) to Purchase Real Estate is a preliminary document in which a prospective buyer communicates an intention to acquire specified immovable property. It usually identifies the property, indicative purchase price, proposed payment structure, due-diligence period and target timeline. An LOI helps the parties negotiate efficiently before signing a detailed agreement for sale. It is not itself a conveyance of title."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Purpose and Key Provisions",
+          "paragraphs": [
+              "A well-drafted LOI commonly records the names of the buyer and seller; property address and identifying particulars; proposed consideration and deposit; financing conditions; inspection of title and encumbrances; possession and closing expectations; allocation of taxes and transaction expenses; exclusivity, confidentiality and termination provisions; and whether any clauses are intended to be legally binding."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Legal Framework in India",
+          "paragraphs": [],
+          "bullets": [
+              "Indian Contract Act, 1872: Whether an LOI is enforceable depends on its language, certainty of terms, lawful consideration, acceptance and intention to create binding obligations. A document called an LOI can still create contractual obligations if its substance meets the legal requirements.",
+              "Transfer of Property Act, 1882: Section 54 distinguishes a contract for sale from a completed sale; a contract for sale does not, by itself, create an interest in or charge on the property.",
+              "Registration Act, 1908: Documents that legally require registration must be registered. An LOI should not be treated as a substitute for a duly executed and registered conveyance deed.",
+              "Indian Stamp Act, 1899 and State Stamp Laws: Stamp duty depends on the nature and contents of the instrument and the applicable state law; the label LOI alone does not decide liability."
+          ]
+      },
+      {
+          "heading": "Other Regulatory Considerations",
+          "paragraphs": [
+              "Where relevant, the Real Estate (Regulation and Development) Act, 2016 (RERA) governs registered real estate projects and promoter obligations. State-specific land, tenancy, zoning and revenue rules may also apply. Buyers should verify ownership, title chain, encumbrances, approvals, land-use restrictions, pending disputes and applicable RERA registration before committing funds."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Binding Versus Non-Binding Terms",
+          "paragraphs": [
+              "Parties often state that the commercial proposal is non-binding until execution of a definitive agreement, while specifically making confidentiality, exclusivity, governing law or cost-sharing clauses binding. Such wording must be consistent throughout the LOI. Deposits and forfeiture provisions require particular care; their enforceability depends on applicable law and facts."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Enforcement and Dispute Resolution",
+          "paragraphs": [
+              "If a dispute arises, courts assess the actual commitments and conduct of the parties rather than the document title alone. Remedies may include damages or, where legally available, specific performance under the Specific Relief Act, 1963. An LOI may include negotiation, mediation, arbitration or court-jurisdiction provisions, drafted to suit the transaction."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Conclusion",
+          "paragraphs": [
+              "A real-estate purchase LOI is a useful negotiating roadmap, not proof of ownership. Clear drafting of binding status, contingencies, timelines and due-diligence requirements reduces disputes. Before signing or paying a deposit, parties should obtain property-specific legal and title verification.",
+              "Educational overview only; not a transaction-specific legal opinion."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "letter-of-intent-to-purchase-real-estate",
   categorySlug: "property-real-estate",
   categoryTitle: "Property & Real Estate",
@@ -24,12 +81,6 @@ export const letterOfIntentRealEstateData = {
   introduction: {
     summary:
       "A Letter of Intent (LOI) to Purchase Real Estate is a preliminary document in which a prospective buyer communicates an intention to acquire specified immovable property. It usually identifies the property, indicative purchase price, proposed payment structure, due-diligence period and target timeline. An LOI helps the parties negotiate efficiently before signing a detailed agreement for sale. It is not itself a conveyance of title.\n\nA well-drafted LOI commonly records the names of the buyer and seller; property address and identifying particulars; proposed consideration and deposit; financing conditions; inspection of title and encumbrances; possession and closing expectations; allocation of taxes and transaction expenses; exclusivity, confidentiality and termination provisions; and whether any clauses are intended to be legally binding.",
-    highlights: [
-      "Negotiating roadmap setting out purchase price, payment milestones, and due diligence terms.",
-      "Distinguishes commercial non-binding proposals from legally binding exclusivity and confidentiality clauses.",
-      "Subject to Section 54, Transfer of Property Act, 1882 (an LOI or contract does not itself transfer title).",
-      "Essential for commercial property deals, large land acquisitions, and RERA-regulated builder projects.",
-    ],
   },
 
   applicableLaws: [

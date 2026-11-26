@@ -2,6 +2,73 @@
 // Primary Statutes: Food Safety and Standards Act, 2006 & Food Safety Regulations, 2011
 
 export const fssaiLicenceRegistrationData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "The **Food Safety and Standards Authority of India (FSSAI)** is the statutory authority responsible for regulating and supervising food safety in India. FSSAI licence or registration is the official authorisation required for eligible Food Business Operators (FBOs) to carry out food-related activities such as manufacturing, processing, packaging, storage, transportation, distribution, and sale. The system is intended to ensure that food businesses follow prescribed hygiene, safety and quality standards and that food supplied to consumers is safe and suitable for consumption. FSSAI operates under the Ministry of Health and Family Welfare, Government of India."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Legal Framework",
+          "paragraphs": [
+              "The primary legislation governing food safety in India is the **Food Safety and Standards Act, 2006** . The Act consolidates laws relating to food and establishes FSSAI to lay down science-based standards and regulate the manufacture, storage, distribution, sale and import of food. The licensing and registration framework is principally prescribed under the **Food Safety and Standards (Licensing and Registration of Food Businesses) Regulations, 2011** , along with other applicable regulations and amendments issued under the Act.",
+              "Section 31 of the Food Safety and Standards Act, 2006 provides that no person shall commence or carry on any food business except under a licence, subject to the statutory exemption for petty food business operators who are required to register instead. The Act also provides for the duties and responsibilities of food business operators, inspection, improvement notices, suspension or cancellation of licences, penalties and adjudication for non-compliance. FBOs must comply with the conditions of their licence or registration and the hygiene and food-safety requirements applicable to their business."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Types of FSSAI Authorisation",
+          "paragraphs": [
+              "The licensing framework broadly provides for the following categories, depending on the nature, scale and capacity of the food business and the applicable eligibility criteria:"
+          ],
+          "bullets": [
+              "Basic Registration: Generally applicable to petty food business operators, including small or cottage-scale businesses, whose annual turnover does not exceed the prescribed threshold and who meet the conditions under the Regulations.",
+              "State Licence: Applicable to food businesses falling within the State licensing criteria, based on factors such as business activity, turnover, production capacity or premises.",
+              "Central Licence: Required for specified categories of businesses and operations falling under Central licensing criteria, including certain importers and businesses operating in specified circumstances."
+          ]
+      },
+      {
+          "heading": "4. Registration and Licensing Procedure",
+          "paragraphs": [
+              "An applicant is generally required to submit the prescribed application through the FoSCoS (Food Safety Compliance System) portal or the applicable notified process. The applicant must select the appropriate business category and kind of business, provide the required particulars, upload supporting documents and pay the prescribed fee. Depending on the application and applicable rules, the authority may scrutinise the documents, seek clarification or conduct an inspection before granting the registration or licence. The certificate should be displayed at the food business premises as required by law. "
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "5. Documents and Information Generally Required",
+          "paragraphs": [
+              "The documents vary according to the type of business and the category of authorisation. Common requirements may include proof of identity and address of the applicant, details and proof of the business premises, constitution of the business, nature of food business activity, list or details of food products, layout or premises-related information, and other technical or supporting documents where applicable. The exact checklist should be verified on FoSCoS for the selected kind of business."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "6. Validity, Renewal and Modification",
+          "paragraphs": [
+              "An FSSAI registration or licence is issued for the period selected and permitted under the applicable rules. The FBO is responsible for applying for renewal within the prescribed timeline before expiry. A change in relevant business particulars, premises, activities or other information may require modification or endorsement of the existing authorisation. Operating with an expired, suspended or inappropriate authorisation may attract legal consequences under the Act and Regulations."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "7. Duties and Compliance of Food Business Operators",
+          "paragraphs": [
+              "Every FBO must ensure that food is handled, manufactured, stored, transported and sold in a hygienic and safe manner; comply with applicable food standards and labelling and display requirements; maintain records where required; cooperate with inspections; and follow the conditions attached to the licence or registration. The FBO must not make misleading claims or sell food that is unsafe, sub-standard, misbranded or otherwise in violation of the Act and applicable regulations."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "8. Legal Importance and Consequences of Non-Compliance",
+          "paragraphs": [
+              "FSSAI registration or licensing establishes that a food business has obtained the authorisation required under the food-safety framework; it is not a blanket certification that every product or batch is safe. Continued compliance is essential. Carrying on a food business without the required registration or licence, breaching licence conditions, or violating food-safety requirements may result in penalties, improvement notices, suspension or cancellation of the authorisation, prosecution or other action, depending on the nature and seriousness of the contravention."
+          ],
+          "bullets": [
+              "Note: This document is a general introductory overview for informational purposes and is not a substitute for case-specific legal advice. Eligibility thresholds, document checklists, fees and procedures may be amended. Applicants should verify the latest requirements and applicable notifications on the official FSSAI/FoSCoS portal before applying."
+          ]
+      }
+  ],
+
   serviceSlug: "fssai-licence-registration",
   categorySlug: "government-registration-certificates",
   categoryTitle: "Government Registration & Certificates",
@@ -24,12 +91,6 @@ export const fssaiLicenceRegistrationData = {
   introduction: {
     summary:
       "The Food Safety and Standards Authority of India (FSSAI) is the apex statutory regulatory body established under the Ministry of Health and Family Welfare pursuant to the Food Safety and Standards Act, 2006. FSSAI registration or licensing is mandatory for every Food Business Operator (FBO) engaged in the manufacture, processing, packaging, storage, transportation, distribution, or retail sale of food articles across India.\n\nThe regulatory regime establishes a three-tiered licensing structure administered electronically through the FoSCoS (Food Safety Compliance System) portal: Basic Registration for micro and petty food enterprises; State Licence for medium-scale operations; and Central Licence for large manufacturing plants, multinational supply chains, and food importers. Operating without a valid licence attracts statutory prosecution and severe monetary penalties under Section 63.",
-    highlights: [
-      "Mandatory statutory certification under Section 31 of the Food Safety and Standards Act, 2006.",
-      "Three-tier classification: Basic Registration (< ₹12 Lakhs), State Licence (₹12L–₹20Cr), Central Licence (> ₹20Cr).",
-      "Allotment of unique 14-digit FSSAI number compulsory on product packaging and commercial premises.",
-      "Ensures adherence to mandatory sanitary, hygiene, and water potability benchmarks under Schedule 4.",
-    ],
   },
 
   applicableLaws: [

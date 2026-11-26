@@ -2,6 +2,52 @@
 // Source: Franchise_Agreement_Introduction_Legal_Framework.pdf
 
 export const franchiseAgreementData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "A franchise agreement is a legally binding contract under which one party, the **franchisor**, permits another party, the **franchisee**, to operate a business using specified trademarks, branding, business methods, products, or services. In return, the franchisee typically pays an initial franchise fee, ongoing royalties, or other agreed charges and follows the franchisor's operational standards.",
+              "Franchising is widely used in food services, retail, education, hospitality, and other sectors. The agreement sets out the commercial relationship and helps protect the franchisor's brand while clarifying the franchisee's investment, operating rights, and obligations. It is distinct from a partnership or employment relationship, although the actual legal characterization depends on the terms and conduct of the parties."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Main Features of a Franchise Agreement",
+          "paragraphs": [
+              "A well-drafted agreement ordinarily identifies the parties and the licensed business; the territory and whether exclusivity applies; the duration and renewal conditions; franchise fees, royalties, and payment terms; training and support; quality-control and reporting requirements; permitted use of intellectual property; confidentiality obligations; termination and post-termination duties; and the method of resolving disputes.",
+              "The contract should also address supply arrangements, advertising contributions, compliance with local permits, allocation of liability, and whether the franchisee may transfer or sell the franchise. Clear performance standards and realistic exit provisions reduce the risk of later disagreement."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Legal Framework in India",
+          "paragraphs": [],
+          "bullets": [
+              "Indian Contract Act, 1872: Franchise agreements are primarily governed by general contract law. A valid contract requires lawful consideration and object, free consent, competent parties, and other statutory essentials. Clauses relating to breach, damages, and termination are assessed under the Act. Restrictions on trade must be drafted carefully in light of Section 27.",
+              "Trade Marks Act, 1999: Franchise arrangements commonly involve licensed use of trademarks, trade names, and logos. The agreement should define the permitted scope of use and provide for brand protection and quality control. Registration and enforcement of trademark rights may be relevant.",
+              "Copyright Act, 1957 and other intellectual-property laws: Manuals, software, marketing material, proprietary designs, and know-how may receive protection under applicable laws. Contractual confidentiality provisions also help protect commercially sensitive information.",
+              "Competition Act, 2002: Exclusivity, territorial restrictions, tie-in arrangements, and resale-related conditions may attract scrutiny where they cause or are likely to cause an appreciable adverse effect on competition. Their legality depends on the facts and applicable statutory standards.",
+              "Other applicable laws: Depending on the industry and structure, consumer protection, GST and income-tax rules, employment and labour laws, food-safety rules, data-protection requirements, and state or municipal licensing obligations may apply. India does not have a single comprehensive central statute governing every franchise relationship; multiple general and sector-specific laws operate together."
+          ]
+      },
+      {
+          "heading": "4. Disputes and Enforcement",
+          "paragraphs": [
+              "The agreement may provide for negotiation, mediation, arbitration under the Arbitration and Conciliation Act, 1996, or proceedings before competent courts. Remedies depend on the contract and the law and may include damages, injunctions, or other appropriate relief. Choice-of-law, jurisdiction, notice, and dispute-resolution clauses should be drafted consistently."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "5. Conclusion",
+          "paragraphs": [
+              "A franchise agreement creates the legal foundation for a continuing commercial relationship. It balances brand consistency and intellectual-property protection with the franchisee's need for clear operating rights and predictable obligations. Careful drafting, appropriate disclosures, and compliance with relevant Indian laws help both parties manage risk and build a sustainable franchise business.",
+              "Educational overview only; not a substitute for legal advice on a specific transaction."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "franchise-agreement",
   categorySlug: "corporate-commercial",
   categoryTitle: "Corporate & Commercial",
@@ -24,12 +70,6 @@ export const franchiseAgreementData = {
   introduction: {
     summary:
       "A franchise agreement is a legally binding contract under which one party, the franchisor, permits another party, the franchisee, to operate a business using specified trademarks, branding, business methods, products, or services. In return, the franchisee typically pays an initial franchise fee, ongoing royalties, or other agreed charges and follows the franchisor's operational standards.\n\nFranchising is widely used in food services, retail, education, hospitality, and other sectors. The agreement sets out the commercial relationship and helps protect the franchisor's brand while clarifying the franchisee's investment, operating rights, and obligations. It is distinct from a partnership or employment relationship, although the actual legal characterization depends on the terms and conduct of the parties.",
-    highlights: [
-      "Sets out commercial relationship, brand licensing, operating rights, and financial terms.",
-      "Identifies territory, exclusivity, duration, renewal, training, and operational standards.",
-      "Regulates quality control, IP protection, confidentiality, and post-termination duties.",
-      "Governed by general contract principles, intellectual property laws, and competition standards in India.",
-    ],
   },
 
   applicableLaws: [

@@ -2,6 +2,55 @@
 // Source: Memorandum_of_Understanding_Introduction_Legal_Framework.pdf
 
 export const memorandumOfUnderstandingData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction and Legal Framework in India",
+          "paragraphs": [],
+          "bullets": []
+      },
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "A Memorandum of Understanding (MoU) is a written document recording the mutual understanding, intentions, and proposed cooperation between two or more parties. It commonly describes the purpose of a relationship, expected contributions, responsibilities, timelines, and a framework for future negotiations. MoUs are used in business collaborations, joint projects, educational partnerships, government initiatives, and preliminary commercial arrangements. An MoU is not automatically a legally binding contract: its legal effect depends on the language used, the parties' intentions, and whether the essential requirements of a contract are satisfied."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Purpose and Common Provisions",
+          "paragraphs": [
+              "An MoU helps parties establish a shared understanding before entering a detailed agreement. Typical provisions identify the parties, objectives and scope, respective roles, resource commitments, duration, confidentiality, intellectual property, expenses, termination, governing law, and dispute-resolution arrangements. It may expressly distinguish non-binding statements of intent from binding clauses such as confidentiality, exclusivity, or cost allocation. Clear drafting reduces misunderstandings and helps avoid unintended contractual obligations."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Legal Framework in India",
+          "paragraphs": [],
+          "bullets": [
+              "Indian Contract Act, 1872: The principal law governing contractual enforceability. Under Section 10, an agreement becomes a contract when requirements such as free consent, competent parties, lawful consideration, and lawful object are satisfied and it is not expressly declared void. An MoU containing sufficiently certain promises and demonstrating an intention to create legal obligations may be enforceable, regardless of its title. Sections 2 and 29 are also relevant to identifying agreements and uncertainty.",
+              "Specific Relief Act, 1963: Where an MoU creates an enforceable contractual obligation, remedies may include specific performance or injunctions, subject to statutory requirements and exceptions. A merely aspirational MoU generally does not support these remedies.",
+              "Indian Stamp Act, 1899 and applicable State stamp laws: Stamp duty may arise based on the substance of the instrument and the relevant State law, rather than the label MoU. Inadequate stamping may affect admissibility until applicable duty and penalties are addressed.",
+              "Registration Act, 1908: If an instrument creates, declares, assigns, limits, or extinguishes rights in immovable property of the kind covered by Section 17, compulsory registration may apply. An ordinary preliminary MoU does not require registration merely because it is called an MoU.",
+              "Arbitration and Conciliation Act, 1996: A clearly drafted arbitration agreement within an MoU may be independently enforceable if statutory conditions are met."
+          ]
+      },
+      {
+          "heading": "4. Binding Versus Non-Binding Nature",
+          "paragraphs": [
+              "Courts examine the document as a whole, the certainty of its terms, the conduct of the parties, and their intention to be bound. Phrases such as subject to execution of a definitive agreement can indicate that the main transaction remains non-binding, but they do not necessarily negate separately binding obligations.",
+              "Parties should explicitly identify which provisions are binding and which are expressions of future intent."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "5. Conclusion",
+          "paragraphs": [
+              "A Memorandum of Understanding is a useful tool for structuring cooperation and preliminary negotiations. In India, its enforceability depends on substance, not nomenclature. Careful drafting, clear treatment of binding clauses, and attention to stamping, registration, and dispute-resolution requirements help protect the parties and reduce legal uncertainty."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "memorandum-of-understanding-mou",
   categorySlug: "business-contracts-agreements",
   categoryTitle: "Business Contracts & Agreements",
@@ -24,12 +73,6 @@ export const memorandumOfUnderstandingData = {
   introduction: {
     summary:
       "A Memorandum of Understanding (MoU) is a written document recording the mutual understanding, intentions, and proposed cooperation between two or more parties. It commonly describes the purpose of a relationship, expected contributions, responsibilities, timelines, and a framework for future negotiations. MoUs are used in business collaborations, joint projects, educational partnerships, government initiatives, and preliminary commercial arrangements. An MoU is not automatically a legally binding contract: its legal effect depends on the language used, the parties’ intentions, and whether the essential requirements of a contract are satisfied.\n\nAn MoU helps parties establish a shared understanding before entering a detailed agreement. Typical provisions identify the parties, objectives and scope, respective roles, resource commitments, duration, confidentiality, intellectual property, expenses, termination, governing law, and dispute-resolution arrangements. It may expressly distinguish non-binding statements of intent from binding clauses such as confidentiality, exclusivity, or cost allocation.",
-    highlights: [
-      "Records mutual intent, resource commitments, timelines, and collaboration roadmap.",
-      "Distinguishes non-binding commercial intent from legally binding confidentiality and exclusivity.",
-      "Enforceability depends on substance, certainty of promises, and intent to create legal obligations (Section 10 ICA).",
-      "Reduces legal uncertainty prior to executing definitive commercial agreements.",
-    ],
   },
 
   applicableLaws: [

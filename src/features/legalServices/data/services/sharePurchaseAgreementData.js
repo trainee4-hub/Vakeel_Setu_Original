@@ -1,4 +1,56 @@
 export const sharePurchaseAgreementData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "A Share Purchase Agreement (SPA) is a legally binding contract under which a seller agrees to transfer shares in a company to a buyer for an agreed consideration, subject to specified terms and conditions. It identifies the shares, purchase price, closing process, representations, warranties, indemnities and obligations of the parties. An SPA is commonly used in private-company acquisitions, investment exits and transfers of controlling or minority interests."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Purpose and Essential Provisions",
+          "paragraphs": [
+              "The agreement creates certainty about what is being sold, the consideration and when ownership will transfer. Key provisions typically address the identity and number of shares; price and payment mechanism; conditions precedent; due diligence; regulatory and corporate approvals; warranties regarding title, liabilities and compliance; indemnities and liability limits; confidentiality; termination; governing law; and dispute resolution. Completion usually requires the agreed transfer instruments, applicable stamp duty, and updates to corporate records."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Legal Framework in India",
+          "paragraphs": [],
+          "bullets": [
+              "Indian Contract Act, 1872: General rules on offer, acceptance, lawful consideration, capacity, free consent, enforceability and breach govern contractual obligations under an SPA.",
+              "Companies Act, 2013: Share transfers are subject to the applicable provisions, including Section 56 concerning transfer and transmission of securities, the company's articles of association and relevant corporate approvals. Private companies may impose transfer restrictions through their articles.",
+              "Companies (Share Capital and Debentures) Rules, 2014: These rules prescribe procedural requirements for certain share transfers and instruments, where applicable.",
+              "Stamp laws: Applicable stamp duty must be considered for the transfer of securities and related instruments; the treatment depends on the transaction structure and prevailing law."
+          ]
+      },
+      {
+          "heading": "4. Other Applicable Regulations",
+          "paragraphs": [],
+          "bullets": [
+              "SEBI regulations: For listed companies, securities-market rules may apply, including disclosure requirements and the SEBI (Substantial Acquisition of Shares and Takeovers) Regulations, 2011, where relevant.",
+              "Foreign Exchange Management Act, 1999 (FEMA): Cross-border transfers involving residents and non-residents must comply with foreign investment rules, pricing guidelines, sectoral restrictions and reporting requirements, as applicable.",
+              "Competition Act, 2002: Acquisitions meeting prescribed thresholds may require review or approval by the Competition Commission of India before completion. Tax consequences, including capital gains and withholding obligations, should also be evaluated."
+          ]
+      },
+      {
+          "heading": "5. Enforcement and Dispute Resolution",
+          "paragraphs": [
+              "If a party breaches the SPA, remedies may include damages under the Indian Contract Act and, where legally available, specific performance or injunctive relief under the Specific Relief Act, 1963. Parties often choose arbitration under the Arbitration and Conciliation Act, 1996, or competent courts. A dispute-resolution clause should clearly specify jurisdiction, seat of arbitration where applicable, and governing law."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "6. Conclusion",
+          "paragraphs": [
+              "A well-drafted Share Purchase Agreement allocates risks, records commercial expectations and provides an enforceable framework for transferring ownership. Its effectiveness depends not only on contractual drafting but also on compliance with company law, securities regulation, foreign exchange rules, taxation and stamp requirements relevant to the particular transaction.",
+              "Educational overview only; specific transactions require advice based on the company, parties and current applicable law."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "share-purchase-agreement",
   categorySlug: "business-contracts-agreements",
   categoryTitle: "Business Contracts & Agreements",
@@ -21,12 +73,6 @@ export const sharePurchaseAgreementData = {
   introduction: {
     summary:
       "A Share Purchase Agreement (SPA) is a definitive legal contract governing the sale and transfer of shares in a company from an existing shareholder (the seller) to a purchaser. In Indian corporate and M&A practice, the SPA serves as the primary transaction document detailing the purchase price, transaction structure, condition precedents, representations and warranties, indemnities, closing actions and post-closing obligations.",
-    highlights: [
-      "Sets out purchase price mechanics, escrow arrangements, and statutory Conditions Precedent (CPs).",
-      "Comprehensive representations and warranties covering capitalization, financial statements, tax, and litigation.",
-      "Structured indemnification framework with de minimis thresholds, liability caps, and survival periods.",
-      "Strict compliance with Section 56 of Companies Act, 2013, FEMA FDI pricing regulations, and Form FC-TRS filings.",
-    ],
   },
 
   applicableLaws: [

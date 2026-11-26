@@ -2,6 +2,63 @@
 // Source: Eviction_Notice_Introduction_Legal_Framework.pdf
 
 export const evictionNoticeData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction",
+          "paragraphs": [
+              "An eviction notice is a formal written communication by a landlord or other legally entitled person asking an occupant or tenant to vacate premises, commonly because of termination of tenancy, rent default, breach of agreed conditions, or another legally recognised ground. In India, a notice is often an important preliminary step before seeking possession through the appropriate court or rent authority. A notice itself does not ordinarily authorise a landlord to forcibly remove an occupant."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Purpose and Importance",
+          "paragraphs": [
+              "The notice communicates the grounds for termination or recovery of possession, identifies the property, specifies the action required and applicable notice period, and creates a record that the recipient was informed. Proper notice can reduce disputes, allow a tenant to remedy a breach where the law permits, and support subsequent proceedings. The notice period and required contents depend on the tenancy, governing statute and circumstances."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Legal Framework in India",
+          "paragraphs": [],
+          "bullets": [
+              "Transfer of Property Act, 1882: Sections 106 and 111 are relevant to termination of certain leases. Where section 106 applies and there is no contrary contract or local law, a lease for purposes other than agriculture or manufacturing is generally terminable by 15 days' written notice; agriculture or manufacturing leases generally require six months' notice. The period runs from receipt of notice. These are default rules, not universal eviction timelines.",
+              "State rent-control and tenancy laws: State-specific statutes may prescribe protected grounds for eviction, notice requirements, special forums, and tenant safeguards. Such special laws may override or modify the general position under the Transfer of Property Act. The applicable state law must therefore be checked before issuing a notice."
+          ]
+      },
+      {
+          "heading": "Other Relevant Legal Provisions",
+          "paragraphs": [],
+          "bullets": [
+              "Registration Act, 1908: Certain leases, including leases from year to year or for a term exceeding one year, generally require registration.",
+              "Indian Contract Act, 1872: Relevant to valid contractual obligations and breaches, subject to mandatory tenancy protections.",
+              "Code of Civil Procedure, 1908: May govern civil suits for possession and execution of decrees where the dispute is before a civil court. Special rent forums may follow their own procedures."
+          ]
+      },
+      {
+          "heading": "Essential Contents of an Eviction Notice",
+          "paragraphs": [
+              "A well-drafted notice generally states the landlord's and tenant's names; complete premises address; tenancy or lease details; the legally sustainable reason for termination; any outstanding dues and supporting particulars; the applicable statutory or contractual notice period; the date by which possession is sought; and the sender's signature and contact details. It should be served through a legally acceptable method, with proof of delivery preserved."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Procedure and Remedies",
+          "paragraphs": [
+              "Eviction Notice | Introduction & Legal Framework 2 First, review the lease and identify the applicable state tenancy law. Next, verify the ground for eviction and calculate the correct notice period. Serve the notice and retain documentary evidence. If the occupant does not vacate, the landlord may need to approach the competent court or rent authority for an eviction or possession order. The occupant may contest the notice or proceedings on grounds such as defective notice, lack of a lawful eviction ground, payment disputes, or statutory protection. Self-help measures such as changing locks, cutting essential utilities or using force may be unlawful."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Conclusion",
+          "paragraphs": [
+              "An eviction notice is a legal communication, not an eviction order. Its validity depends on the governing tenancy law, the underlying lease, the ground asserted, and compliance with service and procedural requirements. Because rent and eviction rules vary considerably across Indian states, any notice intended for actual use should be tailored to the location and facts of the tenancy.",
+              "Educational overview only; not a substitute for advice on a specific tenancy or state law."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "eviction-notice",
   categorySlug: "real-estate-property-matters",
   categoryTitle: "Real Estate & Property Matters",
@@ -24,12 +81,6 @@ export const evictionNoticeData = {
   introduction: {
     summary:
       "An eviction notice is a formal written communication by a landlord or other legally entitled person asking an occupant or tenant to vacate premises, commonly because of termination of tenancy, rent default, breach of agreed conditions, or another legally recognised ground. In India, a notice is often an important preliminary step before seeking possession through the appropriate court or rent authority. A notice itself does not ordinarily authorise a landlord to forcibly remove an occupant.\n\nThe notice communicates the grounds for termination or recovery of possession, identifies the property, specifies the action required and applicable notice period, and creates a record that the recipient was informed. Proper notice can reduce disputes, allow a tenant to remedy a breach where the law permits, and support subsequent proceedings. The notice period and required contents depend on the tenancy, governing statute and circumstances.",
-    highlights: [
-      "Formal statutory demand asking a tenant to vacate upon lease expiry, non-payment, or breach.",
-      "Sets statutory timeline (commonly 15 days or 6 months under Section 106 TP Act, subject to contract/local law).",
-      "Creates essential documentary evidence for subsequent Rent Court or civil court proceedings.",
-      "Served through verifiable postal/courier channels with proof of delivery preserved.",
-    ],
   },
 
   applicableLaws: [

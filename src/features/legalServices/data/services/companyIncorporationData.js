@@ -2,6 +2,49 @@
 // Primary Statutes: Companies Act, 2013 & Companies (Incorporation) Rules, 2014
 
 export const companyIncorporationData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "Company incorporation is the legal process through which a business organisation is registered as a company under the laws in force in India. Upon registration, the company becomes a separate legal entity distinct from its shareholders and directors. It can own property, enter into contracts, sue and be sued in its own name, and continue to exist despite changes in its membership. This feature is commonly known as separate legal personality and perpetual succession. Incorporation also creates statutory duties relating to governance, accounting, disclosures, filings and regulatory compliance.",
+              "Under the Companies Act, 2013, a company may be incorporated for a lawful purpose in different forms, including a One Person Company (OPC), a private company or a public company. Generally, an OPC requires one member, a private company requires at least two members, and a public company requires at least seven members, subject to the conditions prescribed by the Act. The choice of structure depends on the proposed business, ownership, funding requirements and applicable regulatory conditions."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Applicable Laws and Legal Provisions",
+          "paragraphs": [],
+          "bullets": [
+              "Companies Act, 2013: This is the principal legislation governing the formation, registration, management and regulation of companies in India. Important provisions include Section 3 (formation of a company), Section 4 (Memorandum of Association), Section 5 (Articles of Association), Section 7 (incorporation), Section 9 (effect of registration), Section 10 (binding effect of MOA and AOA), and Section 12 (registered office of the company).",
+              "Companies (Incorporation) Rules, 2014: These rules prescribe the procedural requirements, forms, declarations, documents and manner of filing applications for incorporation. They operate alongside the Companies Act, 2013 and have been amended from time to time.",
+              "Indian Contract Act, 1872: Contract law is relevant to agreements entered into by the company after incorporation and, where applicable, to arrangements made by promoters before incorporation. A company must act through persons authorised under law and its constitutional documents.",
+              "Other applicable legislations: Depending on the nature, size and activities of the business, a company may also need to comply with the Foreign Exchange Management Act, 1999 (including applicable foreign investment rules), the Goods and Services Tax laws, applicable labour and employment laws, the Competition Act, 2002, environmental laws, intellectual property laws and sector-specific regulations. These laws do not all apply to every company; applicability depends on the facts and business activity."
+          ]
+      },
+      {
+          "heading": "3. Key Requirements and Incorporation Procedure",
+          "paragraphs": [
+              "The incorporation process is generally completed electronically through the Ministry of Corporate Affairs (MCA) portal and the Registrar of Companies (ROC). The principal steps are as follows: "
+          ],
+          "bullets": [
+              "Selection and reservation of name: The proposed name must comply with the Companies Act and the Companies (Incorporation) Rules, and should not be identical with or too similar to an existing company or otherwise prohibited. ",
+              "Preparation of constitutional documents: The Memorandum of Association (MOA) sets out the company's fundamental details and objects, while the Articles of Association (AOA) contain rules for its internal management. ",
+              "Digital filing through SPICe+: The incorporation application is filed in the prescribed electronic form, commonly SPICe+ (INC-32), with linked forms and supporting documents. The integrated process may also facilitate services such as DIN, PAN and TAN allotment and certain other registrations, subject to eligibility and applicable requirements. ",
+              "Submission of particulars and declarations: Details of subscribers, proposed directors, registered office, identity and address proofs, consents and statutory declarations are submitted in the prescribed manner. ",
+              "Scrutiny and certificate: The ROC examines the application and, if statutory requirements are satisfied, issues the Certificate of Incorporation and Corporate Identity Number (CIN)."
+          ]
+      },
+      {
+          "heading": "4. Legal Effect and Post-Incorporation Compliance",
+          "paragraphs": [
+              "From the date stated in the Certificate of Incorporation, the company comes into existence as a body corporate under Section 9 of the Companies Act, 2013. It acquires a legal identity separate from its members and may exercise the powers of an incorporated company. The company must thereafter maintain statutory registers and books of account, hold required meetings, make annual and event-based filings with the ROC, and comply with tax, employment and other laws applicable to its operations. It must also establish and maintain its registered office in accordance with Section 12 and the prescribed rules.",
+              "Incorporation is therefore not merely a registration formality; it is the creation of a legal entity that must operate within the framework of corporate law and all other legislation applicable to its business."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "company-incorporation",
   categorySlug: "government-registration-certificates",
   categoryTitle: "Government Registration & Certificates",
@@ -24,12 +67,6 @@ export const companyIncorporationData = {
   introduction: {
     summary:
       "Company incorporation is the formal legal process through which an enterprise is constituted as an artificial juridical person under the Companies Act, 2013, administered by the Ministry of Corporate Affairs (MCA). Upon issuance of the Certificate of Incorporation by the Registrar of Companies (ROC), the company acquires separate legal personality distinct from its shareholders and directors.\n\nThis legal status confers perpetual succession, the capacity to own assets, execute contracts, and institute or defend legal proceedings in its own corporate name. In India, corporate incorporation is executed through the integrated SPICe+ (INC-32) web platform, which unifies name reservation, Director Identification Number (DIN) allotment, incorporation filing, tax registration (PAN and TAN), and statutory employee welfare registrations (EPFO and ESIC) into a streamlined single-window workflow.",
-    highlights: [
-      "Confers separate legal personality, perpetual succession, and limited liability protection.",
-      "Eligible business structures: Private Limited Company (min 2 members), One Person Company (1 member), Public Limited Company (min 7 members).",
-      "Seamless single-window integration: DIN, PAN, TAN, EPFO, ESIC, and bank account setup via SPICe+.",
-      "Conclusive evidence of company creation via official Certificate of Incorporation containing unique 21-digit CIN.",
-    ],
   },
 
   applicableLaws: [

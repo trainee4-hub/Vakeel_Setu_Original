@@ -46,7 +46,7 @@ const DocumentsRequiredGrid = ({ documents = [] }) => {
                   </div>
                 </div>
 
-                {/* Bottom Verified Tag */}
+                {/* Bottom Verified Tags (Static - No link) */}
                 <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-100/80 text-[10px] text-slate-400 font-semibold">
                   <span className="flex items-center gap-1">
                     <FiFileText className="text-slate-400" />

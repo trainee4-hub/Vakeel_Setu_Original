@@ -73,19 +73,14 @@ const LegalServicesIntakeSection = ({
             Don't let legal uncertainty cost you time, rights, or money. Discuss your matter {matterContext ? `for ${matterContext} ` : ""}directly with verified Bar Council-enrolled advocates across 450+ court jurisdictions in India over secure phone or HD video.
           </p>
 
-          {/* Live Online Advocates Badge + Action */}
+          {/* Rating Badge + Action */}
           <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
-            <div className="flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/60 px-4 py-1.5 text-xs font-medium text-slate-300 backdrop-blur-sm">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
-              </span>
-              <span className="font-bold text-white">180+ Advocates Online</span>
-              <span className="text-slate-600">•</span>
+            <div className="flex items-center gap-1.5 rounded-full border border-slate-800 bg-slate-900/60 px-4 py-1.5 text-xs font-medium text-slate-300 backdrop-blur-sm">
               <div className="flex items-center gap-1 text-amber-400">
                 <FiStar className="fill-amber-400 text-xs" />
                 <span className="font-bold text-white">4.9 / 5</span>
               </div>
+              <span className="text-slate-400 font-medium">• Highly Rated Legal Consultation</span>
             </div>
 
             <button

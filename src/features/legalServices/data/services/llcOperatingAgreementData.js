@@ -2,6 +2,74 @@
 // Source: LLC_Operating_Agreement_Foreign_Jurisdiction_Introduction_Legal_Framework.pdf
 
 export const llcOperatingAgreementData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction",
+          "paragraphs": [
+              "A Limited Liability Company (LLC) Operating Agreement is an internal governance contract among the members (owners) of an LLC. It sets out how the entity is managed, how profits and losses are allocated, what voting rights apply, and how membership interests may be transferred. In a foreign-jurisdiction context, the LLC is formed under the law of a country or state other than the parties' home jurisdiction. The agreement should therefore be drafted with reference to the particular law governing the LLC, rather than assuming that one universal LLC law applies."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Purpose and Importance",
+          "paragraphs": [
+              "The agreement clarifies the relationship between members and managers, reduces uncertainty, protects agreed commercial expectations, and establishes procedures for admission, withdrawal, disputes and dissolution. It may also help demonstrate that the LLC is operated as a separate legal entity. Limited liability, however, arises primarily from applicable entity law and is not absolute."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Common Provisions",
+          "paragraphs": [
+              "Typical clauses address capital contributions; ownership percentages; member-managed or manager-managed governance; voting and reserved matters; distributions; tax allocations where applicable; books and records; confidentiality; intellectual property; restrictions on transfer; buyouts; deadlock; indemnification; amendments; dissolution; and governing law and dispute resolution."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Legal Framework: Jurisdiction-Specific",
+          "paragraphs": [
+              "An LLC Operating Agreement is governed chiefly by the LLC statute of its place of formation, together with applicable contract law. For example, a Delaware LLC is principally governed by the Delaware Limited Liability Company Act (Title 6, Chapter 18 of the Delaware Code). Delaware law generally permits substantial contractual flexibility, but statutory mandatory provisions and public policy limits still apply. Other US states have different LLC statutes, and other countries may use different entity forms or terminology."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Formation, Registration and Internal Governance",
+          "paragraphs": [
+              "Formation usually requires filing a certificate or articles with the relevant registry and appointing a registered agent where required. The operating agreement typically supplements those filings and defines the internal relationship between members. Some jurisdictions recognize oral or implied agreements, but a carefully signed written agreement is strongly advisable. Filing the agreement publicly is not generally required for Delaware LLCs."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Cross-Border Legal and Regulatory Considerations",
+          "paragraphs": [
+              "Where members, assets, operations or investors are in different countries, additional rules may apply: foreign investment restrictions, tax residence and reporting, anti-money-laundering and beneficial-ownership requirements, sanctions, licensing, employment and data-protection laws. The law governing the LLC's internal affairs may differ from the law applicable to a separate commercial contract or local operations."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Indian Perspective",
+          "paragraphs": [
+              "For an Indian resident investing in or managing a foreign LLC, the applicable Indian framework may include the Foreign Exchange Management Act, 1999, and the overseas investment rules, regulations and directions, as amended. Indian tax and reporting obligations may also arise. A foreign LLC is not automatically equivalent to an Indian limited liability partnership (LLP), and the Indian LLP Act, 2008 does not govern an overseas LLC merely because an Indian person is a member."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Enforceability and Dispute Resolution",
+          "paragraphs": [
+              "A well-drafted agreement identifies the governing law, competent courts or arbitration forum, notice procedures and remedies. Enforcement depends on the applicable statute, contract principles, the precise wording and mandatory legal rules. Clauses on fiduciary duties, exculpation, indemnity and transfer restrictions should be checked carefully against the law of formation."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Conclusion",
+          "paragraphs": [
+              "An LLC Operating Agreement is a central document for allocating rights, duties and control within a foreign-formed LLC. Its effectiveness depends on tailoring the terms to the actual jurisdiction of formation and addressing cross-border compliance where relevant. Professional local legal and tax review is recommended before execution.",
+              "Educational overview only; not a jurisdiction-specific legal opinion. Laws and regulatory requirements may change."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "llc-operating-agreement-foreign-jurisdictions",
   categorySlug: "corporate-commercial",
   categoryTitle: "Corporate & Commercial",
@@ -24,12 +92,6 @@ export const llcOperatingAgreementData = {
   introduction: {
     summary:
       "A Limited Liability Company (LLC) Operating Agreement is an internal governance contract among the members (owners) of an LLC. It sets out how the entity is managed, how profits and losses are allocated, what voting rights apply, and how membership interests may be transferred. In a foreign-jurisdiction context, the LLC is formed under the law of a country or state other than the parties' home jurisdiction. The agreement should therefore be drafted with reference to the particular law governing the LLC, rather than assuming that one universal LLC law applies.\n\nThe agreement clarifies the relationship between members and managers, reduces uncertainty, protects agreed commercial expectations, and establishes procedures for admission, withdrawal, disputes and dissolution. It may also help demonstrate that the LLC is operated as a separate legal entity. Limited liability, however, arises primarily from applicable entity law and is not absolute.",
-    highlights: [
-      "Internal governance contract among members defining management, profit/loss allocation, and voting.",
-      "Governed primarily by the law of formation (e.g. Delaware LLC Act, Title 6, Chapter 18 of Delaware Code).",
-      "Addresses member-managed vs manager-managed structures, capital contributions, buyouts, and deadlock.",
-      "Indian residents investing or managing foreign LLCs must comply with FEMA overseas investment rules.",
-    ],
   },
 
   applicableLaws: [

@@ -2,6 +2,49 @@
 // Source: Consultancy_Agreement_Introduction_Legal_Framework.pdf
 
 export const consultancyAgreementData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction",
+          "paragraphs": [
+              "A Consultancy Agreement is a legally binding contract between a client and an independent consultant or consultancy firm for the provision of professional advice, expertise or specified services. It defines the nature of the engagement, the deliverables expected, the fees payable and the responsibilities of each party. Such agreements are common in management, technology, finance, marketing, legal-support and other professional service arrangements. A clear written agreement reduces misunderstandings and provides a basis for resolving disputes."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Purpose and Essential Terms",
+          "paragraphs": [
+              "A well-drafted Consultancy Agreement identifies the parties and describes the scope of services, deliverables, milestones, timelines, fees, taxes and reimbursement of expenses. It should address confidentiality, ownership and permitted use of intellectual property, data protection, standards of performance, conflicts of interest, liability, indemnities, termination, notices and dispute resolution. The agreement should also clarify whether the consultant is an independent contractor rather than an employee; however, the actual working relationship, not merely the label in the contract, determines its legal characterization."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Legal Framework in India",
+          "paragraphs": [],
+          "bullets": [
+              "Indian Contract Act, 1872: This is the principal framework governing formation, validity and enforcement. Section 10 sets out the essentials of a valid contract, including free consent, competent parties, lawful consideration and a lawful object. Provisions concerning performance, breach and compensation, including Sections 73 and 74, may be relevant when contractual obligations are not fulfilled.",
+              "Specific Relief Act, 1963: Depending on the facts and statutory limits, parties may seek remedies such as injunctions or specific performance. Personal-service obligations are not automatically specifically enforceable.",
+              "Intellectual property and confidentiality: The Copyright Act, 1957 and other applicable intellectual-property laws may affect ownership of reports, designs, software or other work product. Confidentiality duties are commonly created by contract and may be enforced through appropriate civil remedies.",
+              "Tax and regulatory compliance: The Income-tax Act, 1961 and applicable GST laws may affect tax deduction, invoicing and payments. Where personal data is processed, applicable data-protection requirements must also be considered. Sector-specific professional rules may apply to regulated consultancy services."
+          ]
+      },
+      {
+          "heading": "Dispute Resolution and Enforcement",
+          "paragraphs": [
+              "Parties commonly provide for negotiation, mediation, arbitration or court proceedings. Where arbitration is chosen, the Arbitration and Conciliation Act, 1996 governs the process, subject to its applicability. The agreement should specify governing law, jurisdiction or seat of arbitration, notice requirements and termination consequences. Remedies for breach depend on the contract, evidence, applicable law and the nature of the loss."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "Conclusion",
+          "paragraphs": [
+              "A Consultancy Agreement gives legal certainty to a professional engagement by recording expectations, allocating risks and establishing remedies. Under Indian law, its enforceability primarily depends on general contract principles and any applicable special legislation. Carefully tailored terms help protect both the client and the consultant.",
+              "Educational overview only; not a substitute for legal advice on a particular agreement."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "consultancy-agreement",
   categorySlug: "business-contracts-agreements",
   categoryTitle: "Business Contracts & Agreements",
@@ -24,12 +67,6 @@ export const consultancyAgreementData = {
   introduction: {
     summary:
       "A Consultancy Agreement is a legally binding contract between a client and an independent consultant or consultancy firm for the provision of professional advice, expertise or specified services. It defines the nature of the engagement, the deliverables expected, the fees payable and the responsibilities of each party. Such agreements are common in management, technology, finance, marketing, legal-support and other professional service arrangements. A clear written agreement reduces misunderstandings and provides a basis for resolving disputes.\n\nA well-drafted Consultancy Agreement identifies the parties and describes the scope of services, deliverables, milestones, timelines, fees, taxes and reimbursement of expenses. It should address confidentiality, ownership and permitted use of intellectual property, data protection, standards of performance, conflicts of interest, liability, indemnities, termination, notices and dispute resolution. The agreement should also clarify whether the consultant is an independent contractor rather than an employee; however, the actual working relationship, not merely the label in the contract, determines its legal characterization.",
-    highlights: [
-      "Defines scope of services, deliverables, milestone timelines, professional fees, and tax deductions.",
-      "Protects proprietary IP, confidentiality, trade secrets, and client data.",
-      "Clarifies independent contractor status versus employment relationship.",
-      "Establishes enforceable indemnities, limitation of liability, and dispute resolution mechanisms.",
-    ],
   },
 
   applicableLaws: [

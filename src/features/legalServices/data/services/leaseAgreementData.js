@@ -2,6 +2,65 @@
 // Source: Lease_Agreement_Introduction_Legal_Framework.pdf
 
 export const leaseAgreementData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction and Legal Framework (India)",
+          "paragraphs": [],
+          "bullets": []
+      },
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "A lease agreement is a legal arrangement under which a lessor grants a lessee the right to enjoy immovable property for a specified period, or in perpetuity, in consideration of rent, premium, or other agreed value. Unlike a sale, a lease ordinarily transfers a limited right to possess and use the property, not ownership. Lease agreements are common for residential homes, offices, retail shops, warehouses, and commercial premises."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Purpose and Essential Terms",
+          "paragraphs": [
+              "A properly drafted lease identifies the parties and premises, permitted use, duration, commencement date, rent and payment schedule, security deposit, maintenance obligations, utilities, repairs, subletting restrictions, renewal, termination, notice requirements, and dispute-resolution mechanism. It should also address handover condition, alterations, default, and return of possession. Clear terms reduce uncertainty and help prevent landlord-tenant disputes."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Transfer of Property Act, 1882",
+          "paragraphs": [
+              "Section 105 defines a lease of immovable property. Section 106 provides default rules concerning duration and notice to quit where there is no contract or local law to the contrary. Section 107 deals with the manner of making leases: leases from year to year, for a term exceeding one year, or reserving yearly rent require a registered instrument. Sections 108 and 111 address the rights and liabilities of lessors and lessees and the determination of leases, respectively. The application of these provisions may depend on special state legislation."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "4. Registration and Stamp Duty",
+          "paragraphs": [
+              "Under Section 17(1)(d) of the Registration Act, 1908, leases of immovable property from year to year, for a term exceeding one year, or reserving yearly rent are generally compulsorily registrable. Section 49 limits the use of an unregistered document that is required to be registered, subject to statutory exceptions. Stamp duty is governed by the applicable central or state stamp legislation and varies by state, term, and transaction. Parties should verify local rates, registration requirements, and execution formalities."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "5. State Rent and Tenancy Laws",
+          "paragraphs": [
+              "Landlord-tenant relationships may also be governed by state-specific rent control or tenancy legislation, which can regulate rent, eviction, deposits, and dispute forums. The Model Tenancy Act, 2021 is a model for states and Union Territories to consider; it is not automatically applicable throughout India. The relevant state law and any applicable exemptions must therefore be checked before drafting or enforcing a lease."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "6. Contractual Validity and Enforcement",
+          "paragraphs": [
+              "The Indian Contract Act, 1872 supplies general principles of contractual validity, including free consent, competent parties, lawful consideration, and lawful object. A lease may be enforced through appropriate civil proceedings or statutory tenancy mechanisms, depending on the property and jurisdiction. Remedies may include recovery of rent, damages, possession, or other relief subject to the governing law and agreement. Unlawful self-help eviction should be avoided."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "7. Conclusion",
+          "paragraphs": [
+              "A lease agreement is a foundational legal document for defining property-use rights and responsibilities. Its effectiveness depends on accurate drafting, proper stamping and registration where required, and compliance with the Transfer of Property Act and applicable state tenancy laws. Parties should obtain jurisdiction-specific legal advice before signing.",
+              "Educational overview only; not a substitute for advice on a particular transaction or state law."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "lease-agreement",
   categorySlug: "property-real-estate",
   categoryTitle: "Property & Real Estate",
@@ -24,12 +83,6 @@ export const leaseAgreementData = {
   introduction: {
     summary:
       "A lease agreement is a legal arrangement under which a lessor grants a lessee the right to enjoy immovable property for a specified period, or in perpetuity, in consideration of rent, premium, or other agreed value. Unlike a sale, a lease ordinarily transfers a limited right to possess and use the property, not ownership. Lease agreements are common for residential homes, offices, retail shops, warehouses, and commercial premises.\n\nA properly drafted lease identifies the parties and premises, permitted use, duration, commencement date, rent and payment schedule, security deposit, maintenance obligations, utilities, repairs, subletting restrictions, renewal, termination, notice requirements, and dispute-resolution mechanism. It should also address handover condition, alterations, default, and return of possession. Clear terms reduce uncertainty and help prevent landlord–tenant disputes.",
-    highlights: [
-      "Transfers lawful right to possess and use property without transferring title or ownership.",
-      "Defines rent escalation, security deposit, lock-in period, maintenance, and permitted use.",
-      "Leases exceeding one year or reserving yearly rent are compulsorily registrable (Section 107 TPA / Section 17 Registration Act).",
-      "Subject to state-specific rent control and urban premises tenancy legislation.",
-    ],
   },
 
   applicableLaws: [

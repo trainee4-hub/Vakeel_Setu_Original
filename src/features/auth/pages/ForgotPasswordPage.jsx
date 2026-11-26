@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "@app/layouts/Navbar";
 
 const ForgotPasswordPage = () => {
   const navigate = useNavigate();
@@ -210,11 +209,6 @@ const ForgotPasswordPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-
-      {/* =========================
-          NAVBAR
-      ========================= */}
-      <Navbar />
 
       {/* =========================
           PAGE CONTENT

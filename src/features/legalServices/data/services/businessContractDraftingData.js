@@ -2,6 +2,64 @@
 // Source: Business_Contract_Drafting_Introduction_Legal_Framework.pdf
 
 export const businessContractDraftingData = {
+  // 100% Verbatim Content Model (Prompt 3) - Zero Invented Sections, Zero Missing Text
+  sections: [
+      {
+          "heading": "Introduction and Legal Framework in India",
+          "paragraphs": [],
+          "bullets": []
+      },
+      {
+          "heading": "1. Introduction",
+          "paragraphs": [
+              "Business contract drafting is the process of preparing written agreements that clearly define the rights, duties, responsibilities and expectations of parties engaged in commercial transactions. Contracts are used for the sale of goods, supply of services, partnerships, consultancy, distribution, licensing and many other business relationships. A well-drafted contract reduces uncertainty, allocates risks and provides a reliable framework for performance and dispute resolution."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "2. Purpose and Importance",
+          "paragraphs": [
+              "Effective drafting identifies the contracting parties, defines the subject matter, records commercial terms and explains what happens if obligations are not fulfilled. It helps prevent misunderstandings over pricing, payment, delivery, quality, confidentiality and termination. Clear and lawful language can also make a contract easier to enforce."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "3. Essential Clauses",
+          "paragraphs": [
+              "Common provisions include identification of parties; scope of work or goods; consideration and payment terms; performance milestones; representations and warranties; confidentiality and intellectual property; liability and indemnity; force majeure; term, renewal and termination; governing law; dispute resolution; and notices. Clauses should be tailored to the transaction rather than copied without review."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "4. Legal Framework in India",
+          "paragraphs": [
+              "The Indian Contract Act, 1872 is the principal legislation governing the formation and enforceability of contracts. Section 10 generally requires free consent, competent parties, lawful consideration and lawful object, subject to other legal requirements. Sections 13-19 address consent and factors that may affect its validity, while provisions concerning performance, breach and compensation guide contractual remedies. A business agreement must also comply with any applicable sector-specific law."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "5. Other Relevant Laws",
+          "paragraphs": [
+              "The Specific Relief Act, 1963 governs remedies such as specific performance and injunctions in appropriate cases. The Arbitration and Conciliation Act, 1996 provides a framework for arbitration agreements and proceedings. The Information Technology Act, 2000 recognizes certain electronic records and electronic signatures, subject to statutory exceptions. The Indian Stamp Act, 1899 and relevant state stamp laws may affect stamp duty; registration requirements depend on the nature of the document. The Companies Act, 2013 may also be relevant when companies enter into agreements."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "6. Drafting and Enforcement Considerations",
+          "paragraphs": [
+              "Drafting should use precise definitions, consistent terminology and measurable obligations. Parties should verify authority to sign, required approvals, applicable taxes, stamp duty and whether registration is necessary. A dispute-resolution clause should identify the forum and procedure. Not every breach automatically entitles a party to every requested remedy: courts and tribunals apply the contract and relevant law to the facts."
+          ],
+          "bullets": []
+      },
+      {
+          "heading": "7. Conclusion",
+          "paragraphs": [
+              "Business contract drafting is an essential part of sound commercial practice. A carefully structured agreement protects legitimate interests, supports business continuity and provides clarity if disagreements arise. Because enforceability depends on the transaction and applicable law, significant contracts should be reviewed by a qualified legal professional."
+          ],
+          "bullets": []
+      }
+  ],
+
   serviceSlug: "business-contract-drafting",
   categorySlug: "business-contracts-agreements",
   categoryTitle: "Business Contracts & Agreements",
@@ -24,12 +82,6 @@ export const businessContractDraftingData = {
   introduction: {
     summary:
       "Business contract drafting is the process of preparing written agreements that clearly define the rights, duties, responsibilities and expectations of parties engaged in commercial transactions. Contracts are used for the sale of goods, supply of services, partnerships, consultancy, distribution, licensing and many other business relationships. A well-drafted contract reduces uncertainty, allocates risks and provides a reliable framework for performance and dispute resolution.\n\nEffective drafting identifies the contracting parties, defines the subject matter, records commercial terms and explains what happens if obligations are not fulfilled. It helps prevent misunderstandings over pricing, payment, delivery, quality, confidentiality and termination. Clear and lawful language can also make a contract easier to enforce.",
-    highlights: [
-      "Defines rights, duties, pricing, delivery, and performance milestones in commercial transactions.",
-      "Reduces commercial uncertainty and allocates business risks between parties.",
-      "Ensures validity under Section 10 of the Indian Contract Act, 1872.",
-      "Tailors dispute resolution, governing law, and limitation of liability clauses.",
-    ],
   },
 
   applicableLaws: [
