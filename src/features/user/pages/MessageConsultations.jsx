@@ -320,13 +320,24 @@ const MessageConsultations = ({ user, onBack, onFindLawyer }) => {
                                         <div className="flex items-start gap-3">
                                             <div className="relative shrink-0">
                                                 <div className="size-12 rounded-xl bg-slate-100 overflow-hidden border border-slate-200">
-                                                    {otherParty?.profileUrl || otherParty?.personalDetails?.profileUrl || otherParty?.avatar?.url ? (
-                                                        <img src={getSmallImageUrl(otherParty?.profileUrl || otherParty?.personalDetails?.profileUrl || otherParty?.avatar?.url)} alt={otherName} className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <div className="w-full h-full flex items-center justify-center text-slate-400">
-                                                            <span className="material-symbols-outlined text-xl">person</span>
-                                                        </div>
-                                                    )}
+                                                    {(otherParty?.smallPhotoUrl || otherParty?.mediumPhotoUrl || otherParty?.profileUrl || otherParty?.personalDetails?.profileUrl || otherParty?.avatar?.url) ? (
+                                                        <img
+                                                            src={getSmallImageUrl(otherParty?.smallPhotoUrl || otherParty?.mediumPhotoUrl || otherParty?.profileUrl || otherParty?.personalDetails?.profileUrl || otherParty?.avatar?.url) || "/default-avatar.png"}
+                                                            alt={otherName}
+                                                            className="w-full h-full object-cover"
+                                                            onError={(e) => {
+                                                                e.currentTarget.style.display = "none";
+                                                                const fallback = e.currentTarget.nextElementSibling;
+                                                                if (fallback) fallback.style.display = "flex";
+                                                            }}
+                                                        />
+                                                    ) : null}
+                                                    <div
+                                                        style={{ display: (otherParty?.smallPhotoUrl || otherParty?.mediumPhotoUrl || otherParty?.profileUrl || otherParty?.personalDetails?.profileUrl || otherParty?.avatar?.url) ? "none" : "flex" }}
+                                                        className="w-full h-full items-center justify-center text-slate-400"
+                                                    >
+                                                        <span className="material-symbols-outlined text-xl">person</span>
+                                                    </div>
                                                 </div>
                                                 {isActive && (
                                                     <div className="absolute -bottom-1 -right-1 size-3 bg-emerald-500 border-2 border-white rounded-full"></div>
@@ -370,17 +381,24 @@ const MessageConsultations = ({ user, onBack, onFindLawyer }) => {
                                     <div className="flex items-center justify-between gap-4">
                                         <div className="flex items-center gap-3 min-w-0">
                                             <div className="size-12 rounded-xl bg-slate-100 overflow-hidden border border-slate-200 shrink-0">
-                                                {getOtherParty(selectedConsultation)?.profileUrl || getOtherParty(selectedConsultation)?.personalDetails?.profileUrl || getOtherParty(selectedConsultation)?.avatar?.url ? (
+                                                {(getOtherParty(selectedConsultation)?.smallPhotoUrl || getOtherParty(selectedConsultation)?.mediumPhotoUrl || getOtherParty(selectedConsultation)?.profileUrl || getOtherParty(selectedConsultation)?.personalDetails?.profileUrl || getOtherParty(selectedConsultation)?.avatar?.url) ? (
                                                     <img
-                                                        src={getSmallImageUrl(getOtherParty(selectedConsultation)?.profileUrl || getOtherParty(selectedConsultation)?.personalDetails?.profileUrl || getOtherParty(selectedConsultation)?.avatar?.url)}
+                                                        src={getSmallImageUrl(getOtherParty(selectedConsultation)?.smallPhotoUrl || getOtherParty(selectedConsultation)?.mediumPhotoUrl || getOtherParty(selectedConsultation)?.profileUrl || getOtherParty(selectedConsultation)?.personalDetails?.profileUrl || getOtherParty(selectedConsultation)?.avatar?.url) || "/default-avatar.png"}
                                                         alt={getOtherParty(selectedConsultation)?.name || 'User'}
                                                         className="w-full h-full object-cover"
+                                                        onError={(e) => {
+                                                            e.currentTarget.style.display = "none";
+                                                            const fallback = e.currentTarget.nextElementSibling;
+                                                            if (fallback) fallback.style.display = "flex";
+                                                        }}
                                                     />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-slate-400">
-                                                        <span className="material-symbols-outlined text-xl">person</span>
-                                                    </div>
-                                                )}
+                                                ) : null}
+                                                <div
+                                                    style={{ display: (getOtherParty(selectedConsultation)?.smallPhotoUrl || getOtherParty(selectedConsultation)?.mediumPhotoUrl || getOtherParty(selectedConsultation)?.profileUrl || getOtherParty(selectedConsultation)?.personalDetails?.profileUrl || getOtherParty(selectedConsultation)?.avatar?.url) ? "none" : "flex" }}
+                                                    className="w-full h-full items-center justify-center text-slate-400"
+                                                >
+                                                    <span className="material-symbols-outlined text-xl">person</span>
+                                                </div>
                                             </div>
                                             <div className="min-w-0">
                                                 <h3 className="text-lg font-bold text-slate-900 truncate">

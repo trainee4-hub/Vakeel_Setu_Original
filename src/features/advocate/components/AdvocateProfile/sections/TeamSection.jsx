@@ -56,6 +56,8 @@ function TeamMemberCard({ mate, onViewMember }) {
   const memberId = mate?.id || mate?._id || mate?.advocateId;
   const name = mate?.fullName || mate?.name || "Advocate";
   const photo = getSmallImageUrl(
+    mate?.smallPhotoUrl ||
+    mate?.mediumPhotoUrl ||
     mate?.profilePhotoUrl ||
     mate?.profileImage ||
     mate?.avatar ||

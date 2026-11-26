@@ -458,21 +458,38 @@ const Navbar = () => {
                   {/* PROFILE IMAGE */}
 
                   <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-slate-200 shadow-md">
-                    {user?.profileUrl ||
+                    {user?.smallPhotoUrl ||
+                      user?.mediumPhotoUrl ||
+                      user?.profileUrl ||
                       user?.profilePhotoUrl ||
                       user?.avatar?.url ? (
                       <img
                         src={getSmallImageUrl(
+                          user?.smallPhotoUrl ||
+                          user?.mediumPhotoUrl ||
                           user?.profileUrl ||
                           user?.profilePhotoUrl ||
                           user?.avatar?.url
-                        )}
+                        ) || "/default-avatar.png"}
                         alt="Profile"
                         className="h-full w-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                          const fallback = e.currentTarget.nextElementSibling;
+                          if (fallback) fallback.style.display = "flex";
+                        }}
                       />
-                    ) : (
+                    ) : null}
+                    <div
+                      style={{
+                        display: (user?.smallPhotoUrl || user?.mediumPhotoUrl || user?.profileUrl || user?.profilePhotoUrl || user?.avatar?.url)
+                          ? "none"
+                          : "flex",
+                      }}
+                      className="h-full w-full items-center justify-center"
+                    >
                       <FaRegUser className="text-[19px] text-slate-500" />
-                    )}
+                    </div>
                   </div>
 
                   {/* USER NAME */}
@@ -754,21 +771,38 @@ const Navbar = () => {
 
                   <div className="flex items-center gap-3 rounded-xl bg-white p-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-200">
-                      {user?.profileUrl ||
+                      {user?.smallPhotoUrl ||
+                        user?.mediumPhotoUrl ||
+                        user?.profileUrl ||
                         user?.profilePhotoUrl ||
                         user?.avatar?.url ? (
                         <img
                           src={getSmallImageUrl(
+                            user?.smallPhotoUrl ||
+                            user?.mediumPhotoUrl ||
                             user?.profileUrl ||
                             user?.profilePhotoUrl ||
                             user?.avatar?.url
-                          )}
+                          ) || "/default-avatar.png"}
                           alt="Profile"
                           className="h-full w-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                            const fallback = e.currentTarget.nextElementSibling;
+                            if (fallback) fallback.style.display = "flex";
+                          }}
                         />
-                      ) : (
+                      ) : null}
+                      <div
+                        style={{
+                          display: (user?.smallPhotoUrl || user?.mediumPhotoUrl || user?.profileUrl || user?.profilePhotoUrl || user?.avatar?.url)
+                            ? "none"
+                            : "flex",
+                        }}
+                        className="h-full w-full items-center justify-center"
+                      >
                         <FaRegUser className="text-[19px] text-slate-500" />
-                      )}
+                      </div>
                     </div>
 
                     <div className="min-w-0 flex-1">

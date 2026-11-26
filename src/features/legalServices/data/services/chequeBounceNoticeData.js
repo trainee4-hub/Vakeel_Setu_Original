@@ -51,9 +51,9 @@ export const chequeBounceNoticeData = {
           "paragraphs": [],
           "bullets": [
               "Presentation: The cheque must be presented within its validity period; in practice, RBI directions generally limit cheque validity to three months from its date.",
-              "Demand notice: The payee or holder in due course must issue a written demand for the cheque amount within **30 days** of receiving information from the bank that the cheque was returned unpaid.",
-              "Payment opportunity: The drawer has **15 days from receipt of the notice** to make payment.",
-              "Complaint: If payment is not made, the cause of action arises after those 15 days. Ordinarily, the complaint must be filed within **one month** from that date, subject to the court's power to condone delay under Section 142."
+              "Demand notice: The payee or holder in due course must issue a written demand for the cheque amount within 30 days of receiving information from the bank that the cheque was returned unpaid.",
+              "Payment opportunity: The drawer has 15 days from receipt of the notice to make payment.",
+              "Complaint: If payment is not made, the cause of action arises after those 15 days. Ordinarily, the complaint must be filed within one month from that date, subject to the court's power to condone delay under Section 142."
           ]
       },
       {
@@ -100,14 +100,6 @@ export const chequeBounceNoticeData = {
     { label: "Strict 30-Day Statutory Limitation", icon: "clock" },
     { label: "Confidential", icon: "lock" },
     { label: "Phone & Video Consultation", icon: "phone" },
-  ],
-  toc: [
-    { id: "intro", title: "1. Introduction & Overview" },
-    { id: "applicable-laws", title: "2. Applicable Laws & Sections" },
-    { id: "documents-required", title: "3. Documents Required" },
-    { id: "why-vakeelsetu", title: "4. Why Choose VakeelSetu" },
-    { id: "faqs", title: "5. Frequently Asked Questions" },
-    { id: "legal-procedure", title: "6. Step-by-Step Legal Procedure" },
   ],
 
   // 1. Introduction & Overview

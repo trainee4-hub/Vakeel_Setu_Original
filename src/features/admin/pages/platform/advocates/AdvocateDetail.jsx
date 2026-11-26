@@ -423,17 +423,24 @@ export default function AdvocateDetail() {
         <div className="space-y-6 lg:col-span-1 min-w-0">
           <Card className="p-4 sm:p-6">
             <div className="flex flex-col items-center text-center">
-              {advocate.profilePhotoUrl ? (
+              {advocate.mediumPhotoUrl || advocate.smallPhotoUrl || advocate.profilePhotoUrl ? (
                 <img
-                  src={getMediumImageUrl(advocate.profilePhotoUrl)}
+                  src={getMediumImageUrl(advocate.mediumPhotoUrl || advocate.smallPhotoUrl || advocate.profilePhotoUrl) || "/default-avatar.png"}
                   alt={advocateName}
                   className="h-28 w-28 rounded-full object-cover shadow-sm ring-2 ring-slate-100"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                    const fallback = e.currentTarget.nextElementSibling;
+                    if (fallback) fallback.style.display = "flex";
+                  }}
                 />
-              ) : (
-                <div className="flex h-28 w-28 items-center justify-center rounded-full bg-slate-100 text-slate-400">
-                  <Icon name="person" className="text-[48px]" />
-                </div>
-              )}
+              ) : null}
+              <div
+                style={{ display: advocate.mediumPhotoUrl || advocate.smallPhotoUrl || advocate.profilePhotoUrl ? "none" : "flex" }}
+                className="h-28 w-28 items-center justify-center rounded-full bg-slate-100 text-slate-400"
+              >
+                <Icon name="person" className="text-[48px]" />
+              </div>
               <h2 className="mt-4 text-lg font-bold text-slate-950 break-words max-w-full">{advocateName}</h2>
               <p className="text-xs text-slate-500 break-all max-w-full">{advocate.email || "No email"}</p>
               <p className="text-xs text-slate-500 break-words max-w-full">{advocate.phone || "No phone"}</p>

@@ -216,17 +216,24 @@ const ChatRoom = ({ consultationId, user, onBack }) => {
                             <span className="material-symbols-outlined">arrow_back</span>
                         </button>
                         <div className="size-14 rounded-xl bg-slate-100 overflow-hidden border border-slate-200">
-                            {otherParty?.profileUrl || otherParty?.personalDetails?.profileUrl || otherParty?.avatar?.url ? (
+                            {(otherParty?.smallPhotoUrl || otherParty?.mediumPhotoUrl || otherParty?.profileUrl || otherParty?.personalDetails?.profileUrl || otherParty?.avatar?.url) ? (
                                 <img
-                                    src={getSmallImageUrl(otherParty?.profileUrl || otherParty?.personalDetails?.profileUrl || otherParty?.avatar?.url)}
+                                    src={getSmallImageUrl(otherParty?.smallPhotoUrl || otherParty?.mediumPhotoUrl || otherParty?.profileUrl || otherParty?.personalDetails?.profileUrl || otherParty?.avatar?.url) || "/default-avatar.png"}
                                     alt={otherParty.name}
                                     className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        e.currentTarget.style.display = "none";
+                                        const fallback = e.currentTarget.nextElementSibling;
+                                        if (fallback) fallback.style.display = "flex";
+                                    }}
                                 />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center">
-                                    <span className="material-symbols-outlined text-slate-500 text-2xl">person</span>
-                                </div>
-                            )}
+                            ) : null}
+                            <div
+                                style={{ display: (otherParty?.smallPhotoUrl || otherParty?.mediumPhotoUrl || otherParty?.profileUrl || otherParty?.personalDetails?.profileUrl || otherParty?.avatar?.url) ? "none" : "flex" }}
+                                className="w-full h-full items-center justify-center"
+                            >
+                                <span className="material-symbols-outlined text-slate-500 text-2xl">person</span>
+                            </div>
                         </div>
                         <div>
                             <h2 className="text-xl font-bold text-slate-900">
@@ -280,17 +287,24 @@ const ChatRoom = ({ consultationId, user, onBack }) => {
                                 <div className={`max-w-[70%] ${isMyMessage ? 'order-2' : 'order-1'}`}>
                                     <div className={`flex items-end gap-2 ${isMyMessage ? 'flex-row-reverse' : ''}`}>
                                         <div className="size-8 rounded-full overflow-hidden flex-shrink-0">
-                                            {msg.sender?.profileUrl || msg.sender?.personalDetails?.profileUrl || msg.sender?.avatar?.url ? (
+                                            {(msg.sender?.smallPhotoUrl || msg.sender?.mediumPhotoUrl || msg.sender?.profileUrl || msg.sender?.personalDetails?.profileUrl || msg.sender?.avatar?.url) ? (
                                                 <img
-                                                    src={getSmallImageUrl(msg.sender?.profileUrl || msg.sender?.personalDetails?.profileUrl || msg.sender?.avatar?.url)}
+                                                    src={getSmallImageUrl(msg.sender?.smallPhotoUrl || msg.sender?.mediumPhotoUrl || msg.sender?.profileUrl || msg.sender?.personalDetails?.profileUrl || msg.sender?.avatar?.url) || "/default-avatar.png"}
                                                     alt={msg.sender.name}
                                                     className="w-full h-full object-cover"
+                                                    onError={(e) => {
+                                                        e.currentTarget.style.display = "none";
+                                                        const fallback = e.currentTarget.nextElementSibling;
+                                                        if (fallback) fallback.style.display = "flex";
+                                                    }}
                                                 />
-                                            ) : (
-                                                <div className={`w-full h-full flex items-center justify-center ${isMyMessage ? 'bg-amber-500/20' : 'bg-slate-700'}`}>
-                                                    <span className="material-symbols-outlined text-sm text-slate-400">person</span>
-                                                </div>
-                                            )}
+                                            ) : null}
+                                            <div
+                                                style={{ display: (msg.sender?.smallPhotoUrl || msg.sender?.mediumPhotoUrl || msg.sender?.profileUrl || msg.sender?.personalDetails?.profileUrl || msg.sender?.avatar?.url) ? "none" : "flex" }}
+                                                className={`w-full h-full items-center justify-center ${isMyMessage ? 'bg-amber-500/20' : 'bg-slate-700'}`}
+                                            >
+                                                <span className="material-symbols-outlined text-sm text-slate-400">person</span>
+                                            </div>
                                         </div>
                                         <div className={`px-4 py-3 rounded-2xl ${isMyMessage
                                             ? 'bg-amber-500 text-white rounded-br-md shadow-sm'

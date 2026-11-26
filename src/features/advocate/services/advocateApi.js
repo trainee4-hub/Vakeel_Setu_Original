@@ -462,8 +462,11 @@ export async function uploadAdvocateProfilePhoto(file) {
     token: getAuthToken(),
   });
 
+  const photoUrl = data?.mediumPhotoUrl || data?.smallPhotoUrl || data?.profilePhotoUrl || null;
   return {
-    profilePhotoUrl: data?.profilePhotoUrl || null,
+    smallPhotoUrl: data?.smallPhotoUrl || null,
+    mediumPhotoUrl: data?.mediumPhotoUrl || null,
+    profilePhotoUrl: photoUrl,
     advocate: data?.advocate || null,
   };
 }

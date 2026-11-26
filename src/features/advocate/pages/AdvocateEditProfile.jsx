@@ -421,6 +421,8 @@ const FIELD_META = {
 
   profilePhoto: { label: "Profile photo", icon: "👤" },
   profilePhotoUrl: { label: "Profile photo", icon: "👤" },
+  smallPhotoUrl: { label: "Profile photo", icon: "👤" },
+  mediumPhotoUrl: { label: "Profile photo", icon: "👤" },
   photo: { label: "Profile photo", icon: "👤" },
   avatar: { label: "Profile photo", icon: "👤" },
 
@@ -749,6 +751,8 @@ export default function AdvocateEditProfile() {
       return (
         keysList.includes("profilePhoto") ||
         keysList.includes("profilePhotoUrl") ||
+        keysList.includes("smallPhotoUrl") ||
+        keysList.includes("mediumPhotoUrl") ||
         keysList.includes("photo") ||
         keysList.includes("avatar")
       );
@@ -974,7 +978,7 @@ export default function AdvocateEditProfile() {
     setProfilePhotoFile(null);
     setOfficePhotoBlob(null);
     setOfficePhotoPreview(profile?.officePhotoUrl || "");
-    setPreviewPhoto(profile?.profilePhotoUrl || "");
+    setPreviewPhoto(profile?.mediumPhotoUrl || profile?.smallPhotoUrl || profile?.profilePhotoUrl || "");
   }, [initialForm, profile]);
 
   const isSubmitted = isApproved && !cancelNotice && (profileChange?.status === "SUBMITTED" || profileChange?.status === "PENDING");
@@ -1101,7 +1105,15 @@ export default function AdvocateEditProfile() {
       setForm(nextForm);
       setInitialForm(nextForm);
 
-      setPreviewPhoto(changes.profilePhotoUrl || data?.profilePhotoUrl || "");
+      setPreviewPhoto(
+        changes.mediumPhotoUrl ||
+        changes.smallPhotoUrl ||
+        changes.profilePhotoUrl ||
+        data?.mediumPhotoUrl ||
+        data?.smallPhotoUrl ||
+        data?.profilePhotoUrl ||
+        ""
+      );
       setOfficePhotoPreview(changes.officePhotoUrl || liveOffice.photoUrl || data?.officePhotoUrl || "");
     } catch (requestError) {
       if (requestError?.status === 401) {
@@ -1522,7 +1534,7 @@ export default function AdvocateEditProfile() {
       setProfilePhotoFile(null);
       setOfficePhotoBlob(null);
       setOfficePhotoPreview(profile?.officePhotoUrl || profile?.office?.photoUrl || "");
-      setPreviewPhoto(profile?.profilePhotoUrl || "");
+      setPreviewPhoto(profile?.mediumPhotoUrl || profile?.smallPhotoUrl || profile?.profilePhotoUrl || "");
       setCancelNotice(
         "Profile change request cancelled. Your submitted changes have been withdrawn.",
       );
@@ -1719,7 +1731,7 @@ export default function AdvocateEditProfile() {
               ) : null}
             </div>
 
-            {requestedChanges.profilePhotoUrl && (
+            {(requestedChanges.mediumPhotoUrl || requestedChanges.smallPhotoUrl || requestedChanges.profilePhotoUrl) && (
               <div className="mt-4 flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50/80 px-3 py-2 text-xs text-amber-900">
                 <Clock className="w-3.5 h-3.5 shrink-0 text-amber-600" />
                 <span>A new profile photo has been submitted and is awaiting admin approval.</span>

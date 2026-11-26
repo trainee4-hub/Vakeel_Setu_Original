@@ -17,6 +17,7 @@ import {
 } from "../index";
 import { advocateProfileApi } from "../services/advocateProfileApi";
 import AdvocateTestNoticeModal from "../components/AdvocateProfile/modals/AdvocateTestNoticeModal";
+import { getMediumImageUrl } from "@shared/utils/imageUtils";
 
 import {
   getAdvocateProfileCompletion,
@@ -819,22 +820,35 @@ export default function AdvocateCompleteProfile() {
           >
             <div className="flex items-center gap-5">
               <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
-                {user?.profilePhotoUrl ? (
+                {user?.mediumPhotoUrl || user?.smallPhotoUrl || user?.profilePhotoUrl ? (
                   <img
                     src={
-                      user.profilePhotoUrl
+                      getMediumImageUrl(user?.mediumPhotoUrl || user?.smallPhotoUrl || user?.profilePhotoUrl) || "/default-avatar.png"
                     }
                     alt={
                       user?.fullName ||
                       "Advocate"
                     }
                     className="size-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                      const fallback = e.currentTarget.nextElementSibling;
+                      if (fallback) fallback.style.display = "flex";
+                    }}
                   />
-                ) : (
+                ) : null}
+                <div
+                  style={{
+                    display: (user?.mediumPhotoUrl || user?.smallPhotoUrl || user?.profilePhotoUrl)
+                      ? "none"
+                      : "flex",
+                  }}
+                  className="size-full items-center justify-center"
+                >
                   <span className="material-symbols-outlined text-3xl text-slate-300">
                     account_circle
                   </span>
-                )}
+                </div>
               </div>
 
               <div className="min-w-0">

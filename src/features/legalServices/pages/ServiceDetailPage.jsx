@@ -285,6 +285,12 @@ const ServiceDetailPage = () => {
   // Dynamic TOC ensuring ONLY sections actually rendered appear
   const filteredToc = useMemo(() => {
     if (!data) return [];
+    if (Array.isArray(data.sections) && data.sections.length > 0) {
+      return activeSections.map((s) => ({
+        id: s.id,
+        title: (s.title || "").replace(/^\d+(\.\d+)*\.\s*/, "").trim(),
+      }));
+    }
     const activeIds = new Set(activeSections.map((s) => s.id));
     if (Array.isArray(data.toc) && data.toc.length > 0) {
       return data.toc.filter((item) => activeIds.has(item.id));
@@ -830,12 +836,12 @@ const ServiceDetailPage = () => {
                                     {String.fromCharCode(65 + bIdx)}
                                   </span>
                                   <h3 className="text-base sm:text-lg font-black text-slate-950 tracking-tight">
-                                    {leadTitle || `Part ${String.fromCharCode(65 + bIdx)}`}
+                                    {renderTextWithLinks(leadTitle || `Part ${String.fromCharCode(65 + bIdx)}`)}
                                   </h3>
                                 </div>
                                 {leadDesc && (
                                   <p className="mt-3.5 text-xs sm:text-sm text-slate-700 leading-[1.85] font-normal">
-                                    {leadDesc}
+                                    {renderTextWithLinks(leadDesc)}
                                   </p>
                                 )}
                               </div>

@@ -163,7 +163,14 @@ function getRowAdvocateInfo(row) {
   const email = advocate.email || row?.email || "";
   const phone = advocate.phone || row?.phone || "";
   const barCouncilId = advocate.barCouncilId || advocate.barId || row?.barCouncilId || row?.barId || "";
-  const profileImage = advocate.profileImage || advocate.profilePhotoUrl || row?.profilePhotoUrl || "";
+  const profileImage =
+    advocate.smallPhotoUrl ||
+    advocate.mediumPhotoUrl ||
+    advocate.profileImage ||
+    advocate.profilePhotoUrl ||
+    row?.smallPhotoUrl ||
+    row?.profilePhotoUrl ||
+    "";
   const changedFields =
     (Array.isArray(row?.changedFields) && row.changedFields) ||
     (Array.isArray(row?.requestedFields) && row.requestedFields) ||
@@ -218,15 +225,22 @@ function getRowAdvocateInfo(row) {
             <div className="flex items-center gap-3 min-w-0">
               {profileImage ? (
                 <img
-                  src={getSmallImageUrl(profileImage)}
+                  src={getSmallImageUrl(profileImage) || "/default-avatar.png"}
                   alt={fullName}
                   className="h-9 w-9 shrink-0 rounded-xl object-cover ring-1 ring-slate-200"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                    const fallback = e.currentTarget.nextElementSibling;
+                    if (fallback) fallback.style.display = "flex";
+                  }}
                 />
-              ) : (
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-xs font-bold text-white shadow-2xs">
-                  {fullName.slice(0, 2).toUpperCase()}
-                </div>
-              )}
+              ) : null}
+              <div
+                style={{ display: profileImage ? "none" : "flex" }}
+                className="h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-xs font-bold text-white shadow-2xs"
+              >
+                {fullName.slice(0, 2).toUpperCase()}
+              </div>
               <div className="flex flex-col min-w-0">
                 <Link
                   to={ADMIN_PATHS.profileChanges.detail(advocateId)}

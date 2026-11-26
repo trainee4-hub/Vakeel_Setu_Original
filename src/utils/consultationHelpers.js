@@ -112,11 +112,15 @@ export const getProfileUrl = (person) => {
   if (!person) return "";
 
   const raw =
+    person.smallPhotoUrl ||
+    person.mediumPhotoUrl ||
     person.profilePhotoUrl ||
     person.profileUrl ||
     person.photoUrl ||
     person.photo ||
     person.avatar ||
+    person.personalDetails?.smallPhotoUrl ||
+    person.personalDetails?.mediumPhotoUrl ||
     person.personalDetails?.profilePhotoUrl ||
     person.personalDetails?.profileUrl ||
     person.personalDetails?.photoUrl ||

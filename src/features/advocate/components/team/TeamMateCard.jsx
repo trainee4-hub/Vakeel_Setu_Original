@@ -35,7 +35,11 @@ export default function TeamMateCard({
   const name = mate?.fullName || mate?.name || "Advocate";
 
   const photo =
-    mate?.profilePhotoUrl || mate?.profileImage || null;
+    mate?.smallPhotoUrl ||
+    mate?.mediumPhotoUrl ||
+    mate?.profilePhotoUrl ||
+    mate?.profileImage ||
+    null;
 
   const practice =
     mate?.bestPracticeArea || mate?.lawType || null;
@@ -59,15 +63,22 @@ export default function TeamMateCard({
       <div className="flex items-start gap-3">
         {photo ? (
           <img
-            src={getSmallImageUrl(photo)}
+            src={getSmallImageUrl(photo) || "/default-avatar.png"}
             alt={name}
             className="h-12 w-12 shrink-0 rounded-2xl object-cover ring-1 ring-slate-200"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+              const fallback = e.currentTarget.nextElementSibling;
+              if (fallback) fallback.style.display = "flex";
+            }}
           />
-        ) : (
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 text-xs font-extrabold text-amber-700">
-            {initials(name)}
-          </div>
-        )}
+        ) : null}
+        <div
+          style={{ display: photo ? "none" : "flex" }}
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 text-xs font-extrabold text-amber-700"
+        >
+          {initials(name)}
+        </div>
 
         <div className="min-w-0 flex-1">
           <h3 className="truncate text-sm font-extrabold text-slate-900">

@@ -444,18 +444,31 @@ export default function AdvocatesList() {
                           key: "photo",
                           header: "Photo",
                           className: "w-12 whitespace-nowrap",
-                          render: (row) =>
-                            row.profilePhotoUrl ? (
-                              <img
-                                src={getSmallImageUrl(row.profilePhotoUrl)}
-                                alt={row.fullName || row.name || "Advocate"}
-                                className="h-9 w-9 rounded-full object-cover ring-1 ring-slate-200"
-                              />
-                            ) : (
-                              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-400">
-                                <Icon name="person" className="text-[18px]" />
+                          render: (row) => {
+                            const photo = row.smallPhotoUrl || row.mediumPhotoUrl || row.profilePhotoUrl;
+                            return (
+                              <div className="relative h-9 w-9">
+                                {photo ? (
+                                  <img
+                                    src={getSmallImageUrl(photo) || "/default-avatar.png"}
+                                    alt={row.fullName || row.name || "Advocate"}
+                                    className="h-9 w-9 rounded-full object-cover ring-1 ring-slate-200"
+                                    onError={(e) => {
+                                      e.currentTarget.style.display = "none";
+                                      const fallback = e.currentTarget.nextElementSibling;
+                                      if (fallback) fallback.style.display = "flex";
+                                    }}
+                                  />
+                                ) : null}
+                                <div
+                                  style={{ display: photo ? "none" : "flex" }}
+                                  className="h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-400"
+                                >
+                                  <Icon name="person" className="text-[18px]" />
+                                </div>
                               </div>
-                            ),
+                            );
+                          },
                         },
                         {
                           key: "name",

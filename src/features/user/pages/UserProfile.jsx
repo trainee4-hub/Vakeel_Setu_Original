@@ -263,6 +263,8 @@ const normalizeCurrentUser = (
 
     profilePhotoUrl:
       cleanText(
+        account?.mediumPhotoUrl ||
+        account?.smallPhotoUrl ||
         account?.profilePhotoUrl ||
         account?.profileUrl ||
         account?.avatar?.url,
@@ -1300,21 +1302,32 @@ const handleLanguageChange = (
                     <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200">
                       {profile.profilePhotoUrl ? (
                         <img
-                          src={getMediumImageUrl(
-                            profile.profilePhotoUrl
-                          )}
+                          src={
+                            getMediumImageUrl(
+                              profile.profilePhotoUrl
+                            ) || "/default-avatar.png"
+                          }
                           alt={
                             displayName
                           }
                           className="h-full w-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                            const fallback = e.currentTarget.nextElementSibling;
+                            if (fallback) fallback.style.display = "flex";
+                          }}
                         />
-                      ) : (
+                      ) : null}
+                      <div
+                        style={{ display: profile.profilePhotoUrl ? "none" : "flex" }}
+                        className="h-full w-full items-center justify-center"
+                      >
                         <span className="text-2xl font-black text-slate-500">
                           {
                             initials
                           }
                         </span>
-                      )}
+                      </div>
                     </div>
 
                     {isVerified && (

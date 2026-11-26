@@ -79,7 +79,12 @@ export default function AdvocateTeamMemberProfile() {
 
   const phone = member?.phone || member?.phoneNumber || "";
   const email = member?.email || "";
-  const avatar = member?.avatarUrl || member?.profilePhotoUrl || "";
+  const avatar =
+    member?.mediumPhotoUrl ||
+    member?.smallPhotoUrl ||
+    member?.avatarUrl ||
+    member?.profilePhotoUrl ||
+    "";
   const about = member?.about || member?.bio || "";
   const location = [member?.city, member?.state].filter(Boolean).join(", ");
 
@@ -171,15 +176,22 @@ export default function AdvocateTeamMemberProfile() {
                 <div className="flex flex-col sm:flex-row items-start gap-5">
                   {avatar ? (
                     <img
-                      src={getMediumImageUrl(avatar)}
+                      src={getMediumImageUrl(avatar) || "/default-avatar.png"}
                       alt={name}
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                        const fallback = e.currentTarget.nextElementSibling;
+                        if (fallback) fallback.style.display = "flex";
+                      }}
                       className="h-24 w-24 shrink-0 rounded-2xl object-cover ring-2 ring-slate-100 shadow-sm"
                     />
-                  ) : (
-                    <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl border-2 border-amber-200 bg-amber-50 font-serif text-2xl font-bold text-amber-700 shadow-sm">
-                      {initials}
-                    </div>
-                  )}
+                  ) : null}
+                  <div
+                    style={{ display: avatar ? "none" : "flex" }}
+                    className="flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl border-2 border-amber-200 bg-amber-50 font-serif text-2xl font-bold text-amber-700 shadow-sm"
+                  >
+                    {initials}
+                  </div>
 
                   <div className="space-y-1.5">
                     <div className="flex flex-wrap items-center gap-2">

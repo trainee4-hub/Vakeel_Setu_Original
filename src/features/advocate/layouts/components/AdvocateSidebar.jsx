@@ -56,6 +56,8 @@ const AdvocateAvatar = ({
     getAdvocateName(advocate);
 
   const photo =
+    advocate?.smallPhotoUrl ||
+    advocate?.mediumPhotoUrl ||
     advocate?.profilePhotoUrl ||
     advocate?.profileImage ||
     advocate?.avatar ||
@@ -64,9 +66,14 @@ const AdvocateAvatar = ({
   if (photo) {
     return (
       <img
-        src={getSmallImageUrl(photo)}
+        src={getSmallImageUrl(photo) || "/default-avatar.png"}
         alt={name}
         className="h-11 w-11 shrink-0 rounded-2xl object-cover ring-1 ring-white/10"
+        onError={(e) => {
+          e.currentTarget.style.display = "none";
+          const fallback = e.currentTarget.nextElementSibling;
+          if (fallback) fallback.style.display = "flex";
+        }}
       />
     );
   }

@@ -145,6 +145,8 @@ const TeamAvatar = ({
   const name = getMateName(mate);
 
   const photo =
+    mate?.smallPhotoUrl ||
+    mate?.mediumPhotoUrl ||
     mate?.profilePhotoUrl ||
     mate?.profileImage ||
     mate?.avatar ||
@@ -158,8 +160,13 @@ const TeamAvatar = ({
   if (photo) {
     return (
       <img
-        src={getSmallImageUrl(photo)}
+        src={getSmallImageUrl(photo) || "/default-avatar.png"}
         alt={name}
+        onError={(e) => {
+          e.currentTarget.style.display = "none";
+          const fallback = e.currentTarget.nextElementSibling;
+          if (fallback) fallback.style.display = "flex";
+        }}
         className={`${sizeClass} shrink-0 rounded-2xl object-cover ring-1 ring-slate-200`}
       />
     );

@@ -33,7 +33,11 @@ const AdvocateCard = ({ advocate, onViewAdvocate }) => {
 
   const id = advocate?.id;
   const fullName = advocate?.fullName;
-  const profilePhotoUrl = advocate?.profilePhotoUrl;
+  const smallPhotoUrl =
+    advocate?.smallPhotoUrl ||
+    advocate?.mediumPhotoUrl ||
+    advocate?.profilePhotoUrl ||
+    advocate?.profileImage;
 
   const experienceYears = advocate?.experienceYears;
   const casesHandled = advocate?.casesHandled;
@@ -318,9 +322,9 @@ const AdvocateCard = ({ advocate, onViewAdvocate }) => {
                 }
               `}
             >
-              {profilePhotoUrl ? (
+              {smallPhotoUrl ? (
                 <img
-                  src={getSmallImageUrl(profilePhotoUrl)}
+                  src={getSmallImageUrl(smallPhotoUrl) || "/default-avatar.png"}
                   alt={fullName || "Advocate"}
                   className="h-full w-full object-cover"
                   onError={(event) => {
@@ -350,7 +354,7 @@ const AdvocateCard = ({ advocate, onViewAdvocate }) => {
                   bg-slate-100
                 "
                 style={{
-                  display: profilePhotoUrl
+                  display: smallPhotoUrl
                     ? "none"
                     : "flex",
                 }}

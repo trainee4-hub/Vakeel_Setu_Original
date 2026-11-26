@@ -2112,7 +2112,7 @@ export default function Signup() {
      step rather than at whatever `step` the URL claims. */
   const resolveAdvocateStep = (session) => {
     if (session?.phoneVerified) return 4;
-    if (session?.emailVerified && session?.profilePhotoUrl && session?.gender)
+    if (session?.emailVerified && (session?.mediumPhotoUrl || session?.smallPhotoUrl || session?.profilePhotoUrl) && session?.gender)
       return 3;
     if (session?.emailVerified) return 2;
     return 1;
@@ -2150,7 +2150,7 @@ export default function Signup() {
       setEmailVerified(Boolean(session.emailVerified));
       setPhone(session.phone || "");
       setPhoneVerified(Boolean(session.phoneVerified));
-      setProfilePhotoUrl(session.profilePhotoUrl || "");
+      setProfilePhotoUrl(session.mediumPhotoUrl || session.smallPhotoUrl || session.profilePhotoUrl || "");
       setProfilePhotoPublicId(session.profilePhotoPublicId || "");
       setGender(session.gender || "");
 
@@ -2983,13 +2983,15 @@ restoreUserSession(
     try {
       const result = await advocateApi.uploadProfilePhoto(file);
 
-      if (!result?.profilePhotoUrl) {
+      const savedPhoto = result?.mediumPhotoUrl || result?.smallPhotoUrl || result?.profilePhotoUrl;
+
+      if (!savedPhoto) {
         throw new AdvocateApiError(
           "The photo was not saved. Please try uploading it again."
         );
       }
 
-      setProfilePhotoUrl(result.profilePhotoUrl);
+      setProfilePhotoUrl(savedPhoto);
       setProfilePhotoPublicId(result.profilePhotoPublicId || "");
       setPhotoMissing(false);
     } catch (error) {

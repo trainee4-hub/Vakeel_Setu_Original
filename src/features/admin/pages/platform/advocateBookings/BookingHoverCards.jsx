@@ -269,6 +269,8 @@ function AdvocateCardContent({ advocate, close }) {
   const advocateId = advocate?.id || advocate?._id || "";
   const phone = advocate?.phone || "";
   const avatarUrl =
+    advocate?.smallPhotoUrl ||
+    advocate?.mediumPhotoUrl ||
     advocate?.profilePhotoUrl ||
     advocate?.profilePhoto ||
     advocate?.avatarUrl ||
@@ -567,6 +569,8 @@ export function ClientHoverCell({ item, className = "" }) {
   const userId = user.id || user._id;
 
   const clientAvatarUrl =
+    user?.smallPhotoUrl ||
+    user?.mediumPhotoUrl ||
     user?.profilePhotoUrl ||
     user?.profilePhoto ||
     user?.avatarUrl ||

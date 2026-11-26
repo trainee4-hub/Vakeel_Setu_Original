@@ -239,6 +239,8 @@ export function mapDetailAdvocate(a) {
       a.location ??
       null,
     officePhotoUrl: a.officePhotoUrl ?? a.office?.photoUrl ?? null,
+    smallPhotoUrl: a.smallPhotoUrl ?? a.profilePhotoUrl ?? null,
+    mediumPhotoUrl: a.mediumPhotoUrl ?? a.profilePhotoUrl ?? null,
     office: a.office ?? null,
     voiceCallPricePer15Min: a.voiceCallPricePer15Min ?? null,
     videoCallPricePer15Min: a.videoCallPricePer15Min ?? null,
@@ -247,7 +249,7 @@ export function mapDetailAdvocate(a) {
     pricing: a.pricing || null,
     personalDetails: {
       fullName: a.fullName,
-      profileUrl: a.profilePhotoUrl || null,
+      profileUrl: a.mediumPhotoUrl || a.smallPhotoUrl || a.profilePhotoUrl || null,
       gender: a.gender ?? null,
       location: {
         city: a.city ?? null,

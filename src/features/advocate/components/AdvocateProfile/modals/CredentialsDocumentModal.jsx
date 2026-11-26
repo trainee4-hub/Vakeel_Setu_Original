@@ -42,7 +42,12 @@ export default function CredentialsDocumentModal({
     (Array.isArray(advocate?.specializations) && advocate.specializations[0]) ||
     "Civil & Criminal Law";
 
-  const photo = advocate?.profilePhotoUrl || advocate?.photoUrl || "";
+  const photo =
+    advocate?.mediumPhotoUrl ||
+    advocate?.smallPhotoUrl ||
+    advocate?.profilePhotoUrl ||
+    advocate?.photoUrl ||
+    "";
 
   const memberId = `VS-${String(
     advocate?.id || advocate?._id || "ADV"
@@ -412,15 +417,22 @@ export default function CredentialsDocumentModal({
                 <div className="mt-5 flex items-start gap-4">
                   {photo ? (
                     <img
-                      src={getMediumImageUrl(photo)}
+                      src={getMediumImageUrl(photo) || "/default-avatar.png"}
                       alt={advocateName}
                       className="h-20 w-20 shrink-0 rounded-2xl border-2 border-amber-400/40 object-cover ring-2 ring-white/10"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                        const fallback = e.currentTarget.nextElementSibling;
+                        if (fallback) fallback.style.display = "flex";
+                      }}
                     />
-                  ) : (
-                    <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border-2 border-amber-400/40 bg-amber-500/15 text-2xl font-black text-amber-300">
-                      {advocateName.slice(0, 1)}
-                    </div>
-                  )}
+                  ) : null}
+                  <div
+                    style={{ display: photo ? "none" : "flex" }}
+                    className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border-2 border-amber-400/40 bg-amber-500/15 text-2xl font-black text-amber-300"
+                  >
+                    {advocateName.slice(0, 1)}
+                  </div>
 
                   <div className="min-w-0 flex-1">
                     <h3 className="truncate text-lg font-black text-white">

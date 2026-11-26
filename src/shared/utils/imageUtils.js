@@ -1,12 +1,14 @@
 import { API_BASE_URL, API_ROOT } from "../services/apiClient";
 
+export const DEFAULT_AVATAR = "/default-avatar.png";
+
 /**
  * Resolves a full, optimized image URL with dual-resolution variants (.avif).
  *
  * Backend Image Variants:
- * 1. "small": ~1.5 KB - 5 KB (.avif)
- *    Best for: listing cards, search results, tables, circular avatars, and thumbnails.
- * 2. "medium": ~10 KB - 25 KB (.avif)
+ * 1. "smallPhotoUrl": ~1.5 KB - 5 KB (.avif)
+ *    Best for: listing cards, directory grids, search lists, circular avatars, and thumbnails.
+ * 2. "mediumPhotoUrl": ~10 KB - 25 KB (.avif)
  *    Best for: detailed profile view, modal popup, and office full view.
  *
  * @param {string|object|null|undefined} src - Image URL string or object containing image fields
@@ -21,33 +23,38 @@ export function getOptimizedImageUrl(src, variant = "medium") {
   if (typeof src === "object") {
     if (variant === "small") {
       rawUrl =
+        src.smallPhotoUrl ||
         src.smallUrl ||
         src.small ||
+        src.mediumPhotoUrl ||
         src.profilePhotoSmallUrl ||
         src.photoSmallUrl ||
-        src.officePhotoSmallUrl ||
-        src.imageSmallUrl ||
-        src.thumbnailUrl ||
         src.profilePhotoUrl ||
-        src.officePhotoUrl ||
+        src.profileImage ||
+        src.thumbnailUrl ||
         src.photo ||
         src.image ||
         src.imageUrl ||
+        src.officePhotoSmallUrl ||
+        src.imageSmallUrl ||
         src.url ||
         "";
     } else {
       rawUrl =
+        src.mediumPhotoUrl ||
+        src.smallPhotoUrl ||
         src.mediumUrl ||
         src.medium ||
         src.profilePhotoMediumUrl ||
         src.photoMediumUrl ||
-        src.officePhotoMediumUrl ||
-        src.imageMediumUrl ||
         src.profilePhotoUrl ||
-        src.officePhotoUrl ||
+        src.profileImage ||
         src.photo ||
         src.image ||
         src.imageUrl ||
+        src.thumbnailUrl ||
+        src.officePhotoMediumUrl ||
+        src.imageMediumUrl ||
         src.url ||
         "";
     }

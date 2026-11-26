@@ -327,6 +327,8 @@ export default function ProfileChangeDetail() {
       const isPhotoField =
         c.field === "profilePhoto" ||
         c.field === "profilePhotoUrl" ||
+        c.field === "mediumPhotoUrl" ||
+        c.field === "smallPhotoUrl" ||
         c.field === "officePhoto" ||
         c.field === "officePhotoUrl";
       const isCoordField =
@@ -362,16 +364,24 @@ export default function ProfileChangeDetail() {
     (requested.officeLatitude !== undefined && Number(requested.officeLatitude) !== Number(current.officeLatitude)) ||
     (requested.officeLongitude !== undefined && Number(requested.officeLongitude) !== Number(current.officeLongitude));
 
-  // 7. Photos - normalized keys (profilePhoto / profilePhotoUrl, officePhoto / officePhotoUrl)
+  // 7. Photos - normalized keys (profilePhoto / smallPhotoUrl / mediumPhotoUrl, officePhoto / officePhotoUrl)
   const requestedProfilePhoto =
+    requested.mediumPhotoUrl ||
+    requested.smallPhotoUrl ||
     requested.profilePhotoUrl ||
     requested.profilePhoto ||
+    change.mediumPhotoUrl ||
+    change.smallPhotoUrl ||
     change.profilePhotoUrl ||
     change.profilePhoto ||
     null;
   const currentProfilePhoto =
+    current.mediumPhotoUrl ||
+    current.smallPhotoUrl ||
     current.profilePhotoUrl ||
     current.profilePhoto ||
+    advocateInfo.mediumPhotoUrl ||
+    advocateInfo.smallPhotoUrl ||
     advocateInfo.profilePhotoUrl ||
     advocateInfo.profilePhoto ||
     null;
@@ -389,7 +399,7 @@ export default function ProfileChangeDetail() {
     advocateInfo.officePhoto ||
     null;
 
-  const hasPhotoInChanges = Array.isArray(change.changes) && change.changes.some((c) => c?.field === "profilePhoto" || c?.field === "profilePhotoUrl");
+  const hasPhotoInChanges = Array.isArray(change.changes) && change.changes.some((c) => c?.field === "profilePhoto" || c?.field === "profilePhotoUrl" || c?.field === "smallPhotoUrl" || c?.field === "mediumPhotoUrl");
   const hasPhotoDiff = Boolean(
     requestedProfilePhoto &&
       (hasPhotoInChanges || (currentProfilePhoto ? requestedProfilePhoto !== currentProfilePhoto : true))

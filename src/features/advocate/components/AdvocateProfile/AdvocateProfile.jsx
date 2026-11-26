@@ -536,6 +536,8 @@ useEffect(() => {
   ========================================================= */
 
   const profileImageUrl =
+    advocate?.mediumPhotoUrl ||
+    advocate?.smallPhotoUrl ||
     advocate?.personalDetails?.profileUrl ||
     advocate?.profilePhotoUrl ||
     advocate?.profileImage ||

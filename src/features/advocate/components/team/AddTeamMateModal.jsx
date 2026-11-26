@@ -72,6 +72,8 @@ const getPracticeArea = (
 const getProfilePhoto = (
   advocate,
 ) =>
+  advocate?.smallPhotoUrl ||
+  advocate?.mediumPhotoUrl ||
   advocate?.profilePhotoUrl ||
   advocate?.profileImage ||
   "";
@@ -453,14 +455,22 @@ export default function AddTeamMateModal({
                           <div className="flex items-start gap-3">
                             {photo ? (
                               <img
-                                src={getSmallImageUrl(photo)}
+                                src={getSmallImageUrl(photo) || "/default-avatar.png"}
                                 alt={getName(
                                   advocate,
                                 )}
                                 className="h-12 w-12 shrink-0 rounded-xl object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = "none";
+                                  const fallback = e.currentTarget.nextElementSibling;
+                                  if (fallback) fallback.style.display = "flex";
+                                }}
                               />
-                            ) : (
-                              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-sm font-black text-amber-700">
+                            ) : null}
+                            <div
+                              style={{ display: photo ? "none" : "flex" }}
+                              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-sm font-black text-amber-700"
+                            >
                                 {getName(
                                   advocate,
                                 )
@@ -482,7 +492,6 @@ export default function AddTeamMateModal({
                                   )
                                   .toUpperCase()}
                               </div>
-                            )}
 
                             <div className="min-w-0 flex-1">
                               <div className="flex flex-wrap items-center gap-2">

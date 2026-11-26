@@ -384,8 +384,11 @@ export function getBookingDisplayTitle(booking) {
 export function getAdvocateAvatarData(booking) {
   if (!booking) return { photo: null, name: "", initial: null };
   const photo =
+    booking.advocate?.smallPhotoUrl ||
+    booking.advocate?.mediumPhotoUrl ||
     booking.advocate?.profilePhotoUrl ||
     booking.advocatePhoto ||
+    booking.smallPhotoUrl ||
     booking.profilePhotoUrl ||
     null;
 

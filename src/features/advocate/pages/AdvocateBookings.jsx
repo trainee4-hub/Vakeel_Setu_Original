@@ -432,6 +432,8 @@ const ClientAvatar = ({ booking, size = "md" }) => {
   const mode = getMode(booking);
 
   const image =
+    client?.smallPhotoUrl ||
+    client?.mediumPhotoUrl ||
     client?.profilePhotoUrl ||
     client?.profileImage ||
     client?.avatar ||
@@ -446,8 +448,13 @@ const ClientAvatar = ({ booking, size = "md" }) => {
     <div className="relative shrink-0">
       {image ? (
         <img
-          src={getSmallImageUrl(image)}
+          src={getSmallImageUrl(image) || "/default-avatar.png"}
           alt={name}
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+            const fallback = e.currentTarget.nextElementSibling;
+            if (fallback) fallback.style.display = "flex";
+          }}
           className={`${sizeClass} rounded-2xl object-cover ring-2 ${
             mode.type === "in_person"
               ? "ring-emerald-300"
@@ -456,13 +463,13 @@ const ClientAvatar = ({ booking, size = "md" }) => {
               : "ring-purple-300"
           }`}
         />
-      ) : (
-        <div
-          className={`${sizeClass} flex items-center justify-center rounded-2xl border font-extrabold transition-colors ${mode.avatarBg}`}
-        >
-          {getInitials(name)}
-        </div>
-      )}
+      ) : null}
+      <div
+        style={{ display: image ? "none" : "flex" }}
+        className={`${sizeClass} flex items-center justify-center rounded-2xl border font-extrabold transition-colors ${mode.avatarBg}`}
+      >
+        {getInitials(name)}
+      </div>
 
       {/* Mini Mode Icon Badge attached to avatar */}
       <span

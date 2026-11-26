@@ -54,7 +54,11 @@ const PremiumAdvocateSlide = memo(function PremiumAdvocateSlide({
     return null;
   })();
 
-  const profileImageUrl = advocate?.profilePhotoUrl || null;
+  const profileImageUrl =
+    advocate?.mediumPhotoUrl ||
+    advocate?.smallPhotoUrl ||
+    advocate?.profilePhotoUrl ||
+    null;
 
   return (
     <div

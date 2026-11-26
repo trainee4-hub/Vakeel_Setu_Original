@@ -228,6 +228,8 @@ const FIELD_META = {
 
   profilePhoto: { label: "Profile photo", icon: "👤" },
   profilePhotoUrl: { label: "Profile photo", icon: "👤" },
+  smallPhotoUrl: { label: "Profile photo", icon: "👤" },
+  mediumPhotoUrl: { label: "Profile photo", icon: "👤" },
   photo: { label: "Profile photo", icon: "👤" },
   avatar: { label: "Profile photo", icon: "👤" },
 
@@ -752,6 +754,8 @@ export default function AdvocateMyProfile() {
     getName(advocate);
 
   const photo =
+    advocate?.mediumPhotoUrl ||
+    advocate?.smallPhotoUrl ||
     advocate?.profilePhotoUrl ||
     "";
 
@@ -1185,17 +1189,24 @@ export default function AdvocateMyProfile() {
               <div className="flex min-w-0 flex-col gap-5 sm:flex-row sm:items-center">
                 {photo ? (
                   <img
-                    src={photo}
+                    src={getMediumImageUrl(photo) || "/default-avatar.png"}
                     alt={name}
                     className="h-24 w-24 shrink-0 rounded-[24px] object-cover ring-4 ring-slate-100"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                      const fallback = e.currentTarget.nextElementSibling;
+                      if (fallback) fallback.style.display = "flex";
+                    }}
                   />
-                ) : (
-                  <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-[24px] border border-amber-200 bg-amber-50 text-xl font-extrabold text-amber-700">
-                    {getInitials(
-                      name,
-                    )}
-                  </div>
-                )}
+                ) : null}
+                <div
+                  style={{ display: photo ? "none" : "flex" }}
+                  className="flex h-24 w-24 shrink-0 items-center justify-center rounded-[24px] border border-amber-200 bg-amber-50 text-xl font-extrabold text-amber-700"
+                >
+                  {getInitials(
+                    name,
+                  )}
+                </div>
 
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">

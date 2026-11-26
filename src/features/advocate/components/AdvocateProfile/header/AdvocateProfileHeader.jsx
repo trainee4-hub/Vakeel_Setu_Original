@@ -90,7 +90,7 @@ return (
         >
           {profileImageUrl ? (
             <img
-              src={getMediumImageUrl(profileImageUrl)}
+              src={getMediumImageUrl(profileImageUrl) || "/default-avatar.png"}
               alt={advocateName || "Advocate"}
               className="h-full w-full object-cover"
               onError={(e) => {
