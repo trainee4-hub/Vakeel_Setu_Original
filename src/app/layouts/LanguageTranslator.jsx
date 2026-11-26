@@ -346,7 +346,7 @@ const LanguageTranslator = ({ mobile = false, compact = false }) => {
         aria-expanded={open}
       >
         <span className={`material-symbols-outlined ${compact ? "text-lg" : "text-xl"}`}>
-          language
+          language 
         </span>
 
         <span className="max-w-[80px] truncate font-bold">

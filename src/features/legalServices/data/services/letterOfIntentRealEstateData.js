@@ -19,38 +19,20 @@ export const letterOfIntentRealEstateData = {
           "bullets": []
       },
       {
-          "heading": "Legal Framework in India",
+          "heading": "3. Legal Framework in India",
           "paragraphs": [],
           "bullets": [
-              "Indian Contract Act, 1872: Whether an LOI is enforceable depends on its language, certainty of terms, lawful consideration, acceptance and intention to create binding obligations. A document called an LOI can still create contractual obligations if its substance meets the legal requirements.",
+              "Indian Contract Act, 1872: Whether an LOI is enforceable depends on its language, certainty of terms, lawful consideration, acceptance and intention to create binding obligations. A document called an “LOI” can still create contractual obligations if its substance meets the legal requirements.",
               "Transfer of Property Act, 1882: Section 54 distinguishes a contract for sale from a completed sale; a contract for sale does not, by itself, create an interest in or charge on the property.",
               "Registration Act, 1908: Documents that legally require registration must be registered. An LOI should not be treated as a substitute for a duly executed and registered conveyance deed.",
-              "Indian Stamp Act, 1899 and State Stamp Laws: Stamp duty depends on the nature and contents of the instrument and the applicable state law; the label LOI alone does not decide liability."
+              "Indian Stamp Act, 1899 and State Stamp Laws: Stamp duty depends on the nature and contents of the instrument and the applicable state law; the label “LOI” alone does not decide liability.",
+              "Other Regulatory Considerations: Where relevant, the Real Estate (Regulation and Development) Act, 2016 (RERA) governs registered real estate projects and promoter obligations. State-specific land, tenancy, zoning and revenue rules may also apply. Buyers should verify ownership, title chain, encumbrances, approvals, land-use restrictions, pending disputes and applicable RERA registration before committing funds.",
+              "Binding Versus Non-Binding Terms: Parties often state that the commercial proposal is non-binding until execution of a definitive agreement, while specifically making confidentiality, exclusivity, governing law or cost-sharing clauses binding. Such wording must be consistent throughout the LOI. Deposits and forfeiture provisions require particular care; their enforceability depends on contract law, specific relief and judicial principles on penalties.",
+              "Enforcement and Dispute Resolution: If an LOI creates binding duties, remedies may include damages, refund, or specific performance under the Specific Relief Act, 1963 in appropriate circumstances. The document may specify negotiation, mediation, arbitration under the Arbitration and Conciliation Act, 1996, or civil litigation, along with governing law and jurisdiction."
           ]
       },
       {
-          "heading": "Other Regulatory Considerations",
-          "paragraphs": [
-              "Where relevant, the Real Estate (Regulation and Development) Act, 2016 (RERA) governs registered real estate projects and promoter obligations. State-specific land, tenancy, zoning and revenue rules may also apply. Buyers should verify ownership, title chain, encumbrances, approvals, land-use restrictions, pending disputes and applicable RERA registration before committing funds."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Binding Versus Non-Binding Terms",
-          "paragraphs": [
-              "Parties often state that the commercial proposal is non-binding until execution of a definitive agreement, while specifically making confidentiality, exclusivity, governing law or cost-sharing clauses binding. Such wording must be consistent throughout the LOI. Deposits and forfeiture provisions require particular care; their enforceability depends on applicable law and facts."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Enforcement and Dispute Resolution",
-          "paragraphs": [
-              "If a dispute arises, courts assess the actual commitments and conduct of the parties rather than the document title alone. Remedies may include damages or, where legally available, specific performance under the Specific Relief Act, 1963. An LOI may include negotiation, mediation, arbitration or court-jurisdiction provisions, drafted to suit the transaction."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Conclusion",
+          "heading": "4. Conclusion",
           "paragraphs": [
               "A real-estate purchase LOI is a useful negotiating roadmap, not proof of ownership. Clear drafting of binding status, contingencies, timelines and due-diligence requirements reduces disputes. Before signing or paying a deposit, parties should obtain property-specific legal and title verification.",
               "Educational overview only; not a transaction-specific legal opinion."

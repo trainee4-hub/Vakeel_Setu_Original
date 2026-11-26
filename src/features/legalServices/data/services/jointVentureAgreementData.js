@@ -19,32 +19,20 @@ export const jointVentureAgreementData = {
           "bullets": []
       },
       {
-          "heading": "Legal Framework in India",
+          "heading": "3. Legal Framework in India",
           "paragraphs": [],
           "bullets": [
               "Indian Contract Act, 1872: The JVA is generally governed by principles of valid contracts, including free consent, lawful consideration, lawful object, competent parties, performance, breach, and remedies. Its enforceability depends on the terms and applicable law.",
               "Companies Act, 2013: If the venture operates through an Indian company, incorporation, corporate governance, directors' duties, shareholder rights, filings, and other compliance obligations are governed by company law. The JVA should be consistent with the company's constitutional documents and mandatory statutory requirements.",
               "Limited Liability Partnership Act, 2008: If parties choose an LLP structure, its formation, partners' rights and duties, and compliance are governed by this Act and the LLP agreement.",
               "Competition Act, 2002: Certain joint ventures may raise competition-law issues, including anti-competitive coordination or notifiable combinations. The arrangement should be assessed for competition compliance.",
-              "Foreign Exchange Management Act, 1999 and FDI rules: Cross-border ventures involving foreign investment must comply with applicable foreign investment policy, sectoral caps, entry routes, pricing, reporting, and related FEMA requirements."
+              "Foreign Exchange Management Act, 1999 and FDI rules: Cross-border ventures involving foreign investment must comply with applicable foreign investment policy, sectoral caps, entry routes, pricing, reporting, and related FEMA requirements.",
+              "Other Applicable Laws: Depending on the venture, the parties may also need to comply with the Income-tax Act, 1961, GST legislation, labour and employment laws, intellectual property laws, sector-specific licensing requirements, and applicable stamp-duty and registration rules. Regulatory approvals may be necessary before commencing operations.",
+              "Dispute Resolution and Enforcement: JVAs commonly provide for negotiation, mediation, arbitration, or court proceedings. Arbitration clauses may be governed by the Arbitration and Conciliation Act, 1996. Parties should specify the governing law, seat and venue of arbitration (if used), jurisdiction, remedies for breach, and mechanisms to address management deadlock or an early exit."
           ]
       },
       {
-          "heading": "Other Applicable Laws",
-          "paragraphs": [
-              "Depending on the venture, the parties may also need to comply with the Income-tax Act, 1961, GST legislation, labour and employment laws, intellectual property laws, sector-specific licensing requirements, and applicable stamp-duty and registration rules. Regulatory approvals may be necessary before commencing operations."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Dispute Resolution and Enforcement",
-          "paragraphs": [
-              "JVAs commonly provide for negotiation, mediation, arbitration, or court proceedings. Arbitration clauses may be governed by the Arbitration and Conciliation Act, 1996. Parties should specify the governing law, seat and venue of arbitration (if used), jurisdiction, remedies for breach, and mechanisms to address management deadlock or an early exit."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Conclusion",
+          "heading": "4. Conclusion",
           "paragraphs": [
               "A Joint Venture Agreement is a central legal and commercial document for collaborative business activity. By defining rights, obligations, governance, risk allocation, and exit procedures, it creates accountability and reduces uncertainty. In India, the precise legal framework depends on the venture's structure, sector, participants, and cross-border elements. Professional legal review is advisable before execution.",
               "Educational overview only; not a substitute for transaction-specific legal advice."

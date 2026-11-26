@@ -21,7 +21,7 @@ const LegalConsultationCard = ({ serviceTitle = "Legal Services", className = ""
   }, []);
 
   return (
-    <div className={`w-full max-w-[340px] mx-auto lg:mx-0 flex flex-col gap-3.5 ${className}`}>
+    <div className={`w-full flex flex-col gap-3.5 ${className}`}>
       {/* ─────────────────────────────────────────────────────────────
           1. MAIN CARD (Dark Navy + Gold — Matching Reference)
       ───────────────────────────────────────────────────────────── */}

@@ -16,31 +16,19 @@ export const saleDeedDraftingData = {
           "bullets": []
       },
       {
-          "heading": "Legal Framework in India",
+          "heading": "3. Legal Framework in India",
           "paragraphs": [],
           "bullets": [
               "Transfer of Property Act, 1882: Section 54 defines sale and generally requires a registered instrument to transfer tangible immovable property valued at Rs. 100 or more; a mere contract for sale does not itself create an interest in the property. Sections 55 and related provisions address rights and liabilities of buyer and seller, subject to the contract and applicable law.",
               "Registration Act, 1908: Section 17 provides for compulsory registration of relevant instruments, while Sections 23 and 49 concern presentation timelines and consequences of non-registration. Registration is carried out before the competent Sub-Registrar.",
               "Indian Stamp Act, 1899 and State Stamp Laws: Applicable stamp duty and registration fees depend on the state, property, valuation rules, and transaction particulars. Under-stamping can lead to penalties and evidentiary difficulties.",
-              "Indian Contract Act, 1872: General principles of free consent, lawful consideration, capacity, and enforceability apply to the transaction."
+              "Indian Contract Act, 1872: General principles of free consent, lawful consideration, capacity, and enforceability apply to the transaction.",
+              "Drafting, Verification and Execution: Before signing, the buyer should undertake due diligence on the chain of title, identity and authority of the seller, encumbrance certificates, revenue or municipal records, approvals, and any mortgages or disputes. The deed should reflect the actual transaction and identify any conditions already satisfied. Parties should comply with applicable identity, witness, stamp, registration, tax withholding and local procedural requirements. Registration and subsequent mutation serve different functions: mutation updates administrative records and does not by itself confer title.",
+              "Legal Risks and Dispute Resolution: Ambiguous property descriptions, undisclosed charges, defective authority, inaccurate consideration records, or improper execution can lead to litigation. Depending on the facts, remedies may include damages, cancellation, declarations, or other relief under the Specific Relief Act, 1963 and applicable procedural law. Parties may specify jurisdiction and lawful dispute-resolution mechanisms, but cannot contract out of mandatory registration or statutory protections."
           ]
       },
       {
-          "heading": "Drafting, Verification and Execution",
-          "paragraphs": [
-              "Before signing, the buyer should undertake due diligence on the chain of title, identity and authority of the seller, encumbrance certificates, revenue or municipal records, approvals, and any mortgages or disputes. The deed should reflect the actual transaction and identify any conditions already satisfied. Parties should comply with applicable identity, witness, stamp, registration, tax withholding and local procedural requirements. Registration and subsequent mutation serve different functions: mutation updates administrative records and does not by itself confer title."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Legal Risks and Dispute Resolution",
-          "paragraphs": [
-              "Ambiguous property descriptions, undisclosed charges, defective authority, inaccurate consideration records, or improper execution can lead to litigation. Depending on the facts, remedies may include damages, cancellation, declarations, or other relief under the Specific Relief Act, 1963 and applicable procedural law. Parties may specify jurisdiction and lawful dispute-resolution mechanisms, but cannot contract out of mandatory registration or statutory protections."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Conclusion",
+          "heading": "4. Conclusion",
           "paragraphs": [
               "Sale deed drafting is a critical part of a secure real-estate transfer. Clear terms, thorough title verification, correct stamping, and registration reduce uncertainty and protect both parties. State-specific property, land-use, and registration rules should be checked before execution.",
               "Educational overview only; not a substitute for jurisdiction-specific legal advice."

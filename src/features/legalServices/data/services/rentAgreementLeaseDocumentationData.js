@@ -8,24 +8,22 @@ export const rentAgreementLeaseDocumentationData = {
           ],
           "bullets": []
       },
-      {
-          "heading": "Rent Agreement and Lease: Key Distinctions",
-          "paragraphs": [
-              "In everyday Indian practice, rent agreement often refers to a shorter tenancy arrangement, while lease deed commonly describes a longer grant of the right to enjoy property. However, the legal effect depends on the substance and duration of the arrangement, not merely its title. A lease transfers a right to enjoy property for an agreed period or consideration; a licence ordinarily gives permission to use property without creating an interest in it."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Legal Framework in India",
-          "paragraphs": [
-              "The Transfer of Property Act, 1882, particularly sections 105-117, provides the general law governing leases of immovable property, including their creation, rights and liabilities, and determination. Section 106 addresses termination by notice where applicable, subject to contract and local law. The Indian Contract Act, 1872 governs contractual validity, consent, lawful consideration, and enforceable obligations. State rent-control or tenancy laws may override or supplement general principles for covered premises."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Registration and Stamp Duty",
-          "paragraphs": [
-              "Under section 107 of the Transfer of Property Act and section 17(1)(d) of the Registration Act, 1908, leases from year to year, for a term exceeding one year, or reserving yearly rent generally require a registered instrument. Shorter arrangements may still be subject to state-specific requirements. Stamp duty and registration charges vary by state, duration, rent, and deposit. An insufficiently stamped or compulsorily registrable but unregistered document can face evidentiary and enforceability limitations; the applicable rules should be checked before execution."
+                  {
+          "heading": "Legal Framework and Key Statutory Distinctions",
+          "paragraphs": [],
+          "subsections": [
+              {
+                  "badge": "A",
+                  "title": "Part A: Key Distinctions (Rent Agreement vs Lease)",
+                  "intro": "In everyday Indian practice, “rent agreement” often refers to a shorter tenancy arrangement, while “lease deed” commonly describes a longer grant of the right to enjoy property. However, the legal effect depends on the substance and duration of the arrangement, not merely its title. A lease transfers a right to enjoy property for an agreed period or consideration; a licence ordinarily gives permission to use property without creating an interest in it.",
+                  "bullets": []
+              },
+              {
+                  "badge": "B",
+                  "title": "Part B: Registration & Stamp Duty Rules",
+                  "intro": "The Transfer of Property Act, 1882, particularly sections 105–117, provides the general law governing leases of immovable property, including their creation, rights and liabilities, and determination. Section 106 addresses termination by notice where applicable, subject to contract and local law. The Indian Contract Act, 1872 governs contractual validity, consent, lawful consideration, and enforceable obligations. State rent-control or tenancy laws may override or supplement general principles for covered premises.\n\nUnder section 107 of the Transfer of Property Act and section 17(1)(d) of the Registration Act, 1908, leases from year to year, for a term exceeding one year, or reserving yearly rent generally require a registered instrument. Shorter arrangements may still be subject to state-specific requirements. Stamp duty and registration charges vary by state, duration, rent, and deposit. An insufficiently stamped or compulsorily registrable but unregistered document can face evidentiary and enforceability limitations; the applicable rules should be checked before execution.",
+                  "bullets": []
+              }
           ],
           "bullets": []
       },

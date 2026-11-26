@@ -219,32 +219,23 @@ const LegalServicesMegaMenu = ({ navItemClass, isActive }) => {
                         key={svc.slug}
                         to={`/legal-services/${activeCategory.slug}/${svc.slug}`}
                         onClick={() => setIsOpen(false)}
-                        className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs transition-all duration-300 ease-out hover:-translate-y-1.5 ${theme.hoverBorder} hover:shadow-xl ${theme.hoverShadow} before:absolute before:left-0 before:top-3 before:bottom-3 before:w-1 before:rounded-r-full before:bg-transparent ${theme.accentBar} before:transition-all before:duration-300 group-hover:before:w-1.5`}
+                        className={`group relative flex items-center justify-between overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-4.5 shadow-xs transition-all duration-300 ease-out hover:-translate-y-1 ${theme.hoverBorder} hover:shadow-lg ${theme.hoverShadow} before:absolute before:left-0 before:top-2.5 before:bottom-2.5 before:w-1 before:rounded-r-full before:bg-transparent ${theme.accentBar} before:transition-all before:duration-300 group-hover:before:w-1.5`}
                       >
-                        <div>
-                          {/* Title Row with Verified Pill and Multi-Color Hover Arrow */}
-                          <div className="flex items-start justify-between gap-2.5">
-                            <h4
-                              className={`text-sm sm:text-[14.5px] font-black text-slate-900 ${theme.hoverTitle} transition-colors duration-200 leading-snug tracking-tight`}
-                            >
-                              {svc.title}
-                            </h4>
-                            <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
-                              {svc.isSampleFullPage && (
-                                <span className="rounded-full bg-emerald-50 border border-emerald-200/80 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-emerald-700">
-                                  Verified
-                                </span>
-                              )}
-                              <FiArrowRight
-                                className={`${theme.arrowColor} text-base opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 ease-out`}
-                              />
-                            </div>
-                          </div>
-
-                          {/* Summary Description with Generous Spacing */}
-                          <p className="mt-2.5 text-xs text-slate-600 line-clamp-2 leading-relaxed font-normal">
-                            {svc.summary}
-                          </p>
+                        {/* Heading only as requested */}
+                        <h4
+                          className={`text-sm sm:text-[14px] font-black text-slate-900 ${theme.hoverTitle} transition-colors duration-200 leading-snug tracking-tight pr-2`}
+                        >
+                          {svc.title}
+                        </h4>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {svc.isSampleFullPage && (
+                            <span className="rounded-full bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-emerald-700">
+                              Verified
+                            </span>
+                          )}
+                          <FiArrowRight
+                            className={`${theme.arrowColor} text-base opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 ease-out`}
+                          />
                         </div>
                       </Link>
                     );

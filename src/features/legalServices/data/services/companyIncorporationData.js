@@ -12,15 +12,36 @@ export const companyIncorporationData = {
           ],
           "bullets": []
       },
-      {
+                  {
           "heading": "2. Applicable Laws and Legal Provisions",
           "paragraphs": [],
-          "bullets": [
-              "Companies Act, 2013: This is the principal legislation governing the formation, registration, management and regulation of companies in India. Important provisions include Section 3 (formation of a company), Section 4 (Memorandum of Association), Section 5 (Articles of Association), Section 7 (incorporation), Section 9 (effect of registration), Section 10 (binding effect of MOA and AOA), and Section 12 (registered office of the company).",
-              "Companies (Incorporation) Rules, 2014: These rules prescribe the procedural requirements, forms, declarations, documents and manner of filing applications for incorporation. They operate alongside the Companies Act, 2013 and have been amended from time to time.",
-              "Indian Contract Act, 1872: Contract law is relevant to agreements entered into by the company after incorporation and, where applicable, to arrangements made by promoters before incorporation. A company must act through persons authorised under law and its constitutional documents.",
-              "Other applicable legislations: Depending on the nature, size and activities of the business, a company may also need to comply with the Foreign Exchange Management Act, 1999 (including applicable foreign investment rules), the Goods and Services Tax laws, applicable labour and employment laws, the Competition Act, 2002, environmental laws, intellectual property laws and sector-specific regulations. These laws do not all apply to every company; applicability depends on the facts and business activity."
-          ]
+          "subsections": [
+              {
+                  "badge": "A",
+                  "title": "Companies Act, 2013",
+                  "intro": "This is the principal legislation governing the formation, registration, management and regulation of companies in India. Important provisions include Section 3 (formation of a company), Section 4 (Memorandum of Association), Section 5 (Articles of Association), Section 7 (incorporation), Section 9 (effect of registration), Section 10 (binding effect of MOA and AOA), and Section 12 (registered office of the company).",
+                  "bullets": []
+              },
+              {
+                  "badge": "B",
+                  "title": "Companies (Incorporation) Rules, 2014",
+                  "intro": "These rules prescribe the procedural requirements, forms, declarations, documents and manner of filing applications for incorporation. They operate alongside the Companies Act, 2013 and have been amended from time to time.",
+                  "bullets": []
+              },
+              {
+                  "badge": "C",
+                  "title": "Indian Contract Act, 1872",
+                  "intro": "Contract law is relevant to agreements entered into by the company after incorporation and, where applicable, to arrangements made by promoters before incorporation. A company must act through persons authorised under law and its constitutional documents.",
+                  "bullets": []
+              },
+              {
+                  "badge": "D",
+                  "title": "Other Applicable Legislations",
+                  "intro": "Depending on the nature, size and activities of the business, a company may also need to comply with the Foreign Exchange Management Act, 1999 (including applicable foreign investment rules), the Goods and Services Tax laws, applicable labour and employment laws, the Competition Act, 2002, environmental laws, intellectual property laws and sector-specific regulations. These laws do not all apply to every company; applicability depends on the facts and business activity.",
+                  "bullets": []
+              }
+          ],
+          "bullets": []
       },
       {
           "heading": "3. Key Requirements and Incorporation Procedure",

@@ -12,39 +12,16 @@ export const landlordTenantDisputeData = {
           "bullets": []
       },
       {
-          "heading": "Purpose of the Legal Framework",
+          "heading": "2. Legal Framework in India",
           "paragraphs": [
               "The legal framework seeks to balance the landlord's interest in receiving rent and recovering possession lawfully with the tenant's interest in peaceful occupation, fair treatment, and protection against arbitrary dispossession. The appropriate forum and procedure depend on the location of the property, its use, the tenancy terms, and the law applicable in that state."
           ],
-          "bullets": []
-      },
-      {
-          "heading": "Transfer of Property Act, 1882",
-          "paragraphs": [
-              "Sections 105-117 provide general rules governing leases of immovable property. Section 106 sets out default rules on duration and notice for certain leases where there is no contract or local law to the contrary. Section 108 addresses rights and liabilities of lessors and lessees. These provisions operate subject to applicable special tenancy legislation."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "State Rent and Tenancy Laws",
-          "paragraphs": [
-              "Rent regulation in India is substantially state-specific. State laws may prescribe permitted grounds for eviction, rent revision, essential services, deposit-related duties, and dedicated authorities or tribunals. For example, Uttar Pradesh has the Uttar Pradesh Regulation of Urban Premises Tenancy Act, 2021, with its own framework for covered urban tenancies. The Model Tenancy Act, 2021 is a model for states and is not automatically binding throughout India."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Indian Contract Act, 1872",
-          "paragraphs": [
-              "A rent agreement is also a contract. General principles concerning consent, lawful consideration, performance, breach, and compensation may apply where not displaced by specific property or tenancy legislation. Clauses on rent, security deposit, notice, maintenance, and permitted use should be clear and consistent with mandatory law."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Registration Act, 1908 and Stamp Laws",
-          "paragraphs": [
-              "Certain leases, including leases from year to year or for a term exceeding one year, generally require registration under Section 17 of the Registration Act, 1908. Section 107 of the Transfer of Property Act is also relevant. Stamp duty varies by state and document type; inadequate stamping or non-registration can affect admissibility and enforcement."
-          ],
-          "bullets": []
+          "bullets": [
+              "Transfer of Property Act, 1882: Sections 105-117 provide general rules governing leases of immovable property. Section 106 sets out default rules on duration and notice for certain leases where there is no contract or local law to the contrary. Section 108 addresses rights and liabilities of lessors and lessees. These provisions operate subject to applicable special tenancy legislation.",
+              "State Rent and Tenancy Laws: Rent regulation in India is substantially state-specific. State laws may prescribe permitted grounds for eviction, rent revision, essential services, deposit-related duties, and dedicated authorities or tribunals. For example, Uttar Pradesh has the Uttar Pradesh Regulation of Urban Premises Tenancy Act, 2021, with its own framework for covered urban tenancies. The Model Tenancy Act, 2021 is a model for states and is not automatically binding throughout India.",
+              "Indian Contract Act, 1872: A rent agreement is also a contract. General principles concerning consent, lawful consideration, performance, breach, and compensation may apply where not displaced by specific property or tenancy legislation. Clauses on rent, security deposit, notice, maintenance, and permitted use should be clear and consistent with mandatory law.",
+              "Registration Act, 1908 and Stamp Laws: Certain leases, including leases from year to year or for a term exceeding one year, generally require registration under Section 17 of the Registration Act, 1908. Section 107 of the Transfer of Property Act is also relevant. Stamp duty varies by state and document type; inadequate stamping or non-registration can affect admissibility and enforcement."
+          ]
       },
       {
           "heading": "Typical Disputes and Available Remedies",

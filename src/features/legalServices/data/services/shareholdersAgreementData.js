@@ -16,21 +16,18 @@ export const shareholdersAgreementData = {
           "bullets": []
       },
       {
-          "heading": "Legal Framework in India",
-          "paragraphs": [
-              "Indian Contract Act, 1872: An SHA is principally governed by general contract law. Its terms must satisfy the requirements of a valid contract, including free consent, lawful consideration and lawful object. Provisions that violate statutory law or public policy may be unenforceable. Companies Act, 2013: Corporate governance, shareholder rights, share issuance, meetings, directors' duties and transfer-related matters must comply with the Act. The SHA should be coordinated with the company's Memorandum and Articles of Association. Where a contractual provision conflicts with mandatory company law or the AoA, enforceability against the company may be limited; appropriate AoA amendments are often advisable. SEBI regulations: Where listed companies or regulated securities transactions are involved, applicable SEBI rules, disclosure requirements and securities laws may affect contractual rights and their implementation. Foreign exchange laws: If a shareholder is a non-resident, the Foreign Exchange Management Act, 1999 and applicable foreign investment rules may govern pricing, transfers, reporting and exit arrangements."
-          ],
-          "bullets": []
+          "heading": "3. Legal Framework in India",
+          "paragraphs": [],
+          "bullets": [
+              "Indian Contract Act, 1872: An SHA is principally governed by general contract law. Its terms must satisfy the requirements of a valid contract, including free consent, lawful consideration and lawful object. Provisions that violate statutory law or public policy may be unenforceable.",
+              "Companies Act, 2013: Corporate governance, shareholder rights, share issuance, meetings, directors' duties and transfer-related matters must comply with the Act. The SHA should be coordinated with the company's Memorandum and Articles of Association. Where a contractual provision conflicts with mandatory company law or the AoA, enforceability against the company may be limited; appropriate AoA amendments are often advisable.",
+              "SEBI Regulations: Where listed companies or regulated securities transactions are involved, applicable SEBI rules, disclosure requirements and securities laws may affect contractual rights and their implementation.",
+              "Foreign Exchange Laws (FEMA): If a shareholder is a non-resident, the Foreign Exchange Management Act, 1999 and applicable foreign investment rules may govern pricing, transfers, reporting and exit arrangements.",
+              "Enforcement and Dispute Resolution: Parties commonly include governing-law, jurisdiction and arbitration clauses. The Arbitration and Conciliation Act, 1996 provides a framework for arbitration where the dispute is arbitrable. Remedies may include damages, injunctions or specific performance where legally available. However, a contractual right does not automatically override statutory restrictions or bind persons who are not parties to the agreement."
+          ]
       },
       {
-          "heading": "Enforcement and Dispute Resolution",
-          "paragraphs": [
-              "Parties commonly include governing-law, jurisdiction and arbitration clauses. The Arbitration and Conciliation Act, 1996 provides a framework for arbitration where the dispute is arbitrable. Remedies may include damages, injunctions or specific performance where legally available. However, a contractual right does not automatically override statutory restrictions or bind persons who are not parties to the agreement."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Conclusion",
+          "heading": "4. Conclusion",
           "paragraphs": [
               "A Shareholders Agreement is an important tool for defining ownership-related expectations and reducing uncertainty in company management. In India, it works best when drafted consistently with the Companies Act, 2013, the company's Articles of Association and other applicable regulations. Its provisions should be tailored to the company's shareholding structure and business objectives.",
               "Educational overview only; not a substitute for transaction-specific legal advice."

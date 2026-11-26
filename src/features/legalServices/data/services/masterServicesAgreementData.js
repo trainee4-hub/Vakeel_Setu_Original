@@ -30,35 +30,12 @@ export const masterServicesAgreementData = {
           "paragraphs": [
               "India does not have a single statute dedicated exclusively to MSAs. Their validity and enforcement primarily depend on general contract law and applicable sector-specific legislation."
           ],
-          "bullets": []
-      },
-      {
-          "heading": "Indian Contract Act, 1872",
-          "paragraphs": [
-              "Section 10 sets out the basic requirements for an enforceable agreement, including free consent, competent parties, lawful consideration and a lawful object. Provisions on performance, breach and compensation are relevant to service obligations. Sections 73 and 74 address compensation for breach and stipulated sums, subject to legal limits."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Information Technology Act, 2000",
-          "paragraphs": [
-              "Electronic contracts can be legally recognised under Section 10A, subject to applicable requirements. Electronic records and signatures may also be relevant to contract execution and evidence."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Intellectual Property and Data Protection",
-          "paragraphs": [
-              "The Copyright Act, 1957 and other applicable intellectual property laws influence ownership and licensing of software, reports, designs and other deliverables. Where personal data is processed, the Digital Personal Data Protection Act, 2023 and applicable rules and commencement notifications must be considered, along with relevant information-security obligations."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Dispute Resolution and Other Applicable Laws",
-          "paragraphs": [
-              "The Arbitration and Conciliation Act, 1996 governs arbitration agreements and proceedings where parties choose arbitration. Depending on the services, the Specific Relief Act, 1963, tax laws, labour laws, consumer law and industry-specific regulations may also apply. Stamp-duty and execution requirements can vary by state and document type."
-          ],
-          "bullets": []
+          "bullets": [
+              "Indian Contract Act, 1872: Section 10 sets out the basic requirements for an enforceable agreement, including free consent, competent parties, lawful consideration and a lawful object. Provisions on performance, breach and compensation are relevant to service obligations. Sections 73 and 74 address compensation for breach and stipulated sums, subject to legal limits.",
+              "Information Technology Act, 2000: Electronic contracts can be legally recognised under Section 10A, subject to applicable requirements. Electronic records and signatures may also be relevant to contract execution and evidence.",
+              "Intellectual Property and Data Protection: The Copyright Act, 1957 and other applicable intellectual property laws influence ownership and licensing of software, reports, designs and other deliverables. Where personal data is processed, the Digital Personal Data Protection Act, 2023 and applicable rules and commencement notifications must be considered, along with relevant information-security obligations.",
+              "Dispute Resolution and Other Applicable Laws: The Arbitration and Conciliation Act, 1996 governs arbitration agreements and proceedings where parties choose arbitration. Depending on the services, the Specific Relief Act, 1963, tax laws, labour laws, consumer law and industry-specific regulations may also apply. Stamp-duty and execution requirements can vary by state and document type."
+          ]
       },
       {
           "heading": "5. Conclusion",

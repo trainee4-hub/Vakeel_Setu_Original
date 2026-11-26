@@ -23,35 +23,18 @@ export const scopeOfWorkAgreementData = {
           "bullets": []
       },
       {
-          "heading": "Legal Framework in India",
+          "heading": "3. Legal Framework in India",
           "paragraphs": [
               "India does not have a single statute exclusively governing SOW agreements. Their validity and enforcement generally depend on ordinary contract law and on any sector-specific legislation applicable to the underlying services. The title of the document is not decisive: courts assess the actual terms, intention of the parties and surrounding circumstances to determine whether binding obligations exist."
           ],
-          "bullets": []
+          "bullets": [
+              "Indian Contract Act, 1872: Section 10 sets out the broad requirements for an enforceable agreement, including lawful consideration, lawful object and free consent of competent parties. Sections 73 and 74 address compensation for breach and contractual sums stipulated for breach, subject to legal limits. Accordingly, an SOW should state obligations precisely and avoid ambiguous promises, unlawful terms or unrealistic penalty provisions.",
+              "Specific Relief Act, 1963: The Specific Relief Act, 1963 may provide remedies such as specific performance or injunctions where statutory conditions are satisfied. However, certain contracts, including those involving continuous duties that courts cannot supervise or contracts dependent on personal qualifications, may not be specifically enforceable. Damages or other contractual remedies may therefore be more appropriate in many service disputes.",
+              "Other Applicable Laws and Dispute Resolution: Depending on the transaction, the Information Technology Act, 2000 and applicable electronic-signature rules may be relevant to electronic execution. Intellectual property laws, tax rules, data protection obligations and industry regulations may also apply. Parties commonly specify negotiation, mediation, arbitration under the Arbitration and Conciliation Act, 1996, or litigation before courts with appropriate jurisdiction. Arbitration clauses should be drafted clearly and separately considered."
+          ]
       },
       {
-          "heading": "Indian Contract Act, 1872",
-          "paragraphs": [
-              "The Indian Contract Act, 1872 is the primary legal foundation. Section 10 sets out the broad requirements for an enforceable agreement, including lawful consideration, lawful object and free consent of competent parties. Sections 73 and 74 address compensation for breach and contractual sums stipulated for breach, subject to legal limits. Accordingly, an SOW should state obligations precisely and avoid ambiguous promises, unlawful terms or unrealistic penalty provisions."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Specific Relief Act, 1963",
-          "paragraphs": [
-              "The Specific Relief Act, 1963 may provide remedies such as specific performance or injunctions where statutory conditions are satisfied. However, certain contracts, including those involving continuous duties that courts cannot supervise or contracts dependent on personal qualifications, may not be specifically enforceable. Damages or other contractual remedies may therefore be more appropriate in many service disputes."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Other Applicable Laws and Dispute Resolution",
-          "paragraphs": [
-              "Depending on the transaction, the Information Technology Act, 2000 and applicable electronic-signature rules may be relevant to electronic execution. Intellectual property laws, tax rules, data protection obligations and industry regulations may also apply. Parties commonly specify negotiation, mediation, arbitration under the Arbitration and Conciliation Act, 1996, or litigation before courts with appropriate jurisdiction. Arbitration clauses should be drafted clearly and separately considered."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Conclusion",
+          "heading": "4. Conclusion",
           "paragraphs": [
               "A well-drafted Scope of Work Agreement converts business expectations into clear contractual commitments. In India, its enforceability primarily rests on contract-law principles, supplemented by relevant remedial and sector-specific laws. Clearly defining deliverables, change requests, payment and remedies reduces operational uncertainty and helps protect both client and service provider.",
               "Educational overview only; legal outcomes depend on the agreement and facts."

@@ -46,16 +46,42 @@ export const affidavitNotesData = {
           ],
           "bullets": []
       },
-      {
+                  {
           "heading": "4. Common Types of Affidavits",
           "paragraphs": [],
-          "bullets": [
-              "Identity or address affidavit: Declares identifying or residential particulars.",
-              "Name-change or name-discrepancy affidavit: Explains different names appearing in records.",
-              "Lost-document affidavit: Records the circumstances in which a document was lost.",
-              "Court affidavit: Supports an application, petition or statement filed in judicial proceedings.",
-              "Financial or family-status affidavit: States income, assets, marital status or other relevant facts where legally required."
-          ]
+          "subsections": [
+              {
+                  "badge": "A",
+                  "title": "Identity or Address Affidavit",
+                  "intro": "Declares identifying or residential particulars.",
+                  "bullets": []
+              },
+              {
+                  "badge": "B",
+                  "title": "Name-Change or Name-Discrepancy Affidavit",
+                  "intro": "Explains different names appearing in records.",
+                  "bullets": []
+              },
+              {
+                  "badge": "C",
+                  "title": "Lost-Document Affidavit",
+                  "intro": "Records the circumstances in which a document was lost.",
+                  "bullets": []
+              },
+              {
+                  "badge": "D",
+                  "title": "Court Affidavit",
+                  "intro": "Supports an application, petition or statement filed in judicial proceedings.",
+                  "bullets": []
+              },
+              {
+                  "badge": "E",
+                  "title": "Financial or Family-Status Affidavit",
+                  "intro": "States income, assets, marital status or other relevant facts where legally required.",
+                  "bullets": []
+              }
+          ],
+          "bullets": []
       },
       {
           "heading": "5. Legal Framework in India",

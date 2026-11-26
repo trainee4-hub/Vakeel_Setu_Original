@@ -441,6 +441,20 @@ const ServiceDetailPage = () => {
                 const isDocumentsSection = sectionType === "document";
                 const isLawsSection = sectionType === "laws";
 
+                // Intelligent split of intro paragraphs around bullets (lead-in paragraphs ending with ':' belong before bullets)
+                let beforeIntroParas = sec.paragraphs || [];
+                let afterIntroParas = [];
+                if (isIntroSection && hasBullets && hasParagraphs) {
+                  const colonIdx = sec.paragraphs.findIndex((p) => /:\s*$/.test(String(p).trim()));
+                  if (colonIdx !== -1) {
+                    beforeIntroParas = sec.paragraphs.slice(0, colonIdx + 1);
+                    afterIntroParas = sec.paragraphs.slice(colonIdx + 1);
+                  } else {
+                    beforeIntroParas = [sec.paragraphs[0]];
+                    afterIntroParas = sec.paragraphs.slice(1);
+                  }
+                }
+
                 return (
                   <section
                     key={idx}
@@ -472,7 +486,7 @@ const ServiceDetailPage = () => {
                       <div className="mt-5 flex items-stretch gap-4 sm:gap-5">
                         <div className="w-2 sm:w-2.5 shrink-0 rounded-full bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 shadow-xs ring-1 ring-amber-400/25 my-1" />
                         <div className="space-y-5 sm:space-y-6 text-slate-700 font-normal text-sm sm:text-base leading-[1.85] tracking-normal">
-                          {(hasBullets ? [sec.paragraphs[0]] : sec.paragraphs).map((paraBlock, pIdx) => {
+                          {beforeIntroParas.map((paraBlock, pIdx) => {
                             const subParas = String(paraBlock || "")
                               .split(/\n+/)
                               .map((p) => p.trim())
@@ -526,9 +540,9 @@ const ServiceDetailPage = () => {
                     )}
 
                     {/* Concluding Paragraphs in Intro after Bullets (if any) */}
-                    {isIntroSection && hasBullets && hasParagraphs && sec.paragraphs.length > 1 && (
+                    {isIntroSection && hasBullets && afterIntroParas.length > 0 && (
                       <div className="mt-5 space-y-4 text-slate-700 font-normal text-sm sm:text-base leading-[1.85]">
-                        {sec.paragraphs.slice(1).map((paraBlock, pIdx) => (
+                        {afterIntroParas.map((paraBlock, pIdx) => (
                           <p key={pIdx}>{renderTextWithLinks(paraBlock)}</p>
                         ))}
                       </div>
@@ -688,8 +702,86 @@ const ServiceDetailPage = () => {
                     ═════════════════════════════════════════════════════════════ */}
                     {isLawsSection && (
                       <div className="mt-6 space-y-5">
-                        {/* If data has pre-structured legalFramework sections (e.g. Legal Heir Certificate) */}
-                        {Array.isArray(data.legalFramework?.sections) && data.legalFramework.sections.length > 0 && !hasBullets ? (
+                        {/* Introductory context paragraphs if any */}
+                        {hasParagraphs && hasBullets && (
+                          <div className="space-y-4 text-slate-700 text-sm sm:text-base leading-[1.85] font-normal mb-5">
+                            {sec.paragraphs.map((paraBlock, pIdx) => {
+                              const subParas = String(paraBlock || "")
+                                .split(/\n+/)
+                                .map((p) => p.trim())
+                                .filter(Boolean);
+                              return (
+                                <React.Fragment key={pIdx}>
+                                  {subParas.map((para, spIdx) => (
+                                    <p key={spIdx}>{renderTextWithLinks(para)}</p>
+                                  ))}
+                                </React.Fragment>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {/* Hierarchical Subsections Model (Heading -> Sub-headings -> Sections / Bullets) */}
+                        {Array.isArray(sec.subsections) && sec.subsections.length > 0 ? (
+                          sec.subsections.map((sub, sIdx) => {
+                            const isFirst = sIdx === 0;
+                            return (
+                              <div
+                                key={sIdx}
+                                className={`overflow-hidden rounded-2xl border ${
+                                  isFirst
+                                    ? "border-amber-400/80 bg-gradient-to-br from-white via-amber-50/20 to-slate-50/60 shadow-xs"
+                                    : "border-slate-200/90 bg-white"
+                                } p-5 sm:p-6 shadow-xs transition hover:border-amber-400/60 hover:shadow-sm`}
+                              >
+                                {/* Sub-heading Title Row */}
+                                <div className="flex items-center gap-3 pb-3 border-b border-slate-200/70">
+                                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-amber-400 text-xs font-black shadow-xs">
+                                    {sub.badge || String.fromCharCode(65 + sIdx)}
+                                  </span>
+                                  <h3 className="text-base sm:text-lg font-black text-slate-950 tracking-tight">
+                                    {sub.title}
+                                  </h3>
+                                </div>
+
+                                {/* Sub-heading Intro / Description */}
+                                {sub.intro && (
+                                  <p className="mt-3.5 text-xs sm:text-sm text-slate-700 leading-[1.85] font-normal">
+                                    {renderTextWithLinks(sub.intro)}
+                                  </p>
+                                )}
+
+                                {/* Sub-heading Bullets / Provisions (e.g. Section 5, Section 7, Section 8) */}
+                                {Array.isArray(sub.bullets) && sub.bullets.length > 0 && (
+                                  <div className="mt-4 space-y-3">
+                                    {sub.bullets.map((bullet, bIdx) => {
+                                      const colonIdx = bullet.indexOf(":");
+                                      const hasColon = colonIdx !== -1 && colonIdx < 80;
+                                      const bTitle = hasColon ? bullet.slice(0, colonIdx).trim() : "";
+                                      const bDesc = hasColon ? bullet.slice(colonIdx + 1).trim() : bullet;
+
+                                      return (
+                                        <div
+                                          key={bIdx}
+                                          className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-3.5 sm:p-4 text-xs sm:text-sm transition hover:border-amber-300 hover:bg-amber-50/30"
+                                        >
+                                          {bTitle && (
+                                            <span className="font-black mr-2 text-amber-900 bg-amber-100/80 px-2 py-0.5 rounded text-[11px] uppercase tracking-wide">
+                                              {bTitle}
+                                            </span>
+                                          )}
+                                          <span className="text-slate-700 leading-relaxed font-normal">
+                                            {renderTextWithLinks(bDesc)}
+                                          </span>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })
+                        ) : Array.isArray(data.legalFramework?.sections) && data.legalFramework.sections.length > 0 && !hasBullets ? (
                           data.legalFramework.sections.map((part, pIdx) => (
                             <div
                               key={pIdx}
@@ -795,6 +887,70 @@ const ServiceDetailPage = () => {
                                     </p>
                                   ))}
                                 </React.Fragment>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {/* Hierarchical Subsections Model for Standard Sections (e.g. Affidavit Types, Rent Distinctions) */}
+                        {Array.isArray(sec.subsections) && sec.subsections.length > 0 && (
+                          <div className="mt-6 space-y-5">
+                            {sec.subsections.map((sub, sIdx) => {
+                              const isFirst = sIdx === 0;
+                              return (
+                                <div
+                                  key={sIdx}
+                                  className={`overflow-hidden rounded-2xl border ${
+                                    isFirst
+                                      ? "border-amber-400/80 bg-gradient-to-br from-white via-amber-50/20 to-slate-50/60 shadow-xs"
+                                      : "border-slate-200/90 bg-white"
+                                  } p-5 sm:p-6 shadow-xs transition hover:border-amber-400/60 hover:shadow-sm`}
+                                >
+                                  {/* Sub-heading Title Row */}
+                                  <div className="flex items-center gap-3 pb-3 border-b border-slate-200/70">
+                                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-amber-400 text-xs font-black shadow-xs">
+                                      {sub.badge || String.fromCharCode(65 + sIdx)}
+                                    </span>
+                                    <h3 className="text-base sm:text-lg font-black text-slate-950 tracking-tight">
+                                      {sub.title}
+                                    </h3>
+                                  </div>
+
+                                  {/* Sub-heading Intro / Description */}
+                                  {sub.intro && (
+                                    <p className="mt-3.5 text-xs sm:text-sm text-slate-700 leading-[1.85] font-normal">
+                                      {renderTextWithLinks(sub.intro)}
+                                    </p>
+                                  )}
+
+                                  {/* Sub-heading Bullets / Provisions */}
+                                  {Array.isArray(sub.bullets) && sub.bullets.length > 0 && (
+                                    <div className="mt-4 space-y-3">
+                                      {sub.bullets.map((bullet, bIdx) => {
+                                        const colonIdx = bullet.indexOf(":");
+                                        const hasColon = colonIdx !== -1 && colonIdx < 80;
+                                        const bTitle = hasColon ? bullet.slice(0, colonIdx).trim() : "";
+                                        const bDesc = hasColon ? bullet.slice(colonIdx + 1).trim() : bullet;
+
+                                        return (
+                                          <div
+                                            key={bIdx}
+                                            className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-3.5 sm:p-4 text-xs sm:text-sm transition hover:border-amber-300 hover:bg-amber-50/30"
+                                          >
+                                            {bTitle && (
+                                              <span className="font-black mr-2 text-amber-900 bg-amber-100/80 px-2 py-0.5 rounded text-[11px] uppercase tracking-wide">
+                                                {bTitle}
+                                              </span>
+                                            )}
+                                            <span className="text-slate-700 leading-relaxed font-normal">
+                                              {renderTextWithLinks(bDesc)}
+                                            </span>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
                               );
                             })}
                           </div>

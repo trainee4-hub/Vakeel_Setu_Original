@@ -12,32 +12,15 @@ export const evictionMatterData = {
           "bullets": []
       },
       {
-          "heading": "Legal Framework in India",
+          "heading": "2. Legal Framework in India",
           "paragraphs": [
               "Eviction disputes in India are governed by a combination of central property law, state-specific rent or tenancy statutes, contractual terms and procedural rules. The correct legal route depends on the state, nature of the premises, tenancy status and whether a special rent statute applies."
           ],
-          "bullets": []
-      },
-      {
-          "heading": "Transfer of Property Act, 1882",
-          "paragraphs": [
-              "Sections 105-117 regulate leases of immovable property. Section 106 provides default rules for duration and notice of termination where applicable, subject to contract and local law; Section 111 describes modes by which a lease determines. A notice must be assessed against the actual lease and statutory protections. Termination of a lease does not, by itself, authorise forcible eviction."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "State Rent Control and Tenancy Laws",
-          "paragraphs": [
-              "Many states have special statutes governing protected tenancies, permissible eviction grounds, rent, deposits and the competent forum. In Uttar Pradesh, for example, the Uttar Pradesh Regulation of Urban Premises Tenancy Act, 2021 may apply to covered premises, while other tenancy arrangements may be governed by different rules. The Model Tenancy Act, 2021 is a model for state adoption, not a uniformly applicable nationwide eviction code."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Contract, Registration and Procedure",
-          "paragraphs": [
-              "The Indian Contract Act, 1872 informs enforceability of contractual obligations. The Registration Act, 1908 and relevant stamp laws may affect documentation and evidentiary use of leases. Where a civil suit is the proper remedy, the Code of Civil Procedure, 1908 governs proceedings and execution of decrees. Special tenancy laws may instead prescribe a Rent Authority, Rent Court or other designated forum."
-          ],
-          "bullets": []
+          "bullets": [
+              "Transfer of Property Act, 1882: Sections 105-117 regulate leases of immovable property. Section 106 provides default rules for duration and notice of termination where applicable, subject to contract and local law; Section 111 describes modes by which a lease determines. A notice must be assessed against the actual lease and statutory protections. Termination of a lease does not, by itself, authorise forcible eviction.",
+              "State Rent Control and Tenancy Laws: Many states have special statutes governing protected tenancies, permissible eviction grounds, rent, deposits and the competent forum. In Uttar Pradesh, for example, the Uttar Pradesh Regulation of Urban Premises Tenancy Act, 2021 may apply to covered premises, while other tenancy arrangements may be governed by different rules. The Model Tenancy Act, 2021 is a model for state adoption, not a uniformly applicable nationwide eviction code.",
+              "Contract, Registration and Procedure: The Indian Contract Act, 1872 informs enforceability of contractual obligations. The Registration Act, 1908 and relevant stamp laws may affect documentation and evidentiary use of leases. Where a civil suit is the proper remedy, the Code of Civil Procedure, 1908 governs proceedings and execution of decrees. Special tenancy laws may instead prescribe a Rent Authority, Rent Court or other designated forum."
+          ]
       },
       {
           "heading": "Typical Steps in an Eviction Matter",

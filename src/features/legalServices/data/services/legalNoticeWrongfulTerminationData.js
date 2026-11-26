@@ -19,35 +19,24 @@ export const legalNoticeWrongfulTerminationData = {
           "bullets": []
       },
       {
-          "heading": "Legal Framework in India",
+          "heading": "3. Legal Framework in India",
           "paragraphs": [
               "The Indian Contract Act, 1872 governs contractual obligations, including agreed notice periods and consequences of breach. Industrial relations legislation, including the Industrial Disputes Act, 1947 and the Industrial Relations Code, 2020 where brought into force and applicable, may provide protections and remedies for qualifying workers. State Shops and Establishments laws, applicable standing orders, and sector-specific rules may also regulate termination. The precise law depends on the jurisdiction, commencement notifications, employee classification and employment facts."
           ],
-          "bullets": []
+          "bullets": [
+              "Employment Rights and Protections: Relevant issues include compliance with termination clauses, payment of earned salary and statutory benefits, lawful disciplinary process, and statutory requirements for retrenchment or dismissal. Employees covered by industrial relations protections may have access to conciliation and labour adjudication. Managerial or senior employees may instead primarily rely on contractual and civil remedies, subject to applicable exceptions. Public employment may additionally engage constitutional and service-law safeguards.",
+              "Remedies and Dispute Resolution: Depending on the governing law and facts, relief may include unpaid salary, contractual damages, notice pay, statutory compensation, reinstatement or back wages in eligible labour disputes. Conciliation, labour authorities, tribunals, civil courts or other competent forums may be available. Reinstatement is not an automatic remedy for every private employment contract; ordinary personal-service contracts are generally not specifically enforced, subject to recognised exceptions."
+          ]
       },
       {
-          "heading": "Employment Rights and Protections",
-          "paragraphs": [
-              "Relevant issues include compliance with termination clauses, payment of earned salary and statutory benefits, lawful disciplinary process, and statutory requirements for retrenchment or dismissal. Employees covered by industrial relations protections may have access to conciliation and labour adjudication. Managerial or senior employees may instead primarily rely on contractual and civil remedies, subject to applicable exceptions. Public employment may additionally engage constitutional and service-law safeguards."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Procedure for Sending the Notice",
+          "heading": "4. Procedure for Sending the Notice",
           "paragraphs": [
               "The employee should preserve the appointment letter, salary slips, communications, termination letter, attendance records, and relevant policies. The notice should state facts chronologically, cite applicable provisions accurately, identify the demanded relief, and specify a reasonable response period. It should be sent to the employer through a traceable channel and proof of delivery retained. Limitation periods and procedural requirements should be checked promptly; sending a notice does not necessarily suspend them."
           ],
           "bullets": []
       },
       {
-          "heading": "Remedies and Dispute Resolution",
-          "paragraphs": [
-              "Depending on the governing law and facts, relief may include unpaid salary, contractual damages, notice pay, statutory compensation, reinstatement or back wages in eligible labour disputes. Conciliation, labour authorities, tribunals, civil courts or other competent forums may be available. Reinstatement is not an automatic remedy for every private employment contract; ordinary personal-service contracts are generally not specifically enforced, subject to recognised exceptions."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Conclusion",
+          "heading": "5. Conclusion",
           "paragraphs": [
               "A legal notice for wrongful termination helps articulate the grievance, preserve a written record and seek early resolution. Its effectiveness depends on accurately identifying the applicable legal framework, employee category, Educational overview | Indian legal context contractual rights, supporting evidence and appropriate forum. This document is a general educational overview, not a case-specific legal notice or legal advice."
           ],

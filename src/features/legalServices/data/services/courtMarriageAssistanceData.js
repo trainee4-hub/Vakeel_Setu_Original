@@ -21,20 +21,66 @@ export const courtMarriageAssistanceData = {
               "Provides legal remedies and protections relating to matrimonial disputes and child marriage."
 ]
       },
-      {
+                  {
           "heading": "3. IMPORTANT MARRIAGE LAWS IN INDIA",
           "paragraphs": [],
-          "bullets": [
-              "Hindu Marriage Act, 1955 :  Applies to Hindus, Buddhists, Jains and Sikhs, and persons covered by Section 2. Sections 5 and 7 deal with conditions and ceremonies of a Hindu marriage; Section 8 concerns registration. Sections 11-13 deal with void/voidable marriages and divorce; Section 13B provides for divorce by mutual consent.",
-              "Special Marriage Act, 1954 :  Provides a civil form of marriage irrespective of religion, subject to statutory conditions. Sections 4-13 cover eligibility, notice, objections, solemnization and the marriage certificate. Sections 15-18 provide for registration of certain marriages already celebrated in another form.",
-              "Muslim Personal Law (Shariat) Application Act, 1937 :  Provides for application of Muslim Personal Law (Shariat) to specified matters, including marriage and dissolution of marriage, where the Act applies. Muslim marriage is also governed by applicable principles of Muslim personal law; the 1937 Act is not a complete codified marriage procedure.",
-              "Dissolution of Muslim Marriages Act, 1939 :  Specifies grounds on which a Muslim woman may seek dissolution of her marriage through a decree of the court. It is principally a matrimonial-relief statute, rather than a general law prescribing marriage solemnization.",
-              "Indian Christian Marriage Act, 1872 :  Regulates solemnization of Christian marriages in India, including authorised persons, notices, certificates and registration-related requirements. The Divorce Act, 1869 separately deals with divorce and other matrimonial relief for persons to whom it applies.",
-              "Parsi Marriage and Divorce Act, 1936 :  Governs Parsi marriages and divorces. It prescribes conditions for a valid Parsi marriage, including the relevant ceremony, and provides for matrimonial courts and related remedies.",
-              "Anand Marriage Act, 1909 :  Recognises the validity of the Sikh marriage ceremony known as Anand Karaj. Registration provisions were added by amendment; registration does not replace the requirement that the marriage be solemnized according to the applicable ceremony.",
-              "Foreign Marriage Act, 1969 :  Provides a framework for solemnization of marriages of Indian citizens outside India before a Marriage Officer, subject to the Act's conditions and procedure.",
-              "Prohibition of Child Marriage Act, 2006 :  Provides for prevention of child marriages, remedies and penalties. For its purposes, a child is a male who has not completed 21 years and a female who has not completed 18 years. The Act applies across communities, subject to its provisions."
-]
+          "subsections": [
+              {
+                  "badge": "A",
+                  "title": "Hindu Marriage Act, 1955",
+                  "intro": "Applies to Hindus, Buddhists, Jains and Sikhs, and persons covered by Section 2. Sections 5 and 7 deal with conditions and ceremonies of a Hindu marriage; Section 8 concerns registration. Sections 11–13 deal with void/voidable marriages and divorce; Section 13B provides for divorce by mutual consent.",
+                  "bullets": []
+              },
+              {
+                  "badge": "B",
+                  "title": "Special Marriage Act, 1954",
+                  "intro": "Provides a civil form of marriage irrespective of religion, subject to statutory conditions. Sections 4–13 cover eligibility, notice, objections, solemnization and the marriage certificate. Sections 15–18 provide for registration of certain marriages already celebrated in another form.",
+                  "bullets": []
+              },
+              {
+                  "badge": "C",
+                  "title": "Muslim Personal Law (Shariat) Application Act, 1937",
+                  "intro": "Provides for application of Muslim Personal Law (Shariat) to specified matters, including marriage and dissolution of marriage, where the Act applies. Muslim marriage is also governed by applicable principles of Muslim personal law; the 1937 Act is not a complete codified marriage procedure.",
+                  "bullets": []
+              },
+              {
+                  "badge": "D",
+                  "title": "Dissolution of Muslim Marriages Act, 1939",
+                  "intro": "Specifies grounds on which a Muslim woman may seek dissolution of her marriage through a decree of the court. It is principally a matrimonial-relief statute, rather than a general law prescribing marriage solemnization.",
+                  "bullets": []
+              },
+              {
+                  "badge": "E",
+                  "title": "Indian Christian Marriage Act, 1872",
+                  "intro": "Regulates solemnization of Christian marriages in India, including authorised persons, notices, certificates and registration-related requirements. The Divorce Act, 1869 separately deals with divorce and other matrimonial relief for persons to whom it applies.",
+                  "bullets": []
+              },
+              {
+                  "badge": "F",
+                  "title": "Parsi Marriage and Divorce Act, 1936",
+                  "intro": "Governs Parsi marriages and divorces. It prescribes conditions for a valid Parsi marriage, including the relevant ceremony, and provides for matrimonial courts and related remedies.",
+                  "bullets": []
+              },
+              {
+                  "badge": "G",
+                  "title": "Anand Marriage Act, 1909",
+                  "intro": "Recognises the validity of the Sikh marriage ceremony known as Anand Karaj. Registration provisions were added by amendment; registration does not replace the requirement that the marriage be solemnized according to the applicable ceremony.",
+                  "bullets": []
+              },
+              {
+                  "badge": "H",
+                  "title": "Foreign Marriage Act, 1969",
+                  "intro": "Provides a framework for solemnization of marriages of Indian citizens outside India before a Marriage Officer, subject to the Act's conditions and procedure.",
+                  "bullets": []
+              },
+              {
+                  "badge": "I",
+                  "title": "Prohibition of Child Marriage Act, 2006",
+                  "intro": "Provides for prevention of child marriages, remedies and penalties. For its purposes, a child is a male who has not completed 21 years and a female who has not completed 18 years. The Act applies across communities, subject to its provisions.",
+                  "bullets": []
+              }
+          ],
+          "bullets": []
       },
       {
           "heading": "4. GENERAL LEGAL CONDITIONS & REGISTRATION",

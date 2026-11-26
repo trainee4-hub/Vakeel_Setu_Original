@@ -24,15 +24,40 @@ export const marriageCertificateData = {
       },
       {
           "heading": "3. PRINCIPAL LAWS RELATING TO MARRIAGE REGISTRATION IN INDIA",
-          "paragraphs": [
-              "A. Hindu Marriage Act, 1955 The Act applies to Hindus, Buddhists, Jains and Sikhs, and to other persons covered by Section 2, subject to statutory exclusions. Key provisions include: "
-          ],
-          "bullets": [
-              "Section 5: Prescribes conditions for a Hindu marriage, including that neither party has a living spouse, the parties meet the statutory age requirements, and the marriage is not within prohibited degrees or a sapinda relationship unless a recognised custom permits it. ",
-              "Section 7: Recognises solemnization according to the customary rites and ceremonies of either party. Where the rites include saptapadi, the marriage becomes complete and binding upon the seventh step, subject to the applicable custom. ",
-              "Section 8: Empowers State Governments to make rules for registration of Hindu marriages and maintenance of the Hindu Marriage Register. Under Section 8(5), omission to make an entry does not by itself affect the validity of an otherwise valid Hindu marriage. B. Special Marriage Act, 1954 This Act provides a civil form of marriage irrespective of the religion of the parties, subject to its conditions. It also provides a procedure for registration of certain marriages celebrated in other forms. Important provisions include: ",
-              "Sections 4-13: Deal with conditions for solemnization, notice, objections, declarations, solemnization and the Marriage Certificate Book. The certificate entry, signed by the parties and three witnesses, is statutory evidence of solemnization under the Act. ",
-              "Sections 15-18: Provide for registration of marriages celebrated in other forms, subject to statutory eligibility and procedure, and specify the legal effect of registration. C. State Marriage Registration Laws and Rules Marriage Certificate  —  Introduction & Related Laws Marriage registration procedures in India are administered under the applicable central legislation and the rules or procedures framed by the respective State or Union Territory. Requirements such as the registration authority, application process, documents, witnesses, fees and timelines may therefore differ from one State or Union Territory to another. Applicants should verify the current requirements with the competent local Marriage Registrar or Marriage Officer. D. Supreme Court directions  —  Seema v. Ashwani Kumar In Seema v. Ashwani Kumar , the Supreme Court directed States and Union Territories to put in place rules for compulsory registration of marriages across religious communities. The judgment emphasised the importance of maintaining reliable marriage records. The applicable State or Union Territory framework governs the procedure and implementation."
+          "paragraphs": [],
+          "bullets": [],
+          "subsections": [
+              {
+                  "badge": "A",
+                  "title": "Hindu Marriage Act, 1955",
+                  "intro": "The Act applies to Hindus, Buddhists, Jains and Sikhs, and to other persons covered by Section 2, subject to statutory exclusions. Key provisions include:",
+                  "bullets": [
+                      "Section 5: Prescribes conditions for a Hindu marriage, including that neither party has a living spouse, the parties meet the statutory age requirements, and the marriage is not within prohibited degrees or a sapinda relationship unless a recognised custom permits it.",
+                      "Section 7: Recognises solemnization according to the customary rites and ceremonies of either party. Where the rites include saptapadi, the marriage becomes complete and binding upon the seventh step, subject to the applicable custom.",
+                      "Section 8: Empowers State Governments to make rules for registration of Hindu marriages and maintenance of the Hindu Marriage Register. Under Section 8(5), omission to make an entry does not by itself affect the validity of an otherwise valid Hindu marriage."
+                  ]
+              },
+              {
+                  "badge": "B",
+                  "title": "Special Marriage Act, 1954",
+                  "intro": "This Act provides a civil form of marriage irrespective of the religion of the parties, subject to its conditions. It also provides a procedure for registration of certain marriages celebrated in other forms. Important provisions include:",
+                  "bullets": [
+                      "Sections 4–13: Deal with conditions for solemnization, notice, objections, declarations, solemnization and the Marriage Certificate Book. The certificate entry, signed by the parties and three witnesses, is statutory evidence of solemnization under the Act.",
+                      "Sections 15–18: Provide for registration of marriages celebrated in other forms, subject to statutory eligibility and procedure, and specify the legal effect of registration."
+                  ]
+              },
+              {
+                  "badge": "C",
+                  "title": "State Marriage Registration Laws and Rules",
+                  "intro": "Marriage registration procedures in India are administered under the applicable central legislation and the rules or procedures framed by the respective State or Union Territory. Requirements such as the registration authority, application process, documents, witnesses, fees and timelines may therefore differ from one State or Union Territory to another. Applicants should verify the current requirements with the competent local Marriage Registrar or Marriage Officer.",
+                  "bullets": []
+              },
+              {
+                  "badge": "D",
+                  "title": "Supreme Court Directions — Seema v. Ashwani Kumar",
+                  "intro": "In Seema v. Ashwani Kumar, the Supreme Court directed States and Union Territories to put in place rules for compulsory registration of marriages across religious communities. The judgment emphasised the importance of maintaining reliable marriage records. The applicable State or Union Territory framework governs the procedure and implementation.",
+                  "bullets": []
+              }
           ]
       },
       {

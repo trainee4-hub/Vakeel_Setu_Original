@@ -26,42 +26,19 @@ export const llcOperatingAgreementData = {
           "bullets": []
       },
       {
-          "heading": "Legal Framework: Jurisdiction-Specific",
+          "heading": "4. Legal Framework: Jurisdiction-Specific",
           "paragraphs": [
               "An LLC Operating Agreement is governed chiefly by the LLC statute of its place of formation, together with applicable contract law. For example, a Delaware LLC is principally governed by the Delaware Limited Liability Company Act (Title 6, Chapter 18 of the Delaware Code). Delaware law generally permits substantial contractual flexibility, but statutory mandatory provisions and public policy limits still apply. Other US states have different LLC statutes, and other countries may use different entity forms or terminology."
           ],
-          "bullets": []
+          "bullets": [
+              "Formation, Registration and Internal Governance: Formation usually requires filing a certificate or articles with the relevant registry and appointing a registered agent where required. The operating agreement typically supplements those filings and defines the internal relationship between members. Some jurisdictions recognize oral or implied agreements, but a carefully signed written agreement is strongly advisable. Filing the agreement publicly is not generally required for Delaware LLCs.",
+              "Cross-Border Legal and Regulatory Considerations: Where members, assets, operations or investors are in different countries, additional rules may apply: foreign investment restrictions, tax residence and reporting, anti-money-laundering and beneficial-ownership requirements, sanctions, licensing, employment and data-protection laws. The law governing the LLC's internal affairs may differ from the law applicable to a separate commercial contract or local operations.",
+              "Indian Perspective (FEMA & Tax Compliance): For an Indian resident investing in or managing a foreign LLC, the applicable Indian framework may include the Foreign Exchange Management Act, 1999, and the overseas investment rules, regulations and directions, as amended. Indian tax and reporting obligations may also arise. A foreign LLC is not automatically equivalent to an Indian limited liability partnership (LLP), and the Indian LLP Act, 2008 does not govern an overseas LLC merely because an Indian person is a member.",
+              "Enforceability and Dispute Resolution: A well-drafted agreement identifies the governing law, competent courts or arbitration forum, notice procedures and remedies. Enforcement depends on the applicable statute, contract principles, the precise wording and mandatory legal rules. Clauses on fiduciary duties, exculpation, indemnification and remedies should be prepared with qualified local legal advice."
+          ]
       },
       {
-          "heading": "Formation, Registration and Internal Governance",
-          "paragraphs": [
-              "Formation usually requires filing a certificate or articles with the relevant registry and appointing a registered agent where required. The operating agreement typically supplements those filings and defines the internal relationship between members. Some jurisdictions recognize oral or implied agreements, but a carefully signed written agreement is strongly advisable. Filing the agreement publicly is not generally required for Delaware LLCs."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Cross-Border Legal and Regulatory Considerations",
-          "paragraphs": [
-              "Where members, assets, operations or investors are in different countries, additional rules may apply: foreign investment restrictions, tax residence and reporting, anti-money-laundering and beneficial-ownership requirements, sanctions, licensing, employment and data-protection laws. The law governing the LLC's internal affairs may differ from the law applicable to a separate commercial contract or local operations."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Indian Perspective",
-          "paragraphs": [
-              "For an Indian resident investing in or managing a foreign LLC, the applicable Indian framework may include the Foreign Exchange Management Act, 1999, and the overseas investment rules, regulations and directions, as amended. Indian tax and reporting obligations may also arise. A foreign LLC is not automatically equivalent to an Indian limited liability partnership (LLP), and the Indian LLP Act, 2008 does not govern an overseas LLC merely because an Indian person is a member."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Enforceability and Dispute Resolution",
-          "paragraphs": [
-              "A well-drafted agreement identifies the governing law, competent courts or arbitration forum, notice procedures and remedies. Enforcement depends on the applicable statute, contract principles, the precise wording and mandatory legal rules. Clauses on fiduciary duties, exculpation, indemnity and transfer restrictions should be checked carefully against the law of formation."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Conclusion",
+          "heading": "5. Conclusion",
           "paragraphs": [
               "An LLC Operating Agreement is a central document for allocating rights, duties and control within a foreign-formed LLC. Its effectiveness depends on tailoring the terms to the actual jurisdiction of formation and addressing cross-border compliance where relevant. Professional local legal and tax review is recommended before execution.",
               "Educational overview only; not a jurisdiction-specific legal opinion. Laws and regulatory requirements may change."

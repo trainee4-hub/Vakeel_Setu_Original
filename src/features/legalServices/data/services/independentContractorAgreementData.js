@@ -19,51 +19,20 @@ export const independentContractorAgreementData = {
           "bullets": []
       },
       {
-          "heading": "Legal Framework in India",
+          "heading": "3. Legal Framework in India",
           "paragraphs": [
               "India does not have one comprehensive statute dedicated solely to independent contractor agreements. Their enforceability principally depends on general contract law, while other laws apply according to the facts, industry and nature of the services."
           ],
-          "bullets": []
-      },
-      {
-          "heading": "1. Indian Contract Act, 1872",
-          "paragraphs": [
-              "Section 10 establishes core requirements for an enforceable contract, including free consent, competent parties, lawful consideration and lawful object. Provisions concerning performance, breach and compensation, including Sections 73 and 74, may become relevant where a party fails to perform. Restrictions such as non-compete clauses must be assessed carefully, including under Section 27 on restraint of trade."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "2. Employment and Labour-Law Classification",
-          "paragraphs": [
-              "The actual working relationship matters more than the title of the document. Courts and authorities may consider supervision and control, economic dependence, integration into the business, and other factual indicators when distinguishing independent service providers from employees. If the arrangement is in substance employment, applicable labour and social-security obligations may arise despite the contractual label."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "3. Intellectual Property and Confidentiality",
-          "paragraphs": [
-              "Copyright Act, 1957 rules can affect ownership of original work created under a consultancy or contracting arrangement. Where the client needs ownership, an express, legally compliant written assignment or licence is advisable. Confidentiality obligations may protect trade secrets and business information, subject to applicable law. Handling personal data may also trigger duties under India's applicable data-protection framework. Educational overview"
-],
           "bullets": [
-              "Indian legal context"
-]
+              "Indian Contract Act, 1872: Section 10 establishes core requirements for an enforceable contract, including free consent, competent parties, lawful consideration and lawful object. Provisions concerning performance, breach and compensation, including Sections 73 and 74, may become relevant where a party fails to perform. Restrictions such as non-compete clauses must be assessed carefully, including under Section 27 on restraint of trade.",
+              "Employment and Labour-Law Classification: The actual working relationship matters more than the title of the document. Courts and authorities may consider supervision and control, economic dependence, integration into the business, and other factual indicators when distinguishing independent service providers from employees. If the arrangement is in substance employment, applicable labour and social-security obligations may arise despite the contractual label.",
+              "Intellectual Property and Confidentiality: Copyright Act, 1957 rules can affect ownership of original work created under a consultancy or contracting arrangement. Where the client needs ownership, an express, legally compliant written assignment or licence is advisable. Confidentiality obligations may protect trade secrets and business information, subject to applicable law. Handling personal data may also trigger duties under India's applicable data-protection framework.",
+              "Taxation and Other Regulatory Requirements: Depending on the nature of services and the parties, the Income-tax Act, 1961 may require tax deduction at source; GST law may apply to taxable supplies and invoicing. Sector-specific licensing or professional regulations may also govern particular services. The agreement should allocate responsibility for compliance without assuming that a contractual clause overrides statutory duties.",
+              "Enforcement and Dispute Resolution: A dispute may be resolved through negotiation, mediation, arbitration where a valid arbitration clause exists, or proceedings before a competent court. The Arbitration and Conciliation Act, 1996 and the Specific Relief Act, 1963 may be relevant depending on the remedy sought. Proper documentation of deliverables, approvals, communications and payments can assist enforcement."
+          ]
       },
       {
-          "heading": "4. Taxation and Other Regulatory Requirements",
-          "paragraphs": [
-              "Depending on the nature of services and the parties, the Income-tax Act, 1961 may require tax deduction at source; GST law may apply to taxable supplies and invoicing. Sector-specific licensing or professional regulations may also govern particular services. The agreement should allocate responsibility for compliance without assuming that a contractual clause overrides statutory duties."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Enforcement and Dispute Resolution",
-          "paragraphs": [
-              "A dispute may be resolved through negotiation, mediation, arbitration where a valid arbitration clause exists, or proceedings before a competent court. The Arbitration and Conciliation Act, 1996 and the Specific Relief Act, 1963 may be relevant depending on the remedy sought. Proper documentation of deliverables, approvals, communications and payments can assist enforcement."
-          ],
-          "bullets": []
-      },
-      {
-          "heading": "Conclusion",
+          "heading": "4. Conclusion",
           "paragraphs": [
               "An Independent Contractor Agreement is a practical tool for defining expectations and managing commercial risk. Its legal effectiveness in India depends on clear drafting, genuine contractual consent, accurate classification of the relationship and compliance with applicable contract, tax, intellectual-property and other laws. Parties should tailor the document to their actual arrangement rather than rely on a generic template."
           ],

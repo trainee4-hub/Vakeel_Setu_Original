@@ -114,10 +114,7 @@ const LegalConsultationIntakeCard = ({
         <form onSubmit={handleSubmit} className="relative z-10 space-y-4">
           {/* Header */}
           <div className="border-b border-slate-800/90 pb-4">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-500/20 to-amber-400/10 border border-amber-400/40 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-amber-300 shadow-xs mb-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-              <span>⚡ Quick Legal Consultation</span>
-            </div>
+           
             <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-tight">
               Talk to an Expert Advocate
             </h3>
