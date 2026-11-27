@@ -66,10 +66,11 @@ const LanguageTranslator = ({ mobile = false, compact = false }) => {
 
   useEffect(() => {
     const initializeGoogleTranslate = () => {
+      const container = document.getElementById("google_translate_element");
       if (
         !window.google?.translate?.TranslateElement ||
-        document.getElementById("google_translate_element")
-          ?.children.length
+        !container ||
+        container.children.length > 0
       ) {
         return;
       }
@@ -184,7 +185,14 @@ const LanguageTranslator = ({ mobile = false, compact = false }) => {
     const applyToCombo = () => {
       const googleSelect = document.querySelector(".goog-te-combo");
       if (googleSelect) {
-        googleSelect.value = code;
+        const targetVal = code === "en" ? "" : code;
+        googleSelect.value = targetVal;
+        if (googleSelect.value !== targetVal && code === "en") {
+          googleSelect.value = "en";
+        }
+        if (typeof googleSelect.onchange === "function") {
+          googleSelect.onchange();
+        }
         googleSelect.dispatchEvent(
           new Event("change", {
             bubbles: true,
@@ -469,14 +477,6 @@ const LanguageTranslator = ({ mobile = false, compact = false }) => {
           </div>
         </div>
       )}
-
-      {/* Google's actual selector stays hidden.
-          Our custom UI controls it. */}
-      <div
-        id="google_translate_element"
-        className="pointer-events-none absolute h-0 w-0 overflow-hidden opacity-0"
-        aria-hidden="true"
-      />
     </div>
   );
 };
