@@ -62,7 +62,7 @@ export default function SimilarAdvocatesSection({
           onTouchEnd={onInteractionEnd}
           onMouseDown={onInteractionStart}
           onMouseUp={onInteractionEnd}
-          className="flex w-full min-w-0 gap-4 overflow-x-auto pb-3 px-1 no-scrollbar"
+          className="flex w-full min-w-0 items-stretch gap-4 overflow-x-auto pb-3 px-1 no-scrollbar"
         >
           {/* Rendered twice back-to-back (real data only, nothing invented) so
               the auto-scroll can wrap seamlessly at the halfway point instead
@@ -78,6 +78,8 @@ export default function SimilarAdvocatesSection({
                 idx >= similarAdvocates.length ? true : undefined
               }
               className="
+                flex
+                h-full
                 shrink-0
                 w-[calc(100vw-3.5rem)]
                 sm:w-[440px]
@@ -85,7 +87,7 @@ export default function SimilarAdvocatesSection({
                 min-w-0
               "
             >
-              <div className="w-full min-w-0 overflow-hidden">
+              <div className="flex h-full w-full min-w-0 flex-col overflow-hidden">
                 <AdvocateCard
                   advocate={sim}
                   onViewAdvocate={onViewAdvocate}

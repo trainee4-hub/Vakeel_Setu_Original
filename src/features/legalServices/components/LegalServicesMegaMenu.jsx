@@ -5,75 +5,6 @@ import { FaScaleBalanced } from "react-icons/fa6";
 
 import { LEGAL_SERVICES_CATEGORIES } from "../data/legalServicesCatalogue";
 
-// Multi-color dynamic themes cycling across cards on hover (Point 4)
-const MEGA_CARD_THEMES = [
-  {
-    // 0: Amber / Luxury Gold
-    hoverBorder: "hover:border-amber-400",
-    hoverShadow: "hover:shadow-amber-500/15",
-    hoverTitle: "group-hover:text-amber-800",
-    accentBar: "group-hover:before:bg-amber-500",
-    arrowColor: "text-amber-500",
-    badgeBg: "bg-amber-50",
-    badgeBorder: "border-amber-200/80",
-    badgeText: "text-amber-800",
-  },
-  {
-    // 1: Royal Blue / Cobalt
-    hoverBorder: "hover:border-blue-500",
-    hoverShadow: "hover:shadow-blue-500/15",
-    hoverTitle: "group-hover:text-blue-800",
-    accentBar: "group-hover:before:bg-blue-500",
-    arrowColor: "text-blue-500",
-    badgeBg: "bg-blue-50",
-    badgeBorder: "border-blue-200/80",
-    badgeText: "text-blue-800",
-  },
-  {
-    // 2: Emerald Green
-    hoverBorder: "hover:border-emerald-500",
-    hoverShadow: "hover:shadow-emerald-500/15",
-    hoverTitle: "group-hover:text-emerald-800",
-    accentBar: "group-hover:before:bg-emerald-500",
-    arrowColor: "text-emerald-500",
-    badgeBg: "bg-emerald-50",
-    badgeBorder: "border-emerald-200/80",
-    badgeText: "text-emerald-800",
-  },
-  {
-    // 3: Purple / Violet
-    hoverBorder: "hover:border-purple-500",
-    hoverShadow: "hover:shadow-purple-500/15",
-    hoverTitle: "group-hover:text-purple-800",
-    accentBar: "group-hover:before:bg-purple-500",
-    arrowColor: "text-purple-500",
-    badgeBg: "bg-purple-50",
-    badgeBorder: "border-purple-200/80",
-    badgeText: "text-purple-800",
-  },
-  {
-    // 4: Rose / Crimson
-    hoverBorder: "hover:border-rose-500",
-    hoverShadow: "hover:shadow-rose-500/15",
-    hoverTitle: "group-hover:text-rose-800",
-    accentBar: "group-hover:before:bg-rose-500",
-    arrowColor: "text-rose-500",
-    badgeBg: "bg-rose-50",
-    badgeBorder: "border-rose-200/80",
-    badgeText: "text-rose-800",
-  },
-  {
-    // 5: Teal / Cyan
-    hoverBorder: "hover:border-teal-500",
-    hoverShadow: "hover:shadow-teal-500/15",
-    hoverTitle: "group-hover:text-teal-800",
-    accentBar: "group-hover:before:bg-teal-500",
-    arrowColor: "text-teal-500",
-    badgeBg: "bg-teal-50",
-    badgeBorder: "border-teal-200/80",
-    badgeText: "text-teal-800",
-  },
-];
 
 const LegalServicesMegaMenu = ({ navItemClass, isActive }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -209,32 +140,24 @@ const LegalServicesMegaMenu = ({ navItemClass, isActive }) => {
                   </span>
                 </div>
 
-                {/* 2-Column Grid of Modern Cards with Generous Padding & Multi-Color Borders */}
+                {/* 2-Column Grid of Modern Cards with Primary Amber Hover */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {activeCategory.services.map((svc, sIdx) => {
-                    const theme = MEGA_CARD_THEMES[sIdx % MEGA_CARD_THEMES.length];
-
-                    return (
-                      <Link
-                        key={svc.slug}
-                        to={`/legal-services/${activeCategory.slug}/${svc.slug}`}
-                        onClick={() => setIsOpen(false)}
-                        className={`group relative flex items-center justify-between overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-4.5 shadow-xs transition-all duration-300 ease-out hover:-translate-y-1 ${theme.hoverBorder} hover:shadow-lg ${theme.hoverShadow} before:absolute before:left-0 before:top-2.5 before:bottom-2.5 before:w-1 before:rounded-r-full before:bg-transparent ${theme.accentBar} before:transition-all before:duration-300 group-hover:before:w-1.5`}
-                      >
-                        {/* Heading only as requested */}
-                        <h4
-                          className={`text-sm sm:text-[14px] font-black text-slate-900 ${theme.hoverTitle} transition-colors duration-200 leading-snug tracking-tight pr-2`}
-                        >
-                          {svc.title}
-                        </h4>
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <FiArrowRight
-                            className={`${theme.arrowColor} text-base opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 ease-out`}
-                          />
-                        </div>
-                      </Link>
-                    );
-                  })}
+                  {activeCategory.services.map((svc) => (
+                    <Link
+                      key={svc.slug}
+                      to={`/legal-services/${activeCategory.slug}/${svc.slug}`}
+                      onClick={() => setIsOpen(false)}
+                      className="group relative flex items-center justify-between overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-4.5 shadow-xs transition-all duration-300 ease-out hover:-translate-y-1 hover:border-amber-400 hover:shadow-lg hover:shadow-amber-500/10 before:absolute before:left-0 before:top-2.5 before:bottom-2.5 before:w-1 before:rounded-r-full before:bg-transparent group-hover:before:bg-amber-500 before:transition-all before:duration-300 group-hover:before:w-1.5"
+                    >
+                      {/* Heading only */}
+                      <h4 className="text-sm sm:text-[14px] font-black text-slate-800 group-hover:text-amber-800 transition-colors duration-200 leading-snug tracking-tight pr-2">
+                        {svc.title}
+                      </h4>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <FiArrowRight className="text-amber-500 text-base opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 ease-out" />
+                      </div>
+                    </Link>
+                  ))}
                 </div>
               </div>
             </div>

@@ -181,26 +181,32 @@ const LanguageTranslator = ({ mobile = false, compact = false }) => {
       // Ignore
     }
 
-    const googleSelect = document.querySelector(
-      ".goog-te-combo",
-    );
+    const applyToCombo = () => {
+      const googleSelect = document.querySelector(".goog-te-combo");
+      if (googleSelect) {
+        googleSelect.value = code;
+        googleSelect.dispatchEvent(
+          new Event("change", {
+            bubbles: true,
+          }),
+        );
+        return true;
+      }
+      return false;
+    };
 
-    if (googleSelect) {
-      googleSelect.value = code;
-      googleSelect.dispatchEvent(
-        new Event("change", {
-          bubbles: true,
-        }),
-      );
-
+    if (applyToCombo()) {
       return;
     }
 
-    /*
-     * Google widget may still be loading.
-     * Reload once so googtrans cookie can be applied.
-     */
-    window.location.reload();
+    // Google widget may still be initializing: poll for it without page reload
+    let attempts = 0;
+    const interval = setInterval(() => {
+      attempts++;
+      if (applyToCombo() || attempts >= 25) {
+        clearInterval(interval);
+      }
+    }, 120);
   };
 
   const filteredLanguages = LANGUAGES.filter(

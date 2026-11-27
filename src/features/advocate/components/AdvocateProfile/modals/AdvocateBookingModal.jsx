@@ -122,15 +122,16 @@ export default function AdvocateBookingModal({
     [selectedMode, activeModeObj]
   );
 
-  const isExtendable = Boolean(activeModeObj?.extendable);
+  const isExtendable = Boolean(activeModeObj?.extendable && !isInPersonMode);
 
   const defaultDuration = useMemo(() => {
+    if (isInPersonMode) {
+      return Number(activeModeObj?.durationMinutes ?? bookingOptions?.inPersonMinutes ?? 45);
+    }
     if (isExtendable) {
       return Number(activeModeObj?.minDurationMinutes || 15);
     }
-    return isInPersonMode
-      ? Number(bookingOptions?.inPersonMinutes ?? activeModeObj?.durationMinutes ?? 60)
-      : Number(activeModeObj?.durationMinutes ?? 15);
+    return Number(activeModeObj?.durationMinutes ?? 15);
   }, [isExtendable, isInPersonMode, bookingOptions, activeModeObj]);
 
   const [durationMinutes, setDurationMinutes] = useState(defaultDuration);
@@ -346,7 +347,7 @@ export default function AdvocateBookingModal({
   const rawSlots = useMemo(() => {
     if (!selectedDate) return [];
     const durationMinutes = isInPersonMode
-      ? Number(bookingOptions?.inPersonMinutes ?? activeModeObj?.durationMinutes ?? 60)
+      ? Number(activeModeObj?.durationMinutes ?? bookingOptions?.inPersonMinutes ?? 45)
       : Number(activeModeObj?.durationMinutes ?? 15);
 
     // Slot interval step matches the advocate's configured session duration
@@ -450,7 +451,7 @@ export default function AdvocateBookingModal({
   // Sample slot start times to display before a date is chosen (or fallback)
   const sampleSlotStartTimes = useMemo(() => {
     const durationMinutes = isInPersonMode
-      ? Number(bookingOptions?.inPersonMinutes ?? activeModeObj?.durationMinutes ?? 60)
+      ? Number(activeModeObj?.durationMinutes ?? bookingOptions?.inPersonMinutes ?? 45)
       : Number(activeModeObj?.durationMinutes ?? 15);
     const stepMinutes = durationMinutes > 0 ? durationMinutes : 15;
 
@@ -937,11 +938,21 @@ export default function AdvocateBookingModal({
   // Fees calculation: single source of truth across stepper, breakdown, and Pay button
   const steps = isExtendable ? Math.max(1, Math.round(durationMinutes / 15)) : 1;
   const stepPrice = isExtendable ? ratePerUnit : Number(activeModeObj?.fee ?? ratePerUnit);
-  const fee = isExtendable ? steps * stepPrice : stepPrice;
+  const fee = Number(quoteBreakdown?.fee ?? (isExtendable ? steps * stepPrice : stepPrice));
   const gstPercent = Number(quoteBreakdown?.gstPercent ?? activeModeObj?.gstPercent ?? 18);
-  const gst = Math.round(fee * (gstPercent / 100) * 100) / 100;
-  const platformFee = Number(activeModeObj?.platformFee ?? 25);
-  const totalPayable = Math.round((fee + gst + platformFee) * 100) / 100;
+  const gst = Number(quoteBreakdown?.gst ?? Math.round(fee * (gstPercent / 100) * 100) / 100);
+  const basePlatformFee = Number(activeModeObj?.platformFee ?? 25);
+  const dynamicPlatformFee = isExtendable ? steps * basePlatformFee : basePlatformFee;
+  const platformFee = Number(
+    quoteBreakdown?.platformFee ??
+    quoteBreakdown?.platform_fee ??
+    quoteBreakdown?.platformFeeRupees ??
+    dynamicPlatformFee
+  );
+  const totalPayable = Number(
+    quoteBreakdown?.total ??
+    Math.round((fee + gst + platformFee) * 100) / 100
+  );
 
   const isSubmitting =
     paymentState === PAYMENT_STATES.STARTING ||
@@ -1286,7 +1297,7 @@ export default function AdvocateBookingModal({
                       <span className="text-[11px] text-slate-400">
                         {formatDurationHuman(
                           isInPersonMode
-                            ? (bookingOptions?.inPersonMinutes ?? activeModeObj?.durationMinutes ?? 60)
+                            ? (activeModeObj?.durationMinutes ?? bookingOptions?.inPersonMinutes ?? 45)
                             : (activeModeObj?.durationMinutes ?? 15),
                           { subHourUnit: "min" }
                         )} session
@@ -1647,7 +1658,6 @@ export default function AdvocateBookingModal({
                   <div className="flex justify-between items-center">
                     <span className="text-slate-600">
                       {activeModeObj?.label} Fee
-                      {isExtendable && durationMinutes > 15 ? ` (${steps} × ₹${formatRupees(stepPrice)})` : ""}
                     </span>
                     <span className="font-semibold text-slate-900">
                       ₹{formatRupees(fee)}
@@ -1662,7 +1672,9 @@ export default function AdvocateBookingModal({
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-600">Platform Fee</span>
+                    <span className="text-slate-600">
+                      Platform Fee
+                    </span>
                     <span className="font-semibold text-slate-900">
                       ₹{formatRupees(platformFee)}
                     </span>

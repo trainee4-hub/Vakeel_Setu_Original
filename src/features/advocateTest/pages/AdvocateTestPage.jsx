@@ -34,8 +34,12 @@ export default function AdvocateTestPage() {
   const [screen, setScreen] = useState("LOGIN");
 
   // Form inputs for Login
-  const [barCouncilId, setBarCouncilId] = useState("");
-  const [phone, setPhone] = useState("");
+  const [barCouncilId, setBarCouncilId] = useState(() => {
+    return sessionStorage.getItem("vks_test_bar_id") || "";
+  });
+  const [phone, setPhone] = useState(() => {
+    return sessionStorage.getItem("vks_test_phone") || "";
+  });
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState("");
 
@@ -54,6 +58,18 @@ export default function AdvocateTestPage() {
   const [questions, setQuestions] = useState([]);
   const [selectedAnswers, setSelectedAnswers] = useState({}); // { [index]: "A" | "B" | "C" | "D" }
   const [currentQIndex, setCurrentQIndex] = useState(0);
+  const [visitedIndices, setVisitedIndices] = useState(() => new Set([0]));
+
+  useEffect(() => {
+    if (screen === "TESTING") {
+      setVisitedIndices((prev) => {
+        const next = new Set(prev);
+        next.add(currentQIndex);
+        Object.keys(selectedAnswers).forEach((idx) => next.add(Number(idx)));
+        return next;
+      });
+    }
+  }, [screen, currentQIndex, selectedAnswers]);
 
   // Timer: remaining seconds calculated from (deadlineAt - serverNow)
   const [remainingSeconds, setRemainingSeconds] = useState(null);
@@ -78,12 +94,70 @@ export default function AdvocateTestPage() {
 
   // Update session storage when testSession changes
   useEffect(() => {
-    if (testSession) {
+    if (testSession && token) {
       sessionStorage.setItem("vks_test_session", testSession);
-    } else {
+      sessionStorage.setItem("vks_test_token", token);
+    } else if (!testSession) {
       sessionStorage.removeItem("vks_test_session");
+      sessionStorage.removeItem("vks_test_token");
     }
-  }, [testSession]);
+  }, [testSession, token]);
+
+  // Auto-resume active test session on mount or reload if available
+  useEffect(() => {
+    const savedSession = sessionStorage.getItem("vks_test_session");
+    const savedToken = sessionStorage.getItem("vks_test_token");
+
+    if (!savedSession || !token || savedToken !== token) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        setLoginLoading(true);
+        const res = await startAdvocateTest(savedSession);
+        if (cancelled) return;
+
+        if (res?.questions && res.questions.length > 0) {
+          setAttemptId(res.attemptId || "");
+          setQuestions(res.questions);
+
+          const restored = {};
+          if (Array.isArray(res.savedAnswers)) {
+            res.savedAnswers.forEach((ans) => {
+              if (ans?.selected) {
+                restored[ans.index] = ans.selected;
+              }
+            });
+          }
+          setSelectedAnswers(restored);
+
+          if (res.serverNow && res.deadlineAt) {
+            const sNow = new Date(res.serverNow).getTime();
+            const dLine = new Date(res.deadlineAt).getTime();
+            const diffSecs = Math.max(0, Math.floor((dLine - sNow) / 1000));
+            setRemainingSeconds(diffSecs);
+          } else {
+            setRemainingSeconds(rules.minutes * 60);
+          }
+
+          setScreen("TESTING");
+        }
+      } catch (err) {
+        if (cancelled) return;
+        if (err?.status === 401) {
+          setTestSession("");
+          sessionStorage.removeItem("vks_test_session");
+          sessionStorage.removeItem("vks_test_token");
+        }
+      } finally {
+        if (!cancelled) setLoginLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token, rules.minutes]);
 
   /* =========================================================================
      TIMER COUNTDOWN
@@ -142,6 +216,10 @@ export default function AdvocateTestPage() {
 
       if (res?.testSession) {
         setTestSession(res.testSession);
+        try {
+          sessionStorage.setItem("vks_test_bar_id", barCouncilId);
+          sessionStorage.setItem("vks_test_phone", cleanPhone);
+        } catch (_) {}
       }
 
       if (res?.status === "READY") {
@@ -343,6 +421,11 @@ export default function AdvocateTestPage() {
     (k) => selectedAnswers[k] != null
   ).length;
 
+  const reached15Questions =
+    Math.max(0, ...Array.from(visitedIndices)) >= 14 ||
+    currentQIndex >= 14 ||
+    answeredCount >= 15;
+
   /* =========================================================================
      RENDER CASE: NO TOKEN
   ========================================================================= */
@@ -439,7 +522,8 @@ export default function AdvocateTestPage() {
                     placeholder="9876543210"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full bg-transparent outline-none"
+                    className="w-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 focus-visible:outline-none shadow-none focus:shadow-none"
+                    style={{ outline: "none", boxShadow: "none", border: "none" }}
                     required
                   />
                 </div>
@@ -632,7 +716,13 @@ export default function AdvocateTestPage() {
                   <span className="text-xs font-black uppercase tracking-wider text-amber-600">
                     Question {currentQIndex + 1} of {questions.length}
                   </span>
-                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-bold text-slate-600">
+                  <span
+                    className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+                      selectedAnswers[currentQIndex]
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        : "bg-rose-50 text-rose-700 border border-rose-200"
+                    }`}
+                  >
                     {selectedAnswers[currentQIndex] ? "Answered" : "Unanswered"}
                   </span>
                 </div>
@@ -740,6 +830,19 @@ export default function AdvocateTestPage() {
                   {questions.map((_, idx) => {
                     const isAnswered = selectedAnswers[idx] != null;
                     const isCurrent = idx === currentQIndex;
+                    const isVisited = visitedIndices.has(idx);
+
+                    let colorClasses =
+                      "border border-slate-200 bg-slate-100 text-slate-600 hover:bg-slate-200";
+
+                    if (isAnswered) {
+                      colorClasses =
+                        "bg-emerald-500 text-white shadow-xs hover:bg-emerald-600";
+                    } else if (isVisited) {
+                      colorClasses =
+                        "bg-rose-500 text-white shadow-xs hover:bg-rose-600";
+                    }
+
                     return (
                       <button
                         key={idx}
@@ -749,11 +852,7 @@ export default function AdvocateTestPage() {
                           isCurrent
                             ? "ring-2 ring-amber-500 ring-offset-2"
                             : ""
-                        } ${
-                          isAnswered
-                            ? "bg-emerald-500 text-white shadow-xs"
-                            : "border border-slate-200 bg-slate-100 text-slate-600 hover:bg-slate-200"
-                        }`}
+                        } ${colorClasses}`}
                       >
                         {idx + 1}
                       </button>
@@ -768,7 +867,7 @@ export default function AdvocateTestPage() {
                     <span>Answered</span>
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="h-3 w-3 rounded-md bg-slate-200" />
+                    <span className="h-3 w-3 rounded-md bg-rose-500" />
                     <span>Unanswered</span>
                   </span>
                 </div>
@@ -777,11 +876,21 @@ export default function AdvocateTestPage() {
                 <div className="mt-6 border-t border-slate-100 pt-4">
                   <button
                     type="button"
+                    disabled={!reached15Questions}
                     onClick={() => setShowConfirmSubmit(true)}
-                    className="w-full rounded-xl bg-slate-950 py-2.5 text-xs font-extrabold text-white shadow-sm transition hover:bg-emerald-600"
+                    className={`w-full rounded-xl py-2.5 text-xs font-extrabold shadow-sm transition ${
+                      !reached15Questions
+                        ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                        : "bg-slate-950 text-white hover:bg-emerald-600 cursor-pointer"
+                    }`}
                   >
                     Finish & Submit Test
                   </button>
+                  {!reached15Questions && (
+                    <p className="mt-1.5 text-center text-[10px] text-slate-400">
+                      Reach Question 15 to enable submit
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

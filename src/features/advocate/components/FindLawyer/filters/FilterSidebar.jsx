@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 import {
   FaBalanceScale,
@@ -27,6 +27,92 @@ import {
   experienceOptions,
   isValidPincode,
 } from "../utils/findLawyerUtils";
+
+const ScrollableFilterRow = ({ children, className = "" }) => {
+  const containerRef = useRef(null);
+  const isDownRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftRef = useRef(0);
+  const hasMovedRef = useRef(false);
+
+  useEffect(() => {
+    const element = containerRef.current;
+    if (!element) return;
+
+    const onWheel = (e) => {
+      if (e.deltaY !== 0) {
+        const canScrollLeft = element.scrollLeft > 0 && e.deltaY < 0;
+        const canScrollRight =
+          element.scrollLeft < element.scrollWidth - element.clientWidth &&
+          e.deltaY > 0;
+
+        if (canScrollLeft || canScrollRight) {
+          e.preventDefault();
+          element.scrollLeft += e.deltaY;
+        }
+      }
+    };
+
+    element.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      element.removeEventListener("wheel", onWheel);
+    };
+  }, []);
+
+  const handleMouseDown = (e) => {
+    isDownRef.current = true;
+    hasMovedRef.current = false;
+    startXRef.current = e.pageX - containerRef.current.offsetLeft;
+    scrollLeftRef.current = containerRef.current.scrollLeft;
+  };
+
+  const handleMouseLeaveOrUp = () => {
+    isDownRef.current = false;
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDownRef.current) return;
+    const x = e.pageX - containerRef.current.offsetLeft;
+    const walk = (x - startXRef.current) * 1.5;
+    if (Math.abs(walk) > 4) {
+      hasMovedRef.current = true;
+    }
+    containerRef.current.scrollLeft = scrollLeftRef.current - walk;
+  };
+
+  const handleClickCapture = (e) => {
+    if (hasMovedRef.current) {
+      e.stopPropagation();
+      e.preventDefault();
+      hasMovedRef.current = false;
+    }
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      onMouseDown={handleMouseDown}
+      onMouseLeave={handleMouseLeaveOrUp}
+      onMouseUp={handleMouseLeaveOrUp}
+      onMouseMove={handleMouseMove}
+      onClickCapture={handleClickCapture}
+      className={`
+        flex items-center gap-2 overflow-x-auto pb-2 pt-0.5 px-0.5
+        cursor-grab active:cursor-grabbing select-none
+        [&_button]:cursor-grab [&_button]:active:cursor-grabbing
+        [scrollbar-width:thin] [scrollbar-color:#fbbf24_transparent]
+        [&::-webkit-scrollbar]:h-1.5
+        [&::-webkit-scrollbar-track]:bg-transparent
+        [&::-webkit-scrollbar-thumb]:bg-amber-400
+        hover:[&::-webkit-scrollbar-thumb]:bg-amber-500
+        [&::-webkit-scrollbar-thumb]:rounded-full
+        ${className}
+      `}
+    >
+      {children}
+    </div>
+  );
+};
 
 const FilterSidebar = ({
   showMobileFilters,
@@ -79,7 +165,7 @@ const FilterSidebar = ({
           ====================================================== */}
 
           <FilterSection title="Experience">
-            <div className="flex flex-wrap gap-2">
+            <ScrollableFilterRow>
               {experienceOptions.map((option) => {
                 const isSelected =
                   selectedExperienceRange === option.label;
@@ -92,6 +178,8 @@ const FilterSidebar = ({
                       handleExperienceChange(option)
                     }
                     className={`
+                      shrink-0
+                      whitespace-nowrap
                       px-3
                       py-1.5
                       rounded-lg
@@ -111,7 +199,7 @@ const FilterSidebar = ({
                   </button>
                 );
               })}
-            </div>
+            </ScrollableFilterRow>
           </FilterSection>
 
           {/* =====================================================
@@ -305,7 +393,7 @@ const FilterSidebar = ({
           ====================================================== */}
 
           <FilterSection title="Specialty">
-            <div className="flex flex-wrap gap-2">
+            <ScrollableFilterRow>
               {CATEGORY_OPTIONS.map((category) => {
                 const isSelected =
                   filters.practiceArea === category.value;
@@ -323,6 +411,8 @@ const FilterSidebar = ({
                       }))
                     }
                     className={`
+                      shrink-0
+                      whitespace-nowrap
                       px-3
                       py-1.5
                       rounded-full
@@ -341,7 +431,7 @@ const FilterSidebar = ({
                   </button>
                 );
               })}
-            </div>
+            </ScrollableFilterRow>
           </FilterSection>
 
           {/* =====================================================
@@ -522,7 +612,7 @@ const FilterSidebar = ({
           ====================================================== */}
 
           <FilterSection title="Minimum Rating">
-            <div className="flex flex-wrap gap-2">
+            <ScrollableFilterRow>
               {RATING_OPTIONS.map((option) => (
                 <button
                   type="button"
@@ -534,6 +624,8 @@ const FilterSidebar = ({
                     }))
                   }
                   className={`
+                    shrink-0
+                    whitespace-nowrap
                     px-3
                     py-1.5
                     rounded-lg
@@ -555,7 +647,7 @@ const FilterSidebar = ({
                   {option.label}
                 </button>
               ))}
-            </div>
+            </ScrollableFilterRow>
           </FilterSection>
         </div>
       </div>

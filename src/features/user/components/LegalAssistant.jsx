@@ -1,14 +1,289 @@
 import React, { useState, useEffect, useRef } from 'react'
 
+const LEGAL_THINKING_STEPS = [
+  { icon: 'gavel', text: 'Analyzing legal query & factual chronology...' },
+  { icon: 'balance', text: 'Reviewing applicable BNS / IPC & statutory provisions...' },
+  { icon: 'menu_book', text: 'Examining procedural requirements & legal precedents...' },
+  { icon: 'edit_document', text: 'Structuring advocate-grade legal response...' },
+  { icon: 'verified_user', text: 'Verifying statutory compliance & final output...' },
+]
+
+export const cleanAnswerText = (text) => {
+  if (!text || typeof text !== 'string') return ''
+  let cleaned = text
+  // 1. Remove divider blocks followed by General Legal Knowledge / disclaimer
+  cleaned = cleaned.replace(/\n*---\s*\n*\*{0,2}General Legal Knowledge\*{0,2}[^\n]*[\s\S]*?(?=\n*---\s*|\s*$)/gi, '')
+  cleaned = cleaned.replace(/\n*---\s*\n*This answer is based on general legal knowledge[\s\S]*?(?=\n*---\s*|\s*$)/gi, '')
+  cleaned = cleaned.replace(/\n*---\s*\n*Yeh jawab general legal knowledge[\s\S]*?(?=\n*---\s*|\s*$)/gi, '')
+
+  // 2. Remove any inline/standalone GK / verification disclaimers
+  cleaned = cleaned.replace(/\*{0,2}General Legal Knowledge\*{0,2}\s*(?:\([^)]*\))?/gi, '')
+  cleaned = cleaned.replace(/This answer is based on general legal knowledge and has NOT been verified against[^\n]*\n?/gi, '')
+  cleaned = cleaned.replace(/Yeh jawab general legal knowledge par based hai aur isse[^\n]*\n?/gi, '')
+  cleaned = cleaned.replace(/It may be incomplete, outdated, or not applicable to your specific facts\. Please verify independently or consult a qualified advocate before relying on it\.\s*/gi, '')
+  cleaned = cleaned.replace(/Yeh adhura, purana ya aapke case par laagu na ho sake, isliye kisi vakil se salah lein\.\s*/gi, '')
+  cleaned = cleaned.replace(/This answer is based on general legal knowledge[^\n]*\n?/gi, '')
+  cleaned = cleaned.replace(/\(not from the verified Knowledge Base\)/gi, '')
+  cleaned = cleaned.replace(/\(verified Knowledge Base se nahi\)/gi, '')
+
+  // 3. Remove leftover separator lines at the end or double dividers
+  cleaned = cleaned.replace(/(?:\n\s*---\s*)+$/g, '')
+  cleaned = cleaned.replace(/(?:\n\s*---\s*){2,}/g, '\n\n---\n\n')
+
+  return cleaned.trim()
+}
+
+export const renderInlineMarkdown = (text) => {
+  if (!text || typeof text !== 'string') return ''
+  const tokens = text.split(/(\*\*[^*]+?\*\*)/g)
+  return tokens.map((tok, idx) => {
+    if (tok.startsWith('**') && tok.endsWith('**') && tok.length >= 4) {
+      return (
+        <strong key={idx} className="font-bold text-slate-900">
+          {tok.slice(2, -2)}
+        </strong>
+      )
+    }
+    return tok
+  })
+}
+
+export const detectDocumentTitle = (text) => {
+  if (!text) return 'Legal_Document'
+  const lower = text.toLowerCase()
+  if (lower.includes('पुलिस शिकायत') || lower.includes('police complaint') || lower.includes('प्राथमिकी') || lower.includes('fir')) {
+    return 'Police_Complaint_Draft'
+  }
+  if (lower.includes('विधिक नोटिस') || lower.includes('legal notice')) {
+    return 'Legal_Notice_Draft'
+  }
+  if (lower.includes('किरायानामा') || lower.includes('rent agreement') || lower.includes('lease agreement')) {
+    return 'Rent_Agreement_Draft'
+  }
+  if (lower.includes('शपथ पत्र') || lower.includes('affidavit')) {
+    return 'Affidavit_Draft'
+  }
+  if (lower.includes('उपभोक्ता शिकायत') || lower.includes('consumer complaint')) {
+    return 'Consumer_Complaint_Draft'
+  }
+  if (lower.includes('आरटीआई') || lower.includes('rti application')) {
+    return 'RTI_Application_Draft'
+  }
+  if (lower.includes('चेक बाउंस') || lower.includes('cheque bounce')) {
+    return 'Cheque_Bounce_Notice'
+  }
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
+  for (const line of lines) {
+    const cleanLine = line.replace(/^[#*\s]+|[#*\s]+$/g, '')
+    if (cleanLine.length > 3 && cleanLine.length < 50 && !cleanLine.startsWith('यह') && !cleanLine.startsWith('Here')) {
+      return cleanLine.replace(/[^\w\u0900-\u097F\s-]/g, '').trim().replace(/\s+/g, '_') || 'Legal_Document'
+    }
+  }
+  return 'Legal_Draft'
+}
+
+export const isLegalDraft = (text, draftObj = null) => {
+  if (draftObj) {
+    if (draftObj.draft_id) return true
+    if (draftObj.full_text && draftObj.full_text.length > 50) return true
+    if (['preview', 'approved', 'locked', 'exported', 'preview_ready'].includes(draftObj.stage)) return true
+  }
+
+  if (!text || typeof text !== 'string') return false
+  const trimmed = text.trim()
+  if (trimmed.length < 120) return false
+
+  const hasAddress = /\*\*(प्रति|सेवा में|to)\b/i.test(text) || /^(प्रति|सेवा में|to,)/im.test(text)
+  const hasSubject = /\*\*(विषय|subject)\b/i.test(text) || /^(विषय:|subject:)/im.test(text)
+  const hasPrayer = /\*\*(प्रार्थना|relief|prayer)\b/i.test(text) || /(अतः श्रीमान|अतः निवेदन|prayer:)/i.test(text)
+  const hasNoticeMarker = /(legal notice|विधिक नोटिस|notice under section)/i.test(text) && hasSubject
+  const hasAgreementMarker = /(rent agreement|lease agreement|किराया अनुबंध|किरायानामा)/i.test(text) && /(witnesseth|शर्तें|terms and conditions)/i.test(text)
+  const hasDraftIntro = /(मसौदा|draft|प्रारूप)[\s\S]{1,60}:/i.test(text) && (hasSubject || hasAddress || hasPrayer)
+
+  if ((hasAddress && hasSubject) || (hasSubject && hasPrayer) || hasDraftIntro || hasNoticeMarker || hasAgreementMarker) {
+    return true
+  }
+
+  return false
+}
+
+export const QUICK_PROMPTS = [
+  {
+    icon: 'local_police',
+    title: 'Police Complaint / FIR',
+    desc: 'थाना प्रभारी को औपचारिक शिकायत मसौदा तैयार करें',
+    prompt: 'थाना प्रभारी को चोरी की घटना के संबंध में पुलिस शिकायत (FIR) का औपचारिक मसौदा तैयार कीजिए।'
+  },
+  {
+    icon: 'mark_email_unread',
+    title: 'Legal Notice (विधिक नोटिस)',
+    desc: 'किरायेदार को 15 दिन में मकान खाली करने का नोटिस',
+    prompt: 'किरायेदार को बकाया किराया चुकाने एवं 15 दिन में मकान खाली करने का विधिक नोटिस (Legal Notice) तैयार करें।'
+  },
+  {
+    icon: 'payments',
+    title: 'Cheque Bounce Notice',
+    desc: 'Section 138 NI Act के अंतर्गत चेक बाउंस का विधिक नोटिस',
+    prompt: 'Negotiable Instruments Act की धारा 138 के तहत चेक अनादरण (Cheque Bounce) का विधिक नोटिस तैयार करें।'
+  },
+  {
+    icon: 'home_work',
+    title: 'Rent Agreement Draft',
+    desc: 'मकान मालिक एवं किरायेदार के बीच 11 महीने का किरायानामा',
+    prompt: 'मकान मालिक और किरायेदार के बीच 11 माह का मानक किराया अनुबंध (Rent Agreement) ड्राफ्ट करें।'
+  },
+  {
+    icon: 'shopping_bag',
+    title: 'Consumer Forum Complaint',
+    desc: 'दोषपूर्ण उत्पाद पर उपभोक्ता आयोग में शिकायत',
+    prompt: 'उपभोक्ता संरक्षण अधिनियम 2019 के अंतर्गत दोषपूर्ण उत्पाद हेतु उपभोक्ता आयोग में शिकायत का प्रारूप बनाएं।'
+  },
+  {
+    icon: 'gavel',
+    title: 'BNS vs IPC Query',
+    desc: 'भारतीय न्याय संहिता और आईपीसी की मुख्य धाराओं की तुलना',
+    prompt: 'IPC धारा 420 और भारतीय न्याय संहिता (BNS) की संबंधित धारा 318 के मुख्य प्रावधानों व अंतर को समझाइए।'
+  }
+]
+
+export const FormattedLegalMessage = ({ text }) => {
+  if (!text) return null
+  const cleaned = cleanAnswerText(text)
+  const lines = cleaned.split('\n')
+
+  const elements = []
+  let listItems = []
+
+  const flushList = () => {
+    if (listItems.length > 0) {
+      elements.push(
+        <ul key={`list-${elements.length}`} className="my-2 space-y-1 pl-1">
+          {listItems}
+        </ul>
+      )
+      listItems = []
+    }
+  }
+
+  lines.forEach((rawLine, idx) => {
+    const line = rawLine.trim()
+
+    // Empty line
+    if (!line) {
+      flushList()
+      elements.push(<div key={`spacer-${idx}`} className="h-2" />)
+      return
+    }
+
+    // Divider
+    if (/^[-*_]{3,}$/.test(line)) {
+      flushList()
+      elements.push(<hr key={`hr-${idx}`} className="my-3 border-t border-slate-200" />)
+      return
+    }
+
+    // Markdown Heading (# or ## or ###) or Standalone bold line (**Heading**)
+    const headingMatch = /^#{1,4}\s+(.+)$/.exec(line)
+    const standaloneBold = /^\*\*([^*]+)\*\*[:\s]*$/.exec(line)
+
+    if (headingMatch || standaloneBold) {
+      flushList()
+      const title = (headingMatch ? headingMatch[1] : standaloneBold[1]).trim()
+      elements.push(
+        <div key={`heading-${idx}`} className="mt-4 mb-2 pt-1 border-b border-amber-200/50 pb-1">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-4 rounded-full bg-amber-500 shrink-0" />
+            <h4 className="text-sm font-bold text-slate-900 tracking-wide uppercase">
+              {title}
+            </h4>
+          </div>
+        </div>
+      )
+      return
+    }
+
+    // Prefix bold with details: e.g. **विषय:** या **Subject:** या **फरियादी:**
+    const prefixBold = /^\*\*([^*]+)\*\*:\s*(.+)$/.exec(line)
+    if (prefixBold) {
+      flushList()
+      const title = prefixBold[1].trim()
+      const body = prefixBold[2].trim()
+      const isSubject = title.includes('विषय') || title.toLowerCase().includes('subject')
+      elements.push(
+        <div
+          key={`prefix-${idx}`}
+          className={`my-2 p-3 rounded-xl border text-sm ${
+            isSubject
+              ? 'bg-amber-50/80 border-amber-200/80 shadow-xs'
+              : 'bg-slate-50 border-slate-200/70'
+          }`}
+        >
+          <div className="flex items-start gap-2">
+            <span className={`font-bold shrink-0 ${isSubject ? 'text-amber-950' : 'text-slate-900'}`}>
+              {title}:
+            </span>
+            <span className="text-slate-800 leading-relaxed">
+              {renderInlineMarkdown(body)}
+            </span>
+          </div>
+        </div>
+      )
+      return
+    }
+
+    // Bullet point: - item or * item or • item
+    const bulletMatch = /^[-*•]\s+(.+)$/.exec(line)
+    if (bulletMatch) {
+      listItems.push(
+        <li key={`bullet-${idx}`} className="flex items-start gap-2 text-sm text-slate-800 leading-relaxed">
+          <span className="text-amber-500 font-bold select-none text-base leading-none mt-0.5">•</span>
+          <div className="flex-1">{renderInlineMarkdown(bulletMatch[1])}</div>
+        </li>
+      )
+      return
+    }
+
+    // Numbered item: 1. item or (1) item
+    const numberedMatch = /^(\d+[\.\)]|\([0-9a-zA-Z]\))\s+(.+)$/.exec(line)
+    if (numberedMatch) {
+      flushList()
+      elements.push(
+        <div key={`num-${idx}`} className="flex items-start gap-2.5 my-1.5 text-sm text-slate-800 leading-relaxed">
+          <span className="inline-flex items-center justify-center font-bold text-xs text-amber-900 bg-amber-100/80 px-2 py-0.5 rounded shrink-0 select-none">
+            {numberedMatch[1]}
+          </span>
+          <div className="flex-1">{renderInlineMarkdown(numberedMatch[2])}</div>
+        </div>
+      )
+      return
+    }
+
+    // Normal paragraph line
+    flushList()
+    elements.push(
+      <p key={`p-${idx}`} className="text-sm text-slate-800 leading-relaxed my-0.5">
+        {renderInlineMarkdown(line)}
+      </p>
+    )
+  })
+
+  flushList()
+  return <div className="space-y-0.5 notranslate" translate="no">{elements}</div>
+}
+
 const IpcWiki = ({ user }) => {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [thinkingIndex, setThinkingIndex] = useState(0)
   const [chatId, setChatId] = useState(null)
   const [connected, setConnected] = useState(true)
   const [chatSessions, setChatSessions] = useState([])
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [showAttachMenu, setShowAttachMenu] = useState(false)
+  const [downloadingPdfIndex, setDownloadingPdfIndex] = useState(null)
+  const [copiedIndex, setCopiedIndex] = useState(null)
+  const [selectedLang, setSelectedLang] = useState('auto')
   const [attachedFile, setAttachedFile] = useState(null)
   const [showCamera, setShowCamera] = useState(false)
   const [cameraStream, setCameraStream] = useState(null)
@@ -22,6 +297,18 @@ const IpcWiki = ({ user }) => {
   const [pdfAttachedFile, setPdfAttachedFile] = useState(null)
   const [showPdfAttachMenu, setShowPdfAttachMenu] = useState(false)
   const messagesEndRef = useRef(null)
+
+  // Cycle thinking status words during generation
+  useEffect(() => {
+    if (!loading) {
+      setThinkingIndex(0)
+      return
+    }
+    const interval = setInterval(() => {
+      setThinkingIndex((prev) => (prev + 1) % LEGAL_THINKING_STEPS.length)
+    }, 1800)
+    return () => clearInterval(interval)
+  }, [loading])
   const inputRef = useRef(null)
   const fileInputRef = useRef(null)
   const cameraInputRef = useRef(null)
@@ -31,7 +318,7 @@ const IpcWiki = ({ user }) => {
   const pdfFileInputRef = useRef(null)
   const pdfAttachMenuRef = useRef(null)
 
-  const apiUrl = 'http://localhost:8002'  // Python RAG API
+  const apiUrl = import.meta.env.VITE_LEGAL_AI_API_URL || 'http://localhost:8000'
 
   // Close attach menus on outside click
   useEffect(() => {
@@ -123,30 +410,45 @@ const IpcWiki = ({ user }) => {
     setShowCamera(false)
   }
 
-  // Upload file to API
+  // Upload file and query chat with file context
   const uploadFile = async (file, userMessage = '') => {
     const formData = new FormData()
     formData.append('file', file)
-    if (chatId) formData.append('chat_id', chatId)
-    if (userMessage) formData.append('message', userMessage)
+    const activeSessionId = chatId || crypto.randomUUID()
+    const userId = user?._id || user?.id || user?.userId
 
-    const userId = user._id
-    const userType = user.role === 'advocate' ? 'advocate' : 'user'
-    if (userType === 'advocate') {
-      formData.append('advocate_id', userId)
-    } else {
-      formData.append('user_id', userId)
+    let extractedText = ''
+    try {
+      const extractRes = await fetch(`${apiUrl}/documents/extract`, {
+        method: 'POST',
+        body: formData
+      })
+      if (extractRes.ok) {
+        const extJson = await extractRes.json()
+        extractedText = extJson.text || ''
+      }
+    } catch (e) {
+      console.warn('Extraction notice:', e)
     }
-    formData.append('user_type', userType)
 
-    const res = await fetch(`${apiUrl}/upload`, {
+    const fullQuestion = userMessage
+      ? `${userMessage}\n\n[संलग्न दस्तावेज़ सामग्री / Attached File: ${file.name}]:\n${extractedText.slice(0, 12000)}`
+      : `कृपया इस संलग्न दस्तावेज़ (${file.name}) का विस्तृत कानूनी विश्लेषण करें और इसके मुख्य बिंदु एवं विधिक प्रावधान बताएं:\n\n${extractedText.slice(0, 12000)}`
+
+    const res = await fetch(`${apiUrl}/chat`, {
       method: 'POST',
-      body: formData
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        question: fullQuestion,
+        session_id: activeSessionId,
+        language: selectedLang || 'auto',
+        user_id: userId ? String(userId) : undefined
+      })
     })
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ detail: 'Upload failed' }))
-      throw new Error(err.detail || 'Upload failed')
+      const err = await res.json().catch(() => ({ detail: 'Document processing failed' }))
+      throw new Error(err.detail || 'Document processing failed')
     }
     return await res.json()
   }
@@ -264,16 +566,15 @@ const IpcWiki = ({ user }) => {
     setPdfPromptLoading(true)
 
     try {
-      const userId = user._id
-      const userType = user.role === 'advocate' ? 'advocate' : 'user'
-      const idField = user.role === 'advocate' ? 'advocate_id' : 'user_id'
+      const userId = user._id || user.id || user.userId
+      const userType = user?.role === 'advocate' ? 'advocate' : 'user'
       let data
 
       if (pdfAttachedFile) {
         // Extract text directly from attached file so letter wording is preserved
         const formData = new FormData()
         formData.append('file', pdfAttachedFile)
-        const extractRes = await fetch(`${apiUrl}/extract-text`, { method: 'POST', body: formData })
+        const extractRes = await fetch(`${apiUrl}/documents/extract`, { method: 'POST', body: formData })
         if (!extractRes.ok) throw new Error('Text extraction failed')
         const extracted = await extractRes.json()
         const extractedText = (extracted?.text || '').trim()
@@ -287,15 +588,14 @@ const IpcWiki = ({ user }) => {
         }
 
         // If prompt exists, apply user instruction but preserve letter structure and wording
-        const res = await fetch(`${apiUrl}/query`, {
+        const res = await fetch(`${apiUrl}/chat`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             question: buildPdfQuestion(prompt, pdfAttachedFile.name, extractedText),
-            [idField]: userId,
-            user_type: userType,
-            chat_id: chatId,
-            disable_memory: true
+            user_id: userId ? String(userId) : undefined,
+            session_id: chatId || undefined,
+            language: 'auto'
           })
         })
         if (!res.ok) throw new Error('Server error')
@@ -305,15 +605,14 @@ const IpcWiki = ({ user }) => {
         if (pdfFileInputRef.current) pdfFileInputRef.current.value = ''
       } else {
         // Text-only prompt
-        const res = await fetch(`${apiUrl}/query`, {
+        const res = await fetch(`${apiUrl}/chat`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             question: buildPdfQuestion(prompt),
-            [idField]: userId,
-            user_type: userType,
-            chat_id: chatId,
-            disable_memory: true
+            user_id: userId ? String(userId) : undefined,
+            session_id: chatId || undefined,
+            language: 'auto'
           })
         })
         if (!res.ok) throw new Error('Server error')
@@ -352,17 +651,17 @@ const IpcWiki = ({ user }) => {
         body: JSON.stringify({ text, title })
       })
       if (!res.ok) {
-  let detail = 'PDF generation failed'
+        let detail = 'PDF generation failed'
 
-  try {
-    const err = await res.json()
-    detail = err?.detail || detail
-  } catch (error) {
-    console.warn('Could not parse PDF error response:', error)
-  }
+        try {
+          const err = await res.json()
+          detail = err?.detail || detail
+        } catch (error) {
+          console.warn('Could not parse PDF error response:', error)
+        }
 
-  throw new Error(detail)
-}
+        throw new Error(detail)
+      }
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -378,6 +677,180 @@ const IpcWiki = ({ user }) => {
     }
   }
 
+  // Handle PDF download from draft (supports both official /draft/export and /generate-pdf)
+  const handleDownloadPdf = async (text, index, draftObj = null) => {
+    try {
+      setDownloadingPdfIndex(index)
+      const title = detectDocumentTitle(text)
+
+      // 1. If backend draft_id exists, call official /draft/export from LegalDraftEngine
+      const targetDraftId = draftObj?.draft_id
+      if (targetDraftId) {
+        try {
+          const exportRes = await fetch(`${apiUrl}/draft/export`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              draft_id: targetDraftId,
+              session_id: draftObj?.session_id || chatId || undefined,
+              format: 'pdf',
+              watermark: false
+            })
+          })
+          if (exportRes.ok) {
+            const blob = await exportRes.blob()
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            let downloadName = `${title.replace(/\s+/g, '_')}.pdf`
+            const disposition = exportRes.headers.get('content-disposition')
+            if (disposition && disposition.includes('filename=')) {
+              const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)
+              if (match && match[1]) downloadName = match[1].replace(/['"]/g, '').trim()
+            }
+            a.download = downloadName
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+            URL.revokeObjectURL(url)
+            return
+          } else {
+            console.warn('Backend /draft/export status:', exportRes.status)
+          }
+        } catch (err) {
+          console.warn('Backend /draft/export fallback to /generate-pdf:', err)
+        }
+      }
+
+      // 2. Direct Weasyprint PDF generation fallback
+      await downloadPDF(cleanAnswerText(text), title)
+    } finally {
+      setDownloadingPdfIndex(null)
+    }
+  }
+
+  // Download editable Word (.doc / .docx)
+  const downloadWordDoc = async (text, title = 'Legal_Document', draftObj = null) => {
+    // 1. If backend draft_id exists, try calling official /draft/export for docx
+    const targetDraftId = draftObj?.draft_id
+    if (targetDraftId) {
+      try {
+        const exportRes = await fetch(`${apiUrl}/draft/export`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            draft_id: targetDraftId,
+            session_id: draftObj?.session_id || chatId || undefined,
+            format: 'docx',
+            watermark: false
+          })
+        })
+        if (exportRes.ok) {
+          const blob = await exportRes.blob()
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          let downloadName = `${title.replace(/\s+/g, '_')}.docx`
+          const disposition = exportRes.headers.get('content-disposition')
+          if (disposition && disposition.includes('filename=')) {
+            const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)
+            if (match && match[1]) downloadName = match[1].replace(/['"]/g, '').trim()
+          }
+          a.download = downloadName
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
+          URL.revokeObjectURL(url)
+          return
+        }
+      } catch (err) {
+        console.warn('Backend /draft/export docx fallback to client doc:', err)
+      }
+    }
+
+    // 2. Client-side .doc generation
+    const cleaned = cleanAnswerText(text)
+    const paragraphs = cleaned.split('\n').map(p => {
+      const line = p.trim()
+      if (!line) return '<br/>'
+      if (/^\*\*([^*]+)\*\*[:\s]*$/.test(line)) {
+        const h = line.replace(/^\*\*|\*\*[:\s]*$/g, '')
+        return `<h3 style="margin-top:16px; margin-bottom:6px; color:#0f172a; font-size:13pt;"><b>${h}</b></h3>`
+      }
+      return `<p style="margin:6px 0; font-size:12pt; line-height:1.6;">${line.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')}</p>`
+    }).join('\n')
+
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>${title}</title>
+<style>
+  body { font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; padding: 40px; color: #000; }
+  h3 { font-family: Arial, sans-serif; }
+</style>
+</head>
+<body>
+${paragraphs}
+</body>
+</html>`
+    const blob = new Blob(['\ufeff', html], { type: 'application/msword;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${title.replace(/\s+/g, '_')}.doc`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  // Copy full cleaned message to clipboard
+  const handleCopyText = (text, index) => {
+    const cleaned = cleanAnswerText(text)
+    navigator.clipboard.writeText(cleaned)
+    setCopiedIndex(index)
+    setTimeout(() => {
+      setCopiedIndex(null)
+    }, 2000)
+  }
+
+  // Print draft directly
+  const handlePrintText = (text) => {
+    const cleaned = cleanAnswerText(text)
+    const printWindow = window.open('', '_blank')
+    if (!printWindow) return
+    const content = cleaned.split('\n').map(p => {
+      const line = p.trim()
+      if (!line) return '<br>'
+      if (/^\*\*([^*]+)\*\*[:\s]*$/.test(line)) {
+        const h = line.replace(/^\*\*|\*\*[:\s]*$/g, '')
+        return `<h3 style="margin-top:16px; margin-bottom:6px; font-weight:bold; font-size:13pt;">${h}</h3>`
+      }
+      return `<p style="margin:6px 0; line-height:1.7;">${line.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')}</p>`
+    }).join('')
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Legal Document Draft</title>
+          <style>
+            body { font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.7; padding: 40px 60px; color: #111; }
+            @media print { body { padding: 0; } }
+          </style>
+        </head>
+        <body>${content}</body>
+      </html>
+    `)
+    printWindow.document.close()
+    printWindow.focus()
+    setTimeout(() => {
+      printWindow.print()
+      printWindow.close()
+    }, 250)
+  }
+
   // Auto-scroll to bottom — only within the messages container, not the whole page
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -391,7 +864,7 @@ const IpcWiki = ({ user }) => {
       try {
         const res = await fetch(`${apiUrl}/health`)
         const data = await res.json()
-        setConnected(!!data.vectorstore_loaded)
+        setConnected(data.status === 'ok' || data.status === 'degraded' || data.components?.llm === 'ok')
       } catch {
         setConnected(false)
       }
@@ -406,7 +879,7 @@ const IpcWiki = ({ user }) => {
     if (!user) return
 
     try {
-      const userId = user._id
+      const userId = user._id || user.id || user.userId
       const userType = user.role === 'advocate' ? 'advocate' : 'user'
 
       const res = await fetch(`${apiUrl}/chats?user_id=${userId}&user_type=${userType}`)
@@ -427,9 +900,19 @@ const IpcWiki = ({ user }) => {
       const chatRes = await fetch(`${apiUrl}/chats/${id}`)
       if (chatRes.ok) {
         const chatData = await chatRes.json()
-        const formattedMessages = chatData.messages.flatMap(msg => [
+        const parseSources = (s) => {
+          if (!s) return []
+          if (Array.isArray(s)) return s
+          try { return JSON.parse(s) } catch { return [] }
+        }
+        const formattedMessages = (chatData.messages || []).flatMap(msg => [
           { text: msg.question, sender: 'user' },
-          { text: msg.answer, sender: 'bot', sources: msg.sources ? JSON.parse(msg.sources) : [] }
+          {
+            text: cleanAnswerText(msg.answer),
+            sender: 'bot',
+            sources: parseSources(msg.sources),
+            draft: msg.draft || null
+          }
         ])
         setMessages(formattedMessages)
         setChatId(id)
@@ -441,10 +924,10 @@ const IpcWiki = ({ user }) => {
 
   // Load chat sessions on mount, always start with a fresh new chat
   useEffect(() => {
-    if (!user) return
-
     const init = async () => {
-      await loadChatSessions()
+      if (user) {
+        await loadChatSessions()
+      }
       await startNewChat()
     }
 
@@ -456,7 +939,7 @@ const IpcWiki = ({ user }) => {
     const question = input.trim()
     const hasFile = !!attachedFile
 
-    if ((!question && !hasFile) || loading || !user) return
+    if ((!question && !hasFile) || loading) return
 
     // Show user message
     const displayText = hasFile
@@ -478,18 +961,17 @@ const IpcWiki = ({ user }) => {
         data = await uploadFile(currentFile, question)
       } else {
         // Text-only query
-        const userId = user._id
-        const userType = user.role === 'advocate' ? 'advocate' : 'user'
-        const idField = user.role === 'advocate' ? 'advocate_id' : 'user_id'
+        const userId = user?._id || user?.id || user?.userId || 'user'
+        const activeSessionId = chatId || crypto.randomUUID()
 
-        const res = await fetch(`${apiUrl}/query`, {
+        const res = await fetch(`${apiUrl}/chat`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             question,
-            [idField]: userId,
-            user_type: userType,
-            chat_id: chatId
+            session_id: activeSessionId,
+            language: selectedLang || 'auto',
+            user_id: userId ? String(userId) : undefined
           })
         })
 
@@ -498,16 +980,24 @@ const IpcWiki = ({ user }) => {
       }
 
       // Update chat_id if this was the first message
-      if (data.chat_id && data.chat_id !== chatId) {
-        setChatId(data.chat_id)
-        await loadChatSessions() // Refresh sidebar
+      const currentChatId = data.session_id || data.chat_id || chatId
+      if (currentChatId && currentChatId !== chatId) {
+        setChatId(currentChatId)
       }
 
       // Display the bot response
       setMessages(prev => [
         ...prev,
-        { text: data.answer, sender: 'bot', sources: data.sources }
+        {
+          text: cleanAnswerText(data.answer),
+          sender: 'bot',
+          sources: data.citations || data.sources || [],
+          draft: data.draft || null
+        }
       ])
+
+      // Refresh chat sessions list in sidebar
+      loadChatSessions()
     } catch (err) {
       console.error('Send message error:', err)
       setMessages(prev => [
@@ -521,12 +1011,8 @@ const IpcWiki = ({ user }) => {
     setLoading(false)
   }
 
-  // Start new chat — just reset UI; the /query endpoint auto-creates the chat on first message
+  // Start new chat — reset chat session state
   const startNewChat = async () => {
-    if (!user) {
-      console.log('Cannot create chat: user not logged in')
-      return
-    }
     setChatId(null)
     setMessages([])
   }
@@ -551,87 +1037,67 @@ const IpcWiki = ({ user }) => {
   }
 
   return (
-    <div className="h-full bg-slate-50 text-slate-800 flex overflow-hidden">
+    <div className="h-full w-full bg-slate-50 text-slate-800 flex overflow-hidden notranslate" translate="no">
       {/* Sidebar */}
-      <div className={`${sidebarOpen ? 'w-72' : 'w-0'} transition-all duration-300 bg-slate-900 text-white flex flex-col overflow-hidden`}>
-        <div className="p-4 border-b border-slate-700">
+      <div className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 bg-slate-900 text-white flex flex-col h-full overflow-hidden shrink-0 notranslate`} translate="no">
+        <div className="p-3 border-b border-slate-800 shrink-0">
           <button
             onClick={startNewChat}
-            className="w-full px-4 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+            className="w-full px-3 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold transition-colors flex items-center justify-center gap-2"
             type="button"
           >
-            <span className="material-symbols-outlined text-lg">add</span>
+            <span className="material-symbols-outlined text-base">add</span>
             New Chat
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-3 space-y-2">
+        <div className="flex-1 overflow-y-auto p-2 space-y-0.5 notranslate" translate="no">
           {chatSessions.map((session) => (
             <div
               key={session.id}
               onClick={() => loadChatById(session.id)}
-              className={`group px-3 py-3 rounded-lg cursor-pointer transition-all ${chatId === session.id
-                  ? 'bg-slate-700'
-                  : 'hover:bg-slate-800'
+              className={`group px-2.5 py-1.5 rounded-lg cursor-pointer transition-all ${chatId === session.id
+                ? 'bg-slate-800 text-white font-medium'
+                : 'hover:bg-slate-800/60 text-slate-300 hover:text-white'
                 }`}
             >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="material-symbols-outlined text-amber-400 text-sm">chat</span>
-                    <span className="text-xs text-slate-400">
-                      {new Date(session.created_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <p className="text-sm font-medium truncate">{session.title || 'New Chat'}</p>
-                  <p className="text-xs text-slate-400 mt-1">
-                    {session.message_count || 0} message{session.message_count !== 1 ? 's' : ''}
-                  </p>
+              <div className="flex items-center justify-between gap-1.5">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <span className="material-symbols-outlined text-amber-400 text-sm shrink-0">chat_bubble_outline</span>
+                  <p className="text-xs font-medium truncate">{session.title || 'New Chat'}</p>
                 </div>
                 <button
                   onClick={(e) => deleteChat(session.id, e)}
-                  className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-600/20 rounded transition-opacity"
+                  className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 text-slate-400 hover:text-red-400 rounded transition-all shrink-0"
                   type="button"
                   title="Delete chat"
                 >
-                  <span className="material-symbols-outlined text-red-400 text-sm">delete</span>
+                  <span className="material-symbols-outlined text-sm">delete</span>
                 </button>
               </div>
             </div>
           ))}
 
           {chatSessions.length === 0 && (
-            <div className="text-center py-8 text-slate-500 text-sm">
+            <div className="text-center py-6 text-slate-500 text-xs">
               No previous chats.<br />Start a new conversation!
             </div>
           )}
         </div>
-
-        {user && (
-          <div className="p-4 border-t border-slate-700">
-            <div className="flex items-center gap-2 text-sm">
-              <span className="material-symbols-outlined text-amber-400">account_circle</span>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold truncate">{user.name}</p>
-                <p className="text-xs text-slate-400">{user.role === 'advocate' ? 'Advocate' : 'User'}</p>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        <div className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between">
+      <div className="flex-1 flex flex-col h-full overflow-hidden min-w-0 notranslate" translate="no">
+        <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+              className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
               type="button"
             >
               <span className="material-symbols-outlined text-slate-600">menu</span>
             </button>
-            <h2 className="text-lg font-bold text-slate-900">Legal AI Chat</h2>
+            <h2 className="text-base font-bold text-slate-900">Legal AI Chat</h2>
           </div>
           <div className="flex items-center gap-2">
             <span className="inline-block w-2 h-2 rounded-full" style={{ background: connected ? '#4ade80' : '#ef4444' }}></span>
@@ -641,55 +1107,281 @@ const IpcWiki = ({ user }) => {
           </div>
         </div>
 
-        <main className="flex-1 flex flex-col overflow-hidden">
+        <main className="flex-1 flex flex-col overflow-hidden min-h-0 notranslate" translate="no">
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
-            {messages.length === 0 && (
-              <div className="flex flex-col items-center justify-center h-full text-center">
-                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-amber-50 border-4 border-amber-100 mb-6">
-                  <span className="material-symbols-outlined text-amber-600 text-4xl">balance</span>
-                </div>
-                <h4 className="text-xl font-bold text-slate-900 mb-2">Welcome to Legal AI Assistant</h4>
-                <p className="text-slate-500 text-sm max-w-md">
-                  Get instant answers on Constitutional rights, BNS provisions, legal procedures, and landmark cases.
-                </p>
-                {!user && (
-                  <p className="text-amber-600 text-sm font-semibold mt-4">Please log in to start chatting</p>
-                )}
-              </div>
-            )}
+          <div className="flex-1 overflow-y-auto px-4 sm:px-8 lg:px-12 py-6 notranslate" translate="no">
+            <div className="max-w-6xl w-full mx-auto space-y-5">
+              {messages.length === 0 && (
+                <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
+                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-amber-500 shadow-xl border border-slate-700/60 mb-6">
+                    <span className="material-symbols-outlined text-4xl">balance</span>
+                  </div>
+                  <h4 className="text-2xl font-bold text-slate-900 mb-2">Welcome to Legal AI Assistant</h4>
+                  <p className="text-slate-500 text-sm max-w-lg leading-relaxed mb-6">
+                    Get instant advocate-level answers on Indian Constitutional rights, BNS provisions, FIR / complaint drafting, court procedures, and legal notice generation.
+                  </p>
 
-            {messages.map((m, i) => (
-              <div key={i} className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] rounded-2xl px-5 py-3 shadow-sm ${m.sender === 'user'
-                    ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white'
-                    : 'bg-slate-100 text-slate-900 border border-slate-200'
-                  }`}>
-                  <div className="text-sm leading-relaxed whitespace-pre-wrap">{m.text}</div>
-                </div>
-              </div>
-            ))}
+                  {/* Quick Legal Draft / Consultation Starters */}
+                  <div className="w-full max-w-3xl text-left mt-2">
+                    <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center justify-center gap-2">
+                      <span className="material-symbols-outlined text-sm text-amber-600">lightbulb</span>
+                      Quick Legal Draft & Consultation Starters
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                      {QUICK_PROMPTS.map((p, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => {
+                            setInput(p.prompt)
+                            inputRef.current?.focus()
+                          }}
+                          className="p-3 bg-white hover:bg-amber-50/50 rounded-xl border border-slate-200 hover:border-amber-300 text-left transition-all shadow-sm hover:shadow group flex flex-col justify-between"
+                        >
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <span className="material-symbols-outlined text-amber-600 text-lg group-hover:scale-110 transition-transform">
+                              {p.icon}
+                            </span>
+                            <span className="text-xs font-bold text-slate-900 group-hover:text-amber-800">
+                              {p.title}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-500 leading-snug line-clamp-2">
+                            {p.desc}
+                          </p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-            {loading && (
-              <div className="flex justify-start">
-                <div className="bg-slate-100 border border-slate-200 rounded-2xl px-5 py-4 shadow-sm">
-                  <div className="flex gap-1.5">
-                    <span className="w-2.5 h-2.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                    <span className="w-2.5 h-2.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                    <span className="w-2.5 h-2.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                  {!user && (
+                    <p className="text-amber-600 text-sm font-semibold mt-6 bg-amber-50 border border-amber-200/60 px-4 py-2 rounded-xl">
+                      Please log in to start chatting with Legal AI
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {messages.map((m, i) => (
+                <div key={i} className={`flex items-start gap-3 ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  {/* Bot Avatar (left) */}
+                  {m.sender !== 'user' && (
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-amber-500 shadow-md mt-0.5 border border-slate-700/60">
+                      <span className="material-symbols-outlined text-lg">balance</span>
+                    </div>
+                  )}
+
+                  {/* Message Bubble */}
+                  <div className={`max-w-[85%] rounded-2xl px-5 py-3.5 shadow-sm notranslate transition-all ${m.sender === 'user'
+                    ? 'bg-blue-600 text-white shadow-blue-500/10'
+                    : 'bg-white text-slate-900 border border-slate-200/90 shadow-slate-100'
+                    }`} translate="no">
+                    <div className="flex items-center gap-1.5 mb-1 text-xs font-semibold">
+                      {m.sender !== 'user' ? (
+                        <span className="text-slate-700 flex items-center gap-1.5">
+                          <span>Vakeel<span className="text-amber-600 font-bold">Setu</span> AI</span>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200/60 font-medium">Legal Assistant</span>
+                        </span>
+                      ) : (
+                        <span className="text-blue-100 font-medium flex items-center gap-1">
+                          <span>You</span>
+                        </span>
+                      )}
+                    </div>
+
+                    {m.sender === 'user' ? (
+                      <div className="text-sm leading-relaxed whitespace-pre-wrap">{m.text}</div>
+                    ) : (
+                      (() => {
+                        const isDraftMessage = isLegalDraft(m.text, m.draft)
+                        return (
+                          <div>
+                            {/* DRAFT ONLY: Header Banner with Document Title & Quick Download */}
+                            {isDraftMessage && (
+                              <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 mb-3 border-b border-amber-200/70 bg-gradient-to-r from-amber-50/90 via-amber-100/40 to-transparent -mx-5 -mt-2 px-5 pt-2 rounded-t-xl">
+                                <div className="flex items-center gap-2">
+                                  <span className="material-symbols-outlined text-amber-600 text-lg">gavel</span>
+                                  <div>
+                                    <div className="text-xs font-bold text-slate-900 tracking-wide uppercase flex items-center gap-1.5">
+                                      <span>विधिक मसौदा / Legal Draft</span>
+                                      {m.draft?.draft_id ? (
+                                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                          <span className="material-symbols-outlined text-[12px]">verified</span> Draft Engine
+                                        </span>
+                                      ) : (
+                                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-800 border border-amber-300">
+                                          Legal Assistant
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="text-[11px] text-amber-800 font-medium">
+                                      {m.draft?.template_name || detectDocumentTitle(m.text).replace(/_/g, ' ')}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  <button
+                                    onClick={() => handleDownloadPdf(m.text, i, m.draft)}
+                                    disabled={downloadingPdfIndex === i}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-sm transition-all active:scale-95 disabled:opacity-50"
+                                    title="Download as PDF"
+                                  >
+                                    {downloadingPdfIndex === i ? (
+                                      <>
+                                        <span className="material-symbols-outlined text-sm animate-spin">sync</span>
+                                        <span>Downloading...</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <span className="material-symbols-outlined text-sm">picture_as_pdf</span>
+                                        <span>Download PDF</span>
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Formatted Clean Legal Message */}
+                            <FormattedLegalMessage text={m.text} />
+
+                            {/* DRAFT ONLY: Action Toolbar with Download PDF, Word, Copy Draft, Print */}
+                            {isDraftMessage ? (
+                              <div className="mt-4 pt-3 border-t border-amber-100 flex flex-wrap items-center justify-between gap-2 text-xs">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  {/* PDF Download Button */}
+                                  <button
+                                    onClick={() => handleDownloadPdf(m.text, i, m.draft)}
+                                    disabled={downloadingPdfIndex === i}
+                                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg font-semibold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 shadow-sm transition-all hover:shadow active:scale-95 disabled:opacity-50"
+                                    title={m.draft?.draft_id ? "Download verified Court PDF Draft" : "Download formal PDF draft"}
+                                  >
+                                    {downloadingPdfIndex === i ? (
+                                      <>
+                                        <span className="material-symbols-outlined text-sm animate-spin">sync</span>
+                                        <span>Generating PDF...</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <span className="material-symbols-outlined text-sm">picture_as_pdf</span>
+                                        <span>{m.draft?.draft_id ? "Download Court Draft (PDF)" : "Download PDF"}</span>
+                                      </>
+                                    )}
+                                  </button>
+
+                                  {/* Word/Doc Download Button */}
+                                  <button
+                                    onClick={() => downloadWordDoc(m.text, m.draft?.template_name || detectDocumentTitle(m.text), m.draft)}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200/80 transition-all active:scale-95"
+                                    title={m.draft?.draft_id ? "Download official Word Document (.docx)" : "Download editable Word Document (.doc)"}
+                                  >
+                                    <span className="material-symbols-outlined text-sm text-blue-600">description</span>
+                                    <span>{m.draft?.draft_id ? "Word (.docx)" : "Word (.doc)"}</span>
+                                  </button>
+
+                                  {/* Copy Draft */}
+                                  <button
+                                    onClick={() => handleCopyText(m.text, i)}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium text-slate-700 hover:bg-slate-100 border border-slate-200/80 transition-all active:scale-95"
+                                    title="Copy draft to clipboard"
+                                  >
+                                    <span className="material-symbols-outlined text-sm text-slate-600">
+                                      {copiedIndex === i ? 'check' : 'content_copy'}
+                                    </span>
+                                    <span>{copiedIndex === i ? 'Copied!' : 'Copy Draft'}</span>
+                                  </button>
+
+                                  {/* Print Draft */}
+                                  <button
+                                    onClick={() => handlePrintText(m.text)}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-transparent hover:border-slate-200 transition-all active:scale-95"
+                                    title="Print this document"
+                                  >
+                                    <span className="material-symbols-outlined text-sm">print</span>
+                                    <span>Print</span>
+                                  </button>
+                                </div>
+
+                                <div className="flex items-center gap-1 text-[11px] text-amber-850 font-medium">
+                                  <span className="material-symbols-outlined text-emerald-600 text-xs">verified</span>
+                                  <span>Draft Ready for Filing</span>
+                                </div>
+                              </div>
+                            ) : (
+                              /* NORMAL CHAT MESSAGE: Subtle, clean copy action only */
+                              <div className="mt-2.5 pt-2 border-t border-slate-100/80 flex items-center justify-between text-xs text-slate-400">
+                                <button
+                                  onClick={() => handleCopyText(m.text, i)}
+                                  className="inline-flex items-center gap-1 text-[11px] text-slate-500 hover:text-slate-800 px-2 py-0.5 rounded hover:bg-slate-100 transition-colors"
+                                  title="Copy answer"
+                                >
+                                  <span className="material-symbols-outlined text-sm">
+                                    {copiedIndex === i ? 'check' : 'content_copy'}
+                                  </span>
+                                  <span>{copiedIndex === i ? 'Copied' : 'Copy'}</span>
+                                </button>
+                                <span className="text-[10px] text-slate-400">Legal AI Assistant</span>
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })()
+                    )}
+                  </div>
+
+                  {/* User Avatar (right) */}
+                  {m.sender === 'user' && (
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-md mt-0.5 font-bold text-sm border border-blue-500/50">
+                      {user?.fullName?.[0]?.toUpperCase() || user?.name?.[0]?.toUpperCase() || (
+                        <span className="material-symbols-outlined text-base">person</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {/* Dynamic Legal Thinking Indicator (ChatGPT Style) */}
+              {loading && (
+                <div className="flex items-start gap-3 justify-start animate-in fade-in duration-300">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-amber-500 shadow-md mt-0.5 border border-slate-700/60">
+                    <span className="material-symbols-outlined text-lg animate-spin" style={{ animationDuration: '3s' }}>
+                      balance
+                    </span>
+                  </div>
+                  <div className="bg-white border border-slate-200/90 rounded-2xl px-5 py-3.5 shadow-sm max-w-[85%] notranslate" translate="no">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-bold text-slate-700">Vakeel<span className="text-amber-600 font-bold">Setu</span> AI</span>
+                      <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200/70 px-2.5 py-0.5 rounded-full">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                        Analyzing
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2.5 text-sm text-slate-700 font-medium py-1">
+                      <span className="material-symbols-outlined text-amber-600 text-lg animate-pulse">
+                        {LEGAL_THINKING_STEPS[thinkingIndex].icon}
+                      </span>
+                      <span className="transition-all duration-300 text-slate-800">
+                        {LEGAL_THINKING_STEPS[thinkingIndex].text}
+                      </span>
+                    </div>
+                    <div className="flex gap-1.5 mt-2.5">
+                      <span className="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                      <span className="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                      <span className="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            <div ref={messagesEndRef} />
+              <div ref={messagesEndRef} />
+            </div>
           </div>
 
           {/* Input */}
-          <div className="px-6 py-5 border-t border-slate-200 bg-white">
+          <div className="px-4 sm:px-8 lg:px-12 py-3.5 border-t border-slate-200 bg-white shrink-0 notranslate" translate="no">
             {/* Attachment preview */}
             {attachedFile && (
-              <div className="max-w-4xl mx-auto mb-2">
+              <div className="max-w-6xl w-full mx-auto mb-2">
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg text-sm">
                   <span className="material-symbols-outlined text-blue-600 text-base">
                     {attachedFile.type?.includes('pdf') ? 'picture_as_pdf' : 'image'}
@@ -706,9 +1398,9 @@ const IpcWiki = ({ user }) => {
               </div>
             )}
 
-            <div className="max-w-4xl mx-auto flex gap-3 items-center">
+            <div className="max-w-6xl w-full mx-auto flex gap-3 items-center">
               {/* PDF Generator button */}
-              <button
+              {/* <button
                 onClick={() => setShowPdfPanel(true)}
                 disabled={!user}
                 className="w-12 h-12 flex items-center justify-center rounded-xl border-2 border-slate-300 hover:border-emerald-500 hover:bg-emerald-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
@@ -716,7 +1408,7 @@ const IpcWiki = ({ user }) => {
                 title="Generate PDF"
               >
                 <span className="material-symbols-outlined text-emerald-600 text-2xl">picture_as_pdf</span>
-              </button>
+              </button> */}
 
               {/* + Button with menu */}
               <div className="relative" ref={attachMenuRef}>
@@ -784,6 +1476,30 @@ const IpcWiki = ({ user }) => {
                 disabled={!user || loading}
                 className="flex-1 px-5 py-3.5 rounded-xl border-2 border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none disabled:bg-slate-100 disabled:cursor-not-allowed transition-all"
               />
+
+              {/* Language Preference Selector */}
+              <div className="hidden sm:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0">
+                {[
+                  { id: 'auto', label: 'Auto' },
+                  { id: 'hi', label: 'हिंदी' },
+                  { id: 'en', label: 'EN' }
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setSelectedLang(item.id)}
+                    className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      selectedLang === item.id
+                        ? 'bg-white text-slate-900 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-800'
+                    }`}
+                    title={`Preferred language: ${item.label}`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+
               <button
                 onClick={send}
                 disabled={!user || loading || (!input.trim() && !attachedFile)}
@@ -843,7 +1559,7 @@ const IpcWiki = ({ user }) => {
 
       {/* PDF Generator Panel */}
       {showPdfPanel && (
-        <div className="fixed inset-0 bg-black/60 flex items-end justify-center pb-4 px-4 pt-20 overflow-hidden" style={{ zIndex: 9999 }}>
+        <div className="fixed inset-0 bg-black/60 flex items-end justify-center pb-4 px-4 pt-20 overflow-hidden notranslate" translate="no" style={{ zIndex: 9999 }}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl flex flex-col overflow-hidden" style={{ height: 'calc(100vh - 100px)' }}>
             {/* Header */}
             <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-gradient-to-r from-emerald-50 to-white">
@@ -1011,6 +1727,3 @@ const IpcWiki = ({ user }) => {
 }
 
 export default IpcWiki
-
-
-

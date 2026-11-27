@@ -246,9 +246,13 @@ const AdvocateCard = ({ advocate, onViewAdvocate }) => {
       tabIndex={0}
       className="
         group
+        flex
+        h-full
         w-full
         min-w-0
         cursor-pointer
+        flex-col
+        justify-between
         overflow-hidden
         rounded-2xl
         border
@@ -267,6 +271,7 @@ const AdvocateCard = ({ advocate, onViewAdvocate }) => {
       <div
         className="
           grid
+          h-full
           min-w-0
           grid-cols-1
           gap-5
@@ -480,7 +485,7 @@ const AdvocateCard = ({ advocate, onViewAdvocate }) => {
         >
           {/* NAME & STATUS */}
 
-          <div className="flex w-full min-w-0 flex-wrap items-center justify-center gap-2 sm:justify-start">
+          <div className="flex w-full min-w-0 flex-nowrap items-center justify-center gap-2 sm:justify-start">
             <h4
               className="
                 min-w-0
@@ -643,13 +648,13 @@ const AdvocateCard = ({ advocate, onViewAdvocate }) => {
 
           <div
             className="
-              mt-1
+              mt-auto
               flex
               w-full
               items-center
               justify-between
               gap-4
-              pt-2
+              pt-3
             "
           >
             <div className="flex min-w-0 items-baseline">

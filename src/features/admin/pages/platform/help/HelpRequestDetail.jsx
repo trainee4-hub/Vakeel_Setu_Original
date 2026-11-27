@@ -119,6 +119,13 @@ export default function HelpRequestDetail() {
     }
   };
 
+  const rawConcern = helpRequest.concern || "";
+  const serviceMatch = rawConcern.match(/^\[(?:Service|Category):\s*([^\]]+)\]\s*\n?/i);
+  const serviceTag = serviceMatch ? serviceMatch[1].trim() : null;
+  const cleanConcernText = serviceMatch
+    ? rawConcern.replace(serviceMatch[0], "").trim()
+    : rawConcern;
+
   return (
     <div className="space-y-6 max-w-full">
       {/* Top Header & Navigation */}
@@ -174,12 +181,20 @@ export default function HelpRequestDetail() {
 
               {/* Concern Section */}
               <div className="min-w-0">
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
-                  Concern / Inquired Issue
-                </h2>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Concern / Inquired Issue
+                  </h2>
+                  {serviceTag && (
+                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 border border-amber-200/80 px-2.5 py-0.5 text-xs font-bold text-amber-800">
+                      <span className="text-[10px] uppercase font-semibold text-amber-600">Service:</span>
+                      {serviceTag}
+                    </span>
+                  )}
+                </div>
                 <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5 min-w-0">
                   <p className="text-sm text-slate-900 whitespace-pre-wrap break-words leading-relaxed font-normal">
-                    {helpRequest.concern || "—"}
+                    {cleanConcernText || "—"}
                   </p>
                 </div>
               </div>

@@ -275,11 +275,15 @@ const AdvocateProfile = ({
     // otherwise gracefully skip directly to booking
     if (selectedBookingMode === "IN_PERSON") {
       const coords = extractOfficeCoords(advocate);
+      const locStr =
+        typeof advocate?.location === "string"
+          ? advocate.location
+          : [advocate?.location?.city, advocate?.location?.state].filter(Boolean).join(", ");
       const addr = String(
         advocate?.officeAddress ||
           advocate?.office?.address ||
           advocate?.office?.officeAddress ||
-          advocate?.location ||
+          locStr ||
           "",
       ).trim();
       if (coords || addr) {
@@ -625,7 +629,9 @@ useEffect(() => {
     advocate?.officeAddress ||
     advocate?.office?.address ||
     advocate?.office?.officeAddress ||
-    advocate?.location ||
+    (typeof advocate?.location === "string"
+      ? advocate.location
+      : [advocate?.location?.city, advocate?.location?.state].filter(Boolean).join(", ")) ||
     "";
 
   // Google Maps external directions link: uses coordinates when present

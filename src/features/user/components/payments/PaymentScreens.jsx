@@ -52,7 +52,7 @@ export const PaymentConfirmingView = () => {
 /* ================================================================
    2. SUCCESS SCREEN
    "Booking confirmed", package, amount, Payment ID, Order ID,
-   date, "Our team will contact you within 7 working days",
+   date, "Our team will contact you within 2 hours",
    button → My Consultancies
 ================================================================ */
 
@@ -163,7 +163,7 @@ export const PaymentSuccessView = ({
       {/* Contact Notice */}
       <div className="mt-4 w-full max-w-md rounded-xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-left">
         <p className="text-xs font-bold leading-5 text-amber-900">
-          📞 Our team will contact you within 7 working days to connect you with your legal expert.
+          📞 Our team will contact you within 2 hours to connect you with your legal expert.
         </p>
       </div>
 

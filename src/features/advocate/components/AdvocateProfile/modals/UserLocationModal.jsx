@@ -56,6 +56,32 @@ function loadLeaflet() {
   });
 }
 
+const KNOWN_CITY_COORDS = {
+  jaipur: { lat: 26.9124, lng: 75.7873 },
+  delhi: { lat: 28.6139, lng: 77.209 },
+  "new delhi": { lat: 28.6139, lng: 77.209 },
+  mumbai: { lat: 19.076, lng: 72.8777 },
+  kolkata: { lat: 22.5726, lng: 88.3639 },
+  bengaluru: { lat: 12.9716, lng: 77.5946 },
+  bangalore: { lat: 12.9716, lng: 77.5946 },
+  hyderabad: { lat: 17.385, lng: 78.4867 },
+  chennai: { lat: 13.0827, lng: 80.2707 },
+  pune: { lat: 18.5204, lng: 73.8567 },
+  ahmedabad: { lat: 23.0225, lng: 72.5714 },
+  chandigarh: { lat: 30.7333, lng: 76.7794 },
+  lucknow: { lat: 26.8467, lng: 80.9462 },
+  patna: { lat: 25.6093, lng: 85.1376 },
+  bhopal: { lat: 23.2599, lng: 77.4126 },
+  indore: { lat: 22.7196, lng: 75.8577 },
+  nagpur: { lat: 21.1458, lng: 79.0882 },
+  kochi: { lat: 9.9312, lng: 76.2673 },
+  cochin: { lat: 9.9312, lng: 76.2673 },
+  surat: { lat: 21.1702, lng: 72.8311 },
+  noida: { lat: 28.5355, lng: 77.391 },
+  gurgaon: { lat: 28.4595, lng: 77.0266 },
+  gurugram: { lat: 28.4595, lng: 77.0266 },
+};
+
 export default function UserLocationModal({
   isOpen,
   onClose,
@@ -94,7 +120,17 @@ export default function UserLocationModal({
       : null;
   }, [officeLat, officeLng]);
 
-  const resolvedOffice = directOffice || geocodedOffice;
+  const resolvedOffice = useMemo(() => {
+    if (directOffice) return directOffice;
+    if (geocodedOffice) return geocodedOffice;
+    const str = String(officeLocation || "").toLowerCase();
+    for (const [city, coords] of Object.entries(KNOWN_CITY_COORDS)) {
+      if (str.includes(city)) {
+        return { ...coords, isEstimatedFromAddress: true };
+      }
+    }
+    return { lat: 28.6139, lng: 77.209, isEstimatedFromAddress: true };
+  }, [directOffice, geocodedOffice, officeLocation]);
 
   const travelDetails =
     isOpen && userLat != null && userLng != null && resolvedOffice
@@ -117,19 +153,16 @@ export default function UserLocationModal({
           setGeocodedOffice(coords);
         } else {
           setGeocodedOffice(null);
-          onSkip?.();
         }
       });
     } else {
-      Promise.resolve().then(() => {
-        if (!cancelled) onSkip?.();
-      });
+      setResolvingOffice(false);
     }
 
     return () => {
       cancelled = true;
     };
-  }, [isOpen, directOffice, officeLocation, onSkip]);
+  }, [isOpen, directOffice, officeLocation]);
 
   // Fetch OSRM route (with 8s timeout + Haversine ~approx fallback) whenever user or office point updates
   useEffect(() => {
@@ -317,6 +350,19 @@ export default function UserLocationModal({
         const oMarker = L.marker([resolvedOffice.lat, resolvedOffice.lng], { icon: officeIcon }).addTo(map);
         oMarker.bindPopup(`<strong style="font-size:12px;">Advocate's Office</strong><br/><span style="font-size:11px; color:#64748b;">${officeLocation || "Consultation Chambers"}</span>`);
         officeMarkerRef.current = oMarker;
+
+        // Force leaflet to calculate correct dimensions once modal DOM has mounted
+        setTimeout(() => {
+          if (!isCancelled && mapInstanceRef.current) {
+            mapInstanceRef.current.invalidateSize();
+          }
+        }, 150);
+
+        setTimeout(() => {
+          if (!isCancelled && mapInstanceRef.current) {
+            mapInstanceRef.current.invalidateSize();
+          }
+        }, 400);
 
         // Allow user to click anywhere on map to drop user pin
         map.on("click", (e) => {

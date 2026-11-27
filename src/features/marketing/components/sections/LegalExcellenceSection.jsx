@@ -41,7 +41,7 @@ const LegalExcellenceSection = ({
               Array.from({ length: 3 }).map((_, index) => (
                 <div
                   key={`advocate-skeleton-${index}`}
-                  className="mx-2 w-[calc(100vw-3rem)] max-w-[440px] shrink-0 sm:mx-3"
+                  className="mx-2 w-[calc(100vw-3rem)] max-w-[440px] shrink-0 sm:mx-3 flex h-full flex-col"
                 >
                   <AdvocateCardSkeleton />
                 </div>
@@ -64,7 +64,7 @@ const LegalExcellenceSection = ({
               advocatesTripled.map((advocate, index) => (
                 <div
                   key={`${advocate.id || advocate._id}-${index}`}
-                  className="mx-2 w-[calc(100vw-3rem)] max-w-[440px] shrink-0 sm:mx-3"
+                  className="mx-2 w-[calc(100vw-3rem)] max-w-[440px] shrink-0 sm:mx-3 flex h-full flex-col"
                 >
                   <AdvocateCard
                     advocate={advocate}

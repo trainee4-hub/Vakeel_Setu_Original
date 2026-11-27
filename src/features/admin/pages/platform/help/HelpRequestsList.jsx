@@ -316,7 +316,11 @@ export default function HelpRequestsList() {
                   header: "Concern",
                   className: "text-xs text-slate-700 max-w-[160px] lg:max-w-[200px] !px-2 lg:!px-3.5",
                   render: (row) => {
-                    const text = row.concern || "—";
+                    const raw = row.concern || "—";
+                    const text =
+                      raw
+                        .replace(/^\[(?:Service|Category):\s*[^\]]+\]\s*\n?/i, "")
+                        .trim() || raw;
                     return (
                       <span
                         className="text-xs text-slate-700 block max-w-[160px] lg:max-w-[200px] truncate"

@@ -1,7 +1,7 @@
 import React from "react";
 
 const AdvocateCardSkeleton = () => (
-  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 overflow-hidden">
+  <div className="h-full flex flex-col justify-between bg-white rounded-2xl border border-slate-200 shadow-sm p-6 overflow-hidden">
     <style>{`
       @keyframes advocateCardShimmerSweep {
         0% {

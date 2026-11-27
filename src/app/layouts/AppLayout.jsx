@@ -8,7 +8,6 @@ import { FloatingConsultant } from "../../features/user";
 import { useAuth } from "../../features/auth";
 import { isAdvocateUser } from "../../utils/advocateProfile";
 
-
 const isAdvocateWorkspace = (pathname) =>
   pathname === "/advocate" || pathname.startsWith("/advocate/");
 
@@ -20,6 +19,12 @@ const FOOTER_HIDDEN_ROUTES = [
   "/login",
   "/signup",
 ];
+
+const isChatWorkspace = (pathname) =>
+  pathname === "/legal-assistant" ||
+  pathname.startsWith("/legal-assistant/") ||
+  pathname === "/ipc-wiki" ||
+  pathname.startsWith("/ipc-wiki/");
 
 function AppLayout() {
   const { pathname } = useLocation();
@@ -39,6 +44,8 @@ function AppLayout() {
     return <Navigate to="/advocate/dashboard" replace />;
   }
 
+  const isChat = isChatWorkspace(pathname);
+
   const hidePublicChrome =
     isAdvocateWorkspace(pathname) ||
     isAdminWorkspace(pathname) ||
@@ -47,16 +54,25 @@ function AppLayout() {
 
   const hideFooter =
     hidePublicChrome ||
-    FOOTER_HIDDEN_ROUTES.includes(pathname);
+    FOOTER_HIDDEN_ROUTES.includes(pathname) ||
+    isChat;
+
+  const hideBreadcrumbs =
+    hidePublicChrome ||
+    isChat;
+
+  const hideFloatingConsultant =
+    hidePublicChrome ||
+    isChat;
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className={`flex flex-col ${isChat ? "h-screen overflow-hidden" : "min-h-screen"}`}>
       {!hidePublicChrome && <Navbar />}
 
-      {!hidePublicChrome && <Breadcrumbs />}
-      {!hidePublicChrome && <FloatingConsultant />}
+      {!hideBreadcrumbs && <Breadcrumbs />}
+      {!hideFloatingConsultant && <FloatingConsultant />}
 
-      <main className="flex-1">
+      <main className={`flex-1 ${isChat ? "pt-20 h-[calc(100vh-80px)] overflow-hidden" : ""}`}>
         <AppRoutes />
       </main>
 

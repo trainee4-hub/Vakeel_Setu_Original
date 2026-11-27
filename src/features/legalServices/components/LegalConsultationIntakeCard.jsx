@@ -28,6 +28,7 @@ const LegalConsultationIntakeCard = ({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submittedName, setSubmittedName] = useState("");
   const [referenceId, setReferenceId] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -75,6 +76,7 @@ const LegalConsultationIntakeCard = ({
         throw new Error(data?.message || "Unable to submit your consultation request.");
       }
 
+      setSubmittedName(formData.name.trim());
       setReferenceId(data?.referenceId || `VS-${Math.floor(100000 + Math.random() * 900000)}`);
       setIsSubmitted(true);
       setFormData({
@@ -95,6 +97,7 @@ const LegalConsultationIntakeCard = ({
 
   const handleReset = () => {
     setIsSubmitted(false);
+    setSubmittedName("");
     setReferenceId("");
     setErrorMessage("");
   };
@@ -119,7 +122,7 @@ const LegalConsultationIntakeCard = ({
               Talk to an Expert Advocate
             </h3>
             <p className="text-xs text-slate-300/90 mt-1 font-medium leading-relaxed">
-              Fill in your details — an enrolled advocate connects within 15 minutes.
+              Fill in your details — an enrolled advocate connects soon.
             </p>
           </div>
 
@@ -247,8 +250,15 @@ const LegalConsultationIntakeCard = ({
           </h3>
 
           <p className="text-xs sm:text-sm text-slate-300 max-w-sm mx-auto leading-relaxed">
-            Thank you, <strong className="text-white">{formData.name}</strong>. An advocate specializing in{" "}
-            <strong className="text-amber-400">{defaultServiceTitle || "this matter"}</strong> will connect with you within 15 minutes.
+            {submittedName ? (
+              <>
+                Thank you, <strong className="text-white">{submittedName}</strong>.{" "}
+              </>
+            ) : (
+              "Thank you. "
+            )}
+            An advocate specializing in{" "}
+            <strong className="text-amber-400">{defaultServiceTitle || "this matter"}</strong> will connect with you soon.
           </p>
 
           <div className="mx-auto max-w-xs rounded-xl border border-slate-700/80 bg-[#070d1a] p-3 text-xs text-slate-400 shadow-inner">
