@@ -182,14 +182,47 @@ const LanguageTranslator = ({ mobile = false, compact = false }) => {
       // Ignore
     }
 
+    if (code === "en") {
+      // Clear all googtrans cookies
+      const hostname = window.location.hostname;
+      document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${hostname};`;
+      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${hostname};`;
+
+      // 1. Trigger Google Translate's native restore button inside banner iframe
+      try {
+        const banner = document.querySelector(".goog-te-banner-frame");
+        if (banner) {
+          const bannerDoc = banner.contentDocument || banner.contentWindow?.document;
+          if (bannerDoc) {
+            const restoreBtn =
+              bannerDoc.getElementById(":1.restore") ||
+              bannerDoc.querySelector(".goog-close-link") ||
+              bannerDoc.querySelector("button");
+            if (restoreBtn) {
+              restoreBtn.click();
+            }
+          }
+        }
+      } catch (_) {}
+
+      // 2. Reset combo select to default index 0
+      const googleSelect = document.querySelector(".goog-te-combo");
+      if (googleSelect) {
+        googleSelect.selectedIndex = 0;
+        googleSelect.value = "";
+        if (typeof googleSelect.onchange === "function") {
+          googleSelect.onchange();
+        }
+        googleSelect.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+      return;
+    }
+
     const applyToCombo = () => {
       const googleSelect = document.querySelector(".goog-te-combo");
       if (googleSelect) {
-        const targetVal = code === "en" ? "" : code;
-        googleSelect.value = targetVal;
-        if (googleSelect.value !== targetVal && code === "en") {
-          googleSelect.value = "en";
-        }
+        googleSelect.value = code;
         if (typeof googleSelect.onchange === "function") {
           googleSelect.onchange();
         }
