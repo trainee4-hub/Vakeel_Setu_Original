@@ -36,10 +36,32 @@ const getSavedLanguage = () => {
   }
 };
 
-const setGoogleTranslateCookie = (language) => {
-  const value =
-    language === "en" ? "/en/en" : `/en/${language}`;
+const clearGoogtransCookies = () => {
+  const hostParts = window.location.hostname.split(".");
+  document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  document.cookie =
+    "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=" +
+    window.location.hostname +
+    ";";
+  document.cookie =
+    "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=." +
+    window.location.hostname +
+    ";";
+  while (hostParts.length > 1) {
+    const dom = hostParts.join(".");
+    document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${dom};`;
+    document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${dom};`;
+    hostParts.shift();
+  }
+};
 
+const setGoogleTranslateCookie = (language) => {
+  if (language === "en") {
+    clearGoogtransCookies();
+    return;
+  }
+
+  const value = `/en/${language}`;
   document.cookie = `googtrans=${value};path=/`;
 
   if (window.location.hostname.includes(".")) {
@@ -183,39 +205,81 @@ const LanguageTranslator = ({ mobile = false, compact = false }) => {
     }
 
     if (code === "en") {
-      // Clear all googtrans cookies
-      const hostname = window.location.hostname;
-      document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${hostname};`;
-      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${hostname};`;
+      clearGoogtransCookies();
 
-      // 1. Trigger Google Translate's native restore button inside banner iframe
+      // 1. Try Google Translate internal restore objects if exposed on window
       try {
-        const banner = document.querySelector(".goog-te-banner-frame");
-        if (banner) {
-          const bannerDoc = banner.contentDocument || banner.contentWindow?.document;
-          if (bannerDoc) {
-            const restoreBtn =
-              bannerDoc.getElementById(":1.restore") ||
-              bannerDoc.querySelector(".goog-close-link") ||
-              bannerDoc.querySelector("button");
-            if (restoreBtn) {
-              restoreBtn.click();
+        if (window.google?.translate) {
+          Object.keys(window).forEach((key) => {
+            if (key.startsWith("googleTranslate") || key.includes("Translate")) {
+              const obj = window[key];
+              if (obj && typeof obj === "object") {
+                Object.keys(obj).forEach((k) => {
+                  if (typeof obj[k]?.restore === "function") {
+                    try {
+                      obj[k].restore();
+                    } catch (_) {}
+                  }
+                });
+              }
             }
-          }
+          });
         }
       } catch (_) {}
 
-      // 2. Reset combo select to default index 0
-      const googleSelect = document.querySelector(".goog-te-combo");
-      if (googleSelect) {
-        googleSelect.selectedIndex = 0;
-        googleSelect.value = "";
-        if (typeof googleSelect.onchange === "function") {
-          googleSelect.onchange();
+      // 2. Trigger Google Translate's native restore button inside iframe
+      const clickRestoreInIframe = () => {
+        const iframes = document.querySelectorAll(
+          "iframe.goog-te-banner-frame, iframe.VIpgJd-ZVi9od-ORHb-OEVmcd, iframe"
+        );
+        for (const iframe of iframes) {
+          try {
+            const bannerDoc = iframe.contentDocument || iframe.contentWindow?.document;
+            if (bannerDoc) {
+              const allElements = bannerDoc.querySelectorAll("button, a, input[type='button']");
+              for (const el of allElements) {
+                const id = (el.id || "").toLowerCase();
+                const text = (el.textContent || el.innerText || el.value || "").toLowerCase();
+                const cls = (el.className || "").toString().toLowerCase();
+
+                // Never click close button
+                if (cls.includes("close") || id.includes("close")) continue;
+
+                if (
+                  id.includes("restore") ||
+                  text.includes("original") ||
+                  text.includes("restore") ||
+                  cls.includes("restore")
+                ) {
+                  el.click();
+                  return true;
+                }
+              }
+            }
+          } catch (_) {}
         }
-        googleSelect.dispatchEvent(new Event("change", { bubbles: true }));
+        return false;
+      };
+
+      if (!clickRestoreInIframe()) {
+        setTimeout(clickRestoreInIframe, 40);
+        setTimeout(clickRestoreInIframe, 120);
+        setTimeout(clickRestoreInIframe, 250);
       }
+
+      // 3. Fallback: Check after 350ms if DOM is still in translated state. If yes, trigger a clean reload
+      setTimeout(() => {
+        const isStillTranslated =
+          document.body.classList.contains("translated-ltr") ||
+          document.body.classList.contains("translated-rtl") ||
+          !!document.querySelector("font[style*='vertical-align']");
+
+        if (isStillTranslated) {
+          clearGoogtransCookies();
+          window.location.reload();
+        }
+      }, 350);
+
       return;
     }
 

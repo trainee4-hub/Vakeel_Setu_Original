@@ -31,7 +31,17 @@ export default function AdvocateTestPage() {
   const token = searchParams.get("token") || "";
 
   // Page States: 'LOGIN' | 'RULES' | 'TESTING' | 'RESULT' | 'ALREADY_PASSED' | 'EXPIRED' | 'RESCHEDULE_DONE'
-  const [screen, setScreen] = useState("LOGIN");
+  const [screen, setScreen] = useState(() => {
+    const saved = sessionStorage.getItem("vks_test_screen");
+    const valid = ["LOGIN", "RULES", "TESTING", "RESULT", "ALREADY_PASSED", "EXPIRED", "RESCHEDULE_DONE"];
+    return valid.includes(saved) ? saved : "LOGIN";
+  });
+
+  useEffect(() => {
+    if (screen) {
+      sessionStorage.setItem("vks_test_screen", screen);
+    }
+  }, [screen]);
 
   // Form inputs for Login
   const [barCouncilId, setBarCouncilId] = useState(() => {
@@ -42,6 +52,15 @@ export default function AdvocateTestPage() {
   });
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState("");
+
+  const handleBarCouncilChange = (val) => {
+    setBarCouncilId(val);
+    sessionStorage.setItem("vks_test_bar_id", val);
+  };
+  const handlePhoneChange = (val) => {
+    setPhone(val);
+    sessionStorage.setItem("vks_test_phone", val);
+  };
 
   // Test Session Token & Rules
   const [testSession, setTestSession] = useState(() => {
@@ -57,8 +76,16 @@ export default function AdvocateTestPage() {
   const [attemptId, setAttemptId] = useState("");
   const [questions, setQuestions] = useState([]);
   const [selectedAnswers, setSelectedAnswers] = useState({}); // { [index]: "A" | "B" | "C" | "D" }
-  const [currentQIndex, setCurrentQIndex] = useState(0);
+  const [currentQIndex, setCurrentQIndex] = useState(() => {
+    const saved = sessionStorage.getItem("vks_test_q_index");
+    const num = Number(saved);
+    return !isNaN(num) && num >= 0 && num < 20 ? num : 0;
+  });
   const [visitedIndices, setVisitedIndices] = useState(() => new Set([0]));
+
+  useEffect(() => {
+    sessionStorage.setItem("vks_test_q_index", String(currentQIndex));
+  }, [currentQIndex]);
 
   useEffect(() => {
     if (screen === "TESTING") {
@@ -108,7 +135,12 @@ export default function AdvocateTestPage() {
     const savedSession = sessionStorage.getItem("vks_test_session");
     const savedToken = sessionStorage.getItem("vks_test_token");
 
-    if (!savedSession || !token || savedToken !== token) return;
+    if (!savedSession || !token || savedToken !== token) {
+      if (screen === "TESTING" || screen === "RULES") {
+        setScreen("LOGIN");
+      }
+      return;
+    }
 
     let cancelled = false;
     (async () => {
@@ -504,7 +536,7 @@ export default function AdvocateTestPage() {
                   type="text"
                   placeholder="e.g. D/1234/2020 or MAH/5678/2019"
                   value={barCouncilId}
-                  onChange={(e) => setBarCouncilId(e.target.value)}
+                  onChange={(e) => handleBarCouncilChange(e.target.value)}
                   className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-amber-500 focus:bg-white focus:ring-1 focus:ring-amber-500"
                   required
                 />
@@ -521,7 +553,7 @@ export default function AdvocateTestPage() {
                     maxLength={10}
                     placeholder="9876543210"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => handlePhoneChange(e.target.value)}
                     className="w-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 focus-visible:outline-none shadow-none focus:shadow-none"
                     style={{ outline: "none", boxShadow: "none", border: "none" }}
                     required
