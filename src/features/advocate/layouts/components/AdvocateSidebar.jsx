@@ -12,6 +12,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { getSmallImageUrl } from "@shared/utils/imageUtils";
+import LanguageTranslator from "@/app/layouts/LanguageTranslator";
 
 const cleanText = (value) => {
   if (
@@ -347,10 +348,12 @@ export default function AdvocateSidebar({
       </div>
 
       {/* ===================================================
-          LOGOUT
+          LANGUAGE & LOGOUT
       =================================================== */}
 
-      <div className="shrink-0 border-t border-white/[0.06] p-3">
+      <div className="shrink-0 border-t border-white/[0.06] p-3 space-y-2">
+        <LanguageTranslator dark fullWidth direction="up" />
+
         <button
           type="button"
           onClick={onLogout}

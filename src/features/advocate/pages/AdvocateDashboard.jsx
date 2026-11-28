@@ -59,6 +59,7 @@ import useAdvocateDashboard from "../hooks/useAdvocateDashboard";
 import useAdvocateTeam from "../hooks/useAdvocateTeam";
 
 import { getEntityId } from "../utils/advocateDashboardUtils";
+import LanguageTranslator from "@/app/layouts/LanguageTranslator";
 
 import DashboardErrorState from "../components/DashboardErrorState";
 
@@ -485,11 +486,11 @@ const WelcomeSection = ({
         duration: 0.45,
         ease: [0.22, 1, 0.36, 1],
       }}
-      className="relative overflow-hidden rounded-[26px] border border-slate-200/70 bg-white px-5 py-5 shadow-[0_14px_45px_rgba(15,23,42,0.05)] sm:px-6 sm:py-6"
+      className="relative rounded-[26px] border border-slate-200/70 bg-white px-5 py-5 shadow-[0_14px_45px_rgba(15,23,42,0.05)] sm:px-6 sm:py-6"
     >
-      <div className="pointer-events-none absolute right-0 top-0 h-full w-72 bg-gradient-to-l from-amber-50/80 to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-72 rounded-r-[26px] bg-gradient-to-l from-amber-50/80 to-transparent" />
 
-      <div className="relative flex items-start justify-between gap-5">
+      <div className="relative flex flex-col sm:flex-row sm:items-start sm:justify-between gap-5">
         {/* LEFT */}
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -609,6 +610,11 @@ const WelcomeSection = ({
               {new Date(lastSeenAt).toLocaleString("en-IN")}
             </p>
           )}
+        </div>
+
+        {/* RIGHT: LANGUAGE SELECTOR */}
+        <div className="shrink-0 self-start relative z-30">
+          <LanguageTranslator compact />
         </div>
       </div>
     </motion.section>

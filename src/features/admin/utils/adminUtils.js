@@ -133,7 +133,12 @@ export function getAccountRole(user) {
   return normalizeRole(user.role ?? user.accountType ?? user.userType ?? user.type);
 }
 
-export const ADMIN_PANEL_ROLES = ["ADMIN", "CONTENT_CREATOR"];
+export const ADMIN_PANEL_ROLES = ["ADMIN", "CONTENT_CREATOR", "STAFF"];
+
+export function isStaff(user) {
+  const role = (getAccountRole(user) || "").toLowerCase();
+  return ["staff", "content_creator"].includes(role);
+}
 
 export function isAdminPanelAccount(user) {
   return ADMIN_PANEL_ROLES.includes(getAccountRole(user));
@@ -144,7 +149,7 @@ export function isFullAdmin(user) {
 }
 
 export function formatRoleTitle(str) {
-  if (!str) return "Content Creator";
+  if (!str) return "Staff";
   if (/[a-z]/.test(str)) return str;
   return str
     .split("_")
@@ -172,19 +177,24 @@ export function getDisplayRole(user) {
   }
 
   // If custom assigned role exists in roles array
-  const customRole = rolesList.find((r) => r && r !== "ADMIN" && r !== "CONTENT_CREATOR");
+  const customRole = rolesList.find((r) => r && r !== "ADMIN" && r !== "CONTENT_CREATOR" && r !== "STAFF");
   if (customRole) {
     return formatRoleTitle(customRole);
   }
 
   // If user.role is a custom assigned role
-  if (user.role && user.role !== "ADMIN" && user.role !== "CONTENT_CREATOR") {
+  if (user.role && user.role !== "ADMIN" && user.role !== "CONTENT_CREATOR" && user.role !== "STAFF") {
     return formatRoleTitle(user.role);
   }
 
   // Default fallback for staff accounts
-  if (rawRole === "CONTENT_CREATOR" || rolesList.includes("CONTENT_CREATOR")) {
-    return "Content Creator";
+  if (
+    rawRole === "CONTENT_CREATOR" ||
+    rawRole === "STAFF" ||
+    rolesList.includes("CONTENT_CREATOR") ||
+    rolesList.includes("STAFF")
+  ) {
+    return "Staff";
   }
 
   return "Admin";

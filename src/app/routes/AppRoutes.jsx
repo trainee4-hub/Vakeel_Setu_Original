@@ -13,15 +13,17 @@ import {
 } from "../../features/auth";
 import {
   UserProfile,
-  LegalAssistantPage as IpcWikiPage,
   SavedLawyer,
   Bookings,
   MyPayments,
   MessageConsultations,
+  ClientRoutes,
 } from "../../features/user";
 
+import { FindLawyerPage } from "../../features/findLawyer";
+import { LegalAssistantPage } from "../../features/legalAssistant";
+
 import {
-  FindLawyerPage,
   AdvocateProfilePage,
   AdvocatePricing,
   AdvocateRoutes,
@@ -36,33 +38,9 @@ import GuestRoute from "./GuestRoute";
 
 import { AdminRoutes } from "../../features/admin";
 
-/* ================= LEGAL HUB ================= */
-
-import {
-  LegalHub,
-  LegalHubDetail,
-  Articles,
-  BlogDetails,
-  Rights,
-  RightDetails,
-  Guides,
-  Updates,
-  IPC,
-  BNS,
-  BareActSections,
-  LawLibrary,
-  ActsLibrary,
-  ActDetails,
-  SectionDetails,
-} from "../../features/legalHub";
-
-/* ================= LEGAL SERVICES ================= */
-
-import {
-  LegalServicesIndexPage,
-  CategoryLandingPage,
-  ServiceDetailPage,
-} from "../../features/legalServices";
+/* ================= LEGAL HUB & SERVICES ================= */
+import { LegalHubRoutes } from "../../features/legalHub";
+import { LegalServicesRoutes } from "../../features/legalServices";
 import AdvocateTestPage from "../../features/advocateTest/pages/AdvocateTestPage";
 
 
@@ -177,8 +155,14 @@ const AppRoutes = () => {
         }
       />
 
-      {/* ================= USER ONLY ================= */}
+      {/* ================= CLIENT / USER PORTAL ================= */}
 
+      <Route
+        path="/client/*"
+        element={<ClientRoutes />}
+      />
+
+      {/* Backward-compatible Canonical Client Routes */}
       <Route
         path="/user-profile"
         element={
@@ -268,7 +252,7 @@ const AppRoutes = () => {
         path="/legal-assistant"
         element={
           <ProtectedRoute>
-            <IpcWikiPage />
+            <LegalAssistantPage />
           </ProtectedRoute>
         }
       />
@@ -283,106 +267,16 @@ const AppRoutes = () => {
         element={<Navigate to="/legal-assistant" replace />}
       />
 
-      {/* =====================================================
-          LEGAL HUB
-
-          React Router v6 ranks static segments above dynamic
-          ones, so:
-            /legal-hub/articles/:slug -> BlogDetails
-            /legal-hub/rights/:id     -> RightDetails
-            /legal-hub/guides/:id     -> LegalHubDetail (via :type)
-
-          /resources is kept only so any old Navbar or
-          Breadcrumb link keeps working.
-      ====================================================== */}
-
+      {/* ================= LEGAL HUB ================= */}
       <Route
-        path="/legal-hub"
-        element={<LegalHub />}
-      />
-
-
-      <Route
-        path="/legal-hub/articles"
-        element={<Articles />}
-      />
-
-      <Route
-        path="/legal-hub/articles/:slug"
-        element={<BlogDetails />}
-      />
-
-      <Route
-        path="/legal-hub/rights"
-        element={<Rights />}
-      />
-
-      <Route
-        path="/legal-hub/rights/:id"
-        element={<RightDetails />}
-      />
-
-      <Route
-        path="/legal-hub/guides"
-        element={<Guides />}
-      />
-
-      <Route
-        path="/legal-hub/updates"
-        element={<Updates />}
-      />
-
-      <Route
-        path="/legal-hub/ipc"
-        element={<IPC />}
-      />
-
-      <Route
-        path="/legal-hub/bns"
-        element={<BNS />}
-      />
-            <Route
-        path="/legal-hub/law-library"
-        element={<LawLibrary />}
-      />
-
-      <Route
-        path="/legal-hub/law-library/acts"
-        element={<ActsLibrary />}
-      />
-
-      <Route
-        path="/legal-hub/law-library/acts/:actId"
-        element={<ActDetails />}
-      />
-
-      <Route
-        path="/legal-hub/law-library/acts/:actId/sections/:sectionId"
-        element={<SectionDetails />}
-      />
-
-      
-
-      <Route
-        path="/legal-hub/:type/:id"
-        element={<LegalHubDetail />}
+        path="/legal-hub/*"
+        element={<LegalHubRoutes />}
       />
 
       {/* ================= LEGAL SERVICES ================= */}
-
       <Route
-        path="/legal-services"
-        element={<LegalServicesIndexPage />}
-      />
-
-      <Route
-        path="/legal-services/:categorySlug"
-        element={<CategoryLandingPage />}
-      />
-
-      <Route
-        path="/legal-services/:categorySlug/:serviceSlug"
-        element={<ServiceDetailPage />}
+        path="/legal-services/*"
+        element={<LegalServicesRoutes />}
       />
 
       {/* ================= HELP & LEGAL ================= */}

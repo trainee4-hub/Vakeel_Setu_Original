@@ -3,6 +3,7 @@ import {
   Menu,
   Scale,
 } from "lucide-react";
+import LanguageTranslator from "@/app/layouts/LanguageTranslator";
 
 export default function AdvocateMobileHeader({
   onMenu,
@@ -32,16 +33,20 @@ export default function AdvocateMobileHeader({
         </span>
       </div>
 
-      <button
-        type="button"
-        onClick={onNotifications}
-        className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50"
-        aria-label="Notifications"
-      >
-        <Bell size={19} />
+      <div className="flex items-center gap-2">
+        <LanguageTranslator compact />
 
-        <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-amber-500 ring-2 ring-white" />
-      </button>
+        <button
+          type="button"
+          onClick={onNotifications}
+          className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50"
+          aria-label="Notifications"
+        >
+          <Bell size={19} />
+
+          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-amber-500 ring-2 ring-white" />
+        </button>
+      </div>
     </header>
   );
 }

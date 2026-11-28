@@ -302,7 +302,7 @@ export const restoreAuthSession =
         ? String(currentState.user.accountType).toUpperCase()
         : "";
 
-    if (currentRole === "ADMIN" || currentRole === "CONTENT_CREATOR") {
+    if (currentRole === "ADMIN" || currentRole === "CONTENT_CREATOR" || currentRole === "STAFF") {
       dispatch(authCheckFinished());
       return currentState.user;
     }
@@ -381,7 +381,7 @@ export const restoreAuthSession =
           : currentUser?.accountType
             ? String(currentUser.accountType).toUpperCase()
             : "";
-        if (role === "ADMIN" || role === "CONTENT_CREATOR") {
+        if (role === "ADMIN" || role === "CONTENT_CREATOR" || role === "STAFF") {
           dispatch(authCheckFinished());
           return currentUser;
         }

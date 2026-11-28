@@ -132,14 +132,14 @@ const FilterSidebar = ({
         xl:w-[320px]
         shrink-0
         lg:sticky
-        lg:top-24
+        lg:top-20
         self-start
         ${showMobileFilters ? "block" : "hidden lg:block"}
       `}
     >
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         {/* Header */}
-        <div className="mb-7 flex items-center justify-between">
+        <div className="mb-5 flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold tracking-tight text-slate-900">
               Filters
@@ -159,7 +159,7 @@ const FilterSidebar = ({
           </button>
         </div>
 
-        <div className="custom-scrollbar -mr-6 max-h-[calc(100vh-190px)] space-y-7 overflow-y-auto pr-6">
+        <div className="custom-scrollbar -mr-4 max-h-[calc(100vh-100px)] space-y-4 overflow-y-auto pr-4">
           {/* =====================================================
               EXPERIENCE
           ====================================================== */}
@@ -393,7 +393,7 @@ const FilterSidebar = ({
           ====================================================== */}
 
           <FilterSection title="Specialty">
-            <ScrollableFilterRow>
+            <div className="flex flex-wrap gap-2">
               {CATEGORY_OPTIONS.map((category) => {
                 const isSelected =
                   filters.practiceArea === category.value;
@@ -411,8 +411,6 @@ const FilterSidebar = ({
                       }))
                     }
                     className={`
-                      shrink-0
-                      whitespace-nowrap
                       px-3
                       py-1.5
                       rounded-full
@@ -431,7 +429,7 @@ const FilterSidebar = ({
                   </button>
                 );
               })}
-            </ScrollableFilterRow>
+            </div>
           </FilterSection>
 
           {/* =====================================================
@@ -605,49 +603,6 @@ const FilterSidebar = ({
                 className={`${FILTER_INPUT_CLASS} pl-10`}
               />
             </div>
-          </FilterSection>
-
-          {/* =====================================================
-              MINIMUM RATING
-          ====================================================== */}
-
-          <FilterSection title="Minimum Rating">
-            <ScrollableFilterRow>
-              {RATING_OPTIONS.map((option) => (
-                <button
-                  type="button"
-                  key={option.label}
-                  onClick={() =>
-                    setFilters((previous) => ({
-                      ...previous,
-                      rating: option.value,
-                    }))
-                  }
-                  className={`
-                    shrink-0
-                    whitespace-nowrap
-                    px-3
-                    py-1.5
-                    rounded-lg
-                    text-[11px]
-                    font-bold
-                    border
-                    transition-all
-                    ${
-                      filters.rating === option.value
-                        ? "bg-amber-500 border-amber-500 text-white shadow-sm shadow-amber-500/20"
-                        : "bg-slate-50 border-slate-200 text-slate-600 hover:border-amber-300 hover:text-amber-600"
-                    }
-                  `}
-                >
-                  {option.label !== "Any" && (
-                    <FaStar className="mr-0.5 inline-block text-[12px] align-middle" />
-                  )}
-
-                  {option.label}
-                </button>
-              ))}
-            </ScrollableFilterRow>
           </FilterSection>
         </div>
       </div>

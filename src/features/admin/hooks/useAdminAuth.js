@@ -49,7 +49,7 @@ export default function useAdminAuth() {
         {
           id: admin?.id ?? (accountRole === ADMIN_ROLE ? "admin" : ""),
           email: admin?.email ?? "",
-          fullName: admin?.fullName ?? (accountRole === ADMIN_ROLE ? "Admin" : "Content Creator"),
+          fullName: admin?.fullName ?? (accountRole === ADMIN_ROLE ? "Admin" : "Staff"),
           role: accountRole,
           accountType,
           roles,

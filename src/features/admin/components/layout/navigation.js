@@ -65,7 +65,7 @@ export const ADMIN_NAV_GROUPS = [
       },
       {
         to: ADMIN_PATHS.contentCreators.list,
-        label: "Staff Account Create",
+        label: "Staff Accounts",
         icon: "person_add",
         permissions: [ADMIN_PERMISSIONS.CONTENT_CREATORS_VIEW],
       },

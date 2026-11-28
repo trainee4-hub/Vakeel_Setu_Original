@@ -1,3 +1,6 @@
+// Routes
+export { default as LegalHubRoutes } from "./routes/LegalHubRoutes";
+
 // Pages
 export { default as LegalHub } from "./pages/LegalHub";
 export { default as Articles } from "./pages/Articles";

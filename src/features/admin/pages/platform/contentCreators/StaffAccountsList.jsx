@@ -244,7 +244,7 @@ export default function StaffAccountsList() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <PageHeader
           title="Staff Accounts"
-          description="Manage back-office staff accounts (Content Creators) and their assigned RBAC roles."
+          description="Manage back-office staff accounts and their assigned RBAC roles."
         />
 
         {canCreate ? (
@@ -468,7 +468,7 @@ export default function StaffAccountsList() {
                     <div className="p-3 text-xs text-slate-400">Loading active roles…</div>
                   ) : availableRoles.length === 0 ? (
                     <div className="p-3 text-xs text-slate-500 italic rounded-xl border border-slate-200">
-                      No active custom roles available. Account will use default Content Creator permissions.
+                      No active custom roles available. Account will use default CONTENT_CREATOR permissions.
                     </div>
                   ) : (
                     <div className="space-y-2">
@@ -478,7 +478,7 @@ export default function StaffAccountsList() {
                         onChange={handleRoleChange}
                         className="w-full rounded-xl border border-slate-300 p-2.5 text-sm text-slate-900 bg-white focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 shadow-sm"
                       >
-                        <option value="">Select Role (Default Content Creator)</option>
+                        <option value="">Select Role (Default: CONTENT_CREATOR)</option>
                         {availableRoles.map((role) => (
                           <option key={role.id || role.name} value={role.name}>
                             {role.displayName || role.name}
@@ -494,7 +494,7 @@ export default function StaffAccountsList() {
                         if (!selectedRoleObj) {
                           return (
                             <p className="text-xs text-slate-500">
-                              If no role is selected, the account defaults to standard Content Creator permissions.
+                              If no role is selected, the account defaults to standard CONTENT_CREATOR permissions.
                             </p>
                           );
                         }

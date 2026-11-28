@@ -13,7 +13,7 @@ import {
 import { useAuth } from "../../auth";
 import { FindLawyer, AdvocateProfile } from "../../advocate";
 
-import IpcWiki from "../components/LegalAssistant";
+import LegalAssistant from "../../legalAssistant/components/LegalAssistant";
 import UserProfile from "./UserProfile";
 import Bookings from "./Bookings";
 import MessageConsultations from "./MessageConsultations";
@@ -229,7 +229,7 @@ const UserDashboard = () => {
                 path="ipc-wiki"
                 element={
                   <main className="min-h-[calc(100vh-5rem)]">
-                    <IpcWiki
+                    <LegalAssistant
                       user={user}
                     />
                   </main>

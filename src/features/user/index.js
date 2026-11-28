@@ -1,3 +1,8 @@
+// Routes
+export { default as ClientRoutes } from "./routes/ClientRoutes";
+export { default as UserRoutes } from "./routes/ClientRoutes";
+export { USER_ROLES } from "./routes/ClientRoutes";
+
 // Pages
 export { default as UserDashboard } from "./pages/UserDashboard";
 export { default as UserProfile } from "./pages/UserProfile";

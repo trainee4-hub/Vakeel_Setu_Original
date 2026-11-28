@@ -1,25 +1,27 @@
 import { adminRequest, extractList, extractRecord, idPath } from "../../utils/adminUtils";
 
 /**
- * GET /api/admin/content-creators
+ * GET /api/admin/staff
  * Lists all staff accounts (+ roles[]).
  */
 export async function getContentCreators() {
-  const response = await adminRequest("/admin/content-creators");
-  return extractList(response, ["creators", "contentCreators", "data"]);
+  const response = await adminRequest("/admin/staff");
+  return extractList(response, ["staff", "creators", "contentCreators", "data"]);
 }
+export const getStaffAccounts = getContentCreators;
 
 /**
- * GET /api/admin/content-creators/:id
+ * GET /api/admin/staff/:id
  * Detail (+ roles[], permissions[]).
  */
 export async function getContentCreator(id) {
-  const response = await adminRequest(`/admin/content-creators/${idPath(id)}`);
-  return extractRecord(response, ["creator", "contentCreator", "data"]);
+  const response = await adminRequest(`/admin/staff/${idPath(id)}`);
+  return extractRecord(response, ["staffMember", "creator", "contentCreator", "data"]);
 }
+export const getStaffAccount = getContentCreator;
 
 /**
- * POST /api/admin/content-creators
+ * POST /api/admin/staff
  * Creates staff account with inline roles.
  * Body: { fullName, email, password, roleNames }
  */
@@ -28,7 +30,7 @@ export async function createContentCreator({ fullName, email, password, roleName
   const cleanFullName = String(fullName || "").trim();
 
   try {
-    const response = await adminRequest("/admin/content-creators", {
+    const response = await adminRequest("/admin/staff", {
       method: "POST",
       body: {
         fullName: cleanFullName,
@@ -37,7 +39,7 @@ export async function createContentCreator({ fullName, email, password, roleName
         roleNames: Array.isArray(roleNames) ? roleNames : [],
       },
     });
-    return extractRecord(response, ["creator", "contentCreator", "data"]);
+    return extractRecord(response, ["staffMember", "creator", "contentCreator", "data"]);
   } catch (error) {
     const errorMsg = error?.data?.message || error?.message || "";
     const lower = errorMsg.toLowerCase();
@@ -54,16 +56,18 @@ export async function createContentCreator({ fullName, email, password, roleName
     throw error;
   }
 }
+export const createStaffAccount = createContentCreator;
 
 /**
- * PUT /api/admin/content-creators/:id/roles
+ * PUT /api/admin/staff/:id/roles
  * Replaces the whole role set for a staff account.
  * Body: { roleNames: string[] }
  */
 export async function updateContentCreatorRoles(id, { roleNames = [] }) {
-  const response = await adminRequest(`/admin/content-creators/${idPath(id)}/roles`, {
+  const response = await adminRequest(`/admin/staff/${idPath(id)}/roles`, {
     method: "PUT",
     body: { roleNames: Array.isArray(roleNames) ? roleNames : [] },
   });
-  return extractRecord(response, ["creator", "contentCreator", "data", "roles"]);
+  return extractRecord(response, ["staffMember", "creator", "contentCreator", "data", "roles"]);
 }
+export const updateStaffAccountRoles = updateContentCreatorRoles;

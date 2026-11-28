@@ -199,7 +199,7 @@ export default function UserLocationModal({
 
         if (Array.isArray(details?.routeCoordinates) && details.routeCoordinates.length > 1) {
           const line = L.polyline(details.routeCoordinates, {
-            color: "#f59e0b",
+            color: "#2563eb",
             weight: 4,
             opacity: 0.9,
           }).addTo(map);

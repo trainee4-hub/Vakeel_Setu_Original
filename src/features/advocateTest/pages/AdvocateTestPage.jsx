@@ -1004,39 +1004,57 @@ export default function AdvocateTestPage() {
             <LanguageTranslator compact />
           </div>
           <div className="rounded-3xl border border-slate-200/90 bg-white p-6 text-center shadow-xl sm:p-10">
-            <div
-              className={`mx-auto flex h-16 w-16 items-center justify-center rounded-3xl ${
-                isPassed
-                  ? "bg-emerald-100 text-emerald-600"
-                  : "bg-rose-100 text-rose-600"
-              }`}
-            >
-              {isPassed ? (
-                <CheckCircle2 className="h-8 w-8" />
-              ) : (
-                <XCircle className="h-8 w-8" />
-              )}
-            </div>
-
-            <h2 className="mt-4 text-2xl font-black text-slate-950 sm:text-3xl">
+            <h2 className="text-2xl font-black text-slate-950 sm:text-3xl">
               {isPassed ? "You have passed the test." : "Test Completed"}
             </h2>
 
-            <p className="mt-1 text-sm font-semibold text-slate-600">
+            <p className="mt-1.5 text-sm font-semibold text-slate-600">
               {isPassed
                 ? "Congratulations! Your assessment has been verified and registered on the platform."
                 : "You did not achieve the minimum required passing score."}
             </p>
 
-            {/* Score Breakdown Badge */}
-            <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50/80 p-5">
-              <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
-                Official Examination Score
-              </span>
-              <div className="mt-2 text-2xl font-black text-slate-950">
-                {correctCount} correct · {wrongCount} wrong
+            {/* Score Breakdown with contextual Status Badge */}
+            <div
+              className={`mt-6 rounded-2xl border p-5 sm:p-6 transition-all ${
+                isPassed
+                  ? "border-emerald-200/80 bg-emerald-50/40"
+                  : "border-rose-200/80 bg-rose-50/30"
+              }`}
+            >
+              <div className="flex items-center justify-center">
+                <span
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-bold ${
+                    isPassed
+                      ? "bg-emerald-100 text-emerald-800"
+                      : "bg-rose-100 text-rose-800"
+                  }`}
+                >
+                  {isPassed ? (
+                    <>
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                      <span>Passed (Criteria Met)</span>
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="h-4 w-4 text-rose-600" />
+                      <span>Not Qualified (&lt; 15 Correct)</span>
+                    </>
+                  )}
+                </span>
               </div>
-              <p className="mt-1 text-xs text-slate-500">
+
+              <div className="mt-3 text-2xl font-black text-slate-950 sm:text-3xl">
+                <span className={isPassed ? "text-emerald-700" : "text-slate-900"}>
+                  {correctCount} correct
+                </span>
+                {" · "}
+                <span className={isPassed ? "text-slate-400" : "text-rose-600"}>
+                  {wrongCount} wrong
+                </span>
+              </div>
+
+              <p className="mt-1.5 text-xs text-slate-500 font-medium">
                 out of {totalCount} total questions (Pass Criteria: 15 correct)
               </p>
             </div>

@@ -1,3 +1,4 @@
+export { default as LegalServicesRoutes } from "./routes/LegalServicesRoutes";
 export { default as LegalServicesMegaMenu } from "./components/LegalServicesMegaMenu";
 export { default as LegalConsultationCard } from "./components/LegalConsultationCard";
 export { default as TableOfContents } from "./components/TableOfContents";

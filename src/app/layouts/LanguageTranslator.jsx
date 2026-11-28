@@ -69,7 +69,13 @@ const setGoogleTranslateCookie = (language) => {
   }
 };
 
-const LanguageTranslator = ({ mobile = false, compact = false }) => {
+const LanguageTranslator = ({
+  mobile = false,
+  compact = false,
+  dark = false,
+  fullWidth = false,
+  direction = "down",
+}) => {
   const wrapperRef = useRef(null);
 
   const [open, setOpen] = useState(false);
@@ -442,39 +448,47 @@ const LanguageTranslator = ({ mobile = false, compact = false }) => {
   return (
     <div
       ref={wrapperRef}
-      className={`notranslate relative ${compact ? "inline-block" : "hidden lg:block"}`}
+      className={`notranslate relative ${fullWidth ? "w-full" : compact ? "inline-block" : "hidden lg:block"}`}
       translate="no"
     >
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className={`flex ${compact ? "h-9 px-3 text-xs" : "h-10 px-3 text-xs"} items-center gap-2 rounded-xl border transition-all duration-200 cursor-pointer ${
+        className={`flex ${compact ? "h-9 px-3 text-xs" : "h-10 px-3.5 text-xs"} ${fullWidth ? "w-full justify-between" : ""} items-center gap-2 rounded-xl border transition-all duration-200 cursor-pointer ${
           open
-            ? "border-amber-400 bg-amber-50 text-amber-700 shadow-xs"
-            : "border-slate-200 bg-white text-slate-700 hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700"
+            ? dark
+              ? "border-amber-400 bg-amber-500/20 text-amber-300 shadow-xs"
+              : "border-amber-400 bg-amber-50 text-amber-700 shadow-xs"
+            : dark
+              ? "border-white/10 bg-white/[0.05] text-slate-300 hover:border-amber-400/40 hover:bg-white/[0.08] hover:text-white"
+              : "border-slate-200 bg-white text-slate-700 hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700"
         }`}
         aria-label="Select language"
         aria-expanded={open}
       >
-        <span className={`material-symbols-outlined ${compact ? "text-lg" : "text-xl"}`}>
-          language 
-        </span>
+        <span className="flex items-center gap-2 min-w-0">
+          <span className={`material-symbols-outlined ${compact ? "text-lg" : "text-xl"} ${dark ? "text-amber-400" : ""}`}>
+            language
+          </span>
 
-        <span className="max-w-[80px] truncate font-bold">
-          {selected.nativeName}
+          <span className={`truncate font-bold ${fullWidth ? "max-w-[140px]" : "max-w-[80px]"}`}>
+            {selected.nativeName}
+          </span>
         </span>
 
         <span
           className={`material-symbols-outlined text-base transition-transform duration-200 ${
             open ? "rotate-180" : ""
-          }`}
+          } ${dark ? "text-slate-400" : ""}`}
         >
           expand_more
         </span>
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-[300] mt-2.5 w-[300px] sm:w-[340px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/10">
+        <div
+          className={`absolute ${direction === "up" ? "bottom-full mb-2" : "top-full mt-2.5"} ${fullWidth ? "left-0" : "right-0"} z-[300] w-[280px] sm:w-[320px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/20`}
+        >
           <div className="border-b border-slate-100 p-4">
             <div className="mb-3 flex items-start gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
@@ -507,7 +521,6 @@ const LanguageTranslator = ({ mobile = false, compact = false }) => {
                   setSearch(event.target.value)
                 }
                 placeholder="Search languages..."
-                autoFocus
                 className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm text-slate-700 outline-none transition-all focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-100"
               />
             </div>

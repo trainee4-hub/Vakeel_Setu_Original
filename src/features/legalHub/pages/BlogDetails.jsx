@@ -157,10 +157,11 @@ const BlogDetails = () => {
   /* -----------------------------------------
      AUTHOR
   ----------------------------------------- */
-  const creator = blog?.creator || blog?.["content" + "Creator"];
+  const creator = blog?.staff || blog?.creator || blog?.contentCreator || blog?.["content" + "Creator"];
 
   const authorName =
     creator?.name ||
+    creator?.fullName ||
     blog.writtenBy ||
     "Vakeel Setu";
 
@@ -351,11 +352,11 @@ const BlogDetails = () => {
 
                     <div>
                       <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                        Content Creator
+                        Author
                       </p>
 
                       <p className="text-sm font-bold text-slate-800">
-                        {creator.name}
+                        {creator.name || creator.fullName}
                       </p>
 
                       {creator.bio && (
