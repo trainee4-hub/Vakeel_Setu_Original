@@ -6,7 +6,7 @@ import {
 import { useAuth } from "../../features/auth";
 import { isAdvocateUser } from "../../utils/advocateProfile";
 
-import { UserDashboard } from "../../features/user";
+import { UserDashboard } from "../../features/client";
 
 export default function DashboardEntry() {
   const location = useLocation();

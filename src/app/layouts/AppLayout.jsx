@@ -4,7 +4,7 @@ import Navbar from "./Navbar";
 import Breadcrumbs from "./Breadcrumbs";
 import Footer from "./Footer";
 import AppRoutes from "../routes/AppRoutes";
-import { FloatingConsultant } from "../../features/user";
+import { FloatingConsultant } from "../../features/client";
 import { useAuth } from "../../features/auth";
 import { isAdvocateUser } from "../../utils/advocateProfile";
 

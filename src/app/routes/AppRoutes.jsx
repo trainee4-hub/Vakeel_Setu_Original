@@ -18,7 +18,7 @@ import {
   MyPayments,
   MessageConsultations,
   ClientRoutes,
-} from "../../features/user";
+} from "../../features/client";
 
 import { FindLawyerPage } from "../../features/findLawyer";
 import { LegalAssistantPage } from "../../features/legalAssistant";
@@ -28,7 +28,7 @@ import {
   AdvocatePricing,
   AdvocateRoutes,
 } from "../../features/advocate";
-import { Help, NotFoundPage, TermsPage } from "../../features/marketing";
+import { Help, NotFoundPage, TermsPage, PrivacyPolicyPage } from "../../features/marketing";
 import ErrorBoundary from "@shared/components/feedback/ErrorBoundary";
 
 import ProtectedRoute from "./ProtectedRoute";
@@ -294,6 +294,16 @@ const AppRoutes = () => {
       <Route
         path="/terms-and-conditions"
         element={<TermsPage />}
+      />
+
+      <Route
+        path="/privacy"
+        element={<PrivacyPolicyPage />}
+      />
+
+      <Route
+        path="/privacy-policy"
+        element={<PrivacyPolicyPage />}
       />
 
       {/* ================= ADVOCATE QUALIFICATION TEST ================= */}

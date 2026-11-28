@@ -27,12 +27,14 @@ import {
 import { useAuth } from "../../features/auth";
 import { FeedbackModal } from "../../features/feedback";
 import TermsModal from "../../features/marketing/components/TermsModal";
+import PrivacyModal from "../../features/marketing/components/PrivacyModal";
 
 const Footer = () => {
   const navigate = useNavigate();
   const { isLoggedIn, user, token } = useAuth();
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
 
   const currentYear = new Date().getFullYear();
 
@@ -478,7 +480,13 @@ const Footer = () => {
           <div className="min-w-0">
             <FooterNav ariaLabel="Legal and Support">
               <FooterLink
-                label="Terms of Service"
+                label="Privacy Policy"
+                onClick={() => setIsPrivacyOpen(true)}
+                icon={FiShield}
+              />
+
+              <FooterLink
+                label="Terms & Conditions"
                 onClick={() => setIsTermsOpen(true)}
                 icon={FiCheckSquare}
               />
@@ -487,12 +495,6 @@ const Footer = () => {
                 label="Feedback to Improve Us"
                 onClick={() => setIsFeedbackOpen(true)}
                 icon={FiMessageSquare}
-              />
-
-              <FooterLink
-                label="Terms & Conditions"
-                onClick={() => setIsTermsOpen(true)}
-                icon={FiShield}
               />
             </FooterNav>
 
@@ -652,6 +654,11 @@ const Footer = () => {
       <TermsModal
         isOpen={isTermsOpen}
         onClose={() => setIsTermsOpen(false)}
+      />
+
+      <PrivacyModal
+        isOpen={isPrivacyOpen}
+        onClose={() => setIsPrivacyOpen(false)}
       />
     </footer>
   );

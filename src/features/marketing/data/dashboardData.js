@@ -100,7 +100,7 @@ export const DASHBOARD_FAQS = [
   {
     question: "How do I choose the right lawyer?",
     answer:
-      "Use our AI-powered match system or browse by category. You can filter by experience, rating, and language.",
+      "Use our AI-powered match system or browse by category. You can filter by experience, Best Practice Area, Practised Court and language.",
   },
   {
     question: "What are the fees?",

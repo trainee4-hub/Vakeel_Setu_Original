@@ -39,7 +39,7 @@ import {
   formatSlotStartEndTime,
 } from "../../../utils/advocateSlotUtils";
 import { estimateTravelMinutesFromRoadKm } from "../../../utils/distanceUtils";
-import { usePaymentStateMachine, PAYMENT_STATES } from "@/features/user/hooks/usePaymentStateMachine";
+import { usePaymentStateMachine, PAYMENT_STATES } from "@/features/client/hooks/usePaymentStateMachine";
 import { formatDurationHuman } from "@/shared/utils/formatDuration";
 import DurationStepper from "../common/DurationStepper";
 
