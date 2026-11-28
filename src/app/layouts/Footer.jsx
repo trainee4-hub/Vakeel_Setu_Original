@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   FiArrowRight,
   FiHeadphones,
@@ -31,10 +31,27 @@ import PrivacyModal from "../../features/marketing/components/PrivacyModal";
 
 const Footer = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isLoggedIn, user, token } = useAuth();
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+
+  // Auto-reopen feedback modal after login if requested
+  useEffect(() => {
+    let shouldOpen = Boolean(location.state?.openFeedbackModal);
+    try {
+      if (sessionStorage.getItem("pending_open_feedback_modal") === "true") {
+        shouldOpen = true;
+        sessionStorage.removeItem("pending_open_feedback_modal");
+      }
+    } catch {
+      // ignore
+    }
+    if (shouldOpen) {
+      setIsFeedbackOpen(true);
+    }
+  }, [location.state, location.pathname, isLoggedIn]);
 
   const currentYear = new Date().getFullYear();
 

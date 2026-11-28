@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { buildAuthRedirectUrl } from "../../../utils/redirectUtils";
 import {
   FiMessageSquare,
   FiX,
@@ -106,10 +107,17 @@ export default function FeedbackModal({
   };
 
   const handleLoginRedirect = () => {
+    try {
+      sessionStorage.setItem("pending_open_feedback_modal", "true");
+    } catch (e) {
+      console.warn("Could not save pending feedback modal state", e);
+    }
     onClose();
-    navigate("/login", {
+    const currentTarget = (location.pathname || "/") + (location.search || "");
+    navigate(buildAuthRedirectUrl("/login", currentTarget), {
       state: {
-        from: location.pathname,
+        from: currentTarget,
+        openFeedbackModal: true,
       },
     });
   };

@@ -119,6 +119,36 @@ export default function HelpRequestDetail() {
     }
   };
 
+  if (loading) {
+    return <FormSkeleton />;
+  }
+
+  if (error || !helpRequest) {
+    return (
+      <div className="space-y-6 max-w-full">
+        <PageHeader
+          back={
+            <Link
+              to={ADMIN_PATHS.help.list}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition"
+            >
+              <Icon name="arrow_back" className="text-[16px]" />
+              Back to Help Requests
+            </Link>
+          }
+          title="Help Request Details"
+          description="View citizen support request details and submit staff resolutions."
+        />
+        <ErrorState
+          title="Could not load help request"
+          message={error || "Help request not found."}
+          actionLabel="Retry"
+          onAction={loadDetail}
+        />
+      </div>
+    );
+  }
+
   const rawConcern = helpRequest.concern || "";
   const serviceMatch = rawConcern.match(/^\[(?:Service|Category):\s*([^\]]+)\]\s*\n?/i);
   const serviceTag = serviceMatch ? serviceMatch[1].trim() : null;
@@ -152,17 +182,7 @@ export default function HelpRequestDetail() {
         }
       />
 
-      {loading ? (
-        <FormSkeleton />
-      ) : error ? (
-        <ErrorState
-          title="Could not load help request"
-          message={error}
-          actionLabel="Retry"
-          onAction={loadDetail}
-        />
-      ) : !helpRequest ? null : (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 min-w-0">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 min-w-0">
           {/* Main Column: Request Overview & Concern */}
           <div className="space-y-6 lg:col-span-2 min-w-0">
             {/* Citizen Request Card */}
@@ -400,7 +420,6 @@ export default function HelpRequestDetail() {
             </Card>
           </div>
         </div>
-      )}
     </div>
   );
 }
